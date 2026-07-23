@@ -249,6 +249,7 @@ export interface QuestionAttemptRow {
   is_correct: boolean;
   mode: AttemptMode;
   answered_at: string;
+  client_attempt_id: string;
 }
 
 export interface UserQuestionProgressRow {
@@ -279,10 +280,17 @@ export interface RecordAttemptInput {
   isCorrect: boolean;
   mode: AttemptMode;
   answeredAt?: string;
+  clientAttemptId?: string;
 }
 
-// question_attempts insert payload 변환 (user_id는 어댑터에서 auth.uid로 주입)
-export function toQuestionAttemptInsert(input: RecordAttemptInput, userId: string): Omit<QuestionAttemptRow, 'id' | 'answered_at'> & { answered_at?: string } {
+// question_attempts 적재값 변환
+export function toQuestionAttemptInsert(
+  input: RecordAttemptInput,
+  userId: string,
+): Omit<QuestionAttemptRow, 'id' | 'answered_at' | 'client_attempt_id'> & {
+  answered_at?: string;
+  client_attempt_id?: string;
+} {
   return {
     user_id: userId,
     question_id: input.questionId,
@@ -292,6 +300,7 @@ export function toQuestionAttemptInsert(input: RecordAttemptInput, userId: strin
     is_correct: input.isCorrect,
     mode: input.mode,
     ...(input.answeredAt != null ? { answered_at: input.answeredAt } : {}),
+    ...(input.clientAttemptId != null ? { client_attempt_id: input.clientAttemptId } : {}),
   };
 }
 
