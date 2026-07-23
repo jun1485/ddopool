@@ -1,0 +1,17 @@
+{
+  "name": "exam-loop-db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export-content": "node scripts/export-app-content.mjs",
+    "import-content": "node scripts/import-content.mjs",
+    "verify-content": "node scripts/verify-content.mjs",
+    "admin-requests": "node scripts/admin-requests.mjs",
+    "admin-questions": "node scripts/admin-questions.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
+    "@supabase/supabase-js": "^2.49.0"
+  }
+}
