@@ -5,27 +5,40 @@ import {
   TabSlot,
   TabTriggerSlotProps,
   TabListProps,
-} from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+} from "expo-router/ui";
+import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 
-import { ExternalLink } from './external-link';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
 
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useTheme } from "@/hooks/use-theme";
 
+// 웹 상단 탭 바
 export default function AppTabs() {
+  const { bookmarkedQuestionIds } = useBookmarks();
+
   return (
     <Tabs>
-      <TabSlot style={{ height: '100%' }} />
+      <TabSlot style={{ height: "100%" }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+            <TabButton>홈</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
+          <TabTrigger name="library" href="/library" asChild>
+            <TabButton>
+              {bookmarkedQuestionIds.length > 0
+                ? `문제집 · ${bookmarkedQuestionIds.length}`
+                : "문제집"}
+            </TabButton>
+          </TabTrigger>
+          <TabTrigger name="review" href="/review" asChild>
+            <TabButton>복습</TabButton>
+          </TabTrigger>
+          <TabTrigger name="report" href="/report" asChild>
+            <TabButton>리포트</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -33,13 +46,30 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+// 탭 전환 버튼
+export function TabButton({
+  children,
+  isFocused,
+  ...props
+}: TabTriggerSlotProps) {
+  const theme = useTheme();
+
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+        style={[
+          styles.tabButtonView,
+          {
+            backgroundColor: isFocused
+              ? theme.primarySoft
+              : theme.backgroundElement,
+          },
+        ]}
+      >
+        <ThemedText
+          type="smallBold"
+          style={{ color: isFocused ? theme.primary : theme.textSecondary }}
+        >
           {children}
         </ThemedText>
       </ThemedView>
@@ -47,29 +77,27 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
   );
 }
 
+// 탭 바 컨테이너
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const { width } = useWindowDimensions();
 
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
-        </ThemedText>
+        {width >= 520 && (
+          <View style={styles.brand}>
+            <View style={styles.brandMark}>
+              <ThemedText type="smallBold" style={styles.brandMarkText}>
+                E
+              </ThemedText>
+            </View>
+            <ThemedText type="smallBold" style={styles.brandText}>
+              Exam Loop
+            </ThemedText>
+          </View>
+        )}
 
         {props.children}
-
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
       </ThemedView>
     </View>
   );
@@ -77,39 +105,56 @@ export function CustomTabList(props: TabListProps) {
 
 const styles = StyleSheet.create({
   tabListContainer: {
-    position: 'absolute',
-    width: '100%',
+    position: "absolute",
+    left: 0,
+    right: 0,
     padding: Spacing.three,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    zIndex: 10,
   },
   innerContainer: {
     paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
-    borderRadius: Spacing.five,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexGrow: 1,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.large,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flex: 1,
+    minWidth: 0,
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
+    borderWidth: 1,
+    borderColor: "rgba(127, 127, 127, 0.12)",
+    ...Shadows.card,
+  },
+  brand: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.two,
+    marginRight: "auto",
+  },
+  brandMark: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radius.small,
+    backgroundColor: "#6657E8",
+  },
+  brandMarkText: {
+    color: "#FFFFFF",
   },
   brandText: {
-    marginRight: 'auto',
+    paddingRight: Spacing.two,
   },
   pressed: {
     opacity: 0.7,
   },
   tabButtonView: {
-    paddingVertical: Spacing.one,
+    paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
-  },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
+    borderRadius: Radius.pill,
   },
 });
