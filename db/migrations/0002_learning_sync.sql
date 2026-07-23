@@ -26,6 +26,7 @@ create table public.question_attempts (
 );
 
 create index question_attempts_user_time_idx on public.question_attempts (user_id, answered_at desc);
+create index question_attempts_question_idx on public.question_attempts (question_id);
 -- #endregion
 
 -- #region 문제별 SRS 진행 상태
@@ -43,6 +44,7 @@ create table public.user_question_progress (
 );
 
 create index user_question_progress_due_idx on public.user_question_progress (user_id, due_at);
+create index user_question_progress_question_idx on public.user_question_progress (question_id);
 
 create trigger user_question_progress_set_updated_at
   before update on public.user_question_progress
@@ -56,6 +58,8 @@ create table public.user_bookmarks (
   created_at timestamptz not null default now(),
   primary key (user_id, question_id)
 );
+
+create index user_bookmarks_question_idx on public.user_bookmarks (question_id);
 -- #endregion
 
 -- #region RLS 정책 (전부 본인 데이터 한정)

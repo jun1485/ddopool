@@ -66,6 +66,15 @@ begin
   return new;
 end;
 $$;
+-- #endregion
+
+-- #region 사용자 프로필
+create table public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  nickname text,
+  role public.user_role not null default 'user',
+  created_at timestamptz not null default now()
+);
 
 -- 관리자 여부 판별
 create function public.is_admin()
@@ -80,15 +89,6 @@ as $$
     where id = auth.uid() and role = 'admin'
   );
 $$;
--- #endregion
-
--- #region 사용자 프로필
-create table public.profiles (
-  id uuid primary key references auth.users (id) on delete cascade,
-  nickname text,
-  role public.user_role not null default 'user',
-  created_at timestamptz not null default now()
-);
 
 -- 신규 auth 사용자 프로필 자동 생성
 create function public.handle_new_user()
@@ -175,7 +175,7 @@ create table public.questions (
   retired_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint questions_choices_range check (jsonb_array_length(choices) between 2 and 6),
+  constraint questions_choices_range check (jsonb_typeof(choices) = 'array' and jsonb_array_length(choices) between 2 and 6),
   constraint questions_answer_in_range check (answer_index >= 0 and answer_index < jsonb_array_length(choices))
 );
 
@@ -244,6 +244,9 @@ begin
     or new.explanation is distinct from old.explanation
     or new.subject is distinct from old.subject then
     new.version := old.version + 1;
+  else
+    -- 외부 입력 version 무시 (역행 저장 방지)
+    new.version := old.version;
   end if;
   return new;
 end;
@@ -339,11 +342,9 @@ security definer
 set search_path = public
 as $$
 begin
+  -- 델타 가감 방식 (동시 투표 시 재집계 lost update 방지)
   update public.exam_requests
-  set vote_count = (
-    select count(*) from public.exam_request_votes
-    where request_id = coalesce(new.request_id, old.request_id)
-  )
+  set vote_count = greatest(vote_count + case tg_op when 'INSERT' then 1 else -1 end, 0)
   where id = coalesce(new.request_id, old.request_id);
   return null;
 end;
@@ -419,7 +420,14 @@ begin
         'display_name', new.display_name
       )
     from public.exam_request_votes v
-    where v.request_id = new.id;
+    where v.request_id = new.id
+      -- 재공개 전이 시 중복 알림 방지
+      and not exists (
+        select 1 from public.notifications n
+        where n.user_id = v.voter_id
+          and n.type = 'exam_published'
+          and n.payload->>'request_id' = new.id::text
+      );
   end if;
   return new;
 end;
@@ -466,17 +474,31 @@ begin
   if length(v_normalized) < 2 then
     raise exception '시험명을 2자 이상 입력해 주세요';
   end if;
+  -- 입력 길이 상한 (익명 계정 남용 방어)
+  if length(p_display_name) > 100
+    or coalesce(length(p_organization), 0) > 100
+    or coalesce(length(p_grade_level), 0) > 50
+    or coalesce(length(p_exam_url), 0) > 300
+    or coalesce(length(p_note), 0) > 500 then
+    raise exception '입력 길이 제한을 초과했습니다';
+  end if;
 
   select * into v_request
   from public.exam_requests
   where normalized_name = v_normalized;
 
+  -- 동시 등록 경합 시 기존 요청에 투표 합류
   if v_request.id is null then
     insert into public.exam_requests (
       normalized_name, display_name, organization, grade_level, exam_url, note, requester_id
     )
     values (v_normalized, p_display_name, p_organization, p_grade_level, p_exam_url, p_note, auth.uid())
+    on conflict (normalized_name) do nothing
     returning * into v_request;
+
+    if v_request.id is null then
+      select * into v_request from public.exam_requests where normalized_name = v_normalized;
+    end if;
   end if;
 
   insert into public.exam_request_votes (request_id, voter_id)
@@ -484,6 +506,12 @@ begin
   on conflict do nothing;
 
   select * into v_request from public.exam_requests where id = v_request.id;
+  -- 운영 메타 비노출
+  v_request.requester_id := null;
+  v_request.admin_priority := null;
+  v_request.admin_note := null;
+  v_request.copyright_note := null;
+  v_request.target_publish_date := null;
   return v_request;
 end;
 $$;
@@ -505,6 +533,15 @@ declare
 begin
   if not public.is_admin() then
     raise exception '관리자 권한이 필요합니다';
+  end if;
+
+  -- published 전환은 시험 연결 필수 (알림 payload exam_id 보장)
+  if p_status = 'published' and p_published_exam_id is null then
+    perform 1 from public.exam_requests
+    where id = p_request_id and published_exam_id is not null;
+    if not found then
+      raise exception 'published 전환에는 published_exam_id 연결이 필요합니다';
+    end if;
   end if;
 
   update public.exam_requests
@@ -532,10 +569,20 @@ begin
 end;
 $$;
 
-revoke execute on function public.request_exam(text, text, text, text, text) from public;
-revoke execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) from public;
+revoke execute on function public.request_exam(text, text, text, text, text) from public, anon;
+revoke execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) from public, anon;
 grant execute on function public.request_exam(text, text, text, text, text) to authenticated;
 grant execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) to authenticated;
+-- #endregion
+
+-- #region 보조 인덱스 (FK cascade·역참조 조회)
+create index questions_source_idx on public.questions (source_id);
+create index content_sources_exam_idx on public.content_sources (exam_id);
+create index question_reports_question_idx on public.question_reports (question_id);
+create index question_reports_reporter_idx on public.question_reports (reporter_id);
+create index exam_requests_requester_idx on public.exam_requests (requester_id);
+create index exam_requests_published_exam_idx on public.exam_requests (published_exam_id);
+create index exam_request_votes_voter_idx on public.exam_request_votes (voter_id);
 -- #endregion
 
 -- #region RLS 정책
@@ -558,7 +605,11 @@ alter table public.audit_logs enable row level security;
 create policy profiles_select_own on public.profiles
   for select using (id = auth.uid() or public.is_admin());
 create policy profiles_update_own on public.profiles
-  for update using (id = auth.uid()) with check (id = auth.uid() and role = 'user');
+  for update using (id = auth.uid()) with check (id = auth.uid());
+
+-- role 등 민감 컬럼 클라이언트 수정 차단 (nickname만 허용)
+revoke update on public.profiles from anon, authenticated;
+grant update (nickname) on public.profiles to authenticated;
 
 -- exams: active 공개, 관리자 전체 접근
 create policy exams_public_read on public.exams
@@ -586,7 +637,11 @@ create policy content_sources_admin_write on public.content_sources
 
 -- questions: published만 공개, 관리자 전체 접근
 create policy questions_public_read on public.questions
-  for select using (status = 'published' or public.is_admin());
+  for select using (
+    (status = 'published'
+      and exists (select 1 from public.exams e where e.id = exam_id and e.status = 'active'))
+    or public.is_admin()
+  );
 create policy questions_admin_write on public.questions
   for all using (public.is_admin()) with check (public.is_admin());
 
@@ -607,6 +662,11 @@ create policy question_reports_admin_update on public.question_reports
 -- exam_requests: 공개 읽기(검색·투표수 노출), 쓰기는 RPC 전용
 create policy exam_requests_public_read on public.exam_requests for select using (true);
 
+-- 운영 메타 컬럼 비노출 (공개 컬럼만 select 허용)
+revoke select on public.exam_requests from anon, authenticated;
+grant select (id, normalized_name, display_name, organization, grade_level, exam_url, language, note, status, vote_count, published_exam_id, created_at, updated_at)
+  on public.exam_requests to anon, authenticated;
+
 -- exam_request_votes: 공개 읽기, 본인 투표 등록·취소
 create policy exam_request_votes_public_read on public.exam_request_votes for select using (true);
 create policy exam_request_votes_insert_own on public.exam_request_votes
@@ -623,6 +683,10 @@ create policy notifications_select_own on public.notifications
   for select using (user_id = auth.uid());
 create policy notifications_update_own on public.notifications
   for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- 알림 본문 변조 차단 (read_at만 갱신 허용)
+revoke update on public.notifications from anon, authenticated;
+grant update (read_at) on public.notifications to authenticated;
 
 -- audit_logs: 관리자 전용
 create policy audit_logs_admin_read on public.audit_logs
