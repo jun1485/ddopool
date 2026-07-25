@@ -3,7 +3,6 @@ import { SymbolView } from "expo-symbols";
 import { useEffect, useMemo, useState } from "react";
 import {
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -13,6 +12,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ExamRequestCard } from "@/components/exam-request-card";
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { RequestTrackingOverview } from "@/components/request-tracking-overview";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -21,8 +22,13 @@ import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useExamRequests } from "@/hooks/use-exam-requests";
 import { useTheme } from "@/hooks/use-theme";
-import { Exam } from "@/types/exam";
-import { ExamRequest } from "@/types/exam-request";
+import {
+  matchesRequestTrackingFilter,
+  summarizeRequestTracking,
+} from "@/learning/exam-request-tracking";
+import type { RequestTrackingFilter } from "@/learning/exam-request-tracking";
+import type { Exam } from "@/types/exam";
+import type { ExamRequest } from "@/types/exam-request";
 
 type CatalogTab = "search" | "mine" | "requests";
 
@@ -103,9 +109,12 @@ function CatalogTabButton({
   );
 }
 
-// 시험 학습 화면 진입
-function startExam(examId: string) {
-  router.push({ pathname: "/quiz/[examId]", params: { examId } });
+// 시험 맞춤 세션 구성 화면 진입
+function startExam(examId: string, diagnostic = false) {
+  router.push({
+    pathname: "./session-builder/[examId]",
+    params: diagnostic ? { examId, intent: "diagnostic" } : { examId },
+  });
 }
 
 // 시험 카탈로그 학습·등록 카드
@@ -207,7 +216,9 @@ function ExamCatalogCard({
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`${exam.title} 학습 시작`}
+          accessibilityLabel={`${exam.title} ${
+            enrolled ? "맞춤 학습 구성" : "빠른 진단 준비"
+          }`}
           onPress={onStart}
           style={({ pressed }) => [
             styles.startButton,
@@ -216,7 +227,7 @@ function ExamCatalogCard({
           ]}
         >
           <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
-            학습 시작
+            {enrolled ? "맞춤 학습" : "빠른 진단"}
           </ThemedText>
           <SymbolView
             tintColor={theme.onPrimary}
@@ -238,6 +249,8 @@ export default function CatalogScreen() {
   const params = useLocalSearchParams<{ tab?: CatalogTab }>();
   const [selectedTab, setSelectedTab] = useState<CatalogTab | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [requestFilter, setRequestFilter] =
+    useState<RequestTrackingFilter>("all");
   const [discoveredRequests, setDiscoveredRequests] = useState<ExamRequest[]>(
     [],
   );
@@ -248,7 +261,7 @@ export default function CatalogScreen() {
     errorMessage: catalogErrorMessage,
     reload: reloadCatalog,
   } = useExamCatalog();
-  const { examIds, toggleExam } = useExamEnrollment();
+  const { examIds, addExam, toggleExam } = useExamEnrollment();
   const {
     requests,
     isLoading: isRequestsLoading,
@@ -280,6 +293,17 @@ export default function CatalogScreen() {
     () => exams.filter((exam) => examIds.includes(exam.id)),
     [examIds, exams],
   );
+  const requestSummary = useMemo(
+    () => summarizeRequestTracking(requests),
+    [requests],
+  );
+  const trackedRequests = useMemo(
+    () =>
+      requests.filter((request) =>
+        matchesRequestTrackingFilter(request, requestFilter),
+      ),
+    [requestFilter, requests],
+  );
   const hasSearchText = searchQuery.length > 0;
   const isLoading = isCatalogLoading || isRequestsLoading;
 
@@ -290,6 +314,18 @@ export default function CatalogScreen() {
       return;
     }
     void toggleVote(requestId);
+  };
+
+  // 시험 등록 상태 기반 첫 진단·맞춤 학습 진입
+  const startCatalogExam = (examId: string, enrolled: boolean) => {
+    if (!enrolled) addExam(examId);
+    startExam(examId, !enrolled);
+  };
+
+  // 공개 시험 내 시험 추가·학습 진입
+  const startPublishedRequest = (examId: string) => {
+    addExam(examId);
+    startExam(examId, true);
   };
 
   // 검색어 기반 전체 시험 요청 조회
@@ -380,7 +416,7 @@ export default function CatalogScreen() {
             onPress={() => setSelectedTab("mine")}
           />
           <CatalogTabButton
-            label="내 요청"
+            label="관심 요청"
             selected={activeTab === "requests"}
             badgeCount={requests.length}
             onPress={() => setSelectedTab("requests")}
@@ -530,7 +566,12 @@ export default function CatalogScreen() {
                             exam={exam}
                             enrolled={examIds.includes(exam.id)}
                             onToggleEnrollment={() => toggleExam(exam.id)}
-                            onStart={() => startExam(exam.id)}
+                            onStart={() =>
+                              startCatalogExam(
+                                exam.id,
+                                examIds.includes(exam.id),
+                              )
+                            }
                           />
                         </Animated.View>
                       ))}
@@ -676,7 +717,7 @@ export default function CatalogScreen() {
                         exam={exam}
                         enrolled
                         onToggleEnrollment={() => toggleExam(exam.id)}
-                        onStart={() => startExam(exam.id)}
+                        onStart={() => startCatalogExam(exam.id, true)}
                       />
                     </Animated.View>
                   ))}
@@ -725,9 +766,9 @@ export default function CatalogScreen() {
             <>
               <View style={styles.requestTabHeader}>
                 <View>
-                  <ThemedText type="subtitle">내 시험 요청</ThemedText>
+                  <ThemedText type="subtitle">관심 시험 요청</ThemedText>
                   <ThemedText themeColor="textSecondary">
-                    요청 접수부터 문제 공개까지 한눈에 확인하세요.
+                    직접 등록하거나 공감한 요청의 진행 상황을 확인하세요.
                   </ThemedText>
                 </View>
                 <Pressable
@@ -763,25 +804,68 @@ export default function CatalogScreen() {
               )}
 
               {requests.length > 0 ? (
-                <View style={styles.requestList}>
-                  {requests.map((request, index) => (
-                    <Animated.View
-                      key={request.id}
-                      entering={FadeInDown.delay(index * 50).duration(260)}
+                <>
+                  <RequestTrackingOverview
+                    summary={requestSummary}
+                    selectedFilter={requestFilter}
+                    onSelectFilter={setRequestFilter}
+                  />
+                  {trackedRequests.length > 0 ? (
+                    <View style={styles.requestList}>
+                      {trackedRequests.map((request, index) => (
+                        <Animated.View
+                          key={request.id}
+                          entering={FadeInDown.delay(index * 50).duration(260)}
+                        >
+                          <ExamRequestCard
+                            request={request}
+                            onToggleVote={() => voteRequest(request.id)}
+                            onManage={() =>
+                              router.push({
+                                pathname: "/request/[requestId]",
+                                params: { requestId: request.id },
+                              })
+                            }
+                            onStartPublishedExam={startPublishedRequest}
+                          />
+                        </Animated.View>
+                      ))}
+                    </View>
+                  ) : (
+                    <ThemedView
+                      type="backgroundElement"
+                      style={styles.filteredEmptyCard}
                     >
-                      <ExamRequestCard
-                        request={request}
-                        onToggleVote={() => voteRequest(request.id)}
-                        onManage={() =>
-                          router.push({
-                            pathname: "/request/[requestId]",
-                            params: { requestId: request.id },
-                          })
-                        }
-                      />
-                    </Animated.View>
-                  ))}
-                </View>
+                      <ThemedText style={styles.filteredEmptyEmoji}>
+                        🧹
+                      </ThemedText>
+                      <View style={styles.filteredEmptyCopy}>
+                        <ThemedText type="smallBold">
+                          이 상태의 관심 요청이 없어요
+                        </ThemedText>
+                        <ThemedText type="small" themeColor="textSecondary">
+                          다른 상태를 선택하면 전체 진행 상황을 볼 수 있어요.
+                        </ThemedText>
+                      </View>
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() => setRequestFilter("all")}
+                        style={({ pressed }) => [
+                          styles.resetFilterButton,
+                          { backgroundColor: theme.primarySoft },
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <ThemedText
+                          type="smallBold"
+                          style={{ color: theme.primary }}
+                        >
+                          전체 보기
+                        </ThemedText>
+                      </Pressable>
+                    </ThemedView>
+                  )}
+                </>
               ) : (
                 <ThemedView type="backgroundElement" style={styles.emptyCard}>
                   <View
@@ -793,14 +877,14 @@ export default function CatalogScreen() {
                     <ThemedText style={styles.emptyEmoji}>📮</ThemedText>
                   </View>
                   <ThemedText type="smallBold">
-                    아직 요청한 시험이 없어요
+                    아직 관심 요청이 없어요
                   </ThemedText>
                   <ThemedText
                     type="small"
                     themeColor="textSecondary"
                     style={styles.emptyDescription}
                   >
-                    공부하고 싶은 시험을 알려주면 검토 목록에 쌓이고, 추가 진행
+                    공부하고 싶은 시험을 요청하거나 기존 요청에 공감하면 진행
                     상황을 여기에서 볼 수 있어요.
                   </ThemedText>
                   <Pressable
@@ -834,15 +918,18 @@ export default function CatalogScreen() {
                 <SymbolView
                   tintColor={theme.textSecondary}
                   name={{
-                    ios: "iphone",
-                    android: "smartphone",
-                    web: "smartphone",
+                    ios: isConfigured ? "person.crop.circle" : "iphone",
+                    android: isConfigured ? "account_circle" : "smartphone",
+                    web: isConfigured ? "account_circle" : "smartphone",
                   }}
                   size={18}
                 />
                 <ThemedText type="small" themeColor="textSecondary">
-                  현재 요청은 이 기기에 안전하게 저장됩니다. 계정·서버 연동 후
-                  여러 기기에서 동기화될 예정이에요.
+                  {isConfigured
+                    ? user != null
+                      ? "관심 요청과 상태 변경 알림이 연결된 계정에 동기화돼요."
+                      : "로그인하면 관심 요청과 상태 변경 알림을 여러 기기에서 확인할 수 있어요."
+                    : "현재 관심 요청은 이 기기에 안전하게 저장돼요."}
                 </ThemedText>
               </View>
             </>
@@ -1119,6 +1206,30 @@ const styles = StyleSheet.create({
   },
   requestList: {
     gap: Spacing.three,
+  },
+  filteredEmptyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Radius.medium,
+    ...Shadows.card,
+  },
+  filteredEmptyEmoji: {
+    fontSize: 25,
+    lineHeight: 32,
+  },
+  filteredEmptyCopy: {
+    minWidth: 0,
+    flex: 1,
+    gap: Spacing.half,
+  },
+  resetFilterButton: {
+    minHeight: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.medium,
   },
   emptyCard: {
     alignItems: "center",

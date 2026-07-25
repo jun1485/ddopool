@@ -8,6 +8,8 @@ const DAILY_STATS_KEY = "exam-loop:daily-stats";
 const PERFORMANCE_STATS_KEY = "exam-loop:performance-stats";
 const ATTEMPT_FINGERPRINTS_KEY = "exam-loop:attempt-fingerprints:v1";
 const MERGED_REMOTE_ATTEMPTS_KEY = "exam-loop:merged-remote-attempts:v1";
+const LAST_MERGED_ATTEMPT_AT_KEY =
+  "exam-loop:last-merged-attempt-answered-at:v1";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const ATTEMPT_HISTORY_LIMIT = 10_000;
 let statsWriteQueue: Promise<void> = Promise.resolve();
@@ -78,12 +80,15 @@ function createAttemptFingerprint(
 async function loadAttemptIdentityState(): Promise<{
   fingerprints: string[];
   remoteIds: number[];
+  lastMergedAttemptAt: string | null;
 }> {
   try {
-    const [fingerprintsRaw, remoteIdsRaw] = await AsyncStorage.multiGet([
-      ATTEMPT_FINGERPRINTS_KEY,
-      MERGED_REMOTE_ATTEMPTS_KEY,
-    ]);
+    const [fingerprintsRaw, remoteIdsRaw, lastMergedAttemptAtRaw] =
+      await AsyncStorage.multiGet([
+        ATTEMPT_FINGERPRINTS_KEY,
+        MERGED_REMOTE_ATTEMPTS_KEY,
+        LAST_MERGED_ATTEMPT_AT_KEY,
+      ]);
     return {
       fingerprints:
         fingerprintsRaw[1] == null
@@ -93,9 +98,14 @@ async function loadAttemptIdentityState(): Promise<{
         remoteIdsRaw[1] == null
           ? []
           : (JSON.parse(remoteIdsRaw[1]) as number[]),
+      lastMergedAttemptAt: lastMergedAttemptAtRaw[1],
     };
   } catch {
-    return { fingerprints: [], remoteIds: [] };
+    return {
+      fingerprints: [],
+      remoteIds: [],
+      lastMergedAttemptAt: null,
+    };
   }
 }
 
@@ -198,16 +208,10 @@ async function persistAnswer(
     createAttemptFingerprint(questionId, now),
   ].slice(-ATTEMPT_HISTORY_LIMIT);
 
-  await Promise.all([
-    AsyncStorage.setItem(DAILY_STATS_KEY, JSON.stringify(nextStats.daily)),
-    AsyncStorage.setItem(
-      PERFORMANCE_STATS_KEY,
-      JSON.stringify(nextStats.performance),
-    ),
-    AsyncStorage.setItem(
-      ATTEMPT_FINGERPRINTS_KEY,
-      JSON.stringify(fingerprints),
-    ),
+  await AsyncStorage.multiSet([
+    [DAILY_STATS_KEY, JSON.stringify(nextStats.daily)],
+    [PERFORMANCE_STATS_KEY, JSON.stringify(nextStats.performance)],
+    [ATTEMPT_FINGERPRINTS_KEY, JSON.stringify(fingerprints)],
   ]);
 }
 
@@ -225,6 +229,17 @@ export function recordAnswer(
   return statsWriteQueue;
 }
 
+// 대기 중인 학습 통계 저장 완료 대기
+export async function waitForStatsWrites(): Promise<void> {
+  await statsWriteQueue.catch(() => undefined);
+}
+
+// 마지막 서버 풀이 병합 시각 로드
+export async function loadLastMergedAttemptAt(): Promise<string | undefined> {
+  await waitForStatsWrites();
+  return (await loadAttemptIdentityState()).lastMergedAttemptAt ?? undefined;
+}
+
 // 서버 풀이 기록 로컬 통계 병합
 export async function mergeRemoteAttempts(
   attempts: QuestionAttemptRow[],
@@ -239,14 +254,20 @@ export async function mergeRemoteAttempts(
       ]);
       const knownFingerprints = new Set(identityState.fingerprints);
       const mergedRemoteIds = new Set(identityState.remoteIds);
+      let lastMergedAttemptAt = identityState.lastMergedAttemptAt;
       let nextStats: UpdatedStats = {
         daily: dailyStats,
         performance,
       };
 
       attempts.forEach((attempt) => {
-        if (mergedRemoteIds.has(attempt.id)) return;
         const answeredAt = new Date(attempt.answered_at).getTime();
+        if (
+          lastMergedAttemptAt == null ||
+          answeredAt > new Date(lastMergedAttemptAt).getTime()
+        )
+          lastMergedAttemptAt = new Date(answeredAt).toISOString();
+        if (mergedRemoteIds.has(attempt.id)) return;
         const fingerprint = createAttemptFingerprint(
           attempt.question_id,
           answeredAt,
@@ -262,7 +283,7 @@ export async function mergeRemoteAttempts(
         });
       });
 
-      await AsyncStorage.multiSet([
+      const statsEntries: [string, string][] = [
         [DAILY_STATS_KEY, JSON.stringify(nextStats.daily)],
         [PERFORMANCE_STATS_KEY, JSON.stringify(nextStats.performance)],
         [
@@ -273,7 +294,10 @@ export async function mergeRemoteAttempts(
           MERGED_REMOTE_ATTEMPTS_KEY,
           JSON.stringify([...mergedRemoteIds].slice(-ATTEMPT_HISTORY_LIMIT)),
         ],
-      ]);
+      ];
+      if (lastMergedAttemptAt != null)
+        statsEntries.push([LAST_MERGED_ATTEMPT_AT_KEY, lastMergedAttemptAt]);
+      await AsyncStorage.multiSet(statsEntries);
     });
   return statsWriteQueue;
 }
@@ -288,6 +312,7 @@ export function clearDailyStats(): Promise<void> {
         PERFORMANCE_STATS_KEY,
         ATTEMPT_FINGERPRINTS_KEY,
         MERGED_REMOTE_ATTEMPTS_KEY,
+        LAST_MERGED_ATTEMPT_AT_KEY,
       ]),
     );
   return statsWriteQueue;

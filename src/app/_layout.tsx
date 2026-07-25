@@ -13,13 +13,13 @@ import { useEffect } from "react";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
+import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
 import { ExamCatalogProvider } from "@/providers/exam-catalog-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ExamEnrollmentProvider } from "@/providers/exam-enrollment-provider";
 import { ExamRequestProvider } from "@/providers/exam-request-provider";
 import { NotificationProvider } from "@/providers/notification-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
-import { migrateLocalLearningData } from "@/sync/migrate-local-learning-data";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,20 +42,31 @@ function AppLayout() {
     if (onboardingCompleted && pathname === "/onboarding") router.replace("/");
   }, [isEnrollmentLoading, onboardingCompleted, pathname]);
 
-  // 기존 로컬 학습 기록 동기화 대기열 이관
+  // 포그라운드 학습 리마인더 표시 준비
   useEffect(() => {
-    if (!isEnrollmentLoading) void migrateLocalLearningData();
-  }, [isEnrollmentLoading]);
+    void configureStudyNotificationHandler();
+  }, []);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade_from_bottom",
+          gestureEnabled: true,
+        }}
+      >
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="catalog" />
         <Stack.Screen name="login" options={{ presentation: "modal" }} />
         <Stack.Screen name="notifications" />
+        <Stack.Screen name="progress" />
+        <Stack.Screen name="activity" />
+        <Stack.Screen name="review-library" />
+        <Stack.Screen name="study-plan-settings" />
+        <Stack.Screen name="session-builder/[examId]" />
         <Stack.Screen name="exam-request" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="question-report"

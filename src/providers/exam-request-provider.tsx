@@ -15,6 +15,10 @@ import {
 
 import { useAuth } from "@/hooks/use-auth";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import {
+  normalizeExamRequestName,
+  validateExamRequestInput,
+} from "@/learning/exam-request-validation";
 import { examRequestRepository } from "@/repositories/local-exam-request-repository";
 import { examPlatformApi } from "@/repositories/exam-platform-api";
 import { CreateExamRequestInput, ExamRequest } from "@/types/exam-request";
@@ -41,11 +45,6 @@ interface ExamRequestContextValue {
 
 const ExamRequestContext = createContext<ExamRequestContextValue | null>(null);
 
-// 시험명 비교 값 정규화
-function normalizeExamName(value: string): string {
-  return value.toLocaleLowerCase().replaceAll(/\s+/g, "");
-}
-
 // API 시험 요청 앱 정보 변환
 function toExamRequest(row: ExamRequestRow, hasVoted = true): ExamRequest {
   return {
@@ -58,6 +57,7 @@ function toExamRequest(row: ExamRequestRow, hasVoted = true): ExamRequest {
     status: row.status,
     voteCount: row.vote_count,
     hasVoted,
+    publishedExamId: row.published_exam_id,
     createdAt: new Date(row.created_at).getTime(),
     updatedAt: new Date(row.updated_at).getTime(),
   };
@@ -128,6 +128,10 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
   const createRequest = useCallback(
     async (input: CreateExamRequestInput): Promise<ExamRequest | null> => {
       setErrorMessage(null);
+      if (!validateExamRequestInput(input).isValid) {
+        setErrorMessage("입력한 시험 정보를 다시 확인해 주세요.");
+        return null;
+      }
       try {
         const requestRow = await examPlatformApi.requestExam({
           displayName: input.examName,
@@ -157,6 +161,10 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
       requestId: string,
       input: CreateExamRequestInput,
     ): Promise<boolean> => {
+      if (!validateExamRequestInput(input).isValid) {
+        setErrorMessage("입력한 시험 정보를 다시 확인해 주세요.");
+        return false;
+      }
       if (isSupabaseConfigured) {
         setErrorMessage("서버 요청 정보 수정 API 연결이 필요해요.");
         return false;
@@ -248,7 +256,7 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
   // 유사 시험 요청 조회
   const findSimilarRequests = useCallback(
     (examName: string) => {
-      const query = normalizeExamName(examName);
+      const query = normalizeExamRequestName(examName);
       if (query.length < 2) return [];
       return requests.filter((request) => {
         if (
@@ -257,7 +265,7 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
           request.status === "archived"
         )
           return false;
-        const candidate = normalizeExamName(request.examName);
+        const candidate = normalizeExamRequestName(request.examName);
         return candidate.includes(query) || query.includes(candidate);
       });
     },

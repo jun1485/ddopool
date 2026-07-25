@@ -1,6 +1,7 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useAuth } from "@/hooks/use-auth";
 import {
   loadBookmarks,
   saveBookmarks,
@@ -10,6 +11,8 @@ import { enqueueLearningSync } from "@/sync/learning-sync-outbox";
 
 // 저장 문제 상태 관리
 export function useBookmarks() {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [bookmarkedQuestionIds, setBookmarkedQuestionIds] = useState<string[]>(
     [],
   );
@@ -49,12 +52,15 @@ export function useBookmarks() {
         : [...currentQuestionIds, questionId];
       applyBookmarks(nextQuestionIds);
       void saveBookmarks(nextQuestionIds);
-      void enqueueLearningSync({
-        type: bookmarked ? "bookmark-remove" : "bookmark-add",
-        payload: { questionId },
-      });
+      void enqueueLearningSync(
+        {
+          type: bookmarked ? "bookmark-remove" : "bookmark-add",
+          payload: { questionId },
+        },
+        userId,
+      );
     },
-    [applyBookmarks],
+    [applyBookmarks, userId],
   );
 
   // 저장 문제 일괄 추가
@@ -70,13 +76,16 @@ export function useBookmarks() {
       applyBookmarks(nextQuestionIds);
       void saveBookmarks(nextQuestionIds);
       newQuestionIds.forEach((questionId) => {
-        void enqueueLearningSync({
-          type: "bookmark-add",
-          payload: { questionId },
-        });
+        void enqueueLearningSync(
+          {
+            type: "bookmark-add",
+            payload: { questionId },
+          },
+          userId,
+        );
       });
     },
-    [applyBookmarks],
+    [applyBookmarks, userId],
   );
 
   return {

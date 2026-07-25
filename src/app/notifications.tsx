@@ -2,16 +2,11 @@ import type { NotificationRow } from "../../packages/contracts/src";
 import { router, useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback } from "react";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";

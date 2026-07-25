@@ -1,15 +1,12 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { useMemo } from "react";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { ReviewForecastCard } from "@/components/review-forecast-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -20,8 +17,10 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
+import { useSettings } from "@/hooks/use-settings";
 import { useSrsSummary } from "@/hooks/use-srs-summary";
 import { useTheme } from "@/hooks/use-theme";
+import { createReviewForecast } from "@/learning/review-forecast";
 import { Exam } from "@/types/exam";
 
 // 복습 세션 진입
@@ -40,19 +39,44 @@ function startAllReviewSession() {
   });
 }
 
+// 선택 날짜 복습 예정 문항 학습 진입
+function startForecastSession(questionIds: string[], sessionSize: number) {
+  router.push({
+    pathname: "/quiz/[examId]",
+    params: {
+      examId: "all",
+      questionIds: questionIds.slice(0, sessionSize).join(","),
+    },
+  });
+}
+
 // SRS 복습 큐 화면
 export default function ReviewScreen() {
   const {
+    cards,
     dueCounts,
     studiedCounts,
     totalDue,
     totalStudied,
     upcomingCount,
     scheduledCount,
+    evaluatedAt,
     isLoading,
   } = useSrsSummary();
   const { exams } = useExamCatalog();
+  const { settings } = useSettings();
   const theme = useTheme();
+  const forecast = useMemo(
+    () => createReviewForecast(cards, evaluatedAt),
+    [cards, evaluatedAt],
+  );
+  const examLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        exams.map((exam) => [exam.id, exam.shortTitle] as const),
+      ),
+    [exams],
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -159,6 +183,17 @@ export default function ReviewScreen() {
               </ThemedText>
             </ThemedView>
           </View>
+
+          {!isLoading && totalStudied > 0 && (
+            <ReviewForecastCard
+              forecast={forecast}
+              examLabels={examLabels}
+              sessionSize={settings.sessionSize}
+              onStart={(questionIds) =>
+                startForecastSession(questionIds, settings.sessionSize)
+              }
+            />
+          )}
 
           {!isLoading && totalStudied === 0 && (
             <ThemedView type="backgroundElement" style={styles.guideCard}>

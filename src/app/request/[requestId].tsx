@@ -4,24 +4,29 @@ import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { ExamRequestStatusHistoryRow } from "../../../packages/contracts/src";
 
 import { ExamRequestCard } from "@/components/exam-request-card";
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RequestStatusTimeline } from "@/components/request-status-timeline";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useExamRequests } from "@/hooks/use-exam-requests";
 import { useTheme } from "@/hooks/use-theme";
-import { ExamRequest } from "@/types/exam-request";
+import {
+  EXAM_REQUEST_LIMITS,
+  validateExamRequestInput,
+} from "@/learning/exam-request-validation";
+import type { ExamRequest } from "@/types/exam-request";
 
 interface DetailFieldProps {
   label: string;
@@ -30,6 +35,8 @@ interface DetailFieldProps {
   editable: boolean;
   multiline?: boolean;
   keyboardType?: "default" | "url";
+  maxLength: number;
+  error?: string;
   onChangeText: (value: string) => void;
 }
 
@@ -46,6 +53,8 @@ function DetailField({
   editable,
   multiline = false,
   keyboardType = "default",
+  maxLength,
+  error,
   onChangeText,
 }: DetailFieldProps) {
   const theme = useTheme();
@@ -62,6 +71,8 @@ function DetailField({
         placeholderTextColor={theme.textSecondary}
         selectionColor={theme.primary}
         keyboardType={keyboardType}
+        maxLength={maxLength}
+        accessibilityHint={error ?? `${maxLength}자까지 입력 가능`}
         autoCapitalize={keyboardType === "url" ? "none" : "sentences"}
         multiline={multiline}
         textAlignVertical={multiline ? "top" : "center"}
@@ -74,10 +85,23 @@ function DetailField({
             backgroundColor: editable
               ? theme.backgroundElement
               : theme.backgroundSelected,
-            borderColor: theme.border,
+            borderColor: error == null ? theme.border : theme.danger,
           },
         ]}
       />
+      {editable && (
+        <View style={styles.fieldMeta}>
+          <ThemedText
+            type="small"
+            style={[styles.fieldError, { color: theme.danger }]}
+          >
+            {error ?? ""}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {value.length}/{maxLength}
+          </ThemedText>
+        </View>
+      )}
     </View>
   );
 }
@@ -98,24 +122,46 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isCancelConfirming, setIsCancelConfirming] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [validationMessage, setValidationMessage] = useState<string | null>(
+    null,
+  );
+  const [validationAttempted, setValidationAttempted] = useState(false);
+  const { addExam } = useExamEnrollment();
   const theme = useTheme();
   const editable =
     canManageRequestDetails &&
     (request.status === "requested" || request.status === "triage");
-  const canSave = organization.trim().length > 0 && !isSaving && editable;
+  const requestInput = {
+    examName: request.examName,
+    organization: organization.trim(),
+    level: level.trim(),
+    officialUrl: officialUrl.trim(),
+    reason: reason.trim(),
+  };
+  const validation = validateExamRequestInput(requestInput);
+  const canSave = !isSaving && editable;
+  const displayMessage =
+    successMessage ?? validationMessage ?? errorMessage;
+
+  // 공개 시험 내 시험 추가·학습 진입
+  const startPublishedExam = (examId: string) => {
+    addExam(examId);
+    router.push({ pathname: "/quiz/[examId]", params: { examId } });
+  };
 
   // 시험 요청 정보 저장
   const saveRequest = async () => {
     if (!canSave) return;
+    setValidationAttempted(true);
+    if (!validation.isValid) {
+      setSuccessMessage(null);
+      setValidationMessage("입력한 시험 정보를 다시 확인해 주세요.");
+      return;
+    }
     setIsSaving(true);
     setSuccessMessage(null);
-    const saved = await updateRequest(request.id, {
-      examName: request.examName,
-      organization: organization.trim(),
-      level: level.trim(),
-      officialUrl: officialUrl.trim(),
-      reason: reason.trim(),
-    });
+    setValidationMessage(null);
+    const saved = await updateRequest(request.id, requestInput);
     setIsSaving(false);
     if (saved) setSuccessMessage("보완한 정보가 저장됐어요.");
   };
@@ -162,7 +208,8 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
         <View style={styles.closeButton} />
       </View>
 
-      <ScrollView
+      <Animated.ScrollView
+        entering={FadeInDown.duration(320)}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -170,6 +217,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
         <ExamRequestCard
           request={request}
           onToggleVote={() => void toggleVote(request.id)}
+          onStartPublishedExam={startPublishedExam}
         />
         <RequestStatusTimeline status={request.status} history={history} />
 
@@ -220,38 +268,68 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
             </View>
           </View>
           <DetailField
-            label="주관 기관"
+            label="주관 기관 (선택)"
             value={organization}
-            onChangeText={setOrganization}
+            onChangeText={(value) => {
+              setOrganization(value);
+              setSuccessMessage(null);
+              setValidationMessage(null);
+            }}
             placeholder="시험 주관 기관"
             editable={editable}
+            maxLength={EXAM_REQUEST_LIMITS.organization}
+            error={
+              validationAttempted ? validation.errors.organization : undefined
+            }
           />
           <DetailField
             label="등급·과목"
             value={level}
-            onChangeText={setLevel}
+            onChangeText={(value) => {
+              setLevel(value);
+              setSuccessMessage(null);
+              setValidationMessage(null);
+            }}
             placeholder="필기, 1급, 희망 과목"
             editable={editable}
+            maxLength={EXAM_REQUEST_LIMITS.level}
+            error={
+              validationAttempted ? validation.errors.level : undefined
+            }
           />
           <DetailField
             label="공식 안내 링크"
             value={officialUrl}
-            onChangeText={setOfficialUrl}
+            onChangeText={(value) => {
+              setOfficialUrl(value);
+              setSuccessMessage(null);
+              setValidationMessage(null);
+            }}
             placeholder="https://"
             editable={editable}
             keyboardType="url"
+            maxLength={EXAM_REQUEST_LIMITS.officialUrl}
+            error={
+              validationAttempted ? validation.errors.officialUrl : undefined
+            }
           />
           <DetailField
             label="공부하려는 이유·보완 정보"
             value={reason}
-            onChangeText={setReason}
+            onChangeText={(value) => {
+              setReason(value);
+              setSuccessMessage(null);
+              setValidationMessage(null);
+            }}
             placeholder="시험 일정이나 필요한 학습 범위"
             editable={editable}
             multiline
+            maxLength={EXAM_REQUEST_LIMITS.reason}
+            error={validationAttempted ? validation.errors.reason : undefined}
           />
         </ThemedView>
 
-        {(successMessage ?? errorMessage) != null && (
+        {displayMessage != null && (
           <View
             style={[
               styles.messageBox,
@@ -279,7 +357,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
                 color: successMessage != null ? theme.success : theme.danger,
               }}
             >
-              {successMessage ?? errorMessage}
+              {displayMessage}
             </ThemedText>
           </View>
         )}
@@ -372,7 +450,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
             )}
           </>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -500,6 +578,16 @@ const styles = StyleSheet.create({
   },
   field: {
     gap: Spacing.two,
+  },
+  fieldMeta: {
+    minHeight: 18,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: Spacing.two,
+  },
+  fieldError: {
+    flex: 1,
   },
   input: {
     minHeight: 50,

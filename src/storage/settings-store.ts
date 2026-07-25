@@ -9,11 +9,17 @@ export type ThemePreference = "system" | "light" | "dark";
 export interface AppSettings {
   sessionSize: number;
   dailyGoal: number;
+  weeklyGoal: number;
   mockDurationMinutes: number;
   hapticsEnabled: boolean;
+  studyReminderEnabled: boolean;
+  studyReminderHour: number;
+  personalizedQuestionsEnabled: boolean;
   shuffleQuestionsEnabled: boolean;
   shuffleChoicesEnabled: boolean;
   explanationEnabled: boolean;
+  confidenceRatingEnabled: boolean;
+  keyboardShortcutsEnabled: boolean;
   themePreference: ThemePreference;
 }
 
@@ -26,6 +32,9 @@ export const MOCK_DURATION_OPTIONS = [5, 10, 20, 30] as const;
 // 일일 목표 선택지
 export const DAILY_GOAL_OPTIONS = [5, 10, 20, 30] as const;
 
+// 주간 목표 선택지
+export const WEEKLY_GOAL_OPTIONS = [35, 70, 140, 210] as const;
+
 // 화면 테마 선택지
 export const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
   { value: "system", label: "시스템" },
@@ -36,11 +45,17 @@ export const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
 export const DEFAULT_SETTINGS: AppSettings = {
   sessionSize: 10,
   dailyGoal: 10,
+  weeklyGoal: 70,
   mockDurationMinutes: 10,
   hapticsEnabled: true,
+  studyReminderEnabled: false,
+  studyReminderHour: 21,
+  personalizedQuestionsEnabled: true,
   shuffleQuestionsEnabled: true,
   shuffleChoicesEnabled: true,
   explanationEnabled: true,
+  confidenceRatingEnabled: true,
+  keyboardShortcutsEnabled: true,
   themePreference: "system",
 };
 

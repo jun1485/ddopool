@@ -6,8 +6,11 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from "expo-router/ui";
-import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
+import { usePathname } from "expo-router";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
@@ -18,10 +21,17 @@ import { useTheme } from "@/hooks/use-theme";
 // 웹 상단 탭 바
 export default function AppTabs() {
   const { bookmarkedQuestionIds } = useBookmarks();
+  const pathname = usePathname();
 
   return (
     <Tabs>
-      <TabSlot style={{ height: "100%" }} />
+      <Animated.View
+        key={pathname}
+        entering={FadeIn.duration(220)}
+        style={styles.tabContent}
+      >
+        <TabSlot style={styles.tabSlot} />
+      </Animated.View>
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
@@ -104,6 +114,12 @@ export function CustomTabList(props: TabListProps) {
 }
 
 const styles = StyleSheet.create({
+  tabContent: {
+    flex: 1,
+  },
+  tabSlot: {
+    height: "100%",
+  },
   tabListContainer: {
     position: "absolute",
     left: 0,

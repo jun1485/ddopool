@@ -1,12 +1,15 @@
 import { SymbolView } from "expo-symbols";
-import { Pressable, StyleSheet, View } from "react-native";
+import type { ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
-import { QuizAnswer } from "@/hooks/use-quiz-session";
+import type { QuizAnswer } from "@/hooks/use-quiz-session";
 import { useTheme } from "@/hooks/use-theme";
-import { Question } from "@/types/exam";
+import type { AnswerConfidence } from "@/learning/answer-confidence";
+import type { Question } from "@/types/exam";
 
 interface AnswerReviewCardProps {
   answer: QuizAnswer;
@@ -17,7 +20,14 @@ interface AnswerReviewCardProps {
   onToggleExpanded: () => void;
   onToggleBookmark: () => void;
   onReport: () => void;
+  noteEditor?: ReactNode;
 }
+
+const CONFIDENCE_LABELS: Record<AnswerConfidence, string> = {
+  confident: "확실",
+  unsure: "헷갈림",
+  forgot: "모름",
+};
 
 // 답안 상태별 표시 문구 산출
 function getAnswerStatus(answer: QuizAnswer): "correct" | "wrong" | "empty" {
@@ -42,6 +52,7 @@ export function AnswerReviewCard({
   onToggleExpanded,
   onToggleBookmark,
   onReport,
+  noteEditor,
 }: AnswerReviewCardProps) {
   const theme = useTheme();
   const status = getAnswerStatus(answer);
@@ -59,6 +70,22 @@ export function AnswerReviewCard({
       : status === "wrong"
         ? theme.dangerSoft
         : theme.warningSoft;
+  const confidenceColor =
+    answer.confidence === "confident"
+      ? theme.success
+      : answer.confidence === "unsure"
+        ? theme.warning
+        : theme.danger;
+  const confidenceBackground =
+    answer.confidence === "confident"
+      ? theme.successSoft
+      : answer.confidence === "unsure"
+        ? theme.warningSoft
+        : theme.dangerSoft;
+  const hasLearningNote =
+    status !== "correct" ||
+    answer.confidence === "unsure" ||
+    answer.confidence === "forgot";
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
@@ -78,12 +105,26 @@ export function AnswerReviewCard({
             {question.subject}
           </ThemedText>
         </View>
-        <View
-          style={[styles.statusBadge, { backgroundColor: statusBackground }]}
-        >
-          <ThemedText type="smallBold" style={{ color: statusColor }}>
-            {statusLabel}
-          </ThemedText>
+        <View style={styles.badgeRow}>
+          {answer.confidence != null && (
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: confidenceBackground },
+              ]}
+            >
+              <ThemedText type="smallBold" style={{ color: confidenceColor }}>
+                {CONFIDENCE_LABELS[answer.confidence]}
+              </ThemedText>
+            </View>
+          )}
+          <View
+            style={[styles.statusBadge, { backgroundColor: statusBackground }]}
+          >
+            <ThemedText type="smallBold" style={{ color: statusColor }}>
+              {statusLabel}
+            </ThemedText>
+          </View>
         </View>
       </View>
 
@@ -140,25 +181,28 @@ export function AnswerReviewCard({
       </View>
 
       {expanded && (
-        <View
-          style={[styles.explanation, { backgroundColor: theme.primarySoft }]}
-        >
-          <View style={styles.explanationTitle}>
-            <SymbolView
-              tintColor={theme.primary}
-              name={{
-                ios: "lightbulb.fill",
-                android: "lightbulb",
-                web: "lightbulb",
-              }}
-              size={17}
-            />
-            <ThemedText type="smallBold" style={{ color: theme.primary }}>
-              핵심 해설
-            </ThemedText>
+        <>
+          <View
+            style={[styles.explanation, { backgroundColor: theme.primarySoft }]}
+          >
+            <View style={styles.explanationTitle}>
+              <SymbolView
+                tintColor={theme.primary}
+                name={{
+                  ios: "lightbulb.fill",
+                  android: "lightbulb",
+                  web: "lightbulb",
+                }}
+                size={17}
+              />
+              <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                핵심 해설
+              </ThemedText>
+            </View>
+            <ThemedText type="small">{question.explanation}</ThemedText>
           </View>
-          <ThemedText type="small">{question.explanation}</ThemedText>
-        </View>
+          {hasLearningNote && noteEditor}
+        </>
       )}
 
       <View style={[styles.actions, { borderTopColor: theme.border }]}>
@@ -172,7 +216,11 @@ export function AnswerReviewCard({
           ]}
         >
           <ThemedText type="smallBold" style={{ color: theme.primary }}>
-            {expanded ? "해설 접기" : "해설 보기"}
+            {expanded
+              ? "해설 접기"
+              : !hasLearningNote
+                ? "해설 보기"
+                : "해설·학습 노트"}
           </ThemedText>
           <SymbolView
             tintColor={theme.primary}
@@ -276,6 +324,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.two,
     borderRadius: Radius.pill,
+  },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.one,
   },
   prompt: {
     fontSize: 16,

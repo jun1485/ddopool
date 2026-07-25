@@ -1,5 +1,5 @@
 import "react-native-url-polyfill/auto";
-import "expo-sqlite/localStorage/install";
+import "./install-local-storage";
 
 import { createClient, processLock } from "@supabase/supabase-js";
 import { AppState, Platform } from "react-native";

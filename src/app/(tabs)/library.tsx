@@ -3,7 +3,6 @@ import { SymbolView } from "expo-symbols";
 import { useMemo, useState } from "react";
 import {
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -12,6 +11,7 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {

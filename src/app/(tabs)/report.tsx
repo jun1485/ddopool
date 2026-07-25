@@ -1,17 +1,17 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { ExamReadinessCard } from "@/components/exam-readiness-card";
+import type { ExamReadinessItem } from "@/components/exam-readiness-card";
+import { MockExamTrendCard } from "@/components/mock-exam-trend-card";
+import { StudyTimeInsightsCard } from "@/components/study-time-insights-card";
+import { WrongAnswerSummaryCard } from "@/components/wrong-answer-summary-card";
 import {
   BottomTabInset,
   MaxContentWidth,
@@ -22,9 +22,15 @@ import {
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useDailyStats } from "@/hooks/use-daily-stats";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
+import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useLearningReport } from "@/hooks/use-learning-report";
+import { useLearningSessionHistory } from "@/hooks/use-learning-session-history";
+import { useMockExamHistory } from "@/hooks/use-mock-exam-history";
 import { useSrsSummary } from "@/hooks/use-srs-summary";
+import { useStudyTarget } from "@/hooks/use-study-target";
 import { useTheme } from "@/hooks/use-theme";
+import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
+import { calculateExamReadiness } from "@/learning/exam-readiness";
 import { AccuracyStat } from "@/storage/stats-store";
 
 // 정답률 백분율 계산
@@ -34,21 +40,61 @@ function getAccuracy(stat: AccuracyStat): number {
     : Math.round((stat.correct / stat.answered) * 100);
 }
 
-// 저장 문제 세션 진입
-function startBookmarkedSession() {
+// 복습 보관함 필터 화면 진입
+function openReviewLibrary(filter: "wrong" | "bookmarked") {
+  router.push({
+    pathname: "./review-library",
+    params: { filter },
+  });
+}
+
+// 취약 과목 맞춤 세션 진입
+function startFocusedSubjectSession(questionIds: string[]) {
   router.push({
     pathname: "/quiz/[examId]",
-    params: { examId: "all", mode: "bookmarks" },
+    params: { examId: "all", questionIds: questionIds.join(",") },
   });
+}
+
+// 시험별 일반·복습 세션 진입
+function startExamSession(examId: string, review = false) {
+  router.push({
+    pathname: "/quiz/[examId]",
+    params: { examId, mode: review ? "review" : "learn" },
+  });
+}
+
+// 시험별 모의고사 세션 진입
+function startMockExamSession(examId: string) {
+  router.push({
+    pathname: "/quiz/[examId]",
+    params: { examId, mode: "mock" },
+  });
+}
+
+// 전체 학습 활동 화면 진입
+function openLearningActivity() {
+  router.push("./activity");
 }
 
 // 누적 학습 리포트 화면
 export default function ReportScreen() {
   const { lifetime, performance } = useLearningReport();
   const { weeklyActivity, streak } = useDailyStats();
-  const { totalStudied, totalDue } = useSrsSummary();
+  const { totalStudied, totalDue, studiedCounts, matureCounts, dueCounts } =
+    useSrsSummary();
   const { bookmarkedQuestionIds } = useBookmarks();
-  const { exams, findExam } = useExamCatalog();
+  const { unresolvedNotes, resolvedNotes } = useWrongAnswerNotes();
+  const { exams, questions, findExam } = useExamCatalog();
+  const { examIds } = useExamEnrollment();
+  const { target: studyTarget } = useStudyTarget();
+  const { results: mockExamResults, isLoading: isMockExamHistoryLoading } =
+    useMockExamHistory();
+  const {
+    results: learningSessionResults,
+    evaluatedAt: sessionHistoryEvaluatedAt,
+    isLoading: isLearningSessionHistoryLoading,
+  } = useLearningSessionHistory();
   const theme = useTheme();
 
   const lifetimeAccuracy = getAccuracy(lifetime);
@@ -71,7 +117,88 @@ export default function ReportScreen() {
   const subjectPerformance = Object.values(performance.bySubject).sort(
     (left, right) => getAccuracy(left) - getAccuracy(right),
   );
-  const focusSubject = subjectPerformance[0];
+  const focusSubject =
+    subjectPerformance.find((subject) => subject.answered >= 3) ??
+    subjectPerformance[0];
+  const focusQuestionIds =
+    focusSubject == null
+      ? []
+      : questions
+          .filter(
+            (question) =>
+              question.examId === focusSubject.examId &&
+              question.subject === focusSubject.subject,
+          )
+          .map((question) => question.id);
+  const availableUnresolvedNotes = unresolvedNotes.filter((note) =>
+    questions.some((question) => question.id === note.questionId),
+  );
+  const myExams = exams.filter((exam) => examIds.includes(exam.id));
+  const mockExams = myExams.filter((exam) =>
+    questions.some((question) => question.examId === exam.id),
+  );
+  const readinessItems: ExamReadinessItem[] = myExams
+    .filter((exam) => questions.some((question) => question.examId === exam.id))
+    .map((exam) => ({
+      exam,
+      readiness: calculateExamReadiness({
+        examId: exam.id,
+        totalQuestions: questions.filter(
+          (question) => question.examId === exam.id,
+        ).length,
+        studiedQuestions: studiedCounts[exam.id] ?? 0,
+        matureQuestions: matureCounts[exam.id] ?? 0,
+        dueQuestions: dueCounts[exam.id] ?? 0,
+        performance: performance.byExam[exam.id] ?? {
+          answered: 0,
+          correct: 0,
+        },
+        unresolvedWrongAnswers: unresolvedNotes.filter(
+          (note) => note.examId === exam.id,
+        ).length,
+        streak,
+      }),
+    }));
+
+  // 준비도 최저 요인 맞춤 학습 진입
+  const startReadinessRecommendation = (item: ExamReadinessItem) => {
+    const recommendation = item.readiness.recommendation;
+    if (recommendation === "errors") {
+      const questionIds = unresolvedNotes
+        .filter((note) => note.examId === item.exam.id)
+        .map((note) => note.questionId)
+        .filter((questionId) =>
+          questions.some((question) => question.id === questionId),
+        );
+      if (questionIds.length > 0) {
+        startFocusedSubjectSession(questionIds);
+        return;
+      }
+    }
+    if (recommendation === "accuracy") {
+      const weakestSubject = Object.values(performance.bySubject)
+        .filter((subject) => subject.examId === item.exam.id)
+        .sort((left, right) => getAccuracy(left) - getAccuracy(right))[0];
+      const questionIds =
+        weakestSubject == null
+          ? []
+          : questions
+              .filter(
+                (question) =>
+                  question.examId === item.exam.id &&
+                  question.subject === weakestSubject.subject,
+              )
+              .map((question) => question.id);
+      if (questionIds.length > 0) {
+        startFocusedSubjectSession(questionIds);
+        return;
+      }
+    }
+    startExamSession(
+      item.exam.id,
+      recommendation === "retention" && (dueCounts[item.exam.id] ?? 0) > 0,
+    );
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -143,6 +270,19 @@ export default function ReportScreen() {
               </View>
             </View>
           </Animated.View>
+
+          <ExamReadinessCard
+            items={readinessItems}
+            onStartRecommendation={startReadinessRecommendation}
+          />
+
+          <MockExamTrendCard
+            exams={mockExams}
+            results={mockExamResults}
+            target={studyTarget}
+            isLoading={isMockExamHistoryLoading}
+            onStart={startMockExamSession}
+          />
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -224,13 +364,20 @@ export default function ReportScreen() {
             </ThemedView>
           </View>
 
+          <StudyTimeInsightsCard
+            results={learningSessionResults}
+            evaluatedAt={sessionHistoryEvaluatedAt}
+            isLoading={isLearningSessionHistoryLoading}
+            onOpenActivity={openLearningActivity}
+          />
+
           <Pressable
             accessibilityRole="button"
             accessibilityState={{
               disabled: bookmarkedQuestionIds.length === 0,
             }}
             disabled={bookmarkedQuestionIds.length === 0}
-            onPress={startBookmarkedSession}
+            onPress={() => openReviewLibrary("bookmarked")}
             style={({ pressed }) => pressed && styles.cardPressed}
           >
             <ThemedView
@@ -260,7 +407,7 @@ export default function ReportScreen() {
                 <ThemedText type="smallBold">저장한 문제</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {bookmarkedQuestionIds.length > 0
-                    ? `${bookmarkedQuestionIds.length}문제를 모아서 다시 풀 수 있어요`
+                    ? `${bookmarkedQuestionIds.length}문제를 골라서 다시 풀 수 있어요`
                     : "퀴즈에서 북마크를 눌러 문제를 저장해 보세요"}
                 </ThemedText>
               </View>
@@ -288,33 +435,65 @@ export default function ReportScreen() {
             </ThemedView>
           </Pressable>
 
+          <WrongAnswerSummaryCard
+            unresolvedNotes={availableUnresolvedNotes}
+            resolvedCount={resolvedNotes.length}
+            onOpen={() => openReviewLibrary("wrong")}
+          />
+
           {focusSubject != null && (
-            <ThemedView
-              style={[styles.focusCard, { backgroundColor: theme.warningSoft }]}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${focusSubject.subject} 집중 학습 시작`}
+              accessibilityState={{ disabled: focusQuestionIds.length === 0 }}
+              disabled={focusQuestionIds.length === 0}
+              onPress={() => startFocusedSubjectSession(focusQuestionIds)}
+              style={({ pressed }) => pressed && styles.cardPressed}
             >
-              <View style={styles.focusHeader}>
-                <SymbolView
-                  tintColor={theme.warning}
-                  name={{
-                    ios: "scope",
-                    android: "center_focus_strong",
-                    web: "center_focus_strong",
-                  }}
-                  size={22}
-                />
-                <ThemedText type="smallBold" style={{ color: theme.warning }}>
-                  다음 집중 추천
+              <ThemedView
+                style={[
+                  styles.focusCard,
+                  { backgroundColor: theme.warningSoft },
+                ]}
+              >
+                <View style={styles.focusHeader}>
+                  <SymbolView
+                    tintColor={theme.warning}
+                    name={{
+                      ios: "scope",
+                      android: "center_focus_strong",
+                      web: "center_focus_strong",
+                    }}
+                    size={22}
+                  />
+                  <ThemedText type="smallBold" style={{ color: theme.warning }}>
+                    다음 집중 추천
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.focusTitle}>
+                  {focusSubject.subject}
                 </ThemedText>
-              </View>
-              <ThemedText style={styles.focusTitle}>
-                {focusSubject.subject}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {findExam(focusSubject.examId)?.shortTitle ?? "시험"} ·{" "}
-                {focusSubject.answered}문제 기준 정답률{" "}
-                {getAccuracy(focusSubject)}%
-              </ThemedText>
-            </ThemedView>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {findExam(focusSubject.examId)?.shortTitle ?? "시험"} ·{" "}
+                  {focusSubject.answered}문제 기준 정답률{" "}
+                  {getAccuracy(focusSubject)}%
+                </ThemedText>
+                <View style={styles.focusAction}>
+                  <ThemedText type="smallBold" style={{ color: theme.warning }}>
+                    {focusQuestionIds.length}문제 집중 학습
+                  </ThemedText>
+                  <SymbolView
+                    tintColor={theme.warning}
+                    name={{
+                      ios: "arrow.right",
+                      android: "arrow_forward",
+                      web: "arrow_forward",
+                    }}
+                    size={17}
+                  />
+                </View>
+              </ThemedView>
+            </Pressable>
           )}
 
           <View style={styles.section}>
@@ -326,7 +505,7 @@ export default function ReportScreen() {
             </View>
 
             <View style={styles.examList}>
-              {exams.map((exam, index) => {
+              {myExams.map((exam, index) => {
                 const stat = performance.byExam[exam.id] ?? {
                   answered: 0,
                   correct: 0,
@@ -590,6 +769,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: 800,
+  },
+  focusAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: Spacing.one,
   },
   examList: {
     gap: Spacing.three,

@@ -43,7 +43,7 @@ function toExamRequestRow(request: ExamRequest): ExamRequestRow {
     note: request.reason || null,
     status: toContractStatus(request),
     vote_count: request.voteCount,
-    published_exam_id: null,
+    published_exam_id: request.publishedExamId ?? null,
     created_at: new Date(request.createdAt).toISOString(),
     updated_at: new Date(request.updatedAt).toISOString(),
   };

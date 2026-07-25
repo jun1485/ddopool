@@ -4,14 +4,14 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -178,7 +178,8 @@ export default function QuestionReportScreen() {
             <View style={styles.closeButton} />
           </View>
 
-          <ScrollView
+          <Animated.ScrollView
+            entering={FadeInDown.duration(320)}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -347,7 +348,7 @@ export default function QuestionReportScreen() {
                 </ThemedText>
               </View>
             )}
-          </ScrollView>
+          </Animated.ScrollView>
 
           <View
             style={[

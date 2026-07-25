@@ -1,18 +1,19 @@
 import { router, useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback } from "react";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { useCallback, useMemo } from "react";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { ActiveSessionCard } from "@/components/active-session-card";
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
+import { ExamPaceCard } from "@/components/exam-pace-card";
+import { LearningMomentumCard } from "@/components/learning-momentum-card";
+import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { WeeklyGoalCard } from "@/components/weekly-goal-card";
 import {
   BottomTabInset,
   MaxContentWidth,
@@ -21,17 +22,60 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useDailyStats } from "@/hooks/use-daily-stats";
+import { useAchievements } from "@/hooks/use-achievements";
+import { useActiveQuizSession } from "@/hooks/use-active-quiz-session";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useCustomSessionPresets } from "@/hooks/use-custom-session-presets";
+import { useDailyStudyPlan } from "@/hooks/use-daily-study-plan";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
+import { useLearningReport } from "@/hooks/use-learning-report";
 import { useSettings } from "@/hooks/use-settings";
 import { useSrsSummary } from "@/hooks/use-srs-summary";
+import { useStudyTarget } from "@/hooks/use-study-target";
 import { useTheme } from "@/hooks/use-theme";
 import { useNotifications } from "@/hooks/use-notifications";
-import { Exam } from "@/types/exam";
+import { calculateExamPace } from "@/learning/exam-pace";
+import { selectCustomSessionQuestions } from "@/learning/custom-session";
+import { calculateWeeklyGoalProgress } from "@/learning/weekly-goal";
+import type { ActiveQuizSession } from "@/storage/active-quiz-session-store";
+import type { StudyPlanTask } from "@/learning/daily-study-plan";
+import type { Exam } from "@/types/exam";
 
 // 학습 세션 진입
 function startLearnSession(exam: Exam) {
   router.push({ pathname: "/quiz/[examId]", params: { examId: exam.id } });
+}
+
+// 시험별 맞춤 세션 구성 화면 진입
+function openSessionBuilder(examId: string) {
+  router.push({
+    pathname: "./session-builder/[examId]",
+    params: { examId },
+  });
+}
+
+// 맞춤 플랜 문제 세션 진입
+function startStudyPlanSession(
+  questionIds: string[],
+  mode: StudyPlanTask["mode"] = "learn",
+) {
+  router.push({
+    pathname: "/quiz/[examId]",
+    params: { examId: "all", mode, questionIds: questionIds.join(",") },
+  });
+}
+
+// 저장된 학습 세션 복구 진입
+function resumeQuizSession(session: ActiveQuizSession) {
+  router.push({
+    pathname: "/quiz/[examId]",
+    params: {
+      examId: session.examId,
+      mode: session.mode,
+      resume: "true",
+    },
+  });
 }
 
 // 현재 시간대 인사말 생성
@@ -44,30 +88,168 @@ function getGreeting(hour: number): string {
 
 // 시험 선택 홈 화면
 export default function HomeScreen() {
-  const { todayStat, weeklyActivity, streak } = useDailyStats();
-  const { studiedCounts, dueCounts, totalDue, recentExamId } = useSrsSummary();
-  const { exams, selectQuestionsByExam } = useExamCatalog();
+  const { todayStat, currentWeekActivity, streak } = useDailyStats();
+  const { lifetime, performance } = useLearningReport();
+  const { studiedCounts, dueCounts, totalDue, totalStudied, recentExamId } =
+    useSrsSummary();
+  const { bookmarkedQuestionIds } = useBookmarks();
+  const {
+    exams,
+    questions,
+    selectQuestionsByExam,
+    isLoading: isCatalogLoading,
+  } = useExamCatalog();
   const { examIds } = useExamEnrollment();
   const { settings } = useSettings();
+  const {
+    presets: customSessionPresets,
+    isLoading: isCustomSessionPresetsLoading,
+  } = useCustomSessionPresets();
+  const {
+    session: activeQuizSession,
+    isLoading: isActiveSessionLoading,
+    discard: discardActiveSession,
+  } = useActiveQuizSession();
+  const {
+    target: studyTarget,
+    evaluatedAt: paceEvaluatedAt,
+    isLoading: isStudyTargetLoading,
+  } = useStudyTarget();
+  const targetExam =
+    studyTarget == null || !examIds.includes(studyTarget.examId)
+      ? null
+      : (exams.find((exam) => exam.id === studyTarget.examId) ?? null);
+  const targetQuestionCount =
+    studyTarget == null
+      ? 0
+      : questions.filter((question) => question.examId === studyTarget.examId)
+          .length;
+  const examPace =
+    studyTarget == null || targetExam == null || paceEvaluatedAt === 0
+      ? null
+      : calculateExamPace(
+          studyTarget,
+          targetQuestionCount,
+          studiedCounts[studyTarget.examId] ?? 0,
+          paceEvaluatedAt,
+        );
+  const weeklyAnswered = currentWeekActivity.reduce(
+    (sum, activity) => sum + activity.answered,
+    0,
+  );
+  const weeklyGoalProgress = calculateWeeklyGoalProgress({
+    goal: settings.weeklyGoal,
+    answered: weeklyAnswered,
+    todayAnswered: todayStat.answered,
+    elapsedDays: currentWeekActivity.filter((activity) => !activity.isFuture)
+      .length,
+  });
+  const planDailyGoal = Math.max(
+    settings.dailyGoal,
+    examPace?.dailyQuestionTarget ?? 0,
+    todayStat.answered + weeklyGoalProgress.remainingToday,
+  );
+  const planExamIds =
+    examPace != null && examPace.status !== "complete"
+      ? [examPace.examId]
+      : examIds;
+  const { plan: dailyStudyPlan, isLoading: isDailyPlanLoading } =
+    useDailyStudyPlan({
+      questions,
+      enrolledExamIds: planExamIds,
+      performance,
+      dailyGoal: planDailyGoal,
+      todayAnswered: todayStat.answered,
+      sessionSize: settings.sessionSize,
+    });
   const { unreadCount, reload: reloadNotifications } = useNotifications();
+  const achievementMetrics = useMemo(
+    () => ({
+      answered: lifetime.answered,
+      correct: lifetime.correct,
+      streak,
+      bookmarked: bookmarkedQuestionIds.length,
+      enrolled: examIds.length,
+      studied: totalStudied,
+    }),
+    [
+      bookmarkedQuestionIds.length,
+      examIds.length,
+      lifetime.answered,
+      lifetime.correct,
+      streak,
+      totalStudied,
+    ],
+  );
+  const { unlockedCount: unlockedAchievementCount } =
+    useAchievements(achievementMetrics);
   const theme = useTheme();
   const myExams = exams.filter((exam) => examIds.includes(exam.id));
   const recentExam =
     myExams.find((exam) => exam.id === recentExamId) ?? myExams[0];
+  const savedRoutinePreset = Object.values(customSessionPresets)
+    .filter((preset) => examIds.includes(preset.examId))
+    .sort((left, right) => right.updatedAt - left.updatedAt)[0];
+  const savedRoutineExam =
+    savedRoutinePreset == null
+      ? null
+      : (myExams.find((exam) => exam.id === savedRoutinePreset.examId) ?? null);
+  const activeSessionExamIds =
+    activeQuizSession == null
+      ? []
+      : [
+          ...new Set(
+            activeQuizSession.questions.map((question) => question.examId),
+          ),
+        ];
+  const activeSessionExam =
+    activeSessionExamIds.length === 1
+      ? exams.find((exam) => exam.id === activeSessionExamIds[0])
+      : null;
+  const activeSessionTitle =
+    activeSessionExam?.shortTitle ??
+    (activeSessionExamIds.length > 1
+      ? "여러 시험 맞춤 플랜"
+      : "진행 중인 학습");
   const dailyProgress = Math.min(todayStat.answered / settings.dailyGoal, 1);
   const remainingGoal = Math.max(settings.dailyGoal - todayStat.answered, 0);
-  const maxDailyAnswered = Math.max(
-    ...weeklyActivity.map((activity) => activity.answered),
-    1,
-  );
-  const weeklyAnswered = weeklyActivity.reduce(
-    (sum, activity) => sum + activity.answered,
-    0,
-  );
   const todayAccuracy =
     todayStat.answered > 0
       ? `${Math.round((todayStat.correct / todayStat.answered) * 100)}%`
       : "–";
+
+  // 주간 목표 맞춤 세션 진입
+  const startWeeklyGoalSession = () => {
+    if (dailyStudyPlan.questionIds.length > 0) {
+      startStudyPlanSession(dailyStudyPlan.questionIds);
+      return;
+    }
+    if (recentExam != null) startLearnSession(recentExam);
+  };
+
+  // 최근 저장 학습 루틴 즉시 시작
+  const startSavedRoutine = () => {
+    if (savedRoutinePreset == null || savedRoutineExam == null) return;
+    const selectedQuestions = selectCustomSessionQuestions({
+      questions: selectQuestionsByExam(savedRoutinePreset.examId),
+      selectedSubjects: savedRoutinePreset.selectedSubjects,
+      performance,
+      count: savedRoutinePreset.questionCount,
+      strategy: savedRoutinePreset.strategy,
+    });
+    if (selectedQuestions.length === 0) {
+      openSessionBuilder(savedRoutinePreset.examId);
+      return;
+    }
+    router.push({
+      pathname: "/quiz/[examId]",
+      params: {
+        examId: savedRoutinePreset.examId,
+        mode: savedRoutinePreset.mode,
+        questionIds: selectedQuestions.map((question) => question.id).join(","),
+      },
+    });
+  };
 
   // 화면 포커스 시 알림 개수 갱신
   useFocusEffect(
@@ -233,6 +415,50 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
+          {!isActiveSessionLoading && activeQuizSession != null && (
+            <Animated.View entering={FadeInDown.delay(30).duration(320)}>
+              <ActiveSessionCard
+                session={activeQuizSession}
+                title={activeSessionTitle}
+                onResume={() => resumeQuizSession(activeQuizSession)}
+                onDiscard={() => void discardActiveSession()}
+              />
+            </Animated.View>
+          )}
+
+          <Animated.View entering={FadeInDown.delay(40).duration(320)}>
+            <ExamPaceCard
+              pace={examPace}
+              exam={targetExam}
+              targetScore={studyTarget?.targetScore}
+              isLoading={isStudyTargetLoading || isCatalogLoading}
+              onPress={() => router.push("./study-plan-settings")}
+            />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(60).duration(320)}>
+            <DailyStudyPlanCard
+              plan={dailyStudyPlan}
+              isLoading={isDailyPlanLoading}
+              onStartTask={(task) =>
+                startStudyPlanSession(task.questionIds, task.mode)
+              }
+              onStartPlan={startStudyPlanSession}
+              onEmptyAction={() => router.push("/catalog")}
+              onCompletedAction={() => router.push("/report")}
+            />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(80).duration(320)}>
+            <LearningMomentumCard
+              lifetime={lifetime}
+              today={todayStat}
+              dailyGoal={settings.dailyGoal}
+              unlockedAchievementCount={unlockedAchievementCount}
+              onOpenProgress={() => router.push("./progress")}
+            />
+          </Animated.View>
+
           {recentExam != null && (
             <Pressable
               accessibilityRole="button"
@@ -293,64 +519,27 @@ export default function HomeScreen() {
             </Pressable>
           )}
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <ThemedText style={styles.sectionTitle}>
-                  이번 주 활동
-                </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  최근 7일 동안 {weeklyAnswered}문제 풀이
-                </ThemedText>
-              </View>
-              <View
-                style={[
-                  styles.streakBadge,
-                  { backgroundColor: theme.warningSoft },
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.warning }}>
-                  🔥 {streak}일
-                </ThemedText>
-              </View>
-            </View>
+          {!isCustomSessionPresetsLoading &&
+            savedRoutinePreset != null &&
+            savedRoutineExam != null && (
+              <SavedStudyRoutineCard
+                preset={savedRoutinePreset}
+                exam={savedRoutineExam}
+                onStart={startSavedRoutine}
+                onEdit={() => openSessionBuilder(savedRoutineExam.id)}
+              />
+            )}
 
-            <ThemedView type="backgroundElement" style={styles.weekCard}>
-              {weeklyActivity.map((activity) => (
-                <View key={activity.dateKey} style={styles.dayColumn}>
-                  <View style={styles.barArea}>
-                    <View
-                      style={[
-                        styles.activityBar,
-                        {
-                          height:
-                            activity.answered === 0
-                              ? Spacing.one
-                              : 12 +
-                                (activity.answered / maxDailyAnswered) * 36,
-                          backgroundColor: activity.isToday
-                            ? theme.primary
-                            : theme.primarySoft,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <ThemedText
-                    type="small"
-                    style={[
-                      styles.dayLabel,
-                      activity.isToday && {
-                        color: theme.primary,
-                        fontWeight: 700,
-                      },
-                    ]}
-                  >
-                    {activity.dayLabel}
-                  </ThemedText>
-                </View>
-              ))}
-            </ThemedView>
-          </View>
+          <WeeklyGoalCard
+            activities={currentWeekActivity}
+            progress={weeklyGoalProgress}
+            canStart={
+              dailyStudyPlan.questionIds.length > 0 || recentExam != null
+            }
+            onStart={startWeeklyGoalSession}
+            onAdjust={() => router.push("/settings")}
+            onOpenActivity={() => router.push("./activity")}
+          />
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -405,8 +594,8 @@ export default function HomeScreen() {
                     >
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`${exam.title} 학습 시작`}
-                        onPress={() => startLearnSession(exam)}
+                        accessibilityLabel={`${exam.title} 맞춤 학습 구성`}
+                        onPress={() => openSessionBuilder(exam.id)}
                         style={({ pressed }) => pressed && styles.cardPressed}
                       >
                         <ThemedView
@@ -483,6 +672,32 @@ export default function HomeScreen() {
                                   backgroundColor: accent,
                                 },
                               ]}
+                            />
+                          </View>
+                          <View style={styles.customizeHint}>
+                            <SymbolView
+                              tintColor={accent}
+                              name={{
+                                ios: "slider.horizontal.3",
+                                android: "tune",
+                                web: "tune",
+                              }}
+                              size={16}
+                            />
+                            <ThemedText
+                              type="smallBold"
+                              style={{ color: accent }}
+                            >
+                              과목·문제 수 맞춤 설정
+                            </ThemedText>
+                            <SymbolView
+                              tintColor={accent}
+                              name={{
+                                ios: "chevron.right",
+                                android: "chevron_right",
+                                web: "chevron_right",
+                              }}
+                              size={16}
                             />
                           </View>
                         </ThemedView>
@@ -737,38 +952,6 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     fontWeight: 800,
   },
-  streakBadge: {
-    paddingHorizontal: Spacing.twoHalf,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-  },
-  weekCard: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
-  },
-  dayColumn: {
-    flex: 1,
-    alignItems: "center",
-    gap: Spacing.two,
-  },
-  barArea: {
-    height: 52,
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  activityBar: {
-    width: 14,
-    minHeight: Spacing.one,
-    borderRadius: Radius.pill,
-  },
-  dayLabel: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
   examList: {
     gap: Spacing.three,
   },
@@ -839,6 +1022,12 @@ const styles = StyleSheet.create({
   cardProgressFill: {
     height: "100%",
     borderRadius: Radius.pill,
+  },
+  customizeHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: Spacing.one,
   },
   footerText: {
     textAlign: "center",

@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { useAuth } from "@/hooks/use-auth";
 import {
   ExamEnrollmentState,
   loadExamEnrollment,
@@ -44,6 +45,8 @@ function uniqueExamIds(examIds: string[]): string[] {
 
 // 내 시험 등록 상태 제공
 export function ExamEnrollmentProvider({ children }: PropsWithChildren) {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [enrollment, setEnrollment] =
     useState<ExamEnrollmentState>(INITIAL_ENROLLMENT);
   const enrollmentRef = useRef(INITIAL_ENROLLMENT);
@@ -110,9 +113,9 @@ export function ExamEnrollmentProvider({ children }: PropsWithChildren) {
         ...current,
         examIds: uniqueExamIds([...current.examIds, examId]),
       }));
-      void enqueueLearningSync({ type: "enroll", payload: { examId } });
+      void enqueueLearningSync({ type: "enroll", payload: { examId } }, userId);
     },
-    [updateEnrollment],
+    [updateEnrollment, userId],
   );
 
   // 내 시험 삭제
@@ -122,9 +125,12 @@ export function ExamEnrollmentProvider({ children }: PropsWithChildren) {
         ...current,
         examIds: current.examIds.filter((id) => id !== examId),
       }));
-      void enqueueLearningSync({ type: "unenroll", payload: { examId } });
+      void enqueueLearningSync(
+        { type: "unenroll", payload: { examId } },
+        userId,
+      );
     },
-    [updateEnrollment],
+    [updateEnrollment, userId],
   );
 
   // 내 시험 등록 전환
@@ -137,12 +143,15 @@ export function ExamEnrollmentProvider({ children }: PropsWithChildren) {
           ? current.examIds.filter((id) => id !== examId)
           : [...current.examIds, examId],
       }));
-      void enqueueLearningSync({
-        type: enrolled ? "unenroll" : "enroll",
-        payload: { examId },
-      });
+      void enqueueLearningSync(
+        {
+          type: enrolled ? "unenroll" : "enroll",
+          payload: { examId },
+        },
+        userId,
+      );
     },
-    [updateEnrollment],
+    [updateEnrollment, userId],
   );
 
   // 첫 시험 선택 완료
@@ -154,10 +163,13 @@ export function ExamEnrollmentProvider({ children }: PropsWithChildren) {
         onboardingCompleted: true,
       }));
       uniqueIds.forEach((examId) => {
-        void enqueueLearningSync({ type: "enroll", payload: { examId } });
+        void enqueueLearningSync(
+          { type: "enroll", payload: { examId } },
+          userId,
+        );
       });
     },
-    [updateEnrollment],
+    [updateEnrollment, userId],
   );
 
   const value = useMemo(

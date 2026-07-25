@@ -4,21 +4,26 @@ import { useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ExamRequestCard } from "@/components/exam-request-card";
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useExamRequests } from "@/hooks/use-exam-requests";
 import { useTheme } from "@/hooks/use-theme";
+import {
+  countExamRequestDetails,
+  EXAM_REQUEST_LIMITS,
+  validateExamRequestInput,
+} from "@/learning/exam-request-validation";
 import { ExamRequest } from "@/types/exam-request";
 
 interface FormFieldProps {
@@ -28,6 +33,8 @@ interface FormFieldProps {
   required?: boolean;
   multiline?: boolean;
   keyboardType?: "default" | "url";
+  maxLength: number;
+  error?: string;
   onChangeText: (value: string) => void;
 }
 
@@ -39,6 +46,8 @@ function FormField({
   required = false,
   multiline = false,
   keyboardType = "default",
+  maxLength,
+  error,
   onChangeText,
 }: FormFieldProps) {
   const theme = useTheme();
@@ -61,6 +70,8 @@ function FormField({
         placeholderTextColor={theme.textSecondary}
         selectionColor={theme.primary}
         keyboardType={keyboardType}
+        maxLength={maxLength}
+        accessibilityHint={error ?? `${maxLength}자까지 입력 가능`}
         autoCapitalize={keyboardType === "url" ? "none" : "sentences"}
         autoCorrect={keyboardType !== "url"}
         multiline={multiline}
@@ -71,10 +82,21 @@ function FormField({
           {
             color: theme.text,
             backgroundColor: theme.backgroundElement,
-            borderColor: theme.border,
+            borderColor: error == null ? theme.border : theme.danger,
           },
         ]}
       />
+      <View style={styles.fieldMeta}>
+        <ThemedText
+          type="small"
+          style={[styles.fieldError, { color: theme.danger }]}
+        >
+          {error ?? ""}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {value.length}/{maxLength}
+        </ThemedText>
+      </View>
     </View>
   );
 }
@@ -93,6 +115,7 @@ export default function ExamRequestScreen() {
   const [validationMessage, setValidationMessage] = useState<string | null>(
     null,
   );
+  const [validationAttempted, setValidationAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [discoveredRequestSearch, setDiscoveredRequestSearch] = useState<{
     query: string;
@@ -107,6 +130,21 @@ export default function ExamRequestScreen() {
   } = useExamRequests();
   const { user, isConfigured } = useAuth();
   const theme = useTheme();
+  const requestInput = useMemo(
+    () => ({
+      examName: examName.trim(),
+      organization: organization.trim(),
+      level: level.trim(),
+      officialUrl: officialUrl.trim(),
+      reason: reason.trim(),
+    }),
+    [examName, level, officialUrl, organization, reason],
+  );
+  const validation = useMemo(
+    () => validateExamRequestInput(requestInput),
+    [requestInput],
+  );
+  const detailCount = countExamRequestDetails(requestInput);
   const localSimilarRequests = useMemo(
     () => findSimilarRequests(examName),
     [examName, findSimilarRequests],
@@ -125,10 +163,7 @@ export default function ExamRequestScreen() {
     [discoveredRequestSearch, examName, localSimilarRequests],
   );
   const canSubmit =
-    examName.trim().length > 0 &&
-    organization.trim().length > 0 &&
-    (!isConfigured || user != null) &&
-    !isSubmitting;
+    (!isConfigured || user != null) && !isSubmitting;
   const requiresLogin = isConfigured && user == null;
 
   // 유사 시험 요청 공감 인증·처리
@@ -158,8 +193,10 @@ export default function ExamRequestScreen() {
 
   // 시험 요청 제출
   const submitRequest = async () => {
-    if (!canSubmit) {
-      setValidationMessage("시험명과 주관 기관을 입력해 주세요.");
+    if (!canSubmit) return;
+    setValidationAttempted(true);
+    if (!validation.isValid) {
+      setValidationMessage("입력한 시험 정보를 다시 확인해 주세요.");
       return;
     }
     if (similarRequests.length > 0) {
@@ -171,13 +208,7 @@ export default function ExamRequestScreen() {
 
     setValidationMessage(null);
     setIsSubmitting(true);
-    const request = await createRequest({
-      examName: examName.trim(),
-      organization: organization.trim(),
-      level: level.trim(),
-      officialUrl: officialUrl.trim(),
-      reason: reason.trim(),
-    });
+    const request = await createRequest(requestInput);
     setIsSubmitting(false);
     if (request == null) return;
     if (params.returnTo === "onboarding") {
@@ -221,7 +252,8 @@ export default function ExamRequestScreen() {
             <View style={styles.closeButton} />
           </View>
 
-          <ScrollView
+          <Animated.ScrollView
+            entering={FadeInDown.duration(320)}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -307,38 +339,115 @@ export default function ExamRequestScreen() {
                   setValidationMessage(null);
                 }}
                 placeholder="예: 정보처리기사 필기"
+                maxLength={EXAM_REQUEST_LIMITS.examName}
+                error={
+                  validationAttempted ? validation.errors.examName : undefined
+                }
               />
               <FormField
-                label="주관 기관"
-                required
+                label="주관 기관 (선택)"
                 value={organization}
                 onChangeText={(value) => {
                   setOrganization(value);
                   setValidationMessage(null);
                 }}
                 placeholder="예: 한국산업인력공단"
+                maxLength={EXAM_REQUEST_LIMITS.organization}
+                error={
+                  validationAttempted
+                    ? validation.errors.organization
+                    : undefined
+                }
               />
               <FormField
                 label="등급·과목"
                 value={level}
-                onChangeText={setLevel}
+                onChangeText={(value) => {
+                  setLevel(value);
+                  setValidationMessage(null);
+                }}
                 placeholder="예: 필기, 1급, 데이터 분석"
+                maxLength={EXAM_REQUEST_LIMITS.level}
+                error={
+                  validationAttempted ? validation.errors.level : undefined
+                }
               />
               <FormField
                 label="공식 안내 링크"
                 value={officialUrl}
-                onChangeText={setOfficialUrl}
+                onChangeText={(value) => {
+                  setOfficialUrl(value);
+                  setValidationMessage(null);
+                }}
                 placeholder="https://"
                 keyboardType="url"
+                maxLength={EXAM_REQUEST_LIMITS.officialUrl}
+                error={
+                  validationAttempted
+                    ? validation.errors.officialUrl
+                    : undefined
+                }
               />
               <FormField
                 label="공부하려는 이유"
                 value={reason}
-                onChangeText={setReason}
+                onChangeText={(value) => {
+                  setReason(value);
+                  setValidationMessage(null);
+                }}
                 placeholder="시험 일정이나 필요한 학습 범위를 알려주세요"
                 multiline
+                maxLength={EXAM_REQUEST_LIMITS.reason}
+                error={
+                  validationAttempted ? validation.errors.reason : undefined
+                }
               />
             </ThemedView>
+
+            <View
+              style={[
+                styles.qualityCard,
+                { backgroundColor: theme.primarySoft },
+              ]}
+            >
+              <View style={styles.qualityTop}>
+                <View style={styles.qualityCopy}>
+                  <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                    요청 정보 {detailCount}/4
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {detailCount === 4
+                      ? "검토에 필요한 정보가 충분해요."
+                      : "공식 정보가 많을수록 빠르게 검토할 수 있어요."}
+                  </ThemedText>
+                </View>
+                <SymbolView
+                  tintColor={theme.primary}
+                  name={{
+                    ios: detailCount === 4 ? "checkmark.seal.fill" : "doc.text",
+                    android: detailCount === 4 ? "verified" : "description",
+                    web: detailCount === 4 ? "verified" : "description",
+                  }}
+                  size={21}
+                />
+              </View>
+              <View
+                style={[
+                  styles.qualityTrack,
+                  { backgroundColor: theme.backgroundElement },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.qualityFill,
+                    {
+                      width: `${(detailCount / 4) * 100}%`,
+                      backgroundColor: theme.primary,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
 
             {similarRequests.length > 0 && (
               <View style={styles.similarSection}>
@@ -413,7 +522,7 @@ export default function ExamRequestScreen() {
                 검토에 사용돼요.
               </ThemedText>
             </View>
-          </ScrollView>
+          </Animated.ScrollView>
 
           <View
             style={[
@@ -561,6 +670,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: Spacing.one,
   },
+  fieldMeta: {
+    minHeight: 18,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: Spacing.two,
+  },
+  fieldError: {
+    flex: 1,
+  },
   input: {
     minHeight: 50,
     paddingHorizontal: Spacing.three,
@@ -573,6 +692,31 @@ const styles = StyleSheet.create({
   textarea: {
     minHeight: 112,
     paddingTop: Spacing.three,
+  },
+  qualityCard: {
+    gap: Spacing.two,
+    padding: Spacing.three,
+    borderRadius: Radius.medium,
+  },
+  qualityTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.three,
+  },
+  qualityCopy: {
+    minWidth: 0,
+    flex: 1,
+    gap: Spacing.half,
+  },
+  qualityTrack: {
+    height: 7,
+    overflow: "hidden",
+    borderRadius: Radius.pill,
+  },
+  qualityFill: {
+    height: "100%",
+    borderRadius: Radius.pill,
   },
   similarSection: {
     gap: Spacing.three,

@@ -36,6 +36,7 @@ async function create(input: CreateExamRequestInput): Promise<ExamRequest> {
     status: "requested",
     voteCount: 1,
     hasVoted: true,
+    publishedExamId: null,
     createdAt: now,
     updatedAt: now,
   };

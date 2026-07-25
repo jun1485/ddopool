@@ -23,6 +23,7 @@ export function subscribeExamEnrollment(
 // 내 시험 등록 상태 로드
 export async function loadExamEnrollment(): Promise<ExamEnrollmentState | null> {
   try {
+    await enrollmentWriteQueue.catch(() => undefined);
     const raw = await AsyncStorage.getItem(EXAM_ENROLLMENT_KEY);
     return raw == null ? null : (JSON.parse(raw) as ExamEnrollmentState);
   } catch {
@@ -38,5 +39,18 @@ export function saveExamEnrollment(state: ExamEnrollmentState): Promise<void> {
     .then(() =>
       AsyncStorage.setItem(EXAM_ENROLLMENT_KEY, JSON.stringify(state)),
     );
+  return enrollmentWriteQueue;
+}
+
+// 내 시험 등록 상태 전체 삭제
+export function clearExamEnrollment(): Promise<void> {
+  const clearedState: ExamEnrollmentState = {
+    examIds: [],
+    onboardingCompleted: false,
+  };
+  enrollmentListeners.forEach((listener) => listener(clearedState));
+  enrollmentWriteQueue = enrollmentWriteQueue
+    .catch(() => undefined)
+    .then(() => AsyncStorage.removeItem(EXAM_ENROLLMENT_KEY));
   return enrollmentWriteQueue;
 }

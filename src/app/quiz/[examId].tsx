@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -15,19 +15,30 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { DiagnosticResultCard } from "@/components/diagnostic-result-card";
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnswerReviewCard } from "@/components/quiz/answer-review-card";
 import { ChoiceButton, ChoiceState } from "@/components/quiz/choice-button";
+import { ConfidenceRating } from "@/components/quiz/confidence-rating";
+import { MockReviewPanel } from "@/components/quiz/mock-review-panel";
 import { QuizProgressBar } from "@/components/quiz/quiz-progress-bar";
+import { SessionRewardCard } from "@/components/session-reward-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { WrongAnswerNoteEditor } from "@/components/wrong-answer-note-editor";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useCountdown } from "@/hooks/use-countdown";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
+import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { QuizAnswer, useQuizSession } from "@/hooks/use-quiz-session";
+import { useSessionRewards } from "@/hooks/use-session-rewards";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
-import { QuizMode } from "@/types/exam";
+import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
+import { createDiagnosticAssessment } from "@/learning/diagnostic-assessment";
+import { calculateSessionXp } from "@/learning/progression";
+import type { QuizMode } from "@/types/exam";
 
 interface CtaButtonProps {
   label: string;
@@ -109,6 +120,18 @@ function formatRemainingTime(remainingSeconds: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+// 키보드 입력 대상 편집 상태 판별
+function isEditableKeyboardTarget(target: EventTarget | null): boolean {
+  if (
+    typeof HTMLElement === "undefined" ||
+    !(target instanceof HTMLElement)
+  )
+    return false;
+  return (
+    target.closest("input, textarea, select, [contenteditable='true']") != null
+  );
+}
+
 interface SubjectResult {
   subject: string;
   correct: number;
@@ -122,6 +145,22 @@ function startWeakAnswerSession(questionIds: string[]) {
   router.replace({
     pathname: "/quiz/[examId]",
     params: { examId: "all", questionIds: questionIds.join(",") },
+  });
+}
+
+// 진단 결과 기반 맞춤 세션 구성 화면 진입
+function openSessionBuilder(examId: string) {
+  router.replace({
+    pathname: "../../session-builder/[examId]",
+    params: { examId },
+  });
+}
+
+// 복습 보관함 화면 진입
+function openReviewLibrary() {
+  router.push({
+    pathname: "../../review-library",
+    params: { filter: "wrong" },
   });
 }
 
@@ -151,6 +190,8 @@ export default function QuizScreen() {
     examId: string;
     mode?: QuizMode;
     questionIds?: string;
+    resume?: string;
+    diagnostic?: string;
   }>();
   const quizMode: QuizMode =
     params.mode === "mock"
@@ -161,14 +202,23 @@ export default function QuizScreen() {
           ? "bookmarks"
           : "learn";
   const { findExam } = useExamCatalog();
+  const { examIds } = useExamEnrollment();
   const exam = findExam(params.examId);
   const isCustomSession = params.questionIds != null;
+  const isDiagnostic = params.diagnostic === "true";
   const { bookmarkedQuestionIds, toggleBookmark, addBookmarks } =
     useBookmarks();
   const { settings } = useSettings();
+  const {
+    notes: wrongAnswerNotes,
+    toggleTag,
+    updateNote,
+  } = useWrongAnswerNotes();
   const theme = useTheme();
   const [exitConfirming, setExitConfirming] = useState(false);
+  const [sessionPaused, setSessionPaused] = useState(false);
   const [mockExpired, setMockExpired] = useState(false);
+  const [mockReviewOpen, setMockReviewOpen] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 
@@ -179,15 +229,37 @@ export default function QuizScreen() {
     currentIndex,
     selectedIndex,
     isSubmitted,
+    answerConfidence,
     isLastQuestion,
     correctCount,
     answers,
+    flaggedQuestionIds,
     selectChoice,
     submitAnswer,
+    rateConfidence,
+    goToQuestion,
+    toggleQuestionFlag,
     goNext,
     finishMockSession,
     restartWrongAnswers,
-  } = useQuizSession(params.examId, quizMode, params.questionIds);
+  } = useQuizSession(
+    params.examId,
+    quizMode,
+    params.questionIds,
+    params.resume === "true",
+    quizMode !== "mock" && (sessionPaused || exitConfirming),
+  );
+  const sessionAnsweredCount = answers.filter(
+    (answer) => answer.selectedIndex != null,
+  ).length;
+  const earnedXp = calculateSessionXp(correctCount, sessionAnsweredCount);
+  const { rewards, isLoading: isRewardsLoading } = useSessionRewards({
+    finished: status === "finished",
+    correctCount,
+    answeredCount: sessionAnsweredCount,
+    dailyGoal: settings.dailyGoal,
+    enrolledExamCount: examIds.length,
+  });
 
   // 모의고사 제한 시간 종료
   const handleMockExpire = useCallback(() => {
@@ -200,11 +272,126 @@ export default function QuizScreen() {
     handleMockExpire,
   );
 
+  // 현재 답안 저장 후 모의고사 검토 열기
+  const openMockReview = useCallback(() => {
+    goToQuestion(currentIndex);
+    setMockReviewOpen(true);
+  }, [currentIndex, goToQuestion]);
+
+  // 모의고사 검토 문항 선택 이동
+  const selectMockReviewQuestion = (questionIndex: number) => {
+    goToQuestion(questionIndex);
+    setMockReviewOpen(false);
+  };
+
+  // 모의고사 검토 답안 최종 제출
+  const submitMockReview = () => {
+    setMockReviewOpen(false);
+    finishMockSession();
+  };
+
   // 답안 리뷰 필터 전환
   const selectReviewFilter = (filter: ReviewFilter) => {
     setReviewFilter(filter);
     setExpandedReviewId(null);
   };
+
+  // 웹 문제 풀이 키보드 단축키 처리
+  useEffect(() => {
+    if (
+      Platform.OS !== "web" ||
+      !settings.keyboardShortcutsEnabled ||
+      status !== "in-progress" ||
+      currentQuestion == null
+    )
+      return;
+
+    // 퀴즈 상태별 키보드 동작 실행
+    const handleKeyboardShortcut = (event: KeyboardEvent) => {
+      if (
+        event.repeat ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        isEditableKeyboardTarget(event.target)
+      )
+        return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (mockReviewOpen) setMockReviewOpen(false);
+        else if (exitConfirming) setExitConfirming(false);
+        else if (sessionPaused) setSessionPaused(false);
+        else setExitConfirming(true);
+        return;
+      }
+      if (sessionPaused || exitConfirming || mockReviewOpen) return;
+
+      if (/^[1-9]$/.test(event.key) && !isSubmitted) {
+        const choiceIndex = Number(event.key) - 1;
+        if (choiceIndex >= currentQuestion.choices.length) return;
+        event.preventDefault();
+        selectChoice(choiceIndex);
+        return;
+      }
+
+      const shortcutKey = event.key.toLowerCase();
+      if (shortcutKey === "b") {
+        event.preventDefault();
+        toggleBookmark(currentQuestion.id);
+        return;
+      }
+      if (shortcutKey === "f" && quizMode === "mock") {
+        event.preventDefault();
+        toggleQuestionFlag();
+        return;
+      }
+      if (event.key !== "Enter") return;
+
+      if (quizMode === "mock") {
+        if (selectedIndex == null) return;
+        event.preventDefault();
+        if (isLastQuestion) openMockReview();
+        else goNext();
+        return;
+      }
+      if (!isSubmitted) {
+        if (selectedIndex == null) return;
+        event.preventDefault();
+        submitAnswer();
+        return;
+      }
+      if (
+        settings.confidenceRatingEnabled &&
+        answerConfidence == null
+      )
+        return;
+      event.preventDefault();
+      goNext();
+    };
+
+    window.addEventListener("keydown", handleKeyboardShortcut);
+    return () => window.removeEventListener("keydown", handleKeyboardShortcut);
+  }, [
+    answerConfidence,
+    currentQuestion,
+    exitConfirming,
+    goNext,
+    isLastQuestion,
+    isSubmitted,
+    mockReviewOpen,
+    openMockReview,
+    quizMode,
+    selectChoice,
+    selectedIndex,
+    sessionPaused,
+    settings.confidenceRatingEnabled,
+    settings.keyboardShortcutsEnabled,
+    status,
+    submitAnswer,
+    toggleBookmark,
+    toggleQuestionFlag,
+  ]);
 
   if (status === "loading") {
     return (
@@ -266,6 +453,11 @@ export default function QuizScreen() {
     });
     const accuracy = Math.round((correctCount / questions.length) * 100);
     const subjectResults = summarizeBySubject(answers);
+    const diagnosticAssessment = createDiagnosticAssessment(
+      correctCount,
+      questions.length,
+      subjectResults,
+    );
 
     return (
       <ThemedView style={styles.container}>
@@ -289,26 +481,30 @@ export default function QuizScreen() {
                 </ThemedText>
               </View>
               <ThemedText type="subtitle">
-                {quizMode === "mock"
-                  ? mockExpired
-                    ? "시간 종료!"
-                    : "모의고사 완료!"
-                  : quizMode === "review"
-                    ? "복습 완료!"
-                    : quizMode === "bookmarks"
-                      ? "저장 문제 학습 완료!"
-                      : isCustomSession
-                        ? "맞춤 학습 완료!"
-                        : "학습 완료!"}
+                {isDiagnostic
+                  ? "빠른 진단 완료!"
+                  : quizMode === "mock"
+                    ? mockExpired
+                      ? "시간 종료!"
+                      : "모의고사 완료!"
+                    : quizMode === "review"
+                      ? "복습 완료!"
+                      : quizMode === "bookmarks"
+                        ? "저장 문제 학습 완료!"
+                        : isCustomSession
+                          ? "맞춤 학습 완료!"
+                          : "학습 완료!"}
               </ThemedText>
               <ThemedText
                 type="small"
                 themeColor="textSecondary"
                 style={styles.centerText}
               >
-                {quizMode === "mock" && mockExpired
-                  ? "제한 시간이 끝나 답안을 자동으로 제출했어요."
-                  : getResultMessage(correctCount, questions.length)}
+                {isDiagnostic
+                  ? "현재 수준과 먼저 학습할 과목을 찾았어요."
+                  : quizMode === "mock" && mockExpired
+                    ? "제한 시간이 끝나 답안을 자동으로 제출했어요."
+                    : getResultMessage(correctCount, questions.length)}
               </ThemedText>
             </Animated.View>
 
@@ -400,9 +596,44 @@ export default function QuizScreen() {
                     </ThemedText>
                     <ThemedText type="smallBold">{questions.length}</ThemedText>
                   </View>
+                  <View style={styles.scoreRow}>
+                    <View
+                      style={[
+                        styles.scoreDot,
+                        { backgroundColor: theme.warning },
+                      ]}
+                    />
+                    <ThemedText
+                      type="small"
+                      themeColor="textSecondary"
+                      style={styles.scoreLabel}
+                    >
+                      획득 경험치
+                    </ThemedText>
+                    <ThemedText
+                      type="smallBold"
+                      style={{ color: theme.warning }}
+                    >
+                      +{earnedXp} XP
+                    </ThemedText>
+                  </View>
                 </View>
               </ThemedView>
             </Animated.View>
+
+            {isDiagnostic && (
+              <DiagnosticResultCard
+                assessment={diagnosticAssessment}
+                onStartPlan={() => openSessionBuilder(params.examId)}
+              />
+            )}
+
+            <SessionRewardCard
+              earnedXp={earnedXp}
+              rewards={rewards}
+              isLoading={isRewardsLoading}
+              onOpenProgress={() => router.push("../../progress")}
+            />
 
             {subjectResults.length > 0 && (
               <Animated.View
@@ -498,9 +729,11 @@ export default function QuizScreen() {
               {wrongCount > 0 && (
                 <CtaButton
                   label={
-                    quizMode === "mock"
-                      ? `취약 ${wrongCount}문제 바로 복습`
-                      : `오답 ${wrongCount}문제 다시 풀기`
+                    isDiagnostic
+                      ? `진단 오답 ${wrongCount}문제 학습`
+                      : quizMode === "mock"
+                        ? `취약 ${wrongCount}문제 바로 복습`
+                        : `오답 ${wrongCount}문제 다시 풀기`
                   }
                   variant="secondary"
                   onPress={
@@ -508,6 +741,13 @@ export default function QuizScreen() {
                       ? () => startWeakAnswerSession(weakQuestionIds)
                       : restartWrongAnswers
                   }
+                />
+              )}
+              {weakQuestionIds.length > 0 && (
+                <CtaButton
+                  label="복습 보관함에서 정리"
+                  variant="secondary"
+                  onPress={openReviewLibrary}
                 />
               )}
               <CtaButton label="돌아가기" onPress={() => router.back()} />
@@ -667,6 +907,7 @@ export default function QuizScreen() {
                     (item) => item.id === answer.questionId,
                   );
                   if (question == null) return null;
+                  const wrongAnswerNote = wrongAnswerNotes[answer.questionId];
                   return (
                     <AnswerReviewCard
                       key={answer.questionId}
@@ -679,6 +920,21 @@ export default function QuizScreen() {
                       bookmarked={bookmarkedQuestionIds.includes(
                         answer.questionId,
                       )}
+                      noteEditor={
+                        wrongAnswerNote == null ? undefined : (
+                          <WrongAnswerNoteEditor
+                            note={wrongAnswerNote}
+                            onToggleTag={(tag) =>
+                              void toggleTag(answer.questionId, tag)
+                            }
+                            onSaveMemo={(memo) =>
+                              void updateNote(answer.questionId, {
+                                memo,
+                              })
+                            }
+                          />
+                        )
+                      }
                       onToggleExpanded={() =>
                         setExpandedReviewId((current) =>
                           current === answer.questionId
@@ -707,9 +963,19 @@ export default function QuizScreen() {
   if (currentQuestion == null) return null;
 
   const isCorrectAnswer = selectedIndex === currentQuestion.answerIndex;
+  const mockAnsweredQuestionIds = new Set(
+    answers
+      .filter((answer) => answer.selectedIndex != null)
+      .map((answer) => answer.questionId),
+  );
+  if (quizMode === "mock" && selectedIndex != null)
+    mockAnsweredQuestionIds.add(currentQuestion.id);
   const answeredCount =
-    quizMode === "mock" ? currentIndex : currentIndex + (isSubmitted ? 1 : 0);
+    quizMode === "mock"
+      ? mockAnsweredQuestionIds.size
+      : currentIndex + (isSubmitted ? 1 : 0);
   const isBookmarked = bookmarkedQuestionIds.includes(currentQuestion.id);
+  const isQuestionFlagged = flaggedQuestionIds.includes(currentQuestion.id);
 
   return (
     <ThemedView style={styles.container}>
@@ -734,40 +1000,111 @@ export default function QuizScreen() {
             />
           </Pressable>
           <QuizProgressBar progress={answeredCount / questions.length} />
-          {quizMode === "mock" && (
-            <View
-              style={[
-                styles.timerBadge,
-                {
-                  backgroundColor:
-                    remainingSeconds <= 60
-                      ? theme.dangerSoft
-                      : theme.backgroundElement,
-                },
+          {quizMode !== "mock" && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="학습 일시정지"
+              onPress={() => setSessionPaused(true)}
+              style={({ pressed }) => [
+                styles.pauseButton,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
               ]}
             >
               <SymbolView
-                tintColor={
-                  remainingSeconds <= 60 ? theme.danger : theme.textSecondary
-                }
-                name={{ ios: "timer", android: "timer", web: "timer" }}
-                size={15}
+                tintColor={theme.textSecondary}
+                name={{ ios: "pause.fill", android: "pause", web: "pause" }}
+                size={17}
               />
-              <ThemedText
-                type="smallBold"
-                style={{
-                  color:
-                    remainingSeconds <= 60 ? theme.danger : theme.textSecondary,
-                }}
+            </Pressable>
+          )}
+          {quizMode === "mock" && (
+            <>
+              <View
+                style={[
+                  styles.timerBadge,
+                  {
+                    backgroundColor:
+                      remainingSeconds <= 60
+                        ? theme.dangerSoft
+                        : theme.backgroundElement,
+                  },
+                ]}
               >
-                {formatRemainingTime(remainingSeconds)}
-              </ThemedText>
-            </View>
+                <SymbolView
+                  tintColor={
+                    remainingSeconds <= 60 ? theme.danger : theme.textSecondary
+                  }
+                  name={{ ios: "timer", android: "timer", web: "timer" }}
+                  size={15}
+                />
+                <ThemedText
+                  type="smallBold"
+                  style={{
+                    color:
+                      remainingSeconds <= 60
+                        ? theme.danger
+                        : theme.textSecondary,
+                  }}
+                >
+                  {formatRemainingTime(remainingSeconds)}
+                </ThemedText>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`답안 검토 열기, ${answeredCount}문제 응답, 다시 보기 ${flaggedQuestionIds.length}문제`}
+                onPress={openMockReview}
+                style={({ pressed }) => [
+                  styles.mockReviewButton,
+                  {
+                    backgroundColor:
+                      flaggedQuestionIds.length > 0
+                        ? theme.warningSoft
+                        : theme.backgroundElement,
+                  },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <SymbolView
+                  tintColor={
+                    flaggedQuestionIds.length > 0
+                      ? theme.warning
+                      : theme.textSecondary
+                  }
+                  name={{
+                    ios: "square.grid.3x3.fill",
+                    android: "grid_view",
+                    web: "grid_view",
+                  }}
+                  size={16}
+                />
+              </Pressable>
+            </>
           )}
           <ThemedText type="smallBold" themeColor="textSecondary">
             {currentIndex + 1}/{questions.length}
           </ThemedText>
         </View>
+
+        {Platform.OS === "web" && settings.keyboardShortcutsEnabled && (
+          <View
+            accessibilityLabel={`키보드 단축키, 1부터 ${Math.min(currentQuestion.choices.length, 9)}까지 보기 선택, Enter 진행, B 저장${quizMode === "mock" ? ", F 다시 보기 표시" : ""}, Escape 닫기`}
+            style={[
+              styles.shortcutHint,
+              { backgroundColor: theme.backgroundSelected },
+            ]}
+          >
+            <SymbolView
+              tintColor={theme.textSecondary}
+              name={{ ios: "keyboard", android: "keyboard", web: "keyboard" }}
+              size={15}
+            />
+            <ThemedText type="small" themeColor="textSecondary">
+              1–{Math.min(currentQuestion.choices.length, 9)} 선택 · Enter 진행 ·
+              B 저장{quizMode === "mock" ? " · F 표시" : ""} · Esc 닫기
+            </ThemedText>
+          </View>
+        )}
 
         <ScrollView
           contentContainerStyle={styles.content}
@@ -795,41 +1132,86 @@ export default function QuizScreen() {
                     · {currentQuestion.subject}
                   </ThemedText>
                 </ThemedView>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    isBookmarked ? "저장 문제에서 제거" : "다시 볼 문제로 저장"
-                  }
-                  accessibilityState={{ selected: isBookmarked }}
-                  onPress={() => toggleBookmark(currentQuestion.id)}
-                  hitSlop={Spacing.two}
-                  style={({ pressed }) => [
-                    styles.bookmarkButton,
-                    {
-                      backgroundColor: isBookmarked
-                        ? theme.primarySoft
-                        : theme.backgroundElement,
-                      borderColor: isBookmarked ? theme.primary : theme.border,
-                    },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={
-                      isBookmarked ? theme.primary : theme.textSecondary
+                <View style={styles.questionTools}>
+                  {quizMode === "mock" && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={
+                        isQuestionFlagged
+                          ? "현재 문항 다시 보기 표시 해제"
+                          : "현재 문항 다시 보기 표시"
+                      }
+                      accessibilityState={{ selected: isQuestionFlagged }}
+                      onPress={toggleQuestionFlag}
+                      hitSlop={Spacing.two}
+                      style={({ pressed }) => [
+                        styles.bookmarkButton,
+                        {
+                          backgroundColor: isQuestionFlagged
+                            ? theme.warningSoft
+                            : theme.backgroundElement,
+                          borderColor: isQuestionFlagged
+                            ? theme.warning
+                            : theme.border,
+                        },
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <SymbolView
+                        tintColor={
+                          isQuestionFlagged
+                            ? theme.warning
+                            : theme.textSecondary
+                        }
+                        name={{
+                          ios: isQuestionFlagged ? "flag.fill" : "flag",
+                          android: isQuestionFlagged ? "flag" : "outlined_flag",
+                          web: isQuestionFlagged ? "flag" : "outlined_flag",
+                        }}
+                        size={18}
+                      />
+                    </Pressable>
+                  )}
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      isBookmarked
+                        ? "저장 문제에서 제거"
+                        : "다시 볼 문제로 저장"
                     }
-                    name={{
-                      ios: isBookmarked ? "bookmark.fill" : "bookmark",
-                      android: isBookmarked ? "bookmark" : "bookmark_border",
-                      web: isBookmarked ? "bookmark" : "bookmark_border",
-                    }}
-                    size={19}
-                  />
-                </Pressable>
+                    accessibilityState={{ selected: isBookmarked }}
+                    onPress={() => toggleBookmark(currentQuestion.id)}
+                    hitSlop={Spacing.two}
+                    style={({ pressed }) => [
+                      styles.bookmarkButton,
+                      {
+                        backgroundColor: isBookmarked
+                          ? theme.primarySoft
+                          : theme.backgroundElement,
+                        borderColor: isBookmarked
+                          ? theme.primary
+                          : theme.border,
+                      },
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <SymbolView
+                      tintColor={
+                        isBookmarked ? theme.primary : theme.textSecondary
+                      }
+                      name={{
+                        ios: isBookmarked ? "bookmark.fill" : "bookmark",
+                        android: isBookmarked ? "bookmark" : "bookmark_border",
+                        web: isBookmarked ? "bookmark" : "bookmark_border",
+                      }}
+                      size={19}
+                    />
+                  </Pressable>
+                </View>
               </View>
               <ThemedText type="small" themeColor="textSecondary">
                 {quizMode === "mock"
-                  ? "답을 선택하거나 건너뛸 수 있어요"
+                  ? "답을 바꾸거나 다시 볼 문항으로 표시할 수 있어요"
                   : "하나를 선택해 주세요"}
               </ThemedText>
             </View>
@@ -913,33 +1295,84 @@ export default function QuizScreen() {
               </ThemedView>
             </Animated.View>
           )}
+
+          {isSubmitted &&
+            quizMode !== "mock" &&
+            settings.confidenceRatingEnabled && (
+              <Animated.View entering={FadeInUp.delay(60).duration(250)}>
+                <ConfidenceRating
+                  isCorrect={isCorrectAnswer}
+                  selected={answerConfidence}
+                  onSelect={rateConfidence}
+                />
+              </Animated.View>
+            )}
         </ScrollView>
 
-        <CtaButton
-          label={
-            quizMode === "mock"
-              ? isLastQuestion
-                ? "답안 제출"
-                : selectedIndex == null
-                  ? "건너뛰기"
-                  : "다음 문제"
-              : !isSubmitted
+        {quizMode === "mock" ? (
+          <View style={styles.mockNavigation}>
+            {currentIndex > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="이전 문제"
+                onPress={() => goToQuestion(currentIndex - 1)}
+                style={({ pressed }) => [
+                  styles.previousButton,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.border,
+                  },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <SymbolView
+                  tintColor={theme.text}
+                  name={{
+                    ios: "chevron.left",
+                    android: "chevron_left",
+                    web: "chevron_left",
+                  }}
+                  size={20}
+                />
+              </Pressable>
+            )}
+            <View style={styles.mockNextButton}>
+              <CtaButton
+                label={
+                  isLastQuestion
+                    ? "답안 검토"
+                    : selectedIndex == null
+                      ? "건너뛰기"
+                      : "다음 문제"
+                }
+                onPress={isLastQuestion ? openMockReview : goNext}
+              />
+            </View>
+          </View>
+        ) : (
+          <CtaButton
+            label={
+              !isSubmitted
                 ? "확인"
-                : isLastQuestion
-                  ? "결과 보기"
-                  : "다음 문제"
-          }
-          disabled={
-            quizMode !== "mock" && !isSubmitted && selectedIndex == null
-          }
-          onPress={
-            quizMode === "mock" ? goNext : !isSubmitted ? submitAnswer : goNext
-          }
-        />
+                : settings.confidenceRatingEnabled && answerConfidence == null
+                  ? "확신도를 선택해 주세요"
+                  : isLastQuestion
+                    ? "결과 보기"
+                    : "다음 문제"
+            }
+            disabled={
+              (!isSubmitted && selectedIndex == null) ||
+              (isSubmitted &&
+                settings.confidenceRatingEnabled &&
+                answerConfidence == null)
+            }
+            onPress={!isSubmitted ? submitAnswer : goNext}
+          />
+        )}
       </SafeAreaView>
 
       {exitConfirming && (
-        <View style={styles.exitOverlay}>
+        <View style={styles.exitOverlay} accessibilityViewIsModal>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="종료 확인 닫기"
@@ -976,7 +1409,7 @@ export default function QuizScreen() {
                 >
                   {quizMode === "mock"
                     ? "제출 전 답안은 저장되지 않으며 결과 화면도 볼 수 없어요."
-                    : "지금까지 푼 문제는 저장되지만 이 세션의 결과 화면은 볼 수 없어요."}
+                    : "현재 문제 위치를 저장하고 홈에서 그대로 이어 풀 수 있어요."}
                 </ThemedText>
               </View>
               <View style={styles.exitActions}>
@@ -989,7 +1422,7 @@ export default function QuizScreen() {
                 </View>
                 <View style={styles.exitAction}>
                   <CtaButton
-                    label="종료"
+                    label={quizMode === "mock" ? "종료" : "나중에 이어 풀기"}
                     variant="danger"
                     onPress={() => router.back()}
                   />
@@ -998,6 +1431,71 @@ export default function QuizScreen() {
             </ThemedView>
           </Animated.View>
         </View>
+      )}
+
+      {sessionPaused && !exitConfirming && (
+        <View style={styles.exitOverlay} accessibilityViewIsModal>
+          <View style={styles.exitBackdrop} />
+          <Animated.View
+            entering={FadeInUp.duration(220)}
+            style={styles.exitDialogWrap}
+          >
+            <ThemedView type="backgroundElement" style={styles.exitDialog}>
+              <View
+                style={[
+                  styles.exitIcon,
+                  { backgroundColor: theme.primarySoft },
+                ]}
+              >
+                <SymbolView
+                  tintColor={theme.primary}
+                  name={{
+                    ios: "cup.and.saucer.fill",
+                    android: "free_breakfast",
+                    web: "free_breakfast",
+                  }}
+                  size={22}
+                />
+              </View>
+              <View style={styles.exitText}>
+                <ThemedText style={styles.exitTitle}>
+                  잠시 쉬어가도 좋아요
+                </ThemedText>
+                <ThemedText
+                  type="small"
+                  themeColor="textSecondary"
+                  style={styles.centerText}
+                >
+                  학습 시간은 멈춰 있어요. 준비되면 같은 문제부터 이어서
+                  풀어 보세요.
+                </ThemedText>
+              </View>
+              <View style={styles.pauseActions}>
+                <CtaButton
+                  label="계속 학습하기"
+                  onPress={() => setSessionPaused(false)}
+                />
+                <CtaButton
+                  label="홈에서 나중에 이어 풀기"
+                  variant="secondary"
+                  onPress={() => router.back()}
+                />
+              </View>
+            </ThemedView>
+          </Animated.View>
+        </View>
+      )}
+
+      {mockReviewOpen && (
+        <MockReviewPanel
+          questions={questions}
+          answers={answers}
+          currentIndex={currentIndex}
+          flaggedQuestionIds={flaggedQuestionIds}
+          onSelectQuestion={selectMockReviewQuestion}
+          onSubmit={submitMockReview}
+          onClose={() => setMockReviewOpen(false)}
+        />
       )}
     </ThemedView>
   );
@@ -1195,6 +1693,22 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
     backgroundColor: "rgba(127, 127, 127, 0.09)",
   },
+  pauseButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radius.medium,
+  },
+  shortcutHint: {
+    minHeight: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    borderRadius: Radius.small,
+  },
   timerBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -1202,6 +1716,13 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.two,
     borderRadius: Radius.pill,
+  },
+  mockReviewButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radius.small,
   },
   content: {
     gap: Spacing.four,
@@ -1217,6 +1738,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: Spacing.two,
+  },
+  questionTools: {
+    flexDirection: "row",
     gap: Spacing.two,
   },
   subjectChip: {
@@ -1270,6 +1795,21 @@ const styles = StyleSheet.create({
   ctaDisabled: {
     opacity: 0.4,
   },
+  mockNavigation: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  previousButton: {
+    width: 52,
+    minHeight: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: Radius.medium,
+  },
+  mockNextButton: {
+    flex: 1,
+  },
   pressed: {
     opacity: 0.78,
     transform: [{ scale: 0.985 }],
@@ -1322,6 +1862,10 @@ const styles = StyleSheet.create({
   },
   exitActions: {
     flexDirection: "row",
+    gap: Spacing.two,
+    width: "100%",
+  },
+  pauseActions: {
     gap: Spacing.two,
     width: "100%",
   },

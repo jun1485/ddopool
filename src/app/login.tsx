@@ -4,14 +4,14 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -141,7 +141,8 @@ export default function LoginScreen() {
             <View style={styles.closeButton} />
           </View>
 
-          <ScrollView
+          <Animated.ScrollView
+            entering={FadeInDown.duration(320)}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -391,7 +392,7 @@ export default function LoginScreen() {
                 기기에 안전하게 유지돼요.
               </ThemedText>
             </View>
-          </ScrollView>
+          </Animated.ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedView>

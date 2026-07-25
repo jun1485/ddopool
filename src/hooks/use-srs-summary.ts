@@ -1,19 +1,22 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 
-import { loadSrsCards } from "@/storage/srs-store";
+import { loadSrsCards, SrsCardMap } from "@/storage/srs-store";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 시험별 복습 도래·학습 문항 수 집계 훅
 export function useSrsSummary() {
+  const [cards, setCards] = useState<SrsCardMap>({});
   const [dueCounts, setDueCounts] = useState<Record<string, number>>({});
   const [studiedCounts, setStudiedCounts] = useState<Record<string, number>>(
     {},
   );
+  const [matureCounts, setMatureCounts] = useState<Record<string, number>>({});
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [scheduledCount, setScheduledCount] = useState(0);
   const [recentExamId, setRecentExamId] = useState<string | null>(null);
+  const [evaluatedAt, setEvaluatedAt] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // SRS 카드 기반 시험별 집계 갱신
@@ -23,6 +26,7 @@ export function useSrsSummary() {
 
     const due: Record<string, number> = {};
     const studied: Record<string, number> = {};
+    const mature: Record<string, number> = {};
     let upcoming = 0;
     let scheduled = 0;
     let latestReviewedAt = 0;
@@ -30,6 +34,8 @@ export function useSrsSummary() {
 
     for (const card of Object.values(cards)) {
       studied[card.examId] = (studied[card.examId] ?? 0) + 1;
+      if (card.repetitions >= 2)
+        mature[card.examId] = (mature[card.examId] ?? 0) + 1;
       if (card.dueAt <= now) due[card.examId] = (due[card.examId] ?? 0) + 1;
       else if (card.dueAt <= now + DAY_MS) upcoming += 1;
       else scheduled += 1;
@@ -40,11 +46,14 @@ export function useSrsSummary() {
       }
     }
 
+    setCards(cards);
     setDueCounts(due);
     setStudiedCounts(studied);
+    setMatureCounts(mature);
     setUpcomingCount(upcoming);
     setScheduledCount(scheduled);
     setRecentExamId(latestExamId);
+    setEvaluatedAt(now);
     setIsLoading(false);
   }, []);
 
@@ -65,13 +74,16 @@ export function useSrsSummary() {
   );
 
   return {
+    cards,
     dueCounts,
     studiedCounts,
+    matureCounts,
     totalDue,
     totalStudied,
     upcomingCount,
     scheduledCount,
     recentExamId,
+    evaluatedAt,
     isLoading,
   };
 }

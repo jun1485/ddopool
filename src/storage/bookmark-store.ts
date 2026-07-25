@@ -22,6 +22,7 @@ export function subscribeBookmarks(
 // 저장 문제 식별자 목록 로드
 export async function loadBookmarks(): Promise<string[]> {
   try {
+    await bookmarkWriteQueue.catch(() => undefined);
     const raw = await AsyncStorage.getItem(BOOKMARKS_KEY);
     return raw != null ? (JSON.parse(raw) as string[]) : [];
   } catch {

@@ -1,6 +1,7 @@
 import { SymbolView } from "expo-symbols";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
+import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
@@ -41,6 +42,7 @@ interface ExamRequestCardProps {
   request: ExamRequest;
   onToggleVote: () => void;
   onManage?: () => void;
+  onStartPublishedExam?: (examId: string) => void;
   compact?: boolean;
 }
 
@@ -57,9 +59,11 @@ export function ExamRequestCard({
   request,
   onToggleVote,
   onManage,
+  onStartPublishedExam,
   compact = false,
 }: ExamRequestCardProps) {
   const theme = useTheme();
+  const publishedExamId = request.publishedExamId;
   const isInactive = [
     "duplicate",
     "rejected",
@@ -127,6 +131,35 @@ export function ExamRequestCard({
           </View>
         </View>
       )}
+
+      {!compact &&
+        request.status === "published" &&
+        publishedExamId != null &&
+        onStartPublishedExam != null && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${request.examName} 내 시험에 추가하고 학습 시작`}
+            onPress={() => onStartPublishedExam(publishedExamId)}
+            style={({ pressed }) => [
+              styles.publishedButton,
+              { backgroundColor: theme.success },
+              pressed && styles.publishedPressed,
+            ]}
+          >
+            <SymbolView
+              tintColor={theme.onPrimary}
+              name={{
+                ios: "play.fill",
+                android: "play_arrow",
+                web: "play_arrow",
+              }}
+              size={17}
+            />
+            <ThemedText type="smallBold" style={styles.publishedButtonText}>
+              내 시험에 추가하고 학습 시작
+            </ThemedText>
+          </Pressable>
+        )}
 
       <View style={styles.footer}>
         <ThemedText type="small" themeColor="textSecondary">
@@ -229,6 +262,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  publishedButton: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.two,
+    borderRadius: Radius.medium,
+  },
+  publishedButtonText: {
+    color: "#FFFFFF",
+  },
   footer: {
     minHeight: 34,
     flexDirection: "row",
@@ -262,5 +306,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  publishedPressed: {
+    opacity: 0.86,
+    transform: [{ scale: 0.99 }],
   },
 });
