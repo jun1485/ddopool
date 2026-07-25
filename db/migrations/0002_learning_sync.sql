@@ -69,17 +69,17 @@ alter table public.user_question_progress enable row level security;
 alter table public.user_bookmarks enable row level security;
 
 create policy user_exam_enrollments_own on public.user_exam_enrollments
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- 풀이 이력은 수정·삭제 없이 적재만 허용
 create policy question_attempts_select_own on public.question_attempts
-  for select using (user_id = auth.uid());
+  for select using (user_id = (select auth.uid()));
 create policy question_attempts_insert_own on public.question_attempts
-  for insert with check (user_id = auth.uid());
+  for insert with check (user_id = (select auth.uid()));
 
 create policy user_question_progress_own on public.user_question_progress
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 create policy user_bookmarks_own on public.user_bookmarks
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 -- #endregion

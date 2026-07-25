@@ -86,7 +86,7 @@ set search_path = public
 as $$
   select exists (
     select 1 from public.profiles
-    where id = auth.uid() and role = 'admin'
+    where id = (select auth.uid()) and role = 'admin'
   );
 $$;
 
@@ -401,41 +401,55 @@ create table public.notifications (
 
 create index notifications_user_idx on public.notifications (user_id, read_at);
 
--- 요청 시험 공개 시 투표자 전원 알림 생성
-create function public.notify_exam_request_published()
+-- 요청 상태 변경 시 투표자 알림 생성 (공개·승인·거절)
+create function public.notify_exam_request_status_change()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
 begin
-  if new.status = 'published' and old.status is distinct from new.status then
-    insert into public.notifications (user_id, type, payload)
-    select
-      v.voter_id,
-      'exam_published',
-      jsonb_build_object(
-        'request_id', new.id,
-        'exam_id', new.published_exam_id,
-        'display_name', new.display_name
-      )
-    from public.exam_request_votes v
-    where v.request_id = new.id
-      -- 재공개 전이 시 중복 알림 방지
-      and not exists (
-        select 1 from public.notifications n
-        where n.user_id = v.voter_id
-          and n.type = 'exam_published'
-          and n.payload->>'request_id' = new.id::text
-      );
+  if new.status is distinct from old.status then
+    if new.status = 'published' then
+      insert into public.notifications (user_id, type, payload)
+      select
+        v.voter_id,
+        'exam_published',
+        jsonb_build_object(
+          'request_id', new.id,
+          'exam_id', new.published_exam_id,
+          'display_name', new.display_name
+        )
+      from public.exam_request_votes v
+      where v.request_id = new.id
+        -- 재공개 전이 시 중복 알림 방지
+        and not exists (
+          select 1 from public.notifications n
+          where n.user_id = v.voter_id
+            and n.type = 'exam_published'
+            and n.payload->>'request_id' = new.id::text
+        );
+    elsif new.status in ('approved', 'rejected') then
+      insert into public.notifications (user_id, type, payload)
+      select
+        v.voter_id,
+        'request_status_changed',
+        jsonb_build_object(
+          'request_id', new.id,
+          'display_name', new.display_name,
+          'status', new.status
+        )
+      from public.exam_request_votes v
+      where v.request_id = new.id;
+    end if;
   end if;
   return new;
 end;
 $$;
 
-create trigger exam_requests_notify_published
+create trigger exam_requests_notify_status
   after update on public.exam_requests
-  for each row execute function public.notify_exam_request_published();
+  for each row execute function public.notify_exam_request_status_change();
 -- #endregion
 
 -- #region 감사 로그
@@ -603,9 +617,9 @@ alter table public.audit_logs enable row level security;
 
 -- profiles: 본인 조회·수정 (role 변경은 service role 전용)
 create policy profiles_select_own on public.profiles
-  for select using (id = auth.uid() or public.is_admin());
+  for select using (id = (select auth.uid()) or (select public.is_admin()));
 create policy profiles_update_own on public.profiles
-  for update using (id = auth.uid()) with check (id = auth.uid());
+  for update using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
 -- role 등 민감 컬럼 클라이언트 수정 차단 (nickname만 허용)
 revoke update on public.profiles from anon, authenticated;
@@ -613,51 +627,51 @@ grant update (nickname) on public.profiles to authenticated;
 
 -- exams: active 공개, 관리자 전체 접근
 create policy exams_public_read on public.exams
-  for select using (status = 'active' or public.is_admin());
+  for select using (status = 'active' or (select public.is_admin()));
 create policy exams_admin_write on public.exams
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- exam_subjects: 공개 시험 과목 공개
 create policy exam_subjects_public_read on public.exam_subjects
   for select using (
-    exists (select 1 from public.exams e where e.id = exam_id and (e.status = 'active' or public.is_admin()))
+    exists (select 1 from public.exams e where e.id = exam_id and (e.status = 'active' or (select public.is_admin())))
   );
 create policy exam_subjects_admin_write on public.exam_subjects
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- exam_aliases: 공개 읽기, 관리자 쓰기
 create policy exam_aliases_public_read on public.exam_aliases for select using (true);
 create policy exam_aliases_admin_write on public.exam_aliases
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- content_sources: 출처 공개 읽기, 관리자 쓰기
 create policy content_sources_public_read on public.content_sources for select using (true);
 create policy content_sources_admin_write on public.content_sources
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- questions: published만 공개, 관리자 전체 접근
 create policy questions_public_read on public.questions
   for select using (
     (status = 'published'
       and exists (select 1 from public.exams e where e.id = exam_id and e.status = 'active'))
-    or public.is_admin()
+    or (select public.is_admin())
   );
 create policy questions_admin_write on public.questions
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- question_versions / question_reviews: 관리자 전용
 create policy question_versions_admin_read on public.question_versions
-  for select using (public.is_admin());
+  for select using ((select public.is_admin()));
 create policy question_reviews_admin_all on public.question_reviews
-  for all using (public.is_admin()) with check (public.is_admin());
+  for all using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- question_reports: 본인 신고 등록·조회, 관리자 전체
 create policy question_reports_insert_own on public.question_reports
-  for insert with check (reporter_id = auth.uid());
+  for insert with check (reporter_id = (select auth.uid()));
 create policy question_reports_select_own on public.question_reports
-  for select using (reporter_id = auth.uid() or public.is_admin());
+  for select using (reporter_id = (select auth.uid()) or (select public.is_admin()));
 create policy question_reports_admin_update on public.question_reports
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update using ((select public.is_admin())) with check ((select public.is_admin()));
 
 -- exam_requests: 공개 읽기(검색·투표수 노출), 쓰기는 RPC 전용
 create policy exam_requests_public_read on public.exam_requests for select using (true);
@@ -670,9 +684,9 @@ grant select (id, normalized_name, display_name, organization, grade_level, exam
 -- exam_request_votes: 공개 읽기, 본인 투표 등록·취소
 create policy exam_request_votes_public_read on public.exam_request_votes for select using (true);
 create policy exam_request_votes_insert_own on public.exam_request_votes
-  for insert with check (voter_id = auth.uid());
+  for insert with check (voter_id = (select auth.uid()));
 create policy exam_request_votes_delete_own on public.exam_request_votes
-  for delete using (voter_id = auth.uid());
+  for delete using (voter_id = (select auth.uid()));
 
 -- exam_request_status_history: 공개 읽기 (요청 상태 타임라인)
 create policy exam_request_status_history_public_read on public.exam_request_status_history
@@ -680,9 +694,9 @@ create policy exam_request_status_history_public_read on public.exam_request_sta
 
 -- notifications: 본인 조회·읽음 처리
 create policy notifications_select_own on public.notifications
-  for select using (user_id = auth.uid());
+  for select using (user_id = (select auth.uid()));
 create policy notifications_update_own on public.notifications
-  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+  for update using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- 알림 본문 변조 차단 (read_at만 갱신 허용)
 revoke update on public.notifications from anon, authenticated;
@@ -690,5 +704,5 @@ grant update (read_at) on public.notifications to authenticated;
 
 -- audit_logs: 관리자 전용
 create policy audit_logs_admin_read on public.audit_logs
-  for select using (public.is_admin());
+  for select using ((select public.is_admin()));
 -- #endregion

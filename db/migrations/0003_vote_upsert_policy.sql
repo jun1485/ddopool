@@ -2,7 +2,7 @@
 -- 적용 방법: 0002_learning_sync.sql 이후 실행
 
 create policy exam_request_votes_update_own on public.exam_request_votes
-  for update using (voter_id = auth.uid()) with check (voter_id = auth.uid());
+  for update using (voter_id = (select auth.uid())) with check (voter_id = (select auth.uid()));
 
 -- 투표 행 키 변경 차단 (vote_count 델타 집계 오염 방지)
 create function public.prevent_vote_move()
