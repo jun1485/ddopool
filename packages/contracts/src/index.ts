@@ -3,36 +3,36 @@
 
 // #region 상태 유니온
 // 시험 노출 상태
-export type ExamStatus = 'draft' | 'active' | 'outdated';
+export type ExamStatus = "draft" | "active" | "outdated";
 
 // 시험 요청 상태 머신
 export type ExamRequestStatus =
-  | 'requested'
-  | 'triage'
-  | 'approved'
-  | 'sourcing'
-  | 'draft'
-  | 'review'
-  | 'published'
-  | 'duplicate'
-  | 'rejected'
-  | 'blocked'
-  | 'archived';
+  | "requested"
+  | "triage"
+  | "approved"
+  | "sourcing"
+  | "draft"
+  | "review"
+  | "published"
+  | "duplicate"
+  | "rejected"
+  | "blocked"
+  | "archived";
 
 // 문제 상태 머신
 export type QuestionStatus =
-  | 'imported'
-  | 'validating'
-  | 'needs_review'
-  | 'approved'
-  | 'published'
-  | 'retired';
+  | "imported"
+  | "validating"
+  | "needs_review"
+  | "approved"
+  | "published"
+  | "retired";
 
 // 문제 출처 유형
-export type QuestionSourceType = 'public_past_exam' | 'ai_generated' | 'manual';
+export type QuestionSourceType = "public_past_exam" | "ai_generated" | "manual";
 
 // 알림 유형
-export type NotificationType = 'exam_published' | 'request_status_changed';
+export type NotificationType = "exam_published" | "request_status_changed";
 // #endregion
 
 // #region DB Row 타입 (snake_case — Supabase 응답 원형)
@@ -98,6 +98,7 @@ export interface NotificationRow {
     request_id?: string;
     exam_id?: string | null;
     display_name?: string;
+    status?: ExamRequestStatus;
   };
   read_at: string | null;
   created_at: string;
@@ -125,7 +126,10 @@ export interface RemoteQuestion {
 }
 
 // ExamRow + 과목 목록 → 앱 시험 DTO 변환
-export function toRemoteExam(row: ExamRow, subjects: ExamSubjectRow[]): RemoteExam {
+export function toRemoteExam(
+  row: ExamRow,
+  subjects: ExamSubjectRow[],
+): RemoteExam {
   return {
     id: row.id,
     title: row.title,
@@ -155,24 +159,24 @@ export function toRemoteQuestion(row: QuestionRow): RemoteQuestion {
 
 // #region Supabase 접근 계약 (테이블·RPC 이름)
 export const TABLES = {
-  exams: 'exams',
-  examSubjects: 'exam_subjects',
-  examAliases: 'exam_aliases',
-  questions: 'questions',
-  examRequests: 'exam_requests',
-  examRequestVotes: 'exam_request_votes',
-  examRequestStatusHistory: 'exam_request_status_history',
-  notifications: 'notifications',
-  questionReports: 'question_reports',
-  userExamEnrollments: 'user_exam_enrollments',
-  questionAttempts: 'question_attempts',
-  userQuestionProgress: 'user_question_progress',
-  userBookmarks: 'user_bookmarks',
+  exams: "exams",
+  examSubjects: "exam_subjects",
+  examAliases: "exam_aliases",
+  questions: "questions",
+  examRequests: "exam_requests",
+  examRequestVotes: "exam_request_votes",
+  examRequestStatusHistory: "exam_request_status_history",
+  notifications: "notifications",
+  questionReports: "question_reports",
+  userExamEnrollments: "user_exam_enrollments",
+  questionAttempts: "question_attempts",
+  userQuestionProgress: "user_question_progress",
+  userBookmarks: "user_bookmarks",
 } as const;
 
 export const RPC = {
-  requestExam: 'request_exam',
-  updateExamRequestStatus: 'update_exam_request_status',
+  requestExam: "request_exam",
+  updateExamRequestStatus: "update_exam_request_status",
 } as const;
 
 // 시험 요청 입력
@@ -231,7 +235,7 @@ export interface ContentBundle {
 // #endregion
 
 // #region 학습 동기화 Row 타입 (0002_learning_sync.sql 기준)
-export type AttemptMode = 'learn' | 'review' | 'bookmarks' | 'mock';
+export type AttemptMode = "learn" | "review" | "bookmarks" | "mock";
 
 export interface UserExamEnrollmentRow {
   user_id: string;
@@ -287,7 +291,7 @@ export interface RecordAttemptInput {
 export function toQuestionAttemptInsert(
   input: RecordAttemptInput,
   userId: string,
-): Omit<QuestionAttemptRow, 'id' | 'answered_at' | 'client_attempt_id'> & {
+): Omit<QuestionAttemptRow, "id" | "answered_at" | "client_attempt_id"> & {
   answered_at?: string;
   client_attempt_id?: string;
 } {
@@ -300,7 +304,9 @@ export function toQuestionAttemptInsert(
     is_correct: input.isCorrect,
     mode: input.mode,
     ...(input.answeredAt != null ? { answered_at: input.answeredAt } : {}),
-    ...(input.clientAttemptId != null ? { client_attempt_id: input.clientAttemptId } : {}),
+    ...(input.clientAttemptId != null
+      ? { client_attempt_id: input.clientAttemptId }
+      : {}),
   };
 }
 
@@ -316,7 +322,10 @@ export interface UpsertProgressInput {
 }
 
 // user_question_progress upsert payload 변환
-export function toUserQuestionProgressUpsert(input: UpsertProgressInput, userId: string): UserQuestionProgressRow {
+export function toUserQuestionProgressUpsert(
+  input: UpsertProgressInput,
+  userId: string,
+): UserQuestionProgressRow {
   return {
     user_id: userId,
     question_id: input.questionId,
@@ -372,7 +381,9 @@ export interface ExamPlatformApi {
   // 내가 투표한 요청 목록 조회
   getMyVotedRequests(): Promise<ExamRequestRow[]>;
   // 요청 상태 타임라인 조회
-  getRequestStatusHistory(requestId: string): Promise<ExamRequestStatusHistoryRow[]>;
+  getRequestStatusHistory(
+    requestId: string,
+  ): Promise<ExamRequestStatusHistoryRow[]>;
   // 내 알림 목록 조회
   listMyNotifications(): Promise<NotificationRow[]>;
   // 알림 읽음 처리
