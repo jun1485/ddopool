@@ -6,6 +6,7 @@
   "scripts": {
     "export-content": "node scripts/export-app-content.mjs",
     "import-content": "node scripts/import-content.mjs",
+    "verify-setup": "node scripts/verify-setup.mjs",
     "verify-content": "node scripts/verify-content.mjs",
     "admin-requests": "node scripts/admin-requests.mjs",
     "admin-questions": "node scripts/admin-questions.mjs"
