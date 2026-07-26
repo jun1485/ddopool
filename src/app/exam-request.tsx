@@ -11,6 +11,8 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
@@ -229,7 +231,7 @@ export default function ExamRequestScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="요청 작성 닫기"
-              onPress={() => router.back()}
+              onPress={() => goBack()}
               hitSlop={Spacing.two}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -431,22 +433,12 @@ export default function ExamRequestScreen() {
                   size={21}
                 />
               </View>
-              <View
-                style={[
-                  styles.qualityTrack,
-                  { backgroundColor: theme.backgroundElement },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.qualityFill,
-                    {
-                      width: `${(detailCount / 4) * 100}%`,
-                      backgroundColor: theme.primary,
-                    },
-                  ]}
-                />
-              </View>
+              <AnimatedProgressBar
+                progress={(detailCount / 4)}
+                height={7}
+                color={theme.primary}
+                trackColor={theme.backgroundElement}
+              />
             </View>
 
             {similarRequests.length > 0 && (
@@ -629,7 +621,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   heroEmoji: {
-    fontSize: 27,
+    fontSize: 26,
     lineHeight: 34,
   },
   heroCopy: {
@@ -686,7 +678,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderWidth: 1,
     borderRadius: Radius.medium,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   textarea: {
@@ -708,15 +700,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flex: 1,
     gap: Spacing.half,
-  },
-  qualityTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  qualityFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   similarSection: {
     gap: Spacing.three,

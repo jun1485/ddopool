@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.large,
   },
   title: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 27,
     fontWeight: 700,
   },

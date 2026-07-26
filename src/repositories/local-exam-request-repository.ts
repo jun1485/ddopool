@@ -6,11 +6,19 @@ import { CreateExamRequestInput, ExamRequest } from "@/types/exam-request";
 const EXAM_REQUESTS_KEY = "exam-loop:exam-requests:v1";
 let requestWriteQueue: Promise<void> = Promise.resolve();
 
+type StoredExamRequest = Omit<ExamRequest, "isOwned"> & {
+  isOwned?: boolean;
+};
+
 // 시험 요청 목록 로드
 async function list(): Promise<ExamRequest[]> {
   try {
     const raw = await AsyncStorage.getItem(EXAM_REQUESTS_KEY);
-    return raw == null ? [] : (JSON.parse(raw) as ExamRequest[]);
+    if (raw == null) return [];
+    return (JSON.parse(raw) as StoredExamRequest[]).map((request) => ({
+      ...request,
+      isOwned: request.isOwned ?? true,
+    }));
   } catch {
     return [];
   }
@@ -36,6 +44,7 @@ async function create(input: CreateExamRequestInput): Promise<ExamRequest> {
     status: "requested",
     voteCount: 1,
     hasVoted: true,
+    isOwned: true,
     publishedExamId: null,
     createdAt: now,
     updatedAt: now,

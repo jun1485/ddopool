@@ -27,7 +27,7 @@ const FILTERS: {
   { value: "closed", label: "종료", icon: "📁" },
 ];
 
-// 관심 요청 상태 요약·필터
+// 내 요청 상태 요약·필터
 export function RequestTrackingOverview({
   summary,
   selectedFilter,
@@ -38,9 +38,9 @@ export function RequestTrackingOverview({
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
       <View>
-        <ThemedText type="smallBold">관심 요청 현황</ThemedText>
+        <ThemedText type="smallBold">내 요청 현황</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          공감한 요청의 제작 상태를 모아서 확인해요
+          작성한 요청과 공감한 공개 요청의 제작 상태를 확인해요
         </ThemedText>
       </View>
       <View style={styles.filterRow}>
@@ -113,11 +113,11 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   filterIcon: {
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 23,
   },
   filterCount: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 25,
     fontWeight: 900,
   },

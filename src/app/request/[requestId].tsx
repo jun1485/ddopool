@@ -11,8 +11,12 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import type { ExamRequestStatusHistoryRow } from "../../../packages/contracts/src";
+import {
+  EXAM_REQUEST_REPORT_REASON_MAX,
+  type ExamRequestStatusHistoryRow,
+} from "../../../packages/contracts/src";
 
+import { goBack } from "@/lib/navigation";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RequestStatusTimeline } from "@/components/request-status-timeline";
@@ -112,6 +116,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
     updateRequest,
     cancelRequest,
     toggleVote,
+    reportRequest,
     canManageRequestDetails,
     errorMessage,
   } = useExamRequests();
@@ -121,6 +126,10 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
   const [reason, setReason] = useState(request.reason);
   const [isSaving, setIsSaving] = useState(false);
   const [isCancelConfirming, setIsCancelConfirming] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportMessage, setReportMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(
     null,
@@ -140,8 +149,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
   };
   const validation = validateExamRequestInput(requestInput);
   const canSave = !isSaving && editable;
-  const displayMessage =
-    successMessage ?? validationMessage ?? errorMessage;
+  const displayMessage = successMessage ?? validationMessage ?? errorMessage;
 
   // 공개 시험 내 시험 추가·학습 진입
   const startPublishedExam = (examId: string) => {
@@ -172,6 +180,19 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
     if (cancelled) setIsCancelConfirming(false);
   };
 
+  // 시험 요청 신고 사유 제출
+  const submitReport = async () => {
+    if (reportReason.trim().length === 0 || isReporting) return;
+    setIsReporting(true);
+    setReportMessage(null);
+    const reported = await reportRequest(request.id, reportReason);
+    setIsReporting(false);
+    if (!reported) return;
+    setReportReason("");
+    setIsReportOpen(false);
+    setReportMessage("신고가 접수됐어요. 운영 검토 후 필요한 조치를 진행해요.");
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.keyboardView}
@@ -181,7 +202,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="이전 화면"
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           hitSlop={Spacing.two}
           style={({ pressed }) => [
             styles.closeButton,
@@ -220,6 +241,112 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
           onStartPublishedExam={startPublishedExam}
         />
         <RequestStatusTimeline status={request.status} history={history} />
+
+        <ThemedView type="backgroundElement" style={styles.reportCard}>
+          <View style={styles.reportHeader}>
+            <View style={styles.rowCopy}>
+              <ThemedText type="smallBold">
+                요청 정보에 문제가 있나요?
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                부정확하거나 부적절한 요청을 운영팀에 알려 주세요.
+              </ThemedText>
+            </View>
+            {!isReportOpen && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  setIsReportOpen(true);
+                  setReportMessage(null);
+                }}
+                style={({ pressed }) => [
+                  styles.reportOpenButton,
+                  { backgroundColor: theme.dangerSoft },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                  신고하기
+                </ThemedText>
+              </Pressable>
+            )}
+          </View>
+          {isReportOpen && (
+            <View style={styles.reportForm}>
+              <TextInput
+                accessibilityLabel="시험 요청 신고 사유"
+                value={reportReason}
+                onChangeText={setReportReason}
+                placeholder="문제가 되는 내용을 구체적으로 적어 주세요."
+                placeholderTextColor={theme.textSecondary}
+                selectionColor={theme.primary}
+                multiline
+                maxLength={EXAM_REQUEST_REPORT_REASON_MAX}
+                textAlignVertical="top"
+                style={[
+                  styles.input,
+                  styles.textarea,
+                  {
+                    color: theme.text,
+                    backgroundColor: theme.background,
+                    borderColor: theme.border,
+                  },
+                ]}
+              />
+              <View style={styles.reportActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setIsReportOpen(false);
+                    setReportReason("");
+                  }}
+                  style={({ pressed }) => [
+                    styles.reportButton,
+                    { backgroundColor: theme.backgroundSelected },
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <ThemedText type="smallBold">취소</ThemedText>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    disabled: reportReason.trim().length === 0 || isReporting,
+                  }}
+                  disabled={reportReason.trim().length === 0 || isReporting}
+                  onPress={() => void submitReport()}
+                  style={({ pressed }) => [
+                    styles.reportButton,
+                    {
+                      backgroundColor:
+                        reportReason.trim().length > 0 && !isReporting
+                          ? theme.danger
+                          : theme.backgroundSelected,
+                    },
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    style={{
+                      color:
+                        reportReason.trim().length > 0 && !isReporting
+                          ? theme.onPrimary
+                          : theme.textSecondary,
+                    }}
+                  >
+                    {isReporting ? "접수 중..." : "신고 접수"}
+                  </ThemedText>
+                </Pressable>
+              </View>
+            </View>
+          )}
+          {reportMessage != null && (
+            <ThemedText type="small" style={{ color: theme.success }}>
+              {reportMessage}
+            </ThemedText>
+          )}
+        </ThemedView>
 
         <View
           style={[
@@ -293,9 +420,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
             placeholder="필기, 1급, 희망 과목"
             editable={editable}
             maxLength={EXAM_REQUEST_LIMITS.level}
-            error={
-              validationAttempted ? validation.errors.level : undefined
-            }
+            error={validationAttempted ? validation.errors.level : undefined}
           />
           <DetailField
             label="공식 안내 링크"
@@ -496,7 +621,7 @@ export default function ExamRequestDetailScreen() {
             {!isLoading && (
               <Pressable
                 accessibilityRole="button"
-                onPress={() => router.back()}
+                onPress={() => goBack()}
                 style={({ pressed }) => [
                   styles.notFoundButton,
                   { backgroundColor: theme.primary },
@@ -561,6 +686,42 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: Radius.medium,
   },
+  reportCard: {
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Radius.medium,
+    ...Shadows.card,
+  },
+  reportHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.three,
+  },
+  rowCopy: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  reportOpenButton: {
+    minHeight: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.medium,
+  },
+  reportForm: {
+    gap: Spacing.three,
+  },
+  reportActions: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  reportButton: {
+    minHeight: 44,
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radius.medium,
+  },
   formCard: {
     gap: Spacing.four,
     padding: Spacing.four,
@@ -595,7 +756,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderWidth: 1,
     borderRadius: Radius.medium,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   textarea: {
@@ -657,7 +818,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
   },
   notFoundEmoji: {
-    fontSize: 32,
+    fontSize: 31,
     lineHeight: 40,
   },
   notFoundButton: {

@@ -4,6 +4,8 @@ import type {
   ExamRequestStatus as ContractExamRequestStatus,
   ExamRequestStatusHistoryRow,
   NotificationRow,
+  ProfileRow,
+  PushPlatform,
   RemoteExam,
   RemoteQuestion,
   RequestExamInput,
@@ -124,7 +126,9 @@ export class MockExamPlatformApi implements ExamPlatformApi {
   // 내가 투표한 시험 요청 목록 조회
   async getMyVotedRequests(): Promise<ExamRequestRow[]> {
     const requests = await examRequestRepository.list();
-    return requests.filter((request) => request.hasVoted).map(toExamRequestRow);
+    return requests
+      .filter((request) => request.hasVoted || request.isOwned)
+      .map(toExamRequestRow);
   }
 
   // 시험 요청 상태 타임라인 조회
@@ -165,4 +169,28 @@ export class MockExamPlatformApi implements ExamPlatformApi {
       details: reason,
     });
   }
+
+  // 로컬 시험 요청 신고 미지원 안내
+  async reportExamRequest(): Promise<void> {
+    throw new Error("계정 서버 연결 후 시험 요청을 신고할 수 있습니다.");
+  }
+
+  // 로컬 사용자 프로필 미제공
+  async getMyProfile(): Promise<ProfileRow | null> {
+    return null;
+  }
+
+  // 로컬 계정 삭제 미지원 안내
+  async deleteMyAccount(): Promise<void> {
+    throw new Error("계정 서버 연결 후 계정을 삭제할 수 있습니다.");
+  }
+
+  // 로컬 푸시 토큰 등록 생략
+  async registerPushToken(
+    _token: string,
+    _platform: PushPlatform,
+  ): Promise<void> {}
+
+  // 로컬 푸시 토큰 해제 생략
+  async unregisterPushToken(_token: string): Promise<void> {}
 }

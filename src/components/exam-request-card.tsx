@@ -1,6 +1,7 @@
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -105,19 +106,12 @@ export function ExamRequestCard({
 
       {!compact && !isInactive && (
         <View style={styles.progressBlock}>
-          <View
-            style={[styles.progressTrack, { backgroundColor: theme.border }]}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${STATUS_PROGRESS[request.status] * 100}%`,
-                  backgroundColor: statusColor,
-                },
-              ]}
-            />
-          </View>
+          <AnimatedProgressBar
+            progress={STATUS_PROGRESS[request.status]}
+            height={6}
+            color={statusColor}
+            trackColor={theme.border}
+          />
           <View style={styles.progressMeta}>
             <ThemedText type="small" themeColor="textSecondary">
               접수
@@ -248,15 +242,6 @@ const styles = StyleSheet.create({
   },
   progressBlock: {
     gap: Spacing.one,
-  },
-  progressTrack: {
-    height: 6,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   progressMeta: {
     flexDirection: "row",

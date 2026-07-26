@@ -24,6 +24,7 @@ export interface ExamRequest {
   status: ExamRequestStatus;
   voteCount: number;
   hasVoted: boolean;
+  isOwned: boolean;
   publishedExamId: string | null;
   createdAt: number;
   updatedAt: number;

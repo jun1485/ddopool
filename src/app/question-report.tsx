@@ -11,6 +11,7 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -128,7 +129,7 @@ export default function QuestionReportScreen() {
           </View>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             style={({ pressed }) => [
               styles.doneButton,
               { backgroundColor: theme.primary },
@@ -155,7 +156,7 @@ export default function QuestionReportScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="문제 신고 닫기"
-              onPress={() => router.back()}
+              onPress={() => goBack()}
               hitSlop={Spacing.two}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -465,7 +466,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   prompt: {
-    fontSize: 17,
+    fontSize: 16,
     lineHeight: 26,
     fontWeight: 700,
   },
@@ -473,7 +474,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 27,
     fontWeight: 700,
   },
@@ -489,7 +490,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   optionEmoji: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
   },
   optionCopy: {
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderWidth: 1,
     borderRadius: Radius.medium,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 23,
   },
   notice: {
@@ -564,7 +565,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   successTitle: {
-    fontSize: 29,
+    fontSize: 28,
     lineHeight: 38,
     fontWeight: 700,
   },

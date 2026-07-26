@@ -5,6 +5,8 @@ import type {
   ExamRow,
   ExamSubjectRow,
   NotificationRow,
+  ProfileRow,
+  PushPlatform,
   QuestionRow,
   RemoteExam,
   RemoteQuestion,
@@ -15,7 +17,11 @@ import {
   TABLES,
   toRemoteExam,
   toRemoteQuestion,
+  toRegisterPushTokenParams,
+  toReportExamRequestParams,
   toRequestExamParams,
+  toRpcRows,
+  toSearchExamRequestsParams,
 } from "../../packages/contracts/src";
 
 import { supabase } from "@/lib/supabase";
@@ -78,20 +84,11 @@ export class SupabaseExamPlatformApi implements ExamPlatformApi {
   // 시험 요청 검색
   async searchExamRequests(keyword: string): Promise<ExamRequestRow[]> {
     const client = getSupabaseClient();
-    const displayQuery = keyword.trim().replaceAll(/[^0-9a-z가-힣\s]/gi, "");
-    const normalizedQuery = displayQuery.replaceAll(/\s/g, "");
-    if (normalizedQuery.length < 2) return [];
     const { data, error } = await client
-      .from(TABLES.examRequests)
-      .select(
-        "id,normalized_name,display_name,organization,grade_level,exam_url,language,note,status,vote_count,published_exam_id,created_at,updated_at",
-      )
-      .or(
-        `display_name.ilike.%${displayQuery}%,normalized_name.ilike.%${normalizedQuery}%`,
-      )
-      .returns<ExamRequestRow[]>();
+      .rpc(RPC.searchExamRequests, toSearchExamRequestsParams(keyword))
+      .select<"*", ExamRequestRow>("*");
     if (error != null) throw error;
-    return data ?? [];
+    return toRpcRows(data);
   }
 
   // 시험 요청 등록 또는 기존 요청 투표
@@ -201,6 +198,58 @@ export class SupabaseExamPlatformApi implements ExamPlatformApi {
       question_id: questionId,
       reporter_id: userId,
       reason,
+    });
+    if (error != null) throw error;
+  }
+
+  // 시험 요청 신고 접수
+  async reportExamRequest(requestId: string, reason: string): Promise<void> {
+    const client = getSupabaseClient();
+    const { error } = await client.rpc(
+      RPC.reportExamRequest,
+      toReportExamRequestParams(requestId, reason),
+    );
+    if (error != null) throw error;
+  }
+
+  // 인증 사용자 프로필 조회
+  async getMyProfile(): Promise<ProfileRow | null> {
+    const client = getSupabaseClient();
+    const userId = await getCurrentUserId();
+    const { data, error } = await client
+      .from(TABLES.profiles)
+      .select("id,nickname,role,banned_at,banned_reason,created_at")
+      .eq("id", userId)
+      .maybeSingle<ProfileRow>();
+    if (error != null) throw error;
+    return data;
+  }
+
+  // 인증 사용자 계정 전체 삭제
+  async deleteMyAccount(): Promise<void> {
+    const client = getSupabaseClient();
+    const { error } = await client.rpc(RPC.deleteMyAccount);
+    if (error != null) throw error;
+  }
+
+  // 기기 푸시 토큰 등록
+  async registerPushToken(
+    token: string,
+    platform: PushPlatform,
+  ): Promise<void> {
+    const client = getSupabaseClient();
+    const { error } = await client.rpc(
+      RPC.registerPushToken,
+      toRegisterPushTokenParams(token, platform),
+    );
+    if (error != null) throw error;
+  }
+
+  // 기기 푸시 토큰 해제
+  async unregisterPushToken(token: string): Promise<void> {
+    const client = getSupabaseClient();
+    const { error } = await client.rpc(RPC.unregisterPushToken, {
+      p_token: token,
     });
     if (error != null) throw error;
   }

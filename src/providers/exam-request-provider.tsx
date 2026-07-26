@@ -2,6 +2,7 @@ import type {
   ExamRequestRow,
   ExamRequestStatusHistoryRow,
 } from "../../packages/contracts/src";
+import { EXAM_REQUEST_REPORT_REASON_MAX } from "../../packages/contracts/src";
 import { AppState } from "react-native";
 import {
   createContext,
@@ -21,6 +22,8 @@ import {
 } from "@/learning/exam-request-validation";
 import { examRequestRepository } from "@/repositories/local-exam-request-repository";
 import { examPlatformApi } from "@/repositories/exam-platform-api";
+import { reportExamRequest } from "@/repositories/exam-request-report-repository";
+import { listTrackedExamRequests } from "@/repositories/tracked-exam-request-repository";
 import { CreateExamRequestInput, ExamRequest } from "@/types/exam-request";
 
 interface ExamRequestContextValue {
@@ -40,13 +43,18 @@ interface ExamRequestContextValue {
   loadRequestHistory: (
     requestId: string,
   ) => Promise<ExamRequestStatusHistoryRow[]>;
+  reportRequest: (requestId: string, reason: string) => Promise<boolean>;
   findSimilarRequests: (examName: string) => ExamRequest[];
 }
 
 const ExamRequestContext = createContext<ExamRequestContextValue | null>(null);
 
 // API 시험 요청 앱 정보 변환
-function toExamRequest(row: ExamRequestRow, hasVoted = true): ExamRequest {
+function toExamRequest(
+  row: ExamRequestRow,
+  hasVoted = true,
+  isOwned = false,
+): ExamRequest {
   return {
     id: row.id,
     examName: row.display_name,
@@ -57,6 +65,7 @@ function toExamRequest(row: ExamRequestRow, hasVoted = true): ExamRequest {
     status: row.status,
     voteCount: row.vote_count,
     hasVoted,
+    isOwned,
     publishedExamId: row.published_exam_id,
     createdAt: new Date(row.created_at).getTime(),
     updatedAt: new Date(row.updated_at).getTime(),
@@ -76,12 +85,14 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
     setErrorMessage(null);
     try {
       if (isSupabaseConfigured && user == null) setRequests([]);
-      else
+      else {
+        const trackedRequests = await listTrackedExamRequests();
         setRequests(
-          (await examPlatformApi.getMyVotedRequests()).map((row) =>
-            toExamRequest(row),
+          trackedRequests.map(({ row, hasVoted, isOwned }) =>
+            toExamRequest(row, hasVoted, isOwned),
           ),
         );
+      }
     } catch {
       setErrorMessage("시험 요청 목록을 불러오지 못했어요.");
     } finally {
@@ -99,8 +110,9 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
         const storedRequests =
           isSupabaseConfigured && user == null
             ? []
-            : (await examPlatformApi.getMyVotedRequests()).map((row) =>
-                toExamRequest(row),
+            : (await listTrackedExamRequests()).map(
+                ({ row, hasVoted, isOwned }) =>
+                  toExamRequest(row, hasVoted, isOwned),
               );
         if (active) setRequests(storedRequests);
       } catch {
@@ -142,8 +154,8 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
         });
         const request = toExamRequest(requestRow);
         setRequests(
-          (await examPlatformApi.getMyVotedRequests()).map((row) =>
-            toExamRequest(row),
+          (await listTrackedExamRequests()).map(({ row, hasVoted, isOwned }) =>
+            toExamRequest(row, hasVoted, isOwned),
           ),
         );
         return request;
@@ -211,8 +223,8 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
           await examPlatformApi.cancelExamRequestVote(requestId);
         else await examPlatformApi.voteExamRequest(requestId);
         setRequests(
-          (await examPlatformApi.getMyVotedRequests()).map((row) =>
-            toExamRequest(row),
+          (await listTrackedExamRequests()).map(({ row, hasVoted, isOwned }) =>
+            toExamRequest(row, hasVoted, isOwned),
           ),
         );
       } catch {
@@ -232,8 +244,17 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
             .filter((request) => request.hasVoted)
             .map((request) => request.id),
         );
+        const ownedRequestIds = new Set(
+          requests
+            .filter((request) => request.isOwned)
+            .map((request) => request.id),
+        );
         return rows.map((row) =>
-          toExamRequest(row, votedRequestIds.has(row.id)),
+          toExamRequest(
+            row,
+            votedRequestIds.has(row.id),
+            ownedRequestIds.has(row.id),
+          ),
         );
       } catch {
         setErrorMessage("유사 시험 요청을 검색하지 못했어요.");
@@ -252,6 +273,31 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
       return [];
     }
   }, []);
+
+  // 시험 요청 신고 등록
+  const reportRequest = useCallback(
+    async (requestId: string, reason: string): Promise<boolean> => {
+      if (reason.trim().length === 0) {
+        setErrorMessage("신고 사유를 입력해 주세요.");
+        return false;
+      }
+      if (reason.trim().length > EXAM_REQUEST_REPORT_REASON_MAX) {
+        setErrorMessage(
+          `신고 사유는 ${EXAM_REQUEST_REPORT_REASON_MAX}자까지 입력할 수 있어요.`,
+        );
+        return false;
+      }
+      setErrorMessage(null);
+      try {
+        await reportExamRequest(requestId, reason.trim());
+        return true;
+      } catch {
+        setErrorMessage("신고를 접수하지 못했어요. 다시 시도해 주세요.");
+        return false;
+      }
+    },
+    [],
+  );
 
   // 유사 시험 요청 조회
   const findSimilarRequests = useCallback(
@@ -285,6 +331,7 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
       toggleVote,
       searchRequests,
       loadRequestHistory,
+      reportRequest,
       findSimilarRequests,
     }),
     [
@@ -295,6 +342,7 @@ export function ExamRequestProvider({ children }: PropsWithChildren) {
       findSimilarRequests,
       isLoading,
       loadRequestHistory,
+      reportRequest,
       reload,
       requests,
       searchRequests,
