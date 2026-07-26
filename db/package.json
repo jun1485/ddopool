@@ -6,6 +6,8 @@
   "scripts": {
     "export-content": "node scripts/export-app-content.mjs",
     "import-content": "node scripts/import-content.mjs",
+    "check-bundles": "node scripts/check-bundles.mjs",
+    "balance-answers": "node scripts/balance-answers.mjs",
     "verify-setup": "node scripts/verify-setup.mjs",
     "verify-content": "node scripts/verify-content.mjs",
     "admin-requests": "node scripts/admin-requests.mjs",

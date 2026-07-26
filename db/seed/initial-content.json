@@ -43,12 +43,12 @@
       "subject": "컴퓨터 일반",
       "prompt": "다음 중 가상 메모리(Virtual Memory)에 관한 설명으로 옳은 것은?",
       "choices": [
-        "보조기억장치의 일부를 주기억장치처럼 사용하는 기법이다",
-        "캐시 메모리보다 접근 속도가 빠르다",
         "전원이 꺼져도 내용이 유지되는 비휘발성 메모리이다",
+        "캐시 메모리보다 접근 속도가 빠르다",
+        "보조기억장치의 일부를 주기억장치처럼 사용하는 기법이다",
         "CPU 내부 레지스터의 용량을 확장하는 기술이다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 2,
       "explanation": "가상 메모리는 보조기억장치(디스크)의 일부를 주기억장치처럼 사용하여 실제 메모리 용량보다 큰 프로그램을 실행할 수 있게 하는 기법입니다."
     },
     {
@@ -58,11 +58,11 @@
       "prompt": "IPv6 주소 체계에 관한 설명으로 옳지 않은 것은?",
       "choices": [
         "128비트 주소 체계를 사용한다",
+        "32비트 주소를 점(.)으로 구분해 표기한다",
         "IPv4보다 주소 공간이 크게 확장되었다",
-        "16진수 8개 그룹을 콜론(:)으로 구분해 표기한다",
-        "32비트 주소를 점(.)으로 구분해 표기한다"
+        "16진수 8개 그룹을 콜론(:)으로 구분해 표기한다"
       ],
-      "answerIndex": 3,
+      "answerIndex": 1,
       "explanation": "32비트 주소를 점(.)으로 구분하는 표기는 IPv4 방식입니다. IPv6는 128비트 주소를 사용합니다."
     },
     {
@@ -72,9 +72,9 @@
       "prompt": "셀 참조 $A$1에 대한 설명으로 옳은 것은?",
       "choices": [
         "행과 열이 모두 고정되는 절대 참조이다",
+        "복사 위치에 따라 참조가 변하는 상대 참조이다",
         "열만 고정되는 혼합 참조이다",
-        "행만 고정되는 혼합 참조이다",
-        "복사 위치에 따라 참조가 변하는 상대 참조이다"
+        "행만 고정되는 혼합 참조이다"
       ],
       "answerIndex": 0,
       "explanation": "$ 기호가 열(A)과 행(1) 앞에 모두 붙으면 절대 참조로, 수식을 복사해도 참조가 변하지 않습니다."
@@ -85,12 +85,12 @@
       "subject": "스프레드시트 일반",
       "prompt": "수식 =COUNTIF(A1:A10,\">=80\") 의 결과로 옳은 것은?",
       "choices": [
-        "A1:A10 범위에서 80 이상인 셀의 개수",
         "A1:A10 범위에서 80 이상인 값의 합계",
         "A1:A10 범위에서 80 이상인 값의 평균",
+        "A1:A10 범위에서 80 이상인 셀의 개수",
         "A1:A10 범위에서 가장 큰 값"
       ],
-      "answerIndex": 0,
+      "answerIndex": 2,
       "explanation": "COUNTIF는 조건을 만족하는 셀의 개수를 구하는 함수입니다. 합계는 SUMIF, 평균은 AVERAGEIF를 사용합니다."
     },
     {
@@ -99,12 +99,12 @@
       "subject": "데이터베이스 일반",
       "prompt": "관계형 데이터베이스의 기본키(Primary Key)에 대한 설명으로 옳지 않은 것은?",
       "choices": [
-        "NULL 값을 가질 수 없다",
+        "각 레코드를 유일하게 식별한다",
         "중복된 값을 가질 수 없다",
-        "한 테이블에 여러 개의 기본키를 지정할 수 있다",
-        "각 레코드를 유일하게 식별한다"
+        "NULL 값을 가질 수 없다",
+        "한 테이블에 여러 개의 기본키를 지정할 수 있다"
       ],
-      "answerIndex": 2,
+      "answerIndex": 3,
       "explanation": "기본키는 한 테이블에 하나만 지정할 수 있습니다. 여러 열을 묶은 복합키는 가능하지만, 기본키 자체는 하나입니다."
     },
     {
@@ -113,12 +113,12 @@
       "subject": "컴퓨터 일반",
       "prompt": "유니코드(Unicode)에 대한 설명으로 옳은 것은?",
       "choices": [
-        "전 세계의 문자를 통일된 체계로 표현하는 국제 표준 코드이다",
-        "영문자와 숫자만 표현할 수 있다",
         "한 문자를 1비트로 표현한다",
-        "국가마다 서로 다른 코드 체계를 사용하도록 설계되었다"
+        "영문자와 숫자만 표현할 수 있다",
+        "국가마다 서로 다른 코드 체계를 사용하도록 설계되었다",
+        "전 세계의 문자를 통일된 체계로 표현하는 국제 표준 코드이다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "유니코드는 전 세계 모든 문자를 하나의 통일된 코드 체계로 표현하기 위한 국제 표준입니다."
     },
     {
@@ -127,12 +127,12 @@
       "subject": "컴퓨터 일반",
       "prompt": "펌웨어(Firmware)에 대한 설명으로 옳은 것은?",
       "choices": [
+        "주기억장치 용량을 확장하는 하드웨어 장치이다",
         "하드웨어 제어를 위해 ROM 등에 저장된 소프트웨어이다",
         "사용자가 자유롭게 설치·삭제하는 응용 프로그램이다",
-        "주기억장치 용량을 확장하는 하드웨어 장치이다",
         "네트워크 침입을 차단하는 보안 장비이다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "펌웨어는 하드웨어를 제어하기 위해 ROM 등에 저장되는 소프트웨어로, 하드웨어와 소프트웨어의 중간 성격을 가집니다."
     },
     {
@@ -141,12 +141,12 @@
       "subject": "스프레드시트 일반",
       "prompt": "VLOOKUP 함수에 대한 설명으로 옳은 것은?",
       "choices": [
+        "문자열을 모두 대문자로 변환한다",
         "범위의 첫 번째 열에서 값을 찾아 지정한 열의 값을 반환한다",
-        "범위의 첫 번째 행에서 값을 찾아 지정한 행의 값을 반환한다",
         "조건을 만족하는 셀의 개수를 구한다",
-        "문자열을 모두 대문자로 변환한다"
+        "범위의 첫 번째 행에서 값을 찾아 지정한 행의 값을 반환한다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "VLOOKUP은 범위의 첫 번째 열에서 값을 찾아 같은 행의 지정한 열 값을 반환합니다. 첫 번째 행에서 찾는 함수는 HLOOKUP입니다."
     },
     {
@@ -155,12 +155,12 @@
       "subject": "스프레드시트 일반",
       "prompt": "시간 경과에 따른 데이터의 변화 추세를 표시하기에 가장 적합한 차트는?",
       "choices": [
+        "방사형 차트",
         "꺾은선형 차트",
         "원형 차트",
-        "도넛형 차트",
-        "방사형 차트"
+        "도넛형 차트"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "꺾은선형 차트는 시간의 흐름에 따른 값의 변화 추세를 표현하는 데 적합합니다. 원형·도넛형은 구성 비율 표현에 사용됩니다."
     },
     {
@@ -169,12 +169,12 @@
       "subject": "데이터베이스 일반",
       "prompt": "SQL에서 테이블의 데이터를 조회할 때 사용하는 명령어는?",
       "choices": [
-        "SELECT",
-        "INSERT",
         "UPDATE",
-        "DELETE"
+        "INSERT",
+        "DELETE",
+        "SELECT"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "SELECT는 조회, INSERT는 삽입, UPDATE는 수정, DELETE는 삭제에 사용하는 명령어입니다."
     },
     {
@@ -183,12 +183,12 @@
       "subject": "항공법규",
       "prompt": "1종 무인멀티콥터 조종자 자격으로 조종할 수 있는 기체의 중량 기준은?",
       "choices": [
+        "자체중량 150kg 초과",
         "최대이륙중량 25kg 초과, 자체중량 150kg 이하",
         "최대이륙중량 7kg 이하",
-        "최대이륙중량 2kg 이하",
-        "자체중량 150kg 초과"
+        "최대이륙중량 2kg 이하"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "1종 자격은 최대이륙중량 25kg 초과부터 자체중량 150kg 이하까지의 기체를 조종할 수 있습니다."
     },
     {
@@ -211,12 +211,12 @@
       "subject": "비행이론 및 운용",
       "prompt": "회전익 비행장치에서 양력 발생과 가장 관련이 깊은 원리는?",
       "choices": [
-        "베르누이 정리",
-        "옴의 법칙",
         "파스칼의 원리",
-        "줄의 법칙"
+        "줄의 법칙",
+        "옴의 법칙",
+        "베르누이 정리"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "로터 블레이드 윗면과 아랫면의 유속 차이로 압력 차가 생겨 양력이 발생하며, 이는 베르누이 정리로 설명됩니다."
     },
     {
@@ -225,12 +225,12 @@
       "subject": "항공법규",
       "prompt": "초경량비행장치 조종자의 비행이 금지되는 혈중알코올농도 기준은?",
       "choices": [
-        "0.02% 이상",
         "0.05% 이상",
         "0.08% 이상",
-        "0.10% 이상"
+        "0.10% 이상",
+        "0.02% 이상"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "항공안전법상 혈중알코올농도 0.02% 이상인 상태에서는 비행이 금지됩니다."
     },
     {
@@ -253,12 +253,12 @@
       "subject": "항공법규",
       "prompt": "초경량비행장치 조종자 준수사항으로 옳지 않은 것은?",
       "choices": [
-        "야간 비행은 승인 없이 자유롭게 할 수 있다",
         "인구 밀집 지역 상공에서 위험한 방식의 비행을 해서는 안 된다",
+        "야간 비행은 승인 없이 자유롭게 할 수 있다",
         "비행 중 낙하물을 투하해서는 안 된다",
         "음주 상태에서 비행해서는 안 된다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "야간 비행은 원칙적으로 금지되며, 특별비행승인을 받은 경우에만 가능합니다."
     },
     {
@@ -281,12 +281,12 @@
       "subject": "비행이론 및 운용",
       "prompt": "멀티콥터가 제자리에서 기수 방향을 회전(요잉)하는 원리는?",
       "choices": [
-        "서로 반대 방향으로 회전하는 로터 간의 회전수 차이를 이용한다",
         "모든 로터를 같은 방향·같은 속도로 회전시킨다",
+        "배터리의 무게중심을 이동시킨다",
         "착륙 장치의 움직임을 이용한다",
-        "배터리의 무게중심을 이동시킨다"
+        "서로 반대 방향으로 회전하는 로터 간의 회전수 차이를 이용한다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "시계 방향·반시계 방향 로터의 회전수를 다르게 하면 반작용 토크의 균형이 무너지며 기체가 요잉 회전합니다."
     },
     {
@@ -295,12 +295,12 @@
       "subject": "항공법규",
       "prompt": "관제권 내에서 초경량비행장치를 비행하려는 경우 필요한 조치는?",
       "choices": [
-        "관할 기관의 비행승인을 받아야 한다",
+        "기상청에 신고하면 된다",
         "승인 없이 자유롭게 비행할 수 있다",
         "야간에만 비행할 수 있다",
-        "기상청에 신고하면 된다"
+        "관할 기관의 비행승인을 받아야 한다"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "관제권 등 통제 공역에서는 사전에 관할 기관의 비행승인을 받아야 비행할 수 있습니다."
     },
     {
@@ -310,9 +310,9 @@
       "prompt": "뇌우가 발생하기 위한 조건으로 옳지 않은 것은?",
       "choices": [
         "안정된 대기",
+        "강한 상승 기류",
         "충분한 수증기",
-        "불안정한 대기",
-        "강한 상승 기류"
+        "불안정한 대기"
       ],
       "answerIndex": 0,
       "explanation": "뇌우는 불안정한 대기, 충분한 수증기, 상승 기류가 갖춰질 때 발생합니다. 안정된 대기는 뇌우 발생을 억제합니다."
@@ -325,8 +325,8 @@
       "choices": [
         "before",
         "despite",
-        "unless",
-        "toward"
+        "toward",
+        "unless"
       ],
       "answerIndex": 0,
       "explanation": "동명사 approving 앞은 전치사 자리이며, 문맥상 '추가 예산을 승인하기 전에 검토했다'가 자연스러우므로 before가 정답입니다."
@@ -337,12 +337,12 @@
       "subject": "문법",
       "prompt": "All employees are required to ___ their expense reports by the end of the month.",
       "choices": [
-        "submit",
-        "submission",
+        "submitting",
         "submitted",
-        "submitting"
+        "submit",
+        "submission"
       ],
-      "answerIndex": 0,
+      "answerIndex": 2,
       "explanation": "be required to 뒤에는 동사원형이 와야 하므로 submit이 정답입니다."
     },
     {
@@ -351,12 +351,12 @@
       "subject": "어휘",
       "prompt": "The updated application is fully ___ with older operating systems.",
       "choices": [
-        "compatible",
         "comparable",
-        "competitive",
-        "comprehensive"
+        "compatible",
+        "comprehensive",
+        "competitive"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "be compatible with는 '~와 호환된다'는 의미의 관용 표현입니다."
     },
     {
@@ -365,12 +365,12 @@
       "subject": "문법",
       "prompt": "___ the severe weather, the outdoor networking event proceeded as scheduled.",
       "choices": [
-        "Despite",
-        "Although",
         "Because",
-        "Unless"
+        "Although",
+        "Unless",
+        "Despite"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "빈칸 뒤가 명사구(the severe weather)이므로 전치사 Despite가 정답입니다. Although는 뒤에 절이 와야 합니다."
     },
     {
@@ -379,12 +379,12 @@
       "subject": "문법",
       "prompt": "Candidates ___ applications were submitted after the deadline will not be considered.",
       "choices": [
+        "whom",
         "whose",
         "who",
-        "whom",
         "which"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "빈칸 뒤 명사 applications와 소유 관계('지원자의 지원서')이므로 소유격 관계대명사 whose가 정답입니다."
     },
     {
@@ -394,9 +394,9 @@
       "prompt": "The number of applicants for the marketing position ___ increased significantly this year.",
       "choices": [
         "has",
+        "were",
         "have",
-        "are",
-        "were"
+        "are"
       ],
       "answerIndex": 0,
       "explanation": "'The number of + 복수명사'는 단수 취급하므로 단수 동사 has가 정답입니다. 'A number of'는 복수 취급과 구별해야 합니다."
@@ -407,12 +407,12 @@
       "subject": "어휘",
       "prompt": "Please ___ the attached form and return it to the personnel department by Friday.",
       "choices": [
-        "complete",
         "compete",
+        "complete",
         "comply",
         "compose"
       ],
-      "answerIndex": 0,
+      "answerIndex": 1,
       "explanation": "complete the form은 '양식을 작성하다'라는 의미의 관용 표현입니다. comply는 전치사 with와 함께 써야 합니다."
     },
     {
@@ -421,12 +421,12 @@
       "subject": "문법",
       "prompt": "The shipment arrived ___ than expected due to the holiday season.",
       "choices": [
-        "later",
-        "late",
         "latest",
-        "lately"
+        "lately",
+        "later",
+        "late"
       ],
-      "answerIndex": 0,
+      "answerIndex": 2,
       "explanation": "뒤의 than과 호응하려면 비교급이 필요하므로 later가 정답입니다."
     },
     {
@@ -435,12 +435,12 @@
       "subject": "문법",
       "prompt": "Employees should direct any questions about the new policy to ___ immediate supervisors.",
       "choices": [
-        "their",
-        "they",
+        "themselves",
         "them",
-        "themselves"
+        "they",
+        "their"
       ],
-      "answerIndex": 0,
+      "answerIndex": 3,
       "explanation": "빈칸 뒤 명사 immediate supervisors를 수식하는 자리이므로 소유격 their가 정답입니다."
     },
     {
@@ -449,13 +449,853 @@
       "subject": "어휘",
       "prompt": "The seminar has been ___ until next month because of scheduling conflicts.",
       "choices": [
+        "purchased",
         "postponed",
         "proceeded",
-        "prevented",
-        "purchased"
+        "prevented"
+      ],
+      "answerIndex": 1,
+      "explanation": "postpone until은 '~까지 연기하다'라는 의미로 문맥에 가장 적합합니다."
+    },
+    {
+      "id": "c1-011",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "다음 중 캐시 메모리(Cache Memory)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "전원이 꺼져도 데이터가 유지되는 보조기억장치이다",
+        "사용하지 않는 데이터를 디스크로 옮겨 메모리를 확보하는 기법이다",
+        "주기억장치보다 용량이 크고 접근 속도는 느리다",
+        "CPU와 주기억장치의 속도 차이를 줄이기 위해 사용하는 고속 메모리이다"
+      ],
+      "answerIndex": 3,
+      "explanation": "캐시 메모리는 CPU와 주기억장치 사이에 위치한 고속 메모리로, 자주 사용하는 데이터를 저장해 두 장치의 속도 차이를 완화합니다."
+    },
+    {
+      "id": "c1-012",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "프린터 출력에 사용되는 스풀(SPOOL) 기능에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "출력할 데이터를 보조기억장치에 임시 저장해 CPU가 다른 작업을 계속하게 한다",
+        "출력 품질을 높이기 위해 해상도를 자동으로 변환한다",
+        "인쇄 중 오류가 발생하면 문서를 자동으로 삭제한다",
+        "여러 대의 프린터를 하나로 묶어 출력 속도를 높인다"
       ],
       "answerIndex": 0,
-      "explanation": "postpone until은 '~까지 연기하다'라는 의미로 문맥에 가장 적합합니다."
+      "explanation": "스풀은 출력 데이터를 디스크에 임시 저장하여 저속 출력장치와 CPU의 처리 속도 차이를 줄이는 기능입니다."
+    },
+    {
+      "id": "c1-013",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "다음 중 무손실 압축 방식을 사용하는 파일 형식은?",
+      "choices": [
+        "JPG",
+        "PNG",
+        "MPEG",
+        "MP3"
+      ],
+      "answerIndex": 1,
+      "explanation": "PNG는 무손실 압축을 사용해 원본 품질이 그대로 유지되며, JPG·MP3·MPEG는 손실 압축 방식입니다."
+    },
+    {
+      "id": "c1-014",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "TCP/IP 프로토콜 중 UDP에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "비연결형 통신으로 신뢰성보다 전송 속도를 우선한다",
+        "연결 설정 과정을 거친 뒤에만 데이터를 전송한다",
+        "전송된 데이터의 도착 순서를 항상 보장한다",
+        "패킷 손실이 발생하면 자동으로 재전송한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "UDP는 비연결형 프로토콜로 흐름 제어·재전송·순서 보장을 하지 않아 실시간 스트리밍처럼 속도가 중요한 통신에 사용됩니다."
+    },
+    {
+      "id": "c1-015",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "방화벽(Firewall)의 기능에 대한 설명으로 옳지 않은 것은?",
+      "choices": [
+        "통과하는 패킷의 출입 기록을 남길 수 있다",
+        "허용된 포트로만 통신하도록 제한할 수 있다",
+        "외부로부터의 불법적인 접근을 차단한다",
+        "내부 시스템에 이미 감염된 바이러스를 치료한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "방화벽은 외부 침입 차단과 접근 제어·로그 기록을 담당하며, 이미 감염된 바이러스 치료는 백신 프로그램의 역할입니다."
+    },
+    {
+      "id": "c1-016",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "인터프리터 방식의 언어 처리기에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "목적 프로그램을 생성하므로 실행 속도가 가장 빠르다",
+        "프로그램 전체를 번역한 뒤에만 실행할 수 있다",
+        "원시 프로그램을 한 줄씩 번역하면서 즉시 실행한다",
+        "번역 결과를 실행 파일로 저장해 반복 사용한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "인터프리터는 원시 코드를 행 단위로 번역·실행하며 목적 프로그램을 생성하지 않으므로 컴파일러 방식보다 실행 속도가 느립니다."
+    },
+    {
+      "id": "c1-017",
+      "examId": "computer-1",
+      "subject": "컴퓨터 일반",
+      "prompt": "한글 Windows의 레지스트리(Registry)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "삭제된 파일을 임시로 보관하는 저장 공간이다",
+        "하드웨어·소프트웨어·사용자 환경 설정 정보를 저장하는 계층형 데이터베이스이다",
+        "사용 빈도가 낮은 프로그램을 자동으로 제거하는 도구이다",
+        "프로그램 실행 중 발생한 오류만 기록하는 텍스트 파일이다"
+      ],
+      "answerIndex": 1,
+      "explanation": "레지스트리는 시스템과 응용 프로그램의 설정 정보를 계층 구조로 저장하며, 손상되면 시스템 동작에 문제가 발생할 수 있습니다."
+    },
+    {
+      "id": "c1-018",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "조건부 서식에 대한 설명으로 옳지 않은 것은?",
+      "choices": [
+        "셀 값에 따라 글꼴·배경색 등 서식을 다르게 적용한다",
+        "수식을 조건으로 사용할 수 있다",
+        "조건에 맞는 셀에 입력된 값 자체를 자동으로 변경한다",
+        "데이터 막대·색조·아이콘 집합으로 값을 시각화할 수 있다"
+      ],
+      "answerIndex": 2,
+      "explanation": "조건부 서식은 조건에 따라 서식만 변경하며, 셀에 입력된 값 자체는 변경하지 않습니다."
+    },
+    {
+      "id": "c1-019",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "피벗 테이블에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "많은 양의 데이터를 원하는 기준으로 요약·집계해 보여준다",
+        "행과 열의 필드 배치는 한 번 만들면 변경할 수 없다",
+        "원본 데이터가 변경되면 별도 조작 없이 즉시 갱신된다",
+        "집계 결과만 저장되어 원본 데이터와의 연결이 끊긴다"
+      ],
+      "answerIndex": 0,
+      "explanation": "피벗 테이블은 대량 데이터를 요약·분석하는 도구이며, 원본이 변경되면 새로 고침을 실행해야 결과가 갱신됩니다."
+    },
+    {
+      "id": "c1-020",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "수식 =IFERROR(A1/B1,\"확인\") 에서 B1의 값이 0일 때 표시되는 결과는?",
+      "choices": [
+        "0",
+        "#DIV/0!",
+        "확인",
+        "#VALUE!"
+      ],
+      "answerIndex": 2,
+      "explanation": "IFERROR는 첫 번째 인수에서 오류가 발생하면 두 번째 인수를 반환하므로, 0으로 나눈 오류 대신 '확인'이 표시됩니다."
+    },
+    {
+      "id": "c1-021",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "데이터 유효성 검사에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "중복 입력된 데이터를 자동으로 삭제한다",
+        "이미 입력된 데이터의 오류를 자동으로 수정한다",
+        "셀에 입력할 수 있는 데이터의 범위나 형식을 제한할 수 있다",
+        "셀에 입력된 수식의 계산 순서를 지정한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "데이터 유효성 검사는 입력 가능한 값의 조건·목록·설명 메시지를 지정해 잘못된 입력을 사전에 제한합니다."
+    },
+    {
+      "id": "c1-022",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "수식의 결과가 원하는 값이 되도록 특정 셀의 값을 역으로 찾아주는 기능은?",
+      "choices": [
+        "통합",
+        "부분합",
+        "시나리오 관리자",
+        "목표값 찾기"
+      ],
+      "answerIndex": 3,
+      "explanation": "목표값 찾기는 수식 결과가 지정한 목표값이 되도록 참조 셀 하나의 값을 역산해 주는 기능입니다."
+    },
+    {
+      "id": "c1-023",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "수식 =MATCH(\"서울\",A1:A5,0) 이 반환하는 값은?",
+      "choices": [
+        "“서울”과 일치하는 셀에 입력된 값",
+        "A1:A5 범위에서 “서울”이 위치한 상대적 순번",
+        "“서울”이 입력된 셀의 주소",
+        "A1:A5 범위에 있는 “서울”의 개수"
+      ],
+      "answerIndex": 1,
+      "explanation": "MATCH 함수는 찾을 값이 범위에서 몇 번째에 있는지 순번을 반환하며, 세 번째 인수 0은 정확히 일치하는 값을 찾습니다."
+    },
+    {
+      "id": "c1-024",
+      "examId": "computer-1",
+      "subject": "스프레드시트 일반",
+      "prompt": "매크로가 포함된 통합 문서를 저장할 때 사용해야 하는 파일 형식은?",
+      "choices": [
+        "Excel 매크로 사용 통합 문서(*.xlsm)",
+        "CSV(쉼표로 분리)(*.csv)",
+        "Excel 통합 문서(*.xlsx)",
+        "Excel 서식 파일(*.xltx)"
+      ],
+      "answerIndex": 0,
+      "explanation": "일반 통합 문서(*.xlsx)에는 매크로를 저장할 수 없으므로 매크로 사용 통합 문서(*.xlsm) 형식으로 저장해야 합니다."
+    },
+    {
+      "id": "c1-025",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "데이터베이스 정규화의 목적으로 옳은 것은?",
+      "choices": [
+        "여러 테이블을 하나로 합쳐 관리를 단순화한다",
+        "데이터를 물리적으로 압축해 저장 공간을 줄인다",
+        "테이블 수를 줄여 조회 속도를 항상 향상시킨다",
+        "데이터 중복을 최소화하고 이상 현상을 방지한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "정규화는 테이블을 분해해 데이터 중복을 줄이고 삽입·삭제·갱신 이상을 방지하는 과정입니다."
+    },
+    {
+      "id": "c1-026",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "외래키(Foreign Key)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "하나의 테이블에 하나만 정의할 수 있다",
+        "중복된 값을 절대 가질 수 없다",
+        "다른 테이블의 기본키를 참조해 테이블 간 관계를 나타낸다",
+        "테이블에서 각 행을 유일하게 식별하는 속성이다"
+      ],
+      "answerIndex": 2,
+      "explanation": "외래키는 다른 테이블의 기본키를 참조해 참조 무결성을 유지하며, 중복 값을 가질 수 있고 여러 개를 정의할 수도 있습니다."
+    },
+    {
+      "id": "c1-027",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "인덱스(Index)에 대한 설명으로 옳지 않은 것은?",
+      "choices": [
+        "특정 열을 기준으로 하는 검색 속도를 향상시킨다",
+        "기본키에는 인덱스가 자동으로 생성된다",
+        "인덱스는 별도의 저장 공간을 필요로 한다",
+        "인덱스를 많이 만들수록 삽입·삭제 성능이 향상된다"
+      ],
+      "answerIndex": 3,
+      "explanation": "인덱스는 검색 성능을 높이지만 데이터가 변경될 때마다 인덱스도 갱신해야 하므로 삽입·삭제·수정 성능은 저하됩니다."
+    },
+    {
+      "id": "c1-028",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "두 테이블에서 조인 조건을 만족하는 행만 조회하는 SQL 구문은?",
+      "choices": [
+        "INNER JOIN",
+        "LEFT OUTER JOIN",
+        "CROSS JOIN",
+        "UNION"
+      ],
+      "answerIndex": 0,
+      "explanation": "INNER JOIN은 양쪽 테이블에서 조인 조건이 일치하는 행만 반환하며, 조건에 맞지 않는 행은 결과에서 제외됩니다."
+    },
+    {
+      "id": "c1-029",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "SQL에서 GROUP BY로 그룹화한 결과에 조건을 지정할 때 사용하는 절은?",
+      "choices": [
+        "HAVING",
+        "DISTINCT",
+        "ORDER BY",
+        "WHERE"
+      ],
+      "answerIndex": 0,
+      "explanation": "WHERE는 그룹화 이전의 개별 행에, HAVING은 그룹화 이후의 집계 결과에 조건을 적용합니다."
+    },
+    {
+      "id": "c1-030",
+      "examId": "computer-1",
+      "subject": "데이터베이스 일반",
+      "prompt": "다음 중 데이터 정의어(DDL)에 해당하는 SQL 명령은?",
+      "choices": [
+        "CREATE",
+        "SELECT",
+        "DELETE",
+        "UPDATE"
+      ],
+      "answerIndex": 0,
+      "explanation": "CREATE·ALTER·DROP은 데이터 정의어(DDL)이며, SELECT·INSERT·UPDATE·DELETE는 데이터 조작어(DML)입니다."
+    },
+    {
+      "id": "d1-011",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치의 비행 고도에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "고도 제한이 없어 자유롭게 비행할 수 있다",
+        "지표면 또는 수면으로부터 150m 이상 높이에서 비행하려면 비행 승인을 받아야 한다",
+        "관제권 밖에서는 고도 제한이 적용되지 않는다",
+        "300m 미만에서는 어떤 경우에도 승인 없이 비행할 수 있다"
+      ],
+      "answerIndex": 1,
+      "explanation": "지표면·수면 또는 건축물 상단으로부터 150m 이상 높이에서 비행하려면 사전에 비행 승인을 받아야 합니다."
+    },
+    {
+      "id": "d1-012",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치의 야간 비행에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "일몰 후부터 일출 전까지의 비행은 특별비행승인을 받아야 가능하다",
+        "조명 장치를 장착하면 승인 없이 가능하다",
+        "조종자 자격을 보유하면 제한 없이 가능하다",
+        "기상 조건이 양호하면 승인 없이 가능하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "일몰 후 일출 전 야간 비행과 가시권 밖 비행은 원칙적으로 금지되며, 특별비행승인을 받은 경우에만 가능합니다."
+    },
+    {
+      "id": "d1-013",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "무인동력비행장치 조종자 자격의 종별 구분 기준으로 옳은 것은?",
+      "choices": [
+        "4종은 최대이륙중량 7kg을 초과하는 기체를 대상으로 한다",
+        "2종은 최대이륙중량 25kg을 초과하는 기체를 대상으로 한다",
+        "최대이륙중량이 25kg을 초과하는 기체는 1종에 해당한다",
+        "종별 구분은 기체의 최대 비행 속도를 기준으로 한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "종별 구분은 최대이륙중량 기준이며 1종은 25kg 초과, 2종은 7kg 초과 25kg 이하, 3종은 2kg 초과 7kg 이하, 4종은 250g 초과 2kg 이하입니다."
+    },
+    {
+      "id": "d1-014",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치 안전성인증에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "최대이륙중량 25kg을 초과하는 무인동력비행장치는 안전성인증을 받아야 한다",
+        "안전성인증은 조종자 자격 취득과 동일한 절차이다",
+        "사업용으로 사용하지 않으면 중량과 무관하게 대상이 아니다",
+        "모든 무인멀티콥터는 중량과 무관하게 안전성인증 대상이다"
+      ],
+      "answerIndex": 0,
+      "explanation": "최대이륙중량 25kg을 초과하는 무인동력비행장치는 비행 전 안전성인증을 받아야 하며, 조종자 자격 취득과는 별개의 절차입니다."
+    },
+    {
+      "id": "d1-015",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치 사고가 발생한 경우 조종자의 조치로 옳은 것은?",
+      "choices": [
+        "인명 피해가 없으면 보고하지 않아도 된다",
+        "기체를 즉시 폐기한 뒤 보고한다",
+        "지체 없이 관할 지방항공청장에게 사고를 보고해야 한다",
+        "보험사에만 통보하면 별도의 보고 의무는 없다"
+      ],
+      "answerIndex": 2,
+      "explanation": "초경량비행장치 사고가 발생하면 조종자 또는 소유자는 지체 없이 관할 지방항공청장에게 사고를 보고해야 합니다."
+    },
+    {
+      "id": "d1-016",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치 조종자 준수사항에 해당하는 것은?",
+      "choices": [
+        "소음을 줄이기 위해 야간에만 비행한다",
+        "인구가 밀집한 지역 위에서 곡예비행을 한다",
+        "음주 후에도 조종 능력에 문제가 없으면 비행한다",
+        "비행 중 물건을 투하하지 않는다"
+      ],
+      "answerIndex": 3,
+      "explanation": "비행 중 낙하물 투하, 인구 밀집 지역 위 위험한 방식의 비행, 음주 상태의 비행은 모두 금지되어 있습니다."
+    },
+    {
+      "id": "d1-017",
+      "examId": "drone-1",
+      "subject": "항공법규",
+      "prompt": "초경량비행장치 사용사업자의 보험 가입에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "보험 가입은 조종자 자격 취득 후의 선택 사항이다",
+        "기체 중량이 25kg 이하이면 가입 의무가 없다",
+        "영리 목적으로 사용하는 경우 책임보험 등에 가입해야 한다",
+        "비사업용 기체도 예외 없이 가입이 의무이다"
+      ],
+      "answerIndex": 2,
+      "explanation": "영리 목적으로 초경량비행장치를 사용하려면 사고로 인한 손해를 배상할 수 있는 보험 또는 공제에 가입해야 합니다."
+    },
+    {
+      "id": "d1-018",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "국제표준대기(ISA)의 해면 기압 값으로 옳은 것은?",
+      "choices": [
+        "1000hPa",
+        "1013.25hPa",
+        "1113.25hPa",
+        "760hPa"
+      ],
+      "answerIndex": 1,
+      "explanation": "국제표준대기의 해면 기압은 1013.25hPa(29.92inHg)이며 해면 기온은 15℃를 기준으로 합니다."
+    },
+    {
+      "id": "d1-019",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "대류권에서 고도가 상승할 때의 기온 변화로 옳은 것은?",
+      "choices": [
+        "고도와 관계없이 일정하게 유지된다",
+        "고도 100m당 약 6.5℃씩 낮아진다",
+        "고도 100m당 약 0.65℃씩 낮아진다",
+        "고도가 높아질수록 계속 상승한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "대류권의 표준 기온 감률은 고도 1,000m당 약 6.5℃, 즉 100m당 약 0.65℃입니다."
+    },
+    {
+      "id": "d1-020",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "이슬점(Dew Point)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "기온보다 항상 높은 값을 가진다",
+        "공기가 냉각되어 포화 상태에 도달해 응결이 시작되는 온도이다",
+        "기온과 항상 같은 값을 가진다",
+        "공기가 포함할 수 있는 최대 수증기량을 뜻한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "이슬점은 수증기량이 일정할 때 공기를 냉각시켜 포화에 도달하는 온도로, 기온과의 차이가 작을수록 습도가 높습니다."
+    },
+    {
+      "id": "d1-021",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "맑은 날 낮에 해안 지역에서 발생하는 바람에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "육지가 바다보다 빨리 가열되어 바다에서 육지로 해풍이 분다",
+        "낮과 밤 모두 육지에서 바다로만 바람이 분다",
+        "바다가 육지보다 빨리 가열되어 육지에서 바다로 바람이 분다",
+        "해안에서는 기온 차이로 인한 바람이 발생하지 않는다"
+      ],
+      "answerIndex": 0,
+      "explanation": "낮에는 육지가 빨리 가열되어 상대적 저기압이 형성되므로 바다에서 육지로 해풍이 불고, 밤에는 반대로 육풍이 붑니다."
+    },
+    {
+      "id": "d1-022",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "착빙(Icing)이 발생하기 쉬운 조건으로 옳은 것은?",
+      "choices": [
+        "구름이 전혀 없는 맑은 날일 때",
+        "기온이 0℃ 이하이고 과냉각 물방울이 존재할 때",
+        "지표면 기온이 30℃ 이상일 때",
+        "기온이 높고 대기가 매우 건조할 때"
+      ],
+      "answerIndex": 1,
+      "explanation": "착빙은 0℃ 이하의 과냉각 물방울이 기체 표면에 부딪혀 얼어붙을 때 발생하며, 양력 감소와 무게 증가를 유발합니다."
+    },
+    {
+      "id": "d1-023",
+      "examId": "drone-1",
+      "subject": "항공기상",
+      "prompt": "지표면의 건물·산악 등 장애물에 의해 발생하는 난류는?",
+      "choices": [
+        "청천 난류",
+        "열적 난류",
+        "기계적 난류",
+        "후류 난류"
+      ],
+      "answerIndex": 2,
+      "explanation": "기계적 난류는 바람이 지형·건물 등 장애물을 지날 때 흐름이 교란되어 발생하며, 저고도 비행 시 특히 주의해야 합니다."
+    },
+    {
+      "id": "d1-024",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "쿼드콥터에서 로터의 회전 방향에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "로터의 회전 방향은 비행 성능과 관계가 없다",
+        "대각선에 위치한 로터끼리 서로 반대 방향으로 회전한다",
+        "인접한 로터는 서로 반대 방향으로 회전해 반작용 토크를 상쇄한다",
+        "네 개의 로터가 모두 같은 방향으로 회전해야 안정된다"
+      ],
+      "answerIndex": 2,
+      "explanation": "쿼드콥터는 인접 로터를 서로 반대 방향(대각선 로터는 같은 방향)으로 회전시켜 반작용 토크를 상쇄해 기수 방향을 유지합니다."
+    },
+    {
+      "id": "d1-025",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "지면 효과(Ground Effect)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "회전익 비행장치에서는 발생하지 않는 현상이다",
+        "고도가 높을수록 강하게 나타나는 현상이다",
+        "지면 가까이에서 양력이 급격히 감소하는 현상이다",
+        "지면 가까이에서 하강 기류가 지면에 막혀 양력이 증가하는 현상이다"
+      ],
+      "answerIndex": 3,
+      "explanation": "지면 효과는 대략 로터 직경 이내의 낮은 고도에서 하강 기류가 지면에 막혀 양력이 증가하는 현상입니다."
+    },
+    {
+      "id": "d1-026",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "받음각(Angle of Attack)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "받음각이 커지면 양력이 무한히 증가한다",
+        "익현선과 상대풍이 이루는 각이다",
+        "기체의 종축과 수평면이 이루는 각이다",
+        "받음각은 실속 발생과 관련이 없다"
+      ],
+      "answerIndex": 1,
+      "explanation": "받음각은 익현선과 상대풍 사이의 각으로, 임계 받음각을 넘으면 양력이 급격히 감소하는 실속이 발생합니다."
+    },
+    {
+      "id": "d1-027",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "멀티콥터의 무게중심(CG)에 관한 설명으로 옳은 것은?",
+      "choices": [
+        "무게중심은 비행 안정성과 관계가 없다",
+        "무게중심이 치우치면 자세 유지에 더 많은 출력이 필요해 비행 시간이 짧아진다",
+        "무게중심은 항상 기체의 가장 높은 위치에 두어야 한다",
+        "짐벌·카메라를 장착해도 무게중심은 변하지 않는다"
+      ],
+      "answerIndex": 1,
+      "explanation": "무게중심이 한쪽으로 치우치면 특정 모터가 더 큰 출력을 내야 하므로 자세 안정성이 떨어지고 비행 시간도 감소합니다."
+    },
+    {
+      "id": "d1-028",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "리튬 폴리머(LiPo) 배터리 관리 방법으로 옳지 않은 것은?",
+      "choices": [
+        "셀당 전압이 과도하게 낮아지기 전에 비행을 종료한다",
+        "부풀어 오른 배터리는 사용하지 않는다",
+        "장기 보관 시 만충·완방을 피하고 보관 전압을 유지한다",
+        "완전히 방전된 상태로 장기간 보관한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "LiPo 배터리를 완전 방전 상태로 장기간 보관하면 셀이 영구 손상되므로 보관 전압을 유지해야 합니다."
+    },
+    {
+      "id": "d1-029",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "멀티콥터의 GPS 모드에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "자세 모드보다 조종자의 개입이 더 많이 필요하다",
+        "수신 위성 개수와 관계없이 위치 정확도가 일정하다",
+        "위성 신호로 위치를 유지해 조종간을 놓아도 제자리에 머무를 수 있다",
+        "실내에서도 항상 안정적으로 동작한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "GPS 모드는 위성 신호로 위치를 보정해 호버링 안정성이 높지만, 실내·고층 건물 주변처럼 수신이 불량한 환경에서는 사용이 어렵습니다."
+    },
+    {
+      "id": "d1-030",
+      "examId": "drone-1",
+      "subject": "비행이론 및 운용",
+      "prompt": "조종기 신호가 끊겼을 때 기체를 이륙 지점으로 자동 복귀시키는 기능은?",
+      "choices": [
+        "지자계 보정",
+        "자동 귀환(RTH)",
+        "짐벌 캘리브레이션",
+        "웨이포인트 비행"
+      ],
+      "answerIndex": 1,
+      "explanation": "자동 귀환(Return To Home)은 조종 신호 상실·배터리 부족 등 이상 상황에서 기체를 이륙 지점으로 복귀시키는 페일세이프 기능입니다."
+    },
+    {
+      "id": "tr-011",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The consultant ___ presented the quarterly report will join tomorrow's planning meeting.",
+      "choices": [
+        "which",
+        "whose",
+        "who",
+        "whom"
+      ],
+      "answerIndex": 2,
+      "explanation": "선행사가 사람(The consultant)이고 뒤에 동사(presented)가 바로 이어지므로 주격 관계대명사 who가 적절합니다."
+    },
+    {
+      "id": "tr-012",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The renovation of the main lobby ___ by the end of March.",
+      "choices": [
+        "will complete",
+        "will be completed",
+        "has completing",
+        "is completing"
+      ],
+      "answerIndex": 1,
+      "explanation": "공사는 완료되는 대상이므로 미래 시점의 수동태 will be completed가 적절합니다."
+    },
+    {
+      "id": "tr-013",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We look forward to ___ with your team on the upcoming project.",
+      "choices": [
+        "working",
+        "be worked",
+        "work",
+        "have worked"
+      ],
+      "answerIndex": 0,
+      "explanation": "look forward to의 to는 전치사이므로 뒤에는 동명사 working이 옵니다."
+    },
+    {
+      "id": "tr-014",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Visitors must wear identification badges ___ their stay at the research facility.",
+      "choices": [
+        "whereas",
+        "unless",
+        "while",
+        "during"
+      ],
+      "answerIndex": 3,
+      "explanation": "명사구(their stay)를 이끄는 자리이므로 전치사 during이 적절하며, while·whereas·unless는 절을 이끕니다."
+    },
+    {
+      "id": "tr-015",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The technician resolved the network issue ___ after arriving at the office.",
+      "choices": [
+        "immediately",
+        "immediateness",
+        "immediate",
+        "immediacy"
+      ],
+      "answerIndex": 0,
+      "explanation": "동사(resolved)를 수식하는 자리이므로 부사 immediately가 적절합니다."
+    },
+    {
+      "id": "tr-016",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The training session covers safety procedures, equipment handling, and ___ of daily reports.",
+      "choices": [
+        "prepares",
+        "preparation",
+        "prepare",
+        "prepared"
+      ],
+      "answerIndex": 1,
+      "explanation": "and로 연결된 앞의 명사구들과 병치되는 자리이므로 명사 preparation이 적절합니다."
+    },
+    {
+      "id": "tr-017",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Each of the branch managers ___ responsible for submitting monthly sales figures.",
+      "choices": [
+        "were",
+        "being",
+        "are",
+        "is"
+      ],
+      "answerIndex": 3,
+      "explanation": "Each of + 복수명사는 단수로 취급하므로 단수 동사 is가 적절합니다."
+    },
+    {
+      "id": "tr-018",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "By the time the auditors arrive, the accounting team ___ all the invoices.",
+      "choices": [
+        "was organizing",
+        "organizes",
+        "had organized",
+        "will have organized"
+      ],
+      "answerIndex": 3,
+      "explanation": "미래의 특정 시점 이전에 완료될 일을 나타내므로 미래완료 will have organized가 적절합니다."
+    },
+    {
+      "id": "tr-019",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new software is not only easy to install ___ also compatible with most devices.",
+      "choices": [
+        "but",
+        "or",
+        "so",
+        "and"
+      ],
+      "answerIndex": 0,
+      "explanation": "not only A but also B 구문이므로 but이 적절합니다."
+    },
+    {
+      "id": "tr-020",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Please refer to the ___ guidelines before submitting your application.",
+      "choices": [
+        "attach",
+        "attached",
+        "attachment",
+        "attaching"
+      ],
+      "answerIndex": 1,
+      "explanation": "명사 guidelines를 수식하며 '첨부된'이라는 수동의 의미이므로 과거분사 attached가 적절합니다."
+    },
+    {
+      "id": "tr-021",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Of all the vendors we contacted, Harbor Supplies offered the ___ price.",
+      "choices": [
+        "lowly",
+        "lowest",
+        "low",
+        "lower"
+      ],
+      "answerIndex": 1,
+      "explanation": "셋 이상의 대상 중 가장 낮은 정도를 나타내며 정관사 the가 있으므로 최상급 lowest가 적절합니다."
+    },
+    {
+      "id": "tr-022",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The technicians installed the new server racks ___ without any outside help.",
+      "choices": [
+        "they",
+        "themselves",
+        "them",
+        "their"
+      ],
+      "answerIndex": 1,
+      "explanation": "주어인 The technicians를 강조하는 자리이므로 재귀대명사 themselves가 적절합니다."
+    },
+    {
+      "id": "tr-023",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Demand for the new model was ___ high that the factory added a second shift.",
+      "choices": [
+        "too",
+        "so",
+        "very",
+        "such"
+      ],
+      "answerIndex": 1,
+      "explanation": "so + 형용사 + that 구문이므로 so가 적절하며, such는 such high demand처럼 명사구를 수반합니다."
+    },
+    {
+      "id": "tr-024",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "All contractors must ___ with the safety regulations posted at the construction site.",
+      "choices": [
+        "insist",
+        "depend",
+        "comply",
+        "consist"
+      ],
+      "answerIndex": 2,
+      "explanation": "'~을 준수하다'는 comply with이며, 나머지 동사는 with와 결합해 규정 준수의 의미를 만들지 않습니다."
+    },
+    {
+      "id": "tr-025",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Employees who have worked here for more than one year are ___ for the tuition reimbursement program.",
+      "choices": [
+        "available",
+        "possible",
+        "capable",
+        "eligible"
+      ],
+      "answerIndex": 3,
+      "explanation": "'~의 자격이 있다'는 be eligible for이며, capable은 of와, possible은 사람 주어와 함께 쓰이지 않습니다."
+    },
+    {
+      "id": "tr-026",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Due to a ___ of raw materials, production has been temporarily reduced.",
+      "choices": [
+        "shortly",
+        "shorten",
+        "shortness",
+        "shortage"
+      ],
+      "answerIndex": 3,
+      "explanation": "'부족'을 뜻하는 명사는 shortage이며, shortness는 길이나 키가 짧음을 의미합니다."
+    },
+    {
+      "id": "tr-027",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "We appreciate your ___ response to our inquiry about the delivery schedule.",
+      "choices": [
+        "prompt",
+        "promptly",
+        "promptness",
+        "prompted"
+      ],
+      "answerIndex": 0,
+      "explanation": "명사 response를 수식하는 형용사 자리이므로 '신속한'을 뜻하는 prompt가 적절합니다."
+    },
+    {
+      "id": "tr-028",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The candidate has ___ experience in managing international logistics operations.",
+      "choices": [
+        "extensive",
+        "extension",
+        "extended",
+        "extensively"
+      ],
+      "answerIndex": 0,
+      "explanation": "명사 experience를 수식해 '폭넓은'을 뜻하는 형용사 extensive가 적절합니다."
+    },
+    {
+      "id": "tr-029",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The company will ___ employees for travel expenses within two weeks of submission.",
+      "choices": [
+        "charge",
+        "withdraw",
+        "deposit",
+        "reimburse"
+      ],
+      "answerIndex": 3,
+      "explanation": "'경비를 상환하다'는 reimburse someone for something 구조로 사용합니다."
+    },
+    {
+      "id": "tr-030",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "All personnel records are maintained ___ accordance with the company privacy policy.",
+      "choices": [
+        "for",
+        "in",
+        "on",
+        "by"
+      ],
+      "answerIndex": 1,
+      "explanation": "'~에 따라'를 뜻하는 관용 표현은 in accordance with입니다."
     }
   ]
 }

@@ -1,4 +1,4 @@
-// Exam Loop API 계약 v1 — DB 스키마(db/migrations/0001_init.sql)와 1:1 동기
+// Exam Loop API 계약 v1 — DB 스키마(db/migrations/0001~0005)와 1:1 동기
 // 소비 방법: 앱 tsconfig paths 별칭 추가 또는 src/types 하위로 파일 복사 (내용 수정 금지, 변경은 이 패키지에서만)
 
 // #region 상태 유니온
@@ -33,6 +33,32 @@ export type QuestionSourceType = "public_past_exam" | "ai_generated" | "manual";
 
 // 알림 유형
 export type NotificationType = "exam_published" | "request_status_changed";
+
+// 신고 처리 상태
+export type ReportStatus = "open" | "accepted" | "dismissed";
+
+// 사용자 역할
+export type UserRole = "user" | "admin";
+
+// 푸시 토큰 플랫폼
+export type PushPlatform = "ios" | "android";
+
+// 사전 검수 통과 요청 상태 (미포함 상태는 작성자·관리자만 조회)
+export const EXAM_REQUEST_PUBLIC_STATUSES = [
+  "triage",
+  "approved",
+  "sourcing",
+  "draft",
+  "review",
+  "published",
+] as const satisfies readonly ExamRequestStatus[];
+
+// 요청 상태 공개 노출 여부 판별
+export function isExamRequestPublicStatus(status: ExamRequestStatus): boolean {
+  return (EXAM_REQUEST_PUBLIC_STATUSES as readonly ExamRequestStatus[]).includes(
+    status,
+  );
+}
 // #endregion
 
 // #region DB Row 타입 (snake_case — Supabase 응답 원형)
@@ -103,6 +129,41 @@ export interface NotificationRow {
   read_at: string | null;
   created_at: string;
 }
+
+export interface ProfileRow {
+  id: string;
+  nickname: string | null;
+  role: UserRole;
+  banned_at: string | null;
+  banned_reason: string | null;
+  created_at: string;
+}
+
+export interface ExamRequestReportRow {
+  id: number;
+  request_id: string;
+  reporter_id: string | null;
+  reason: string;
+  status: ReportStatus;
+  created_at: string;
+  resolved_at: string | null;
+}
+
+export interface ExamRequestAliasRow {
+  id: number;
+  request_id: string;
+  alias: string;
+  normalized_alias: string;
+  created_at: string;
+}
+
+export interface PushTokenRow {
+  token: string;
+  user_id: string;
+  platform: PushPlatform;
+  created_at: string;
+  last_seen_at: string;
+}
 // #endregion
 
 // #region 앱 도메인 DTO (camelCase — 앱 기존 Exam/Question 타입과 필드 호환)
@@ -159,6 +220,7 @@ export function toRemoteQuestion(row: QuestionRow): RemoteQuestion {
 
 // #region Supabase 접근 계약 (테이블·RPC 이름)
 export const TABLES = {
+  profiles: "profiles",
   exams: "exams",
   examSubjects: "exam_subjects",
   examAliases: "exam_aliases",
@@ -166,8 +228,12 @@ export const TABLES = {
   examRequests: "exam_requests",
   examRequestVotes: "exam_request_votes",
   examRequestStatusHistory: "exam_request_status_history",
+  examRequestReports: "exam_request_reports",
+  examRequestAliases: "exam_request_aliases",
   notifications: "notifications",
   questionReports: "question_reports",
+  bannedTerms: "banned_terms",
+  pushTokens: "push_tokens",
   userExamEnrollments: "user_exam_enrollments",
   questionAttempts: "question_attempts",
   userQuestionProgress: "user_question_progress",
@@ -177,6 +243,15 @@ export const TABLES = {
 export const RPC = {
   requestExam: "request_exam",
   updateExamRequestStatus: "update_exam_request_status",
+  reportExamRequest: "report_exam_request",
+  searchExamRequests: "search_exam_requests",
+  mergeExamRequests: "merge_exam_requests",
+  addExamRequestAlias: "add_exam_request_alias",
+  deleteMyAccount: "delete_my_account",
+  registerPushToken: "register_push_token",
+  unregisterPushToken: "unregister_push_token",
+  setUserBan: "set_user_ban",
+  adminListUsers: "admin_list_users",
 } as const;
 
 // 시험 요청 입력
@@ -202,6 +277,64 @@ export function toRequestExamParams(input: RequestExamInput): {
     p_grade_level: input.gradeLevel ?? null,
     p_exam_url: input.examUrl ?? null,
     p_note: input.note ?? null,
+  };
+}
+
+// 시험 요청 신고 입력 길이 상한 (DB report_exam_request 검증과 동일)
+export const EXAM_REQUEST_REPORT_REASON_MAX = 500;
+
+// report_exam_request RPC 파라미터 변환
+export function toReportExamRequestParams(
+  requestId: string,
+  reason: string,
+): { p_request_id: string; p_reason: string } {
+  return { p_request_id: requestId, p_reason: reason };
+}
+
+// register_push_token RPC 파라미터 변환
+export function toRegisterPushTokenParams(
+  token: string,
+  platform: PushPlatform,
+): { p_token: string; p_platform: PushPlatform } {
+  return { p_token: token, p_platform: platform };
+}
+
+// 집합 반환 RPC 응답 배열 정규화 (단일 행·배열 유니온 해소)
+export function toRpcRows<T>(data: T | T[] | null | undefined): T[] {
+  if (data == null) return [];
+  return Array.isArray(data) ? data : [data];
+}
+
+// search_exam_requests RPC 파라미터 변환 (표시명·정규화명·병합 별칭 통합 검색)
+export function toSearchExamRequestsParams(keyword: string): {
+  p_keyword: string;
+} {
+  return { p_keyword: keyword };
+}
+
+// merge_exam_requests RPC 파라미터 변환
+export function toMergeExamRequestsParams(
+  sourceId: string,
+  targetId: string,
+  note?: string,
+): { p_source_id: string; p_target_id: string; p_note: string | null } {
+  return {
+    p_source_id: sourceId,
+    p_target_id: targetId,
+    p_note: note ?? null,
+  };
+}
+
+// set_user_ban RPC 파라미터 변환
+export function toSetUserBanParams(
+  userId: string,
+  banned: boolean,
+  reason?: string,
+): { p_user_id: string; p_banned: boolean; p_reason: string | null } {
+  return {
+    p_user_id: userId,
+    p_banned: banned,
+    p_reason: reason ?? null,
   };
 }
 // #endregion
@@ -390,5 +523,15 @@ export interface ExamPlatformApi {
   markNotificationRead(notificationId: number): Promise<void>;
   // 문제 오류 신고
   reportQuestion(questionId: string, reason: string): Promise<void>;
+  // 시험 요청 신고 (누적 시 요청 자동 비공개)
+  reportExamRequest(requestId: string, reason: string): Promise<void>;
+  // 내 프로필 조회 (이용 제한 상태 확인)
+  getMyProfile(): Promise<ProfileRow | null>;
+  // 본인 계정·학습 기록 전체 삭제
+  deleteMyAccount(): Promise<void>;
+  // 기기 푸시 토큰 등록
+  registerPushToken(token: string, platform: PushPlatform): Promise<void>;
+  // 기기 푸시 토큰 해제
+  unregisterPushToken(token: string): Promise<void>;
 }
 // #endregion

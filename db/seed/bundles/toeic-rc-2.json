@@ -1,0 +1,5281 @@
+{
+  "exams": [
+    {
+      "id": "toeic-rc",
+      "title": "TOEIC RC 연습",
+      "shortTitle": "TOEIC RC",
+      "description": "Part 5 문법 · 어휘 자체 제작 문제",
+      "icon": "📘",
+      "subjects": [
+        "문법",
+        "어휘"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "trx-001",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The updated safety manual ___ a section on remote work.",
+      "choices": [
+        "include",
+        "includes",
+        "including",
+        "to include"
+      ],
+      "answerIndex": 1,
+      "explanation": "단수 주어에는 현재형 단수 동사 includes가 알맞다."
+    },
+    {
+      "id": "trx-002",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The annual report ___ detailed sales figures for every region.",
+      "choices": [
+        "include",
+        "to include",
+        "includes",
+        "including"
+      ],
+      "answerIndex": 2,
+      "explanation": "단수 주어에는 현재형 단수 동사 includes가 알맞다."
+    },
+    {
+      "id": "trx-003",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new employee handbook ___ guidance on travel expenses.",
+      "choices": [
+        "including",
+        "includes",
+        "include",
+        "to include"
+      ],
+      "answerIndex": 1,
+      "explanation": "단수 주어에는 현재형 단수 동사 includes가 알맞다."
+    },
+    {
+      "id": "trx-004",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The conference program ___ a list of all guest speakers.",
+      "choices": [
+        "to include",
+        "includes",
+        "include",
+        "including"
+      ],
+      "answerIndex": 1,
+      "explanation": "단수 주어에는 현재형 단수 동사 includes가 알맞다."
+    },
+    {
+      "id": "trx-005",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The marketing teams ___ their weekly results every Friday.",
+      "choices": [
+        "review",
+        "reviewed by",
+        "reviews",
+        "reviewing"
+      ],
+      "answerIndex": 0,
+      "explanation": "복수 주어에는 동사 원형과 같은 현재형 review가 알맞다."
+    },
+    {
+      "id": "trx-006",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Several external auditors ___ the financial records each quarter.",
+      "choices": [
+        "reviews",
+        "review",
+        "reviewed by",
+        "reviewing"
+      ],
+      "answerIndex": 1,
+      "explanation": "복수 주어에는 동사 원형과 같은 현재형 review가 알맞다."
+    },
+    {
+      "id": "trx-007",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Most applicants ___ the instructions before submitting the form.",
+      "choices": [
+        "reviewed by",
+        "reviews",
+        "review",
+        "reviewing"
+      ],
+      "answerIndex": 2,
+      "explanation": "복수 주어에는 동사 원형과 같은 현재형 review가 알맞다."
+    },
+    {
+      "id": "trx-008",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The regional managers ___ customer feedback every Monday.",
+      "choices": [
+        "reviews",
+        "reviewed by",
+        "review",
+        "reviewing"
+      ],
+      "answerIndex": 2,
+      "explanation": "복수 주어에는 동사 원형과 같은 현재형 review가 알맞다."
+    },
+    {
+      "id": "trx-009",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Each of the meeting rooms ___ equipped with a projector.",
+      "choices": [
+        "be",
+        "being",
+        "is",
+        "are"
+      ],
+      "answerIndex": 2,
+      "explanation": "each 또는 every가 이끄는 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-010",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Every one of the receipts ___ marked with a transaction number.",
+      "choices": [
+        "being",
+        "be",
+        "is",
+        "are"
+      ],
+      "answerIndex": 2,
+      "explanation": "each 또는 every가 이끄는 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-011",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Each of our consultants ___ familiar with the new procedure.",
+      "choices": [
+        "are",
+        "is",
+        "being",
+        "be"
+      ],
+      "answerIndex": 1,
+      "explanation": "each 또는 every가 이끄는 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-012",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Every item in the shipment ___ inspected before delivery.",
+      "choices": [
+        "is",
+        "be",
+        "being",
+        "are"
+      ],
+      "answerIndex": 0,
+      "explanation": "each 또는 every가 이끄는 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-013",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Either of the two proposals ___ acceptable to the committee.",
+      "choices": [
+        "is",
+        "were",
+        "have",
+        "are"
+      ],
+      "answerIndex": 0,
+      "explanation": "either 또는 neither of 뒤의 핵심 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-014",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Neither of the elevators ___ currently in service.",
+      "choices": [
+        "are",
+        "were",
+        "have",
+        "is"
+      ],
+      "answerIndex": 3,
+      "explanation": "either 또는 neither of 뒤의 핵심 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-015",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Either of these payment methods ___ available online.",
+      "choices": [
+        "is",
+        "have",
+        "are",
+        "were"
+      ],
+      "answerIndex": 0,
+      "explanation": "either 또는 neither of 뒤의 핵심 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-016",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Neither of the candidates ___ prepared for the final interview.",
+      "choices": [
+        "are",
+        "is",
+        "were",
+        "have"
+      ],
+      "answerIndex": 1,
+      "explanation": "either 또는 neither of 뒤의 핵심 주어는 단수로 취급하므로 is가 알맞다."
+    },
+    {
+      "id": "trx-017",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Rahman ___ at the design firm since 2021.",
+      "choices": [
+        "will work since",
+        "worked",
+        "has worked",
+        "is working yesterday"
+      ],
+      "answerIndex": 2,
+      "explanation": "과거부터 현재까지 이어지는 기간에는 현재완료 has worked가 알맞다."
+    },
+    {
+      "id": "trx-018",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Mr. Okafor ___ at the museum since it reopened.",
+      "choices": [
+        "worked",
+        "has worked",
+        "will work since",
+        "is working yesterday"
+      ],
+      "answerIndex": 1,
+      "explanation": "과거부터 현재까지 이어지는 기간에는 현재완료 has worked가 알맞다."
+    },
+    {
+      "id": "trx-019",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our lead engineer ___ on three major projects this quarter.",
+      "choices": [
+        "has worked",
+        "worked",
+        "is working yesterday",
+        "will work since"
+      ],
+      "answerIndex": 0,
+      "explanation": "과거부터 현재까지 이어지는 기간에는 현재완료 has worked가 알맞다."
+    },
+    {
+      "id": "trx-020",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The branch manager ___ in Singapore for the past year.",
+      "choices": [
+        "worked",
+        "is working yesterday",
+        "has worked",
+        "will work since"
+      ],
+      "answerIndex": 2,
+      "explanation": "과거부터 현재까지 이어지는 기간에는 현재완료 has worked가 알맞다."
+    },
+    {
+      "id": "trx-021",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The express train ___ at 6:40 tomorrow morning.",
+      "choices": [
+        "departs",
+        "departing",
+        "departed",
+        "has depart"
+      ],
+      "answerIndex": 0,
+      "explanation": "확정된 시간표나 일정은 미래라도 현재 시제로 나타낼 수 있다."
+    },
+    {
+      "id": "trx-022",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The airport shuttle ___ every hour on weekdays.",
+      "choices": [
+        "departing",
+        "has depart",
+        "departed",
+        "departs"
+      ],
+      "answerIndex": 3,
+      "explanation": "확정된 시간표나 일정은 미래라도 현재 시제로 나타낼 수 있다."
+    },
+    {
+      "id": "trx-023",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The ferry ___ from Pier 3 at noon tomorrow.",
+      "choices": [
+        "departs",
+        "has depart",
+        "departed",
+        "departing"
+      ],
+      "answerIndex": 0,
+      "explanation": "확정된 시간표나 일정은 미래라도 현재 시제로 나타낼 수 있다."
+    },
+    {
+      "id": "trx-024",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The last bus ___ at ten o'clock tonight.",
+      "choices": [
+        "has depart",
+        "departs",
+        "departed",
+        "departing"
+      ],
+      "answerIndex": 1,
+      "explanation": "확정된 시간표나 일정은 미래라도 현재 시제로 나타낼 수 있다."
+    },
+    {
+      "id": "trx-025",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "By the time the guests arrived, the staff ___ the reception area.",
+      "choices": [
+        "has prepared",
+        "had prepared",
+        "prepares",
+        "will prepare"
+      ],
+      "answerIndex": 1,
+      "explanation": "과거의 한 시점보다 먼저 끝난 일에는 과거완료 had prepared가 알맞다."
+    },
+    {
+      "id": "trx-026",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Before the audit began, the accountant ___ all supporting documents.",
+      "choices": [
+        "will prepare",
+        "has prepared",
+        "prepares",
+        "had prepared"
+      ],
+      "answerIndex": 3,
+      "explanation": "과거의 한 시점보다 먼저 끝난 일에는 과거완료 had prepared가 알맞다."
+    },
+    {
+      "id": "trx-027",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "When the director called, Ms. Ito ___ the revised contract.",
+      "choices": [
+        "has prepared",
+        "had prepared",
+        "prepares",
+        "will prepare"
+      ],
+      "answerIndex": 1,
+      "explanation": "과거의 한 시점보다 먼저 끝난 일에는 과거완료 had prepared가 알맞다."
+    },
+    {
+      "id": "trx-028",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "By noon yesterday, the technicians ___ the demonstration room.",
+      "choices": [
+        "had prepared",
+        "will prepare",
+        "prepares",
+        "has prepared"
+      ],
+      "answerIndex": 0,
+      "explanation": "과거의 한 시점보다 먼저 끝난 일에는 과거완료 had prepared가 알맞다."
+    },
+    {
+      "id": "trx-029",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The winners ___ at the awards ceremony next week.",
+      "choices": [
+        "are announce",
+        "will announce",
+        "will be announced",
+        "have announcing"
+      ],
+      "answerIndex": 2,
+      "explanation": "대상이 발표를 받는 미래 상황이므로 미래 수동태 will be announced가 알맞다."
+    },
+    {
+      "id": "trx-030",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The final results ___ after the board meeting tomorrow.",
+      "choices": [
+        "will announce",
+        "will be announced",
+        "have announcing",
+        "are announce"
+      ],
+      "answerIndex": 1,
+      "explanation": "대상이 발표를 받는 미래 상황이므로 미래 수동태 will be announced가 알맞다."
+    },
+    {
+      "id": "trx-031",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The names of successful applicants ___ by Friday.",
+      "choices": [
+        "have announcing",
+        "will announce",
+        "will be announced",
+        "are announce"
+      ],
+      "answerIndex": 2,
+      "explanation": "대상이 발표를 받는 미래 상황이므로 미래 수동태 will be announced가 알맞다."
+    },
+    {
+      "id": "trx-032",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The revised schedule ___ on the company website next month.",
+      "choices": [
+        "will announce",
+        "have announcing",
+        "are announce",
+        "will be announced"
+      ],
+      "answerIndex": 3,
+      "explanation": "대상이 발표를 받는 미래 상황이므로 미래 수동태 will be announced가 알맞다."
+    },
+    {
+      "id": "trx-033",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The maintenance request ___ by the facilities manager yesterday.",
+      "choices": [
+        "approved",
+        "was approved",
+        "has approve",
+        "is approving"
+      ],
+      "answerIndex": 1,
+      "explanation": "과거에 요청이 승인된 수동 관계이므로 was approved가 알맞다."
+    },
+    {
+      "id": "trx-034",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The revised budget ___ during Monday's meeting.",
+      "choices": [
+        "approved",
+        "has approve",
+        "was approved",
+        "is approving"
+      ],
+      "answerIndex": 2,
+      "explanation": "과거에 요청이 승인된 수동 관계이므로 was approved가 알맞다."
+    },
+    {
+      "id": "trx-035",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The conference proposal ___ by the committee last night.",
+      "choices": [
+        "was approved",
+        "approved",
+        "is approving",
+        "has approve"
+      ],
+      "answerIndex": 0,
+      "explanation": "과거에 요청이 승인된 수동 관계이므로 was approved가 알맞다."
+    },
+    {
+      "id": "trx-036",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The supplier's application ___ after a final review.",
+      "choices": [
+        "approved",
+        "is approving",
+        "was approved",
+        "has approve"
+      ],
+      "answerIndex": 2,
+      "explanation": "과거에 요청이 승인된 수동 관계이므로 was approved가 알맞다."
+    },
+    {
+      "id": "trx-037",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Visitors must ___ their identification at the security desk.",
+      "choices": [
+        "present",
+        "presenting",
+        "presented",
+        "presents"
+      ],
+      "answerIndex": 0,
+      "explanation": "조동사 뒤에는 동사원형 present가 와야 한다."
+    },
+    {
+      "id": "trx-038",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Employees should ___ their access cards before entering the laboratory.",
+      "choices": [
+        "present",
+        "presented",
+        "presenting",
+        "presents"
+      ],
+      "answerIndex": 0,
+      "explanation": "조동사 뒤에는 동사원형 present가 와야 한다."
+    },
+    {
+      "id": "trx-039",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Passengers may ___ a digital ticket when boarding the train.",
+      "choices": [
+        "presenting",
+        "presents",
+        "presented",
+        "present"
+      ],
+      "answerIndex": 3,
+      "explanation": "조동사 뒤에는 동사원형 present가 와야 한다."
+    },
+    {
+      "id": "trx-040",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Guests can ___ their receipts to request reimbursement.",
+      "choices": [
+        "present",
+        "presented",
+        "presents",
+        "presenting"
+      ],
+      "answerIndex": 0,
+      "explanation": "조동사 뒤에는 동사원형 present가 와야 한다."
+    },
+    {
+      "id": "trx-041",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The company decided ___ its distribution center.",
+      "choices": [
+        "expansion",
+        "expanding",
+        "to expand",
+        "expanded"
+      ],
+      "answerIndex": 2,
+      "explanation": "decide 뒤에는 목적을 나타내는 to부정사가 목적어로 온다."
+    },
+    {
+      "id": "trx-042",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Alvarez plans ___ the consulting team next year.",
+      "choices": [
+        "to expand",
+        "expanded",
+        "expansion",
+        "expanding"
+      ],
+      "answerIndex": 0,
+      "explanation": "decide 뒤에는 목적을 나타내는 to부정사가 목적어로 온다."
+    },
+    {
+      "id": "trx-043",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The committee agreed ___ the range of available services.",
+      "choices": [
+        "expanded",
+        "expanding",
+        "expansion",
+        "to expand"
+      ],
+      "answerIndex": 3,
+      "explanation": "decide 뒤에는 목적을 나타내는 to부정사가 목적어로 온다."
+    },
+    {
+      "id": "trx-044",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our department hopes ___ its training program this month.",
+      "choices": [
+        "expansion",
+        "expanding",
+        "to expand",
+        "expanded"
+      ],
+      "answerIndex": 2,
+      "explanation": "decide 뒤에는 목적을 나타내는 to부정사가 목적어로 온다."
+    },
+    {
+      "id": "trx-045",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Please avoid ___ personal items in the hallway.",
+      "choices": [
+        "to leave",
+        "leave",
+        "leaving",
+        "left"
+      ],
+      "answerIndex": 2,
+      "explanation": "avoid는 동명사를 목적어로 취하므로 leaving이 알맞다."
+    },
+    {
+      "id": "trx-046",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The manager suggested ___ the display materials in the lobby overnight.",
+      "choices": [
+        "leave",
+        "to leave",
+        "left",
+        "leaving"
+      ],
+      "answerIndex": 3,
+      "explanation": "avoid는 동명사를 목적어로 취하므로 leaving이 알맞다."
+    },
+    {
+      "id": "trx-047",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Mr. Lee finished ___ reminder notes on every desk.",
+      "choices": [
+        "leaving",
+        "to leave",
+        "left",
+        "leave"
+      ],
+      "answerIndex": 0,
+      "explanation": "avoid는 동명사를 목적어로 취하므로 leaving이 알맞다."
+    },
+    {
+      "id": "trx-048",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The committee considered ___ several seats open for late registration.",
+      "choices": [
+        "left",
+        "leave",
+        "leaving",
+        "to leave"
+      ],
+      "answerIndex": 2,
+      "explanation": "avoid는 동명사를 목적어로 취하므로 leaving이 알맞다."
+    },
+    {
+      "id": "trx-049",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The interns are interested in ___ more about the research process.",
+      "choices": [
+        "learning",
+        "to learned",
+        "learn",
+        "learned"
+      ],
+      "answerIndex": 0,
+      "explanation": "전치사 뒤에는 명사 역할을 하는 동명사 learning이 알맞다."
+    },
+    {
+      "id": "trx-050",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Dubois is responsible for ___ how the new system works.",
+      "choices": [
+        "to learned",
+        "learn",
+        "learned",
+        "learning"
+      ],
+      "answerIndex": 3,
+      "explanation": "전치사 뒤에는 명사 역할을 하는 동명사 learning이 알맞다."
+    },
+    {
+      "id": "trx-051",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The engineers succeeded in ___ a new production technique.",
+      "choices": [
+        "learning",
+        "to learned",
+        "learned",
+        "learn"
+      ],
+      "answerIndex": 0,
+      "explanation": "전치사 뒤에는 명사 역할을 하는 동명사 learning이 알맞다."
+    },
+    {
+      "id": "trx-052",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We look forward to ___ more about your findings.",
+      "choices": [
+        "learning",
+        "to learned",
+        "learn",
+        "learned"
+      ],
+      "answerIndex": 0,
+      "explanation": "전치사 뒤에는 명사 역할을 하는 동명사 learning이 알맞다."
+    },
+    {
+      "id": "trx-053",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The badge allows employees ___ the laboratory after hours.",
+      "choices": [
+        "entered",
+        "enter",
+        "to enter",
+        "entering"
+      ],
+      "answerIndex": 2,
+      "explanation": "allow는 목적어 뒤에 to부정사를 목적격 보어로 취한다."
+    },
+    {
+      "id": "trx-054",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new portal enables customers ___ the secure payment area.",
+      "choices": [
+        "entering",
+        "entered",
+        "to enter",
+        "enter"
+      ],
+      "answerIndex": 2,
+      "explanation": "allow는 목적어 뒤에 to부정사를 목적격 보어로 취한다."
+    },
+    {
+      "id": "trx-055",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The visitor pass permits guests ___ the private gallery.",
+      "choices": [
+        "enter",
+        "entering",
+        "to enter",
+        "entered"
+      ],
+      "answerIndex": 2,
+      "explanation": "allow는 목적어 뒤에 to부정사를 목적격 보어로 취한다."
+    },
+    {
+      "id": "trx-056",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This membership allows users ___ the fitness center at any time.",
+      "choices": [
+        "enter",
+        "to enter",
+        "entering",
+        "entered"
+      ],
+      "answerIndex": 1,
+      "explanation": "allow는 목적어 뒤에 to부정사를 목적격 보어로 취한다."
+    },
+    {
+      "id": "trx-057",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The supervisor made the trainees ___ the safety procedure again.",
+      "choices": [
+        "review",
+        "reviewed",
+        "reviewing",
+        "to review"
+      ],
+      "answerIndex": 0,
+      "explanation": "사역동사 make 뒤의 목적격 보어에는 동사원형 review가 알맞다."
+    },
+    {
+      "id": "trx-058",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The unexpected delay made the passengers ___ their plans.",
+      "choices": [
+        "review",
+        "reviewing",
+        "to review",
+        "reviewed"
+      ],
+      "answerIndex": 0,
+      "explanation": "사역동사 make 뒤의 목적격 보어에는 동사원형 review가 알맞다."
+    },
+    {
+      "id": "trx-059",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The director had the assistant ___ the figures once more.",
+      "choices": [
+        "review",
+        "reviewing",
+        "reviewed",
+        "to review"
+      ],
+      "answerIndex": 0,
+      "explanation": "사역동사 make 뒤의 목적격 보어에는 동사원형 review가 알맞다."
+    },
+    {
+      "id": "trx-060",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new policy will help employees ___ expenses accurately.",
+      "choices": [
+        "to review",
+        "reviewed",
+        "reviewing",
+        "review"
+      ],
+      "answerIndex": 3,
+      "explanation": "사역동사 make 뒤의 목적격 보어에는 동사원형 review가 알맞다."
+    },
+    {
+      "id": "trx-061",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The policy requires that every visitor ___ at the front desk.",
+      "choices": [
+        "registered",
+        "register",
+        "registers",
+        "registering"
+      ],
+      "answerIndex": 1,
+      "explanation": "요구·제안 뒤 that절에서는 should가 생략된 동사원형 register가 알맞다."
+    },
+    {
+      "id": "trx-062",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The chairperson requested that each attendee ___ by Wednesday.",
+      "choices": [
+        "registered",
+        "registering",
+        "register",
+        "registers"
+      ],
+      "answerIndex": 2,
+      "explanation": "요구·제안 뒤 that절에서는 should가 생략된 동사원형 register가 알맞다."
+    },
+    {
+      "id": "trx-063",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The coordinator recommended that all volunteers ___ online.",
+      "choices": [
+        "registered",
+        "registers",
+        "register",
+        "registering"
+      ],
+      "answerIndex": 2,
+      "explanation": "요구·제안 뒤 that절에서는 should가 생략된 동사원형 register가 알맞다."
+    },
+    {
+      "id": "trx-064",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "It is essential that every vendor ___ before entering the site.",
+      "choices": [
+        "register",
+        "registering",
+        "registers",
+        "registered"
+      ],
+      "answerIndex": 0,
+      "explanation": "요구·제안 뒤 that절에서는 should가 생략된 동사원형 register가 알맞다."
+    },
+    {
+      "id": "trx-065",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The technician inspected the equipment ___ before restarting it.",
+      "choices": [
+        "more careful",
+        "care",
+        "careful",
+        "carefully"
+      ],
+      "answerIndex": 3,
+      "explanation": "동사 inspected를 꾸미는 부사 carefully가 알맞다."
+    },
+    {
+      "id": "trx-066",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Chen responded ___ to every customer complaint.",
+      "choices": [
+        "care",
+        "more careful",
+        "carefully",
+        "careful"
+      ],
+      "answerIndex": 2,
+      "explanation": "동사 inspected를 꾸미는 부사 carefully가 알맞다."
+    },
+    {
+      "id": "trx-067",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The editor read the manuscript ___ for factual errors.",
+      "choices": [
+        "carefully",
+        "care",
+        "careful",
+        "more careful"
+      ],
+      "answerIndex": 0,
+      "explanation": "동사 inspected를 꾸미는 부사 carefully가 알맞다."
+    },
+    {
+      "id": "trx-068",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The courier handled the fragile package ___ during transport.",
+      "choices": [
+        "more careful",
+        "careful",
+        "care",
+        "carefully"
+      ],
+      "answerIndex": 3,
+      "explanation": "동사 inspected를 꾸미는 부사 carefully가 알맞다."
+    },
+    {
+      "id": "trx-069",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The rapid ___ of the company created many new positions.",
+      "choices": [
+        "expanded",
+        "expand",
+        "expansion",
+        "expansive"
+      ],
+      "answerIndex": 2,
+      "explanation": "관사와 전치사 사이에는 명사 expansion이 알맞다."
+    },
+    {
+      "id": "trx-070",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our recent ___ into Asian markets increased total sales.",
+      "choices": [
+        "expand",
+        "expansion",
+        "expansive",
+        "expanded"
+      ],
+      "answerIndex": 1,
+      "explanation": "관사와 전치사 사이에는 명사 expansion이 알맞다."
+    },
+    {
+      "id": "trx-071",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The planned ___ of the warehouse will begin in October.",
+      "choices": [
+        "expansive",
+        "expansion",
+        "expanded",
+        "expand"
+      ],
+      "answerIndex": 1,
+      "explanation": "관사와 전치사 사이에는 명사 expansion이 알맞다."
+    },
+    {
+      "id": "trx-072",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Continued ___ of the service depends on customer feedback.",
+      "choices": [
+        "expand",
+        "expansion",
+        "expanded",
+        "expansive"
+      ],
+      "answerIndex": 1,
+      "explanation": "관사와 전치사 사이에는 명사 expansion이 알맞다."
+    },
+    {
+      "id": "trx-073",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The product launch was highly ___ despite the short preparation period.",
+      "choices": [
+        "successfully",
+        "succeed",
+        "success",
+        "successful"
+      ],
+      "answerIndex": 3,
+      "explanation": "be동사 뒤에서 주어의 상태를 설명하는 형용사 successful이 알맞다."
+    },
+    {
+      "id": "trx-074",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Gomez gave a very ___ presentation to the investors.",
+      "choices": [
+        "successful",
+        "success",
+        "succeed",
+        "successfully"
+      ],
+      "answerIndex": 0,
+      "explanation": "be동사 뒤에서 주어의 상태를 설명하는 형용사 successful이 알맞다."
+    },
+    {
+      "id": "trx-075",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new recycling campaign has been remarkably ___ so far.",
+      "choices": [
+        "succeed",
+        "success",
+        "successfully",
+        "successful"
+      ],
+      "answerIndex": 3,
+      "explanation": "be동사 뒤에서 주어의 상태를 설명하는 형용사 successful이 알맞다."
+    },
+    {
+      "id": "trx-076",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The restaurant's opening weekend was extremely ___.",
+      "choices": [
+        "succeed",
+        "successful",
+        "successfully",
+        "success"
+      ],
+      "answerIndex": 1,
+      "explanation": "be동사 뒤에서 주어의 상태를 설명하는 형용사 successful이 알맞다."
+    },
+    {
+      "id": "trx-077",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new printer is ___ than the model it replaced.",
+      "choices": [
+        "efficiency",
+        "most efficient",
+        "more efficient",
+        "efficiently"
+      ],
+      "answerIndex": 2,
+      "explanation": "than과 함께 두 대상을 비교하므로 비교급 more efficient가 알맞다."
+    },
+    {
+      "id": "trx-078",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This route is ___ than the coastal road during rush hour.",
+      "choices": [
+        "most efficient",
+        "more efficient",
+        "efficiently",
+        "efficiency"
+      ],
+      "answerIndex": 1,
+      "explanation": "than과 함께 두 대상을 비교하므로 비교급 more efficient가 알맞다."
+    },
+    {
+      "id": "trx-079",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The revised process is ___ than the previous one.",
+      "choices": [
+        "efficiency",
+        "efficiently",
+        "most efficient",
+        "more efficient"
+      ],
+      "answerIndex": 3,
+      "explanation": "than과 함께 두 대상을 비교하므로 비교급 more efficient가 알맞다."
+    },
+    {
+      "id": "trx-080",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our latest battery is ___ than last year's version.",
+      "choices": [
+        "most efficient",
+        "efficiently",
+        "efficiency",
+        "more efficient"
+      ],
+      "answerIndex": 3,
+      "explanation": "than과 함께 두 대상을 비교하므로 비교급 more efficient가 알맞다."
+    },
+    {
+      "id": "trx-081",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Of all the candidates, Ms. Novak has the ___ experience.",
+      "choices": [
+        "relevance",
+        "most relevant",
+        "relevantly",
+        "more relevant"
+      ],
+      "answerIndex": 1,
+      "explanation": "정해진 범위에서 셋 이상을 비교하므로 최상급 most relevant가 알맞다."
+    },
+    {
+      "id": "trx-082",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This is the ___ information for today's discussion.",
+      "choices": [
+        "most relevant",
+        "relevantly",
+        "more relevant",
+        "relevance"
+      ],
+      "answerIndex": 0,
+      "explanation": "정해진 범위에서 셋 이상을 비교하므로 최상급 most relevant가 알맞다."
+    },
+    {
+      "id": "trx-083",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The final section contains the ___ details for new applicants.",
+      "choices": [
+        "relevantly",
+        "relevance",
+        "more relevant",
+        "most relevant"
+      ],
+      "answerIndex": 3,
+      "explanation": "정해진 범위에서 셋 이상을 비교하므로 최상급 most relevant가 알맞다."
+    },
+    {
+      "id": "trx-084",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Among the three designs, this one is the ___ to our requirements.",
+      "choices": [
+        "relevantly",
+        "most relevant",
+        "relevance",
+        "more relevant"
+      ],
+      "answerIndex": 1,
+      "explanation": "정해진 범위에서 셋 이상을 비교하므로 최상급 most relevant가 알맞다."
+    },
+    {
+      "id": "trx-085",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The replacement part is as durable ___ the original one.",
+      "choices": [
+        "so",
+        "as",
+        "from",
+        "than"
+      ],
+      "answerIndex": 1,
+      "explanation": "동등 비교는 as + 형용사 + as 구조를 사용한다."
+    },
+    {
+      "id": "trx-086",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The online workshop was as informative ___ the in-person session.",
+      "choices": [
+        "from",
+        "as",
+        "than",
+        "so"
+      ],
+      "answerIndex": 1,
+      "explanation": "동등 비교는 as + 형용사 + as 구조를 사용한다."
+    },
+    {
+      "id": "trx-087",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This year's application process is as simple ___ last year's.",
+      "choices": [
+        "from",
+        "as",
+        "so",
+        "than"
+      ],
+      "answerIndex": 1,
+      "explanation": "동등 비교는 as + 형용사 + as 구조를 사용한다."
+    },
+    {
+      "id": "trx-088",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The second proposal is as practical ___ the first.",
+      "choices": [
+        "than",
+        "from",
+        "so",
+        "as"
+      ],
+      "answerIndex": 3,
+      "explanation": "동등 비교는 as + 형용사 + as 구조를 사용한다."
+    },
+    {
+      "id": "trx-089",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The meeting room is large enough ___ thirty participants.",
+      "choices": [
+        "accommodate",
+        "to accommodate",
+        "accommodated",
+        "accommodating"
+      ],
+      "answerIndex": 1,
+      "explanation": "형용사 + enough 뒤에는 결과를 나타내는 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-090",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new auditorium is spacious enough ___ the entire department.",
+      "choices": [
+        "accommodating",
+        "accommodated",
+        "to accommodate",
+        "accommodate"
+      ],
+      "answerIndex": 2,
+      "explanation": "형용사 + enough 뒤에는 결과를 나타내는 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-091",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The storage area is wide enough ___ all incoming packages.",
+      "choices": [
+        "to accommodate",
+        "accommodated",
+        "accommodate",
+        "accommodating"
+      ],
+      "answerIndex": 0,
+      "explanation": "형용사 + enough 뒤에는 결과를 나타내는 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-092",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The hotel lobby is large enough ___ several tour groups.",
+      "choices": [
+        "accommodate",
+        "accommodated",
+        "to accommodate",
+        "accommodating"
+      ],
+      "answerIndex": 2,
+      "explanation": "형용사 + enough 뒤에는 결과를 나타내는 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-093",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The box is too heavy for one person ___ safely.",
+      "choices": [
+        "to lift",
+        "lifting",
+        "lifted",
+        "lift"
+      ],
+      "answerIndex": 0,
+      "explanation": "too + 형용사 뒤에는 ‘너무 ~해서 …할 수 없다’의 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-094",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The equipment case is too heavy for the intern ___ alone.",
+      "choices": [
+        "lifted",
+        "lifting",
+        "to lift",
+        "lift"
+      ],
+      "answerIndex": 2,
+      "explanation": "too + 형용사 뒤에는 ‘너무 ~해서 …할 수 없다’의 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-095",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The stone sample was too heavy for Ms. Chen ___ without assistance.",
+      "choices": [
+        "lift",
+        "to lift",
+        "lifted",
+        "lifting"
+      ],
+      "answerIndex": 1,
+      "explanation": "too + 형용사 뒤에는 ‘너무 ~해서 …할 수 없다’의 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-096",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The cabinet is too heavy for the movers ___ by hand.",
+      "choices": [
+        "lifting",
+        "to lift",
+        "lift",
+        "lifted"
+      ],
+      "answerIndex": 1,
+      "explanation": "too + 형용사 뒤에는 ‘너무 ~해서 …할 수 없다’의 to부정사가 알맞다."
+    },
+    {
+      "id": "trx-097",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The consultant ___ led the workshop has published a new book.",
+      "choices": [
+        "whose",
+        "where",
+        "who",
+        "which"
+      ],
+      "answerIndex": 2,
+      "explanation": "사람을 선행사로 하고 관계절의 주어 역할을 하므로 who가 알맞다."
+    },
+    {
+      "id": "trx-098",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Employees ___ work remotely must attend the online briefing.",
+      "choices": [
+        "where",
+        "whose",
+        "which",
+        "who"
+      ],
+      "answerIndex": 3,
+      "explanation": "사람을 선행사로 하고 관계절의 주어 역할을 하므로 who가 알맞다."
+    },
+    {
+      "id": "trx-099",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The architect ___ designed the library received an award.",
+      "choices": [
+        "where",
+        "which",
+        "whose",
+        "who"
+      ],
+      "answerIndex": 3,
+      "explanation": "사람을 선행사로 하고 관계절의 주어 역할을 하므로 who가 알맞다."
+    },
+    {
+      "id": "trx-100",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The technician ___ repaired the server will return tomorrow.",
+      "choices": [
+        "whose",
+        "which",
+        "who",
+        "where"
+      ],
+      "answerIndex": 2,
+      "explanation": "사람을 선행사로 하고 관계절의 주어 역할을 하므로 who가 알맞다."
+    },
+    {
+      "id": "trx-101",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The report, ___ was released yesterday, contains updated forecasts.",
+      "choices": [
+        "which",
+        "who",
+        "whose",
+        "where"
+      ],
+      "answerIndex": 0,
+      "explanation": "사물을 선행사로 하는 계속적 용법의 주격 관계대명사 which가 알맞다."
+    },
+    {
+      "id": "trx-102",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The conference center, ___ opened in May, can seat 800 guests.",
+      "choices": [
+        "whose",
+        "where",
+        "which",
+        "who"
+      ],
+      "answerIndex": 2,
+      "explanation": "사물을 선행사로 하는 계속적 용법의 주격 관계대명사 which가 알맞다."
+    },
+    {
+      "id": "trx-103",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The device, ___ is covered by a warranty, stopped working.",
+      "choices": [
+        "whose",
+        "which",
+        "who",
+        "where"
+      ],
+      "answerIndex": 1,
+      "explanation": "사물을 선행사로 하는 계속적 용법의 주격 관계대명사 which가 알맞다."
+    },
+    {
+      "id": "trx-104",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The proposal, ___ includes three options, will be reviewed Friday.",
+      "choices": [
+        "who",
+        "whose",
+        "which",
+        "where"
+      ],
+      "answerIndex": 2,
+      "explanation": "사물을 선행사로 하는 계속적 용법의 주격 관계대명사 which가 알맞다."
+    },
+    {
+      "id": "trx-105",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The applicant ___ résumé impressed the panel was invited back.",
+      "choices": [
+        "whom",
+        "who",
+        "which",
+        "whose"
+      ],
+      "answerIndex": 3,
+      "explanation": "뒤 명사와 소유 관계를 나타내는 관계대명사 whose가 알맞다."
+    },
+    {
+      "id": "trx-106",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We contacted the supplier ___ products arrived damaged.",
+      "choices": [
+        "whom",
+        "who",
+        "whose",
+        "which"
+      ],
+      "answerIndex": 2,
+      "explanation": "뒤 명사와 소유 관계를 나타내는 관계대명사 whose가 알맞다."
+    },
+    {
+      "id": "trx-107",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The author ___ article won the prize will speak tonight.",
+      "choices": [
+        "whose",
+        "who",
+        "whom",
+        "which"
+      ],
+      "answerIndex": 0,
+      "explanation": "뒤 명사와 소유 관계를 나타내는 관계대명사 whose가 알맞다."
+    },
+    {
+      "id": "trx-108",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The employee ___ idea was selected received a bonus.",
+      "choices": [
+        "whose",
+        "whom",
+        "who",
+        "which"
+      ],
+      "answerIndex": 0,
+      "explanation": "뒤 명사와 소유 관계를 나타내는 관계대명사 whose가 알맞다."
+    },
+    {
+      "id": "trx-109",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The hall ___ the ceremony will take place is on the second floor.",
+      "choices": [
+        "who",
+        "where",
+        "when",
+        "which"
+      ],
+      "answerIndex": 1,
+      "explanation": "장소를 선행사로 하고 관계절에서 장소 부사 역할을 하므로 where가 알맞다."
+    },
+    {
+      "id": "trx-110",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This is the factory ___ the new components are produced.",
+      "choices": [
+        "which",
+        "when",
+        "where",
+        "who"
+      ],
+      "answerIndex": 2,
+      "explanation": "장소를 선행사로 하고 관계절에서 장소 부사 역할을 하므로 where가 알맞다."
+    },
+    {
+      "id": "trx-111",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The hotel ___ the delegates are staying offers a free shuttle.",
+      "choices": [
+        "who",
+        "when",
+        "where",
+        "which"
+      ],
+      "answerIndex": 2,
+      "explanation": "장소를 선행사로 하고 관계절에서 장소 부사 역할을 하므로 where가 알맞다."
+    },
+    {
+      "id": "trx-112",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The district ___ the company plans to build a new plant is rapidly growing.",
+      "choices": [
+        "when",
+        "where",
+        "which",
+        "who"
+      ],
+      "answerIndex": 1,
+      "explanation": "장소를 선행사로 하고 관계절에서 장소 부사 역할을 하므로 where가 알맞다."
+    },
+    {
+      "id": "trx-113",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Friday is the day ___ all expense reports are due.",
+      "choices": [
+        "when",
+        "which",
+        "whose",
+        "where"
+      ],
+      "answerIndex": 0,
+      "explanation": "시간을 선행사로 하고 관계절에서 시간 부사 역할을 하므로 when이 알맞다."
+    },
+    {
+      "id": "trx-114",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The period ___ demand is highest begins in November.",
+      "choices": [
+        "when",
+        "whose",
+        "where",
+        "which"
+      ],
+      "answerIndex": 0,
+      "explanation": "시간을 선행사로 하고 관계절에서 시간 부사 역할을 하므로 when이 알맞다."
+    },
+    {
+      "id": "trx-115",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Do you remember the year ___ the branch first opened?",
+      "choices": [
+        "whose",
+        "where",
+        "which",
+        "when"
+      ],
+      "answerIndex": 3,
+      "explanation": "시간을 선행사로 하고 관계절에서 시간 부사 역할을 하므로 when이 알맞다."
+    },
+    {
+      "id": "trx-116",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Noon is the time ___ the final results will be posted.",
+      "choices": [
+        "where",
+        "whose",
+        "which",
+        "when"
+      ],
+      "answerIndex": 3,
+      "explanation": "시간을 선행사로 하고 관계절에서 시간 부사 역할을 하므로 when이 알맞다."
+    },
+    {
+      "id": "trx-117",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The outdoor event was canceled ___ the severe weather.",
+      "choices": [
+        "because of",
+        "while",
+        "although",
+        "because"
+      ],
+      "answerIndex": 0,
+      "explanation": "뒤에 명사구가 이어지므로 전치사구 because of가 알맞다."
+    },
+    {
+      "id": "trx-118",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Production slowed ___ a shortage of raw materials.",
+      "choices": [
+        "while",
+        "because",
+        "because of",
+        "although"
+      ],
+      "answerIndex": 2,
+      "explanation": "뒤에 명사구가 이어지므로 전치사구 because of가 알맞다."
+    },
+    {
+      "id": "trx-119",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The flight was delayed ___ heavy fog near the airport.",
+      "choices": [
+        "because of",
+        "while",
+        "although",
+        "because"
+      ],
+      "answerIndex": 0,
+      "explanation": "뒤에 명사구가 이어지므로 전치사구 because of가 알맞다."
+    },
+    {
+      "id": "trx-120",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The office closed early ___ a power outage.",
+      "choices": [
+        "because of",
+        "while",
+        "because",
+        "although"
+      ],
+      "answerIndex": 0,
+      "explanation": "뒤에 명사구가 이어지므로 전치사구 because of가 알맞다."
+    },
+    {
+      "id": "trx-121",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the heavy rain, the construction crew finished on schedule.",
+      "choices": [
+        "Unless",
+        "During",
+        "Despite",
+        "Because"
+      ],
+      "answerIndex": 2,
+      "explanation": "명사구 앞에서 양보를 나타내는 전치사 Despite가 알맞다."
+    },
+    {
+      "id": "trx-122",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ limited advertising, the new café attracted many customers.",
+      "choices": [
+        "Unless",
+        "Despite",
+        "Because",
+        "During"
+      ],
+      "answerIndex": 1,
+      "explanation": "명사구 앞에서 양보를 나타내는 전치사 Despite가 알맞다."
+    },
+    {
+      "id": "trx-123",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the short notice, every team member attended the meeting.",
+      "choices": [
+        "During",
+        "Despite",
+        "Unless",
+        "Because"
+      ],
+      "answerIndex": 1,
+      "explanation": "명사구 앞에서 양보를 나타내는 전치사 Despite가 알맞다."
+    },
+    {
+      "id": "trx-124",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ higher costs, the company maintained its original price.",
+      "choices": [
+        "Unless",
+        "Because",
+        "During",
+        "Despite"
+      ],
+      "answerIndex": 3,
+      "explanation": "명사구 앞에서 양보를 나타내는 전치사 Despite가 알맞다."
+    },
+    {
+      "id": "trx-125",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The warranty will not apply ___ the product is used as directed.",
+      "choices": [
+        "although",
+        "unless",
+        "because",
+        "when"
+      ],
+      "answerIndex": 1,
+      "explanation": "필요 조건을 ‘~하지 않는 한’으로 나타내므로 unless가 알맞다."
+    },
+    {
+      "id": "trx-126",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We cannot finalize the schedule ___ all speakers confirm.",
+      "choices": [
+        "although",
+        "because",
+        "unless",
+        "when"
+      ],
+      "answerIndex": 2,
+      "explanation": "필요 조건을 ‘~하지 않는 한’으로 나타내므로 unless가 알맞다."
+    },
+    {
+      "id": "trx-127",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The discount is unavailable ___ customers present the coupon.",
+      "choices": [
+        "when",
+        "unless",
+        "although",
+        "because"
+      ],
+      "answerIndex": 1,
+      "explanation": "필요 조건을 ‘~하지 않는 한’으로 나타내므로 unless가 알맞다."
+    },
+    {
+      "id": "trx-128",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The shipment will be held ___ the customs form is complete.",
+      "choices": [
+        "although",
+        "when",
+        "unless",
+        "because"
+      ],
+      "answerIndex": 2,
+      "explanation": "필요 조건을 ‘~하지 않는 한’으로 나타내므로 unless가 알맞다."
+    },
+    {
+      "id": "trx-129",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ Ms. Kim prepared the slides, Mr. Brown checked the equipment.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "Despite",
+        "While"
+      ],
+      "answerIndex": 3,
+      "explanation": "두 동작이 동시에 진행됨을 나타내는 접속사 While이 알맞다."
+    },
+    {
+      "id": "trx-130",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the guests toured the facility, the manager answered questions.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "While",
+        "Despite"
+      ],
+      "answerIndex": 2,
+      "explanation": "두 동작이 동시에 진행됨을 나타내는 접속사 While이 알맞다."
+    },
+    {
+      "id": "trx-131",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the software installs, users can read the setup guide.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "While",
+        "Despite"
+      ],
+      "answerIndex": 2,
+      "explanation": "두 동작이 동시에 진행됨을 나타내는 접속사 While이 알맞다."
+    },
+    {
+      "id": "trx-132",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ one team reviews the contract, another will prepare the invoice.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "Despite",
+        "While"
+      ],
+      "answerIndex": 3,
+      "explanation": "두 동작이 동시에 진행됨을 나타내는 접속사 While이 알맞다."
+    },
+    {
+      "id": "trx-133",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Please back up your files ___ installing the system update.",
+      "choices": [
+        "during",
+        "despite",
+        "unless",
+        "before"
+      ],
+      "answerIndex": 3,
+      "explanation": "한 동작보다 앞선 시점을 나타내는 접속사 before가 알맞다."
+    },
+    {
+      "id": "trx-134",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The staff arranged the chairs ___ the first guests arrived.",
+      "choices": [
+        "during",
+        "unless",
+        "before",
+        "despite"
+      ],
+      "answerIndex": 2,
+      "explanation": "한 동작보다 앞선 시점을 나타내는 접속사 before가 알맞다."
+    },
+    {
+      "id": "trx-135",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Check the order number ___ contacting customer service.",
+      "choices": [
+        "during",
+        "unless",
+        "despite",
+        "before"
+      ],
+      "answerIndex": 3,
+      "explanation": "한 동작보다 앞선 시점을 나타내는 접속사 before가 알맞다."
+    },
+    {
+      "id": "trx-136",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The security team inspects every entrance ___ the building opens.",
+      "choices": [
+        "unless",
+        "during",
+        "before",
+        "despite"
+      ],
+      "answerIndex": 2,
+      "explanation": "한 동작보다 앞선 시점을 나타내는 접속사 before가 알맞다."
+    },
+    {
+      "id": "trx-137",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Singh has managed the branch ___ it opened in 2022.",
+      "choices": [
+        "since",
+        "for",
+        "during",
+        "until"
+      ],
+      "answerIndex": 0,
+      "explanation": "현재완료와 과거 시점의 절을 연결해 시작점을 나타내므로 since가 알맞다."
+    },
+    {
+      "id": "trx-138",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The lobby has been quieter ___ the café moved upstairs.",
+      "choices": [
+        "for",
+        "since",
+        "until",
+        "during"
+      ],
+      "answerIndex": 1,
+      "explanation": "현재완료와 과거 시점의 절을 연결해 시작점을 나타내므로 since가 알맞다."
+    },
+    {
+      "id": "trx-139",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our response time has improved ___ the new system was introduced.",
+      "choices": [
+        "for",
+        "since",
+        "until",
+        "during"
+      ],
+      "answerIndex": 1,
+      "explanation": "현재완료와 과거 시점의 절을 연결해 시작점을 나타내므로 since가 알맞다."
+    },
+    {
+      "id": "trx-140",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The park has attracted more visitors ___ it added bicycle paths.",
+      "choices": [
+        "for",
+        "until",
+        "during",
+        "since"
+      ],
+      "answerIndex": 3,
+      "explanation": "현재완료와 과거 시점의 절을 연결해 시작점을 나타내므로 since가 알맞다."
+    },
+    {
+      "id": "trx-141",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the deadline was tight, the team completed the project carefully.",
+      "choices": [
+        "Although",
+        "In spite",
+        "Unless",
+        "Because of"
+      ],
+      "answerIndex": 0,
+      "explanation": "상반되는 두 절을 연결하는 양보 접속사 Although가 알맞다."
+    },
+    {
+      "id": "trx-142",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the hotel is outside the city center, it is easy to reach by train.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "In spite",
+        "Although"
+      ],
+      "answerIndex": 3,
+      "explanation": "상반되는 두 절을 연결하는 양보 접속사 Although가 알맞다."
+    },
+    {
+      "id": "trx-143",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ sales declined in April, they recovered the following month.",
+      "choices": [
+        "Because of",
+        "Unless",
+        "In spite",
+        "Although"
+      ],
+      "answerIndex": 3,
+      "explanation": "상반되는 두 절을 연결하는 양보 접속사 Although가 알맞다."
+    },
+    {
+      "id": "trx-144",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the device is compact, it contains a powerful battery.",
+      "choices": [
+        "Unless",
+        "Because of",
+        "Although",
+        "In spite"
+      ],
+      "answerIndex": 2,
+      "explanation": "상반되는 두 절을 연결하는 양보 접속사 Although가 알맞다."
+    },
+    {
+      "id": "trx-145",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Either the manager or the assistants ___ the supply cabinet each evening.",
+      "choices": [
+        "checks",
+        "check",
+        "has checked",
+        "checking"
+      ],
+      "answerIndex": 1,
+      "explanation": "either A or B에서는 가까운 복수 주어에 수를 일치시키므로 check가 알맞다."
+    },
+    {
+      "id": "trx-146",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Either the director or the coordinators ___ the registration list.",
+      "choices": [
+        "has checked",
+        "check",
+        "checking",
+        "checks"
+      ],
+      "answerIndex": 1,
+      "explanation": "either A or B에서는 가까운 복수 주어에 수를 일치시키므로 check가 알맞다."
+    },
+    {
+      "id": "trx-147",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Neither the owner nor the tenants ___ the safety equipment regularly.",
+      "choices": [
+        "has checked",
+        "check",
+        "checking",
+        "checks"
+      ],
+      "answerIndex": 1,
+      "explanation": "either A or B에서는 가까운 복수 주어에 수를 일치시키므로 check가 알맞다."
+    },
+    {
+      "id": "trx-148",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Either the chef or the servers ___ the dining area before opening.",
+      "choices": [
+        "checks",
+        "check",
+        "has checked",
+        "checking"
+      ],
+      "answerIndex": 1,
+      "explanation": "either A or B에서는 가까운 복수 주어에 수를 일치시키므로 check가 알맞다."
+    },
+    {
+      "id": "trx-149",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The renovation will not only add more seats ___ also improve accessibility.",
+      "choices": [
+        "and",
+        "so",
+        "but",
+        "or"
+      ],
+      "answerIndex": 2,
+      "explanation": "상관접속사 not only A but also B의 짝이므로 but이 알맞다."
+    },
+    {
+      "id": "trx-150",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Rossi not only designed the brochure ___ also wrote the text.",
+      "choices": [
+        "and",
+        "but",
+        "or",
+        "so"
+      ],
+      "answerIndex": 1,
+      "explanation": "상관접속사 not only A but also B의 짝이므로 but이 알맞다."
+    },
+    {
+      "id": "trx-151",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The course not only covers theory ___ also provides practical exercises.",
+      "choices": [
+        "but",
+        "so",
+        "or",
+        "and"
+      ],
+      "answerIndex": 0,
+      "explanation": "상관접속사 not only A but also B의 짝이므로 but이 알맞다."
+    },
+    {
+      "id": "trx-152",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The update will not only fix errors ___ also increase speed.",
+      "choices": [
+        "and",
+        "so",
+        "but",
+        "or"
+      ],
+      "answerIndex": 2,
+      "explanation": "상관접속사 not only A but also B의 짝이므로 but이 알맞다."
+    },
+    {
+      "id": "trx-153",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Both the sales team ___ the support team attended the training.",
+      "choices": [
+        "nor",
+        "but",
+        "and",
+        "or"
+      ],
+      "answerIndex": 2,
+      "explanation": "상관접속사 both A and B의 짝이므로 and가 알맞다."
+    },
+    {
+      "id": "trx-154",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The package includes both installation ___ maintenance services.",
+      "choices": [
+        "but",
+        "nor",
+        "or",
+        "and"
+      ],
+      "answerIndex": 3,
+      "explanation": "상관접속사 both A and B의 짝이므로 and가 알맞다."
+    },
+    {
+      "id": "trx-155",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Both price ___ delivery time influenced the final decision.",
+      "choices": [
+        "or",
+        "but",
+        "nor",
+        "and"
+      ],
+      "answerIndex": 3,
+      "explanation": "상관접속사 both A and B의 짝이므로 and가 알맞다."
+    },
+    {
+      "id": "trx-156",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The survey measures both satisfaction ___ future purchase intent.",
+      "choices": [
+        "and",
+        "nor",
+        "but",
+        "or"
+      ],
+      "answerIndex": 0,
+      "explanation": "상관접속사 both A and B의 짝이므로 and가 알맞다."
+    },
+    {
+      "id": "trx-157",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Customers were ___ with the prompt response to their questions.",
+      "choices": [
+        "pleased",
+        "pleasure",
+        "pleasing",
+        "please"
+      ],
+      "answerIndex": 0,
+      "explanation": "사람이 느끼는 감정 상태를 나타내므로 과거분사형 형용사 pleased가 알맞다."
+    },
+    {
+      "id": "trx-158",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The board members were ___ with the proposed partnership.",
+      "choices": [
+        "pleased",
+        "pleasure",
+        "pleasing",
+        "please"
+      ],
+      "answerIndex": 0,
+      "explanation": "사람이 느끼는 감정 상태를 나타내므로 과거분사형 형용사 pleased가 알맞다."
+    },
+    {
+      "id": "trx-159",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Ali is ___ with the results of the market survey.",
+      "choices": [
+        "please",
+        "pleasing",
+        "pleasure",
+        "pleased"
+      ],
+      "answerIndex": 3,
+      "explanation": "사람이 느끼는 감정 상태를 나타내므로 과거분사형 형용사 pleased가 알맞다."
+    },
+    {
+      "id": "trx-160",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The visitors were ___ by the museum's interactive display.",
+      "choices": [
+        "pleasing",
+        "pleased",
+        "pleasure",
+        "please"
+      ],
+      "answerIndex": 1,
+      "explanation": "사람이 느끼는 감정 상태를 나타내므로 과거분사형 형용사 pleased가 알맞다."
+    },
+    {
+      "id": "trx-161",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The company is seeking candidates ___ experience in logistics.",
+      "choices": [
+        "had",
+        "having",
+        "have",
+        "has"
+      ],
+      "answerIndex": 1,
+      "explanation": "명사를 능동적으로 수식하는 현재분사 having이 알맞다."
+    },
+    {
+      "id": "trx-162",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Passengers ___ valid tickets should proceed to Gate 4.",
+      "choices": [
+        "had",
+        "has",
+        "having",
+        "have"
+      ],
+      "answerIndex": 2,
+      "explanation": "명사를 능동적으로 수식하는 현재분사 having이 알맞다."
+    },
+    {
+      "id": "trx-163",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Businesses ___ environmental certification receive tax support.",
+      "choices": [
+        "have",
+        "having",
+        "had",
+        "has"
+      ],
+      "answerIndex": 1,
+      "explanation": "명사를 능동적으로 수식하는 현재분사 having이 알맞다."
+    },
+    {
+      "id": "trx-164",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Customers ___ questions may contact the service desk.",
+      "choices": [
+        "having",
+        "has",
+        "had",
+        "have"
+      ],
+      "answerIndex": 0,
+      "explanation": "명사를 능동적으로 수식하는 현재분사 having이 알맞다."
+    },
+    {
+      "id": "trx-165",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The office ___ near Central Station is easy to reach.",
+      "choices": [
+        "locate",
+        "location",
+        "locating",
+        "located"
+      ],
+      "answerIndex": 3,
+      "explanation": "명사가 위치된 수동 의미이므로 과거분사 located가 알맞다."
+    },
+    {
+      "id": "trx-166",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "All products ___ in the front display are on sale.",
+      "choices": [
+        "located",
+        "locating",
+        "locate",
+        "location"
+      ],
+      "answerIndex": 0,
+      "explanation": "명사가 위치된 수동 의미이므로 과거분사 located가 알맞다."
+    },
+    {
+      "id": "trx-167",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to provide enough space or meet a particular need",
+      "choices": [
+        "estimate",
+        "accommodate",
+        "available",
+        "postpone"
+      ],
+      "answerIndex": 1,
+      "explanation": "accommodate는 ‘수용하다’이라는 뜻으로, to provide enough space or meet a particular need이라는 의미이다."
+    },
+    {
+      "id": "trx-168",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to succeed in completing a task or reaching a goal",
+      "choices": [
+        "accomplish",
+        "evaluate",
+        "comply",
+        "proceed"
+      ],
+      "answerIndex": 0,
+      "explanation": "accomplish는 ‘성취하다’이라는 뜻으로, to succeed in completing a task or reaching a goal이라는 의미이다."
+    },
+    {
+      "id": "trx-169",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? correct and free from errors",
+      "choices": [
+        "confirm",
+        "accurate",
+        "exceed",
+        "prohibit"
+      ],
+      "answerIndex": 1,
+      "explanation": "accurate는 ‘정확한’이라는 뜻으로, correct and free from errors이라는 의미이다."
+    },
+    {
+      "id": "trx-170",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to obtain or gain something",
+      "choices": [
+        "facilitate",
+        "acquire",
+        "prompt",
+        "considerable"
+      ],
+      "answerIndex": 1,
+      "explanation": "acquire는 ‘취득하다’이라는 뜻으로, to obtain or gain something이라는 의미이다."
+    },
+    {
+      "id": "trx-171",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? enough in quantity or quality for a particular purpose",
+      "choices": [
+        "convenient",
+        "implement",
+        "recommend",
+        "adequate"
+      ],
+      "answerIndex": 3,
+      "explanation": "adequate는 ‘충분한’이라는 뜻으로, enough in quantity or quality for a particular purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-172",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to set aside money, time, or resources for a purpose",
+      "choices": [
+        "indicate",
+        "allocate",
+        "reimburse",
+        "delay"
+      ],
+      "answerIndex": 1,
+      "explanation": "allocate는 ‘할당하다’이라는 뜻으로, to set aside money, time, or resources for a purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-173",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to expect something and prepare for it",
+      "choices": [
+        "maintain",
+        "anticipate",
+        "demonstrate",
+        "reliable"
+      ],
+      "answerIndex": 1,
+      "explanation": "anticipate는 ‘예상하다’이라는 뜻으로, to expect something and prepare for it이라는 의미이다."
+    },
+    {
+      "id": "trx-174",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? easy to notice or understand",
+      "choices": [
+        "negotiate",
+        "designate",
+        "apparent",
+        "require"
+      ],
+      "answerIndex": 2,
+      "explanation": "apparent는 ‘분명한’이라는 뜻으로, easy to notice or understand이라는 의미이다."
+    },
+    {
+      "id": "trx-175",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to officially accept or permit something",
+      "choices": [
+        "resolve",
+        "notify",
+        "approve",
+        "eligible"
+      ],
+      "answerIndex": 2,
+      "explanation": "approve는 ‘승인하다’이라는 뜻으로, to officially accept or permit something이라는 의미이다."
+    },
+    {
+      "id": "trx-176",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to organize or plan something in advance",
+      "choices": [
+        "obtain",
+        "ensure",
+        "arrange",
+        "retain"
+      ],
+      "answerIndex": 2,
+      "explanation": "arrange는 ‘준비하다’이라는 뜻으로, to organize or plan something in advance이라는 의미이다."
+    },
+    {
+      "id": "trx-177",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to judge the quality, importance, or value of something",
+      "choices": [
+        "assess",
+        "participate",
+        "schedule",
+        "establish"
+      ],
+      "answerIndex": 0,
+      "explanation": "assess는 ‘평가하다’이라는 뜻으로, to judge the quality, importance, or value of something이라는 의미이다."
+    },
+    {
+      "id": "trx-178",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? ready to be used or obtained",
+      "choices": [
+        "postpone",
+        "submit",
+        "estimate",
+        "available"
+      ],
+      "answerIndex": 3,
+      "explanation": "available는 ‘이용 가능한’이라는 뜻으로, ready to be used or obtained이라는 의미이다."
+    },
+    {
+      "id": "trx-179",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to act according to a rule or request",
+      "choices": [
+        "evaluate",
+        "comply",
+        "proceed",
+        "substantial"
+      ],
+      "answerIndex": 1,
+      "explanation": "comply는 ‘준수하다’이라는 뜻으로, to act according to a rule or request이라는 의미이다."
+    },
+    {
+      "id": "trx-180",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to establish that information is correct or definite",
+      "choices": [
+        "confirm",
+        "prohibit",
+        "supervise",
+        "exceed"
+      ],
+      "answerIndex": 0,
+      "explanation": "confirm는 ‘확인하다’이라는 뜻으로, to establish that information is correct or definite이라는 의미이다."
+    },
+    {
+      "id": "trx-181",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? large or important enough to be noticed",
+      "choices": [
+        "facilitate",
+        "prompt",
+        "considerable",
+        "temporary"
+      ],
+      "answerIndex": 2,
+      "explanation": "considerable는 ‘상당한’이라는 뜻으로, large or important enough to be noticed이라는 의미이다."
+    },
+    {
+      "id": "trx-182",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? easy to use or suitable for someone's needs",
+      "choices": [
+        "convenient",
+        "recommend",
+        "implement",
+        "terminate"
+      ],
+      "answerIndex": 0,
+      "explanation": "convenient는 ‘편리한’이라는 뜻으로, easy to use or suitable for someone's needs이라는 의미이다."
+    },
+    {
+      "id": "trx-183",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to make something happen later than planned",
+      "choices": [
+        "thorough",
+        "indicate",
+        "delay",
+        "reimburse"
+      ],
+      "answerIndex": 2,
+      "explanation": "delay는 ‘지연시키다’이라는 뜻으로, to make something happen later than planned이라는 의미이다."
+    },
+    {
+      "id": "trx-184",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to show clearly that something exists or works",
+      "choices": [
+        "reliable",
+        "maintain",
+        "verify",
+        "demonstrate"
+      ],
+      "answerIndex": 3,
+      "explanation": "demonstrate는 ‘입증하다’이라는 뜻으로, to show clearly that something exists or works이라는 의미이다."
+    },
+    {
+      "id": "trx-185",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to officially choose someone or something for a role or purpose",
+      "choices": [
+        "designate",
+        "require",
+        "negotiate",
+        "waive"
+      ],
+      "answerIndex": 0,
+      "explanation": "designate는 ‘지정하다’이라는 뜻으로, to officially choose someone or something for a role or purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-186",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? meeting the necessary conditions to receive or do something",
+      "choices": [
+        "resolve",
+        "withdraw",
+        "notify",
+        "eligible"
+      ],
+      "answerIndex": 3,
+      "explanation": "eligible는 ‘자격이 있는’이라는 뜻으로, meeting the necessary conditions to receive or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-187",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to make certain that something happens",
+      "choices": [
+        "obtain",
+        "retain",
+        "accommodate",
+        "ensure"
+      ],
+      "answerIndex": 3,
+      "explanation": "ensure는 ‘보장하다’이라는 뜻으로, to make certain that something happens이라는 의미이다."
+    },
+    {
+      "id": "trx-188",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to create or set up something intended to last",
+      "choices": [
+        "establish",
+        "schedule",
+        "participate",
+        "accomplish"
+      ],
+      "answerIndex": 0,
+      "explanation": "establish는 ‘설립하다’이라는 뜻으로, to create or set up something intended to last이라는 의미이다."
+    },
+    {
+      "id": "trx-189",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to calculate an approximate amount or value",
+      "choices": [
+        "postpone",
+        "submit",
+        "estimate",
+        "accurate"
+      ],
+      "answerIndex": 2,
+      "explanation": "estimate는 ‘추산하다’이라는 뜻으로, to calculate an approximate amount or value이라는 의미이다."
+    },
+    {
+      "id": "trx-190",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to examine something and judge its quality or effectiveness",
+      "choices": [
+        "substantial",
+        "acquire",
+        "evaluate",
+        "proceed"
+      ],
+      "answerIndex": 2,
+      "explanation": "evaluate는 ‘평가하다’이라는 뜻으로, to examine something and judge its quality or effectiveness이라는 의미이다."
+    },
+    {
+      "id": "trx-191",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to be greater than a number, amount, or limit",
+      "choices": [
+        "prohibit",
+        "supervise",
+        "exceed",
+        "adequate"
+      ],
+      "answerIndex": 2,
+      "explanation": "exceed는 ‘초과하다’이라는 뜻으로, to be greater than a number, amount, or limit이라는 의미이다."
+    },
+    {
+      "id": "trx-192",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to make an action or process easier",
+      "choices": [
+        "allocate",
+        "prompt",
+        "temporary",
+        "facilitate"
+      ],
+      "answerIndex": 3,
+      "explanation": "facilitate는 ‘촉진하다’이라는 뜻으로, to make an action or process easier이라는 의미이다."
+    },
+    {
+      "id": "trx-193",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to put a plan or system into operation",
+      "choices": [
+        "terminate",
+        "implement",
+        "anticipate",
+        "recommend"
+      ],
+      "answerIndex": 1,
+      "explanation": "implement는 ‘시행하다’이라는 뜻으로, to put a plan or system into operation이라는 의미이다."
+    },
+    {
+      "id": "trx-194",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to show or suggest that something is true",
+      "choices": [
+        "apparent",
+        "reimburse",
+        "thorough",
+        "indicate"
+      ],
+      "answerIndex": 3,
+      "explanation": "indicate는 ‘나타내다’이라는 뜻으로, to show or suggest that something is true이라는 의미이다."
+    },
+    {
+      "id": "trx-195",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to keep something in good condition or at the same level",
+      "choices": [
+        "reliable",
+        "verify",
+        "maintain",
+        "approve"
+      ],
+      "answerIndex": 2,
+      "explanation": "maintain는 ‘유지하다’이라는 뜻으로, to keep something in good condition or at the same level이라는 의미이다."
+    },
+    {
+      "id": "trx-196",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to discuss something in order to reach an agreement",
+      "choices": [
+        "waive",
+        "arrange",
+        "require",
+        "negotiate"
+      ],
+      "answerIndex": 3,
+      "explanation": "negotiate는 ‘협상하다’이라는 뜻으로, to discuss something in order to reach an agreement이라는 의미이다."
+    },
+    {
+      "id": "trx-197",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to formally tell someone about something",
+      "choices": [
+        "notify",
+        "resolve",
+        "assess",
+        "withdraw"
+      ],
+      "answerIndex": 0,
+      "explanation": "notify는 ‘통지하다’이라는 뜻으로, to formally tell someone about something이라는 의미이다."
+    },
+    {
+      "id": "trx-198",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to get something through effort or a request",
+      "choices": [
+        "accommodate",
+        "retain",
+        "obtain",
+        "available"
+      ],
+      "answerIndex": 2,
+      "explanation": "obtain는 ‘얻다’이라는 뜻으로, to get something through effort or a request이라는 의미이다."
+    },
+    {
+      "id": "trx-199",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to take part in an activity or event",
+      "choices": [
+        "accomplish",
+        "participate",
+        "schedule",
+        "comply"
+      ],
+      "answerIndex": 1,
+      "explanation": "participate는 ‘참여하다’이라는 뜻으로, to take part in an activity or event이라는 의미이다."
+    },
+    {
+      "id": "trx-200",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to arrange for an event to happen at a later time",
+      "choices": [
+        "accurate",
+        "confirm",
+        "submit",
+        "postpone"
+      ],
+      "answerIndex": 3,
+      "explanation": "postpone는 ‘연기하다’이라는 뜻으로, to arrange for an event to happen at a later time이라는 의미이다."
+    },
+    {
+      "id": "trx-201",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to continue or move forward with an action",
+      "choices": [
+        "proceed",
+        "considerable",
+        "acquire",
+        "substantial"
+      ],
+      "answerIndex": 0,
+      "explanation": "proceed는 ‘진행하다’이라는 뜻으로, to continue or move forward with an action이라는 의미이다."
+    },
+    {
+      "id": "trx-202",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to officially prevent an activity",
+      "choices": [
+        "convenient",
+        "prohibit",
+        "adequate",
+        "supervise"
+      ],
+      "answerIndex": 1,
+      "explanation": "prohibit는 ‘금지하다’이라는 뜻으로, to officially prevent an activity이라는 의미이다."
+    },
+    {
+      "id": "trx-203",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? done quickly and without delay",
+      "choices": [
+        "prompt",
+        "temporary",
+        "delay",
+        "allocate"
+      ],
+      "answerIndex": 0,
+      "explanation": "prompt는 ‘신속한’이라는 뜻으로, done quickly and without delay이라는 의미이다."
+    },
+    {
+      "id": "trx-204",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to suggest that someone should choose or do something",
+      "choices": [
+        "terminate",
+        "anticipate",
+        "demonstrate",
+        "recommend"
+      ],
+      "answerIndex": 3,
+      "explanation": "recommend는 ‘추천하다’이라는 뜻으로, to suggest that someone should choose or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-205",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to pay back money that someone has spent",
+      "choices": [
+        "thorough",
+        "designate",
+        "reimburse",
+        "apparent"
+      ],
+      "answerIndex": 2,
+      "explanation": "reimburse는 ‘상환하다’이라는 뜻으로, to pay back money that someone has spent이라는 의미이다."
+    },
+    {
+      "id": "trx-206",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? consistently good and able to be trusted",
+      "choices": [
+        "eligible",
+        "reliable",
+        "approve",
+        "verify"
+      ],
+      "answerIndex": 1,
+      "explanation": "reliable는 ‘신뢰할 수 있는’이라는 뜻으로, consistently good and able to be trusted이라는 의미이다."
+    },
+    {
+      "id": "trx-207",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to make something necessary",
+      "choices": [
+        "arrange",
+        "ensure",
+        "require",
+        "waive"
+      ],
+      "answerIndex": 2,
+      "explanation": "require는 ‘요구하다’이라는 뜻으로, to make something necessary이라는 의미이다."
+    },
+    {
+      "id": "trx-208",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to find a satisfactory solution to a problem",
+      "choices": [
+        "assess",
+        "establish",
+        "withdraw",
+        "resolve"
+      ],
+      "answerIndex": 3,
+      "explanation": "resolve는 ‘해결하다’이라는 뜻으로, to find a satisfactory solution to a problem이라는 의미이다."
+    },
+    {
+      "id": "trx-209",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to continue to have or keep something",
+      "choices": [
+        "available",
+        "accommodate",
+        "estimate",
+        "retain"
+      ],
+      "answerIndex": 3,
+      "explanation": "retain는 ‘유지하다’이라는 뜻으로, to continue to have or keep something이라는 의미이다."
+    },
+    {
+      "id": "trx-210",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to arrange an event for a particular time",
+      "choices": [
+        "schedule",
+        "comply",
+        "evaluate",
+        "accomplish"
+      ],
+      "answerIndex": 0,
+      "explanation": "schedule는 ‘일정을 잡다’이라는 뜻으로, to arrange an event for a particular time이라는 의미이다."
+    },
+    {
+      "id": "trx-211",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to formally send a document or request for consideration",
+      "choices": [
+        "accurate",
+        "confirm",
+        "exceed",
+        "submit"
+      ],
+      "answerIndex": 3,
+      "explanation": "submit는 ‘제출하다’이라는 뜻으로, to formally send a document or request for consideration이라는 의미이다."
+    },
+    {
+      "id": "trx-212",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? large in amount, value, or importance",
+      "choices": [
+        "facilitate",
+        "acquire",
+        "substantial",
+        "considerable"
+      ],
+      "answerIndex": 2,
+      "explanation": "substantial는 ‘상당한’이라는 뜻으로, large in amount, value, or importance이라는 의미이다."
+    },
+    {
+      "id": "trx-213",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to be responsible for the work of other people",
+      "choices": [
+        "implement",
+        "supervise",
+        "convenient",
+        "adequate"
+      ],
+      "answerIndex": 1,
+      "explanation": "supervise는 ‘감독하다’이라는 뜻으로, to be responsible for the work of other people이라는 의미이다."
+    },
+    {
+      "id": "trx-214",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? lasting for only a limited period",
+      "choices": [
+        "allocate",
+        "temporary",
+        "indicate",
+        "delay"
+      ],
+      "answerIndex": 1,
+      "explanation": "temporary는 ‘임시의’이라는 뜻으로, lasting for only a limited period이라는 의미이다."
+    },
+    {
+      "id": "trx-215",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to bring something to an end",
+      "choices": [
+        "terminate",
+        "anticipate",
+        "maintain",
+        "demonstrate"
+      ],
+      "answerIndex": 0,
+      "explanation": "terminate는 ‘종료하다’이라는 뜻으로, to bring something to an end이라는 의미이다."
+    },
+    {
+      "id": "trx-216",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? complete and careful, with attention to every detail",
+      "choices": [
+        "apparent",
+        "designate",
+        "negotiate",
+        "thorough"
+      ],
+      "answerIndex": 3,
+      "explanation": "thorough는 ‘철저한’이라는 뜻으로, complete and careful, with attention to every detail이라는 의미이다."
+    },
+    {
+      "id": "trx-217",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to check that something is true or accurate",
+      "choices": [
+        "approve",
+        "notify",
+        "eligible",
+        "verify"
+      ],
+      "answerIndex": 3,
+      "explanation": "verify는 ‘검증하다’이라는 뜻으로, to check that something is true or accurate이라는 의미이다."
+    },
+    {
+      "id": "trx-218",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to choose not to require a fee, rule, or right",
+      "choices": [
+        "obtain",
+        "ensure",
+        "waive",
+        "arrange"
+      ],
+      "answerIndex": 2,
+      "explanation": "waive는 ‘면제하다’이라는 뜻으로, to choose not to require a fee, rule, or right이라는 의미이다."
+    },
+    {
+      "id": "trx-219",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Which word best matches this definition? to remove an application, offer, or amount from consideration or use",
+      "choices": [
+        "participate",
+        "withdraw",
+        "establish",
+        "assess"
+      ],
+      "answerIndex": 1,
+      "explanation": "withdraw는 ‘철회하다’이라는 뜻으로, to remove an application, offer, or amount from consideration or use이라는 의미이다."
+    },
+    {
+      "id": "trx-220",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “accommodate.”",
+      "choices": [
+        "이용 가능한",
+        "연기하다",
+        "추산하다",
+        "수용하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "accommodate는 ‘수용하다’이라는 뜻으로, to provide enough space or meet a particular need이라는 의미이다."
+    },
+    {
+      "id": "trx-221",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “accomplish.”",
+      "choices": [
+        "진행하다",
+        "평가하다",
+        "성취하다",
+        "준수하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "accomplish는 ‘성취하다’이라는 뜻으로, to succeed in completing a task or reaching a goal이라는 의미이다."
+    },
+    {
+      "id": "trx-222",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “accurate.”",
+      "choices": [
+        "금지하다",
+        "초과하다",
+        "확인하다",
+        "정확한"
+      ],
+      "answerIndex": 3,
+      "explanation": "accurate는 ‘정확한’이라는 뜻으로, correct and free from errors이라는 의미이다."
+    },
+    {
+      "id": "trx-223",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “acquire.”",
+      "choices": [
+        "상당한",
+        "취득하다",
+        "신속한",
+        "촉진하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "acquire는 ‘취득하다’이라는 뜻으로, to obtain or gain something이라는 의미이다."
+    },
+    {
+      "id": "trx-224",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “adequate.”",
+      "choices": [
+        "추천하다",
+        "편리한",
+        "충분한",
+        "시행하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "adequate는 ‘충분한’이라는 뜻으로, enough in quantity or quality for a particular purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-225",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “allocate.”",
+      "choices": [
+        "할당하다",
+        "나타내다",
+        "지연시키다",
+        "상환하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "allocate는 ‘할당하다’이라는 뜻으로, to set aside money, time, or resources for a purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-226",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “anticipate.”",
+      "choices": [
+        "입증하다",
+        "신뢰할 수 있는",
+        "예상하다",
+        "유지하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "anticipate는 ‘예상하다’이라는 뜻으로, to expect something and prepare for it이라는 의미이다."
+    },
+    {
+      "id": "trx-227",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “apparent.”",
+      "choices": [
+        "분명한",
+        "요구하다",
+        "지정하다",
+        "협상하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "apparent는 ‘분명한’이라는 뜻으로, easy to notice or understand이라는 의미이다."
+    },
+    {
+      "id": "trx-228",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “approve.”",
+      "choices": [
+        "승인하다",
+        "해결하다",
+        "통지하다",
+        "자격이 있는"
+      ],
+      "answerIndex": 0,
+      "explanation": "approve는 ‘승인하다’이라는 뜻으로, to officially accept or permit something이라는 의미이다."
+    },
+    {
+      "id": "trx-229",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “arrange.”",
+      "choices": [
+        "유지하다",
+        "준비하다",
+        "보장하다",
+        "얻다"
+      ],
+      "answerIndex": 1,
+      "explanation": "arrange는 ‘준비하다’이라는 뜻으로, to organize or plan something in advance이라는 의미이다."
+    },
+    {
+      "id": "trx-230",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “assess.”",
+      "choices": [
+        "일정을 잡다",
+        "설립하다",
+        "평가하다",
+        "참여하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "assess는 ‘평가하다’이라는 뜻으로, to judge the quality, importance, or value of something이라는 의미이다."
+    },
+    {
+      "id": "trx-231",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “available.”",
+      "choices": [
+        "연기하다",
+        "제출하다",
+        "이용 가능한",
+        "추산하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "available는 ‘이용 가능한’이라는 뜻으로, ready to be used or obtained이라는 의미이다."
+    },
+    {
+      "id": "trx-232",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “comply.”",
+      "choices": [
+        "준수하다",
+        "상당한",
+        "진행하다",
+        "평가하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "comply는 ‘준수하다’이라는 뜻으로, to act according to a rule or request이라는 의미이다."
+    },
+    {
+      "id": "trx-233",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “confirm.”",
+      "choices": [
+        "감독하다",
+        "확인하다",
+        "금지하다",
+        "초과하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "confirm는 ‘확인하다’이라는 뜻으로, to establish that information is correct or definite이라는 의미이다."
+    },
+    {
+      "id": "trx-234",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “considerable.”",
+      "choices": [
+        "촉진하다",
+        "신속한",
+        "상당한",
+        "임시의"
+      ],
+      "answerIndex": 2,
+      "explanation": "considerable는 ‘상당한’이라는 뜻으로, large or important enough to be noticed이라는 의미이다."
+    },
+    {
+      "id": "trx-235",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “convenient.”",
+      "choices": [
+        "추천하다",
+        "종료하다",
+        "시행하다",
+        "편리한"
+      ],
+      "answerIndex": 3,
+      "explanation": "convenient는 ‘편리한’이라는 뜻으로, easy to use or suitable for someone's needs이라는 의미이다."
+    },
+    {
+      "id": "trx-236",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “delay.”",
+      "choices": [
+        "상환하다",
+        "나타내다",
+        "철저한",
+        "지연시키다"
+      ],
+      "answerIndex": 3,
+      "explanation": "delay는 ‘지연시키다’이라는 뜻으로, to make something happen later than planned이라는 의미이다."
+    },
+    {
+      "id": "trx-237",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “demonstrate.”",
+      "choices": [
+        "검증하다",
+        "유지하다",
+        "신뢰할 수 있는",
+        "입증하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "demonstrate는 ‘입증하다’이라는 뜻으로, to show clearly that something exists or works이라는 의미이다."
+    },
+    {
+      "id": "trx-238",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “designate.”",
+      "choices": [
+        "지정하다",
+        "협상하다",
+        "면제하다",
+        "요구하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "designate는 ‘지정하다’이라는 뜻으로, to officially choose someone or something for a role or purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-239",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “eligible.”",
+      "choices": [
+        "해결하다",
+        "통지하다",
+        "철회하다",
+        "자격이 있는"
+      ],
+      "answerIndex": 3,
+      "explanation": "eligible는 ‘자격이 있는’이라는 뜻으로, meeting the necessary conditions to receive or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-240",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “ensure.”",
+      "choices": [
+        "유지하다",
+        "얻다",
+        "수용하다",
+        "보장하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "ensure는 ‘보장하다’이라는 뜻으로, to make certain that something happens이라는 의미이다."
+    },
+    {
+      "id": "trx-241",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “establish.”",
+      "choices": [
+        "설립하다",
+        "일정을 잡다",
+        "성취하다",
+        "참여하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "establish는 ‘설립하다’이라는 뜻으로, to create or set up something intended to last이라는 의미이다."
+    },
+    {
+      "id": "trx-242",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “estimate.”",
+      "choices": [
+        "제출하다",
+        "추산하다",
+        "연기하다",
+        "정확한"
+      ],
+      "answerIndex": 1,
+      "explanation": "estimate는 ‘추산하다’이라는 뜻으로, to calculate an approximate amount or value이라는 의미이다."
+    },
+    {
+      "id": "trx-243",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “evaluate.”",
+      "choices": [
+        "평가하다",
+        "진행하다",
+        "상당한",
+        "취득하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "evaluate는 ‘평가하다’이라는 뜻으로, to examine something and judge its quality or effectiveness이라는 의미이다."
+    },
+    {
+      "id": "trx-244",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “exceed.”",
+      "choices": [
+        "충분한",
+        "감독하다",
+        "금지하다",
+        "초과하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "exceed는 ‘초과하다’이라는 뜻으로, to be greater than a number, amount, or limit이라는 의미이다."
+    },
+    {
+      "id": "trx-245",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “facilitate.”",
+      "choices": [
+        "임시의",
+        "신속한",
+        "촉진하다",
+        "할당하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "facilitate는 ‘촉진하다’이라는 뜻으로, to make an action or process easier이라는 의미이다."
+    },
+    {
+      "id": "trx-246",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “implement.”",
+      "choices": [
+        "추천하다",
+        "예상하다",
+        "시행하다",
+        "종료하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "implement는 ‘시행하다’이라는 뜻으로, to put a plan or system into operation이라는 의미이다."
+    },
+    {
+      "id": "trx-247",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “indicate.”",
+      "choices": [
+        "철저한",
+        "분명한",
+        "상환하다",
+        "나타내다"
+      ],
+      "answerIndex": 3,
+      "explanation": "indicate는 ‘나타내다’이라는 뜻으로, to show or suggest that something is true이라는 의미이다."
+    },
+    {
+      "id": "trx-248",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “maintain.”",
+      "choices": [
+        "신뢰할 수 있는",
+        "유지하다",
+        "검증하다",
+        "승인하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "maintain는 ‘유지하다’이라는 뜻으로, to keep something in good condition or at the same level이라는 의미이다."
+    },
+    {
+      "id": "trx-249",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “negotiate.”",
+      "choices": [
+        "준비하다",
+        "협상하다",
+        "면제하다",
+        "요구하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "negotiate는 ‘협상하다’이라는 뜻으로, to discuss something in order to reach an agreement이라는 의미이다."
+    },
+    {
+      "id": "trx-250",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “notify.”",
+      "choices": [
+        "통지하다",
+        "철회하다",
+        "평가하다",
+        "해결하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "notify는 ‘통지하다’이라는 뜻으로, to formally tell someone about something이라는 의미이다."
+    },
+    {
+      "id": "trx-251",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “obtain.”",
+      "choices": [
+        "이용 가능한",
+        "유지하다",
+        "수용하다",
+        "얻다"
+      ],
+      "answerIndex": 3,
+      "explanation": "obtain는 ‘얻다’이라는 뜻으로, to get something through effort or a request이라는 의미이다."
+    },
+    {
+      "id": "trx-252",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “participate.”",
+      "choices": [
+        "준수하다",
+        "참여하다",
+        "성취하다",
+        "일정을 잡다"
+      ],
+      "answerIndex": 1,
+      "explanation": "participate는 ‘참여하다’이라는 뜻으로, to take part in an activity or event이라는 의미이다."
+    },
+    {
+      "id": "trx-253",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “postpone.”",
+      "choices": [
+        "정확한",
+        "확인하다",
+        "연기하다",
+        "제출하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "postpone는 ‘연기하다’이라는 뜻으로, to arrange for an event to happen at a later time이라는 의미이다."
+    },
+    {
+      "id": "trx-254",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “proceed.”",
+      "choices": [
+        "취득하다",
+        "진행하다",
+        "촉진하다",
+        "상당한"
+      ],
+      "answerIndex": 1,
+      "explanation": "proceed는 ‘진행하다’이라는 뜻으로, to continue or move forward with an action이라는 의미이다."
+    },
+    {
+      "id": "trx-255",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “prohibit.”",
+      "choices": [
+        "충분한",
+        "감독하다",
+        "편리한",
+        "금지하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "prohibit는 ‘금지하다’이라는 뜻으로, to officially prevent an activity이라는 의미이다."
+    },
+    {
+      "id": "trx-256",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “prompt.”",
+      "choices": [
+        "임시의",
+        "지연시키다",
+        "신속한",
+        "할당하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "prompt는 ‘신속한’이라는 뜻으로, done quickly and without delay이라는 의미이다."
+    },
+    {
+      "id": "trx-257",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “recommend.”",
+      "choices": [
+        "예상하다",
+        "추천하다",
+        "입증하다",
+        "종료하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "recommend는 ‘추천하다’이라는 뜻으로, to suggest that someone should choose or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-258",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “reimburse.”",
+      "choices": [
+        "철저한",
+        "분명한",
+        "지정하다",
+        "상환하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "reimburse는 ‘상환하다’이라는 뜻으로, to pay back money that someone has spent이라는 의미이다."
+    },
+    {
+      "id": "trx-259",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “reliable.”",
+      "choices": [
+        "자격이 있는",
+        "신뢰할 수 있는",
+        "승인하다",
+        "검증하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "reliable는 ‘신뢰할 수 있는’이라는 뜻으로, consistently good and able to be trusted이라는 의미이다."
+    },
+    {
+      "id": "trx-260",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “require.”",
+      "choices": [
+        "면제하다",
+        "요구하다",
+        "준비하다",
+        "보장하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "require는 ‘요구하다’이라는 뜻으로, to make something necessary이라는 의미이다."
+    },
+    {
+      "id": "trx-261",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “resolve.”",
+      "choices": [
+        "해결하다",
+        "철회하다",
+        "평가하다",
+        "설립하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "resolve는 ‘해결하다’이라는 뜻으로, to find a satisfactory solution to a problem이라는 의미이다."
+    },
+    {
+      "id": "trx-262",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “retain.”",
+      "choices": [
+        "추산하다",
+        "이용 가능한",
+        "수용하다",
+        "유지하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "retain는 ‘유지하다’이라는 뜻으로, to continue to have or keep something이라는 의미이다."
+    },
+    {
+      "id": "trx-263",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “schedule.”",
+      "choices": [
+        "평가하다",
+        "일정을 잡다",
+        "준수하다",
+        "성취하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "schedule는 ‘일정을 잡다’이라는 뜻으로, to arrange an event for a particular time이라는 의미이다."
+    },
+    {
+      "id": "trx-264",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “submit.”",
+      "choices": [
+        "정확한",
+        "확인하다",
+        "제출하다",
+        "초과하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "submit는 ‘제출하다’이라는 뜻으로, to formally send a document or request for consideration이라는 의미이다."
+    },
+    {
+      "id": "trx-265",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “substantial.”",
+      "choices": [
+        "취득하다",
+        "신속한",
+        "상당한",
+        "촉진하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "substantial는 ‘상당한’이라는 뜻으로, large in amount, value, or importance이라는 의미이다."
+    },
+    {
+      "id": "trx-266",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “supervise.”",
+      "choices": [
+        "시행하다",
+        "감독하다",
+        "충분한",
+        "편리한"
+      ],
+      "answerIndex": 1,
+      "explanation": "supervise는 ‘감독하다’이라는 뜻으로, to be responsible for the work of other people이라는 의미이다."
+    },
+    {
+      "id": "trx-267",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “temporary.”",
+      "choices": [
+        "나타내다",
+        "지연시키다",
+        "임시의",
+        "할당하다"
+      ],
+      "answerIndex": 2,
+      "explanation": "temporary는 ‘임시의’이라는 뜻으로, lasting for only a limited period이라는 의미이다."
+    },
+    {
+      "id": "trx-268",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “terminate.”",
+      "choices": [
+        "입증하다",
+        "종료하다",
+        "예상하다",
+        "유지하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "terminate는 ‘종료하다’이라는 뜻으로, to bring something to an end이라는 의미이다."
+    },
+    {
+      "id": "trx-269",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “thorough.”",
+      "choices": [
+        "지정하다",
+        "협상하다",
+        "철저한",
+        "분명한"
+      ],
+      "answerIndex": 2,
+      "explanation": "thorough는 ‘철저한’이라는 뜻으로, complete and careful, with attention to every detail이라는 의미이다."
+    },
+    {
+      "id": "trx-270",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “verify.”",
+      "choices": [
+        "검증하다",
+        "통지하다",
+        "자격이 있는",
+        "승인하다"
+      ],
+      "answerIndex": 0,
+      "explanation": "verify는 ‘검증하다’이라는 뜻으로, to check that something is true or accurate이라는 의미이다."
+    },
+    {
+      "id": "trx-271",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “waive.”",
+      "choices": [
+        "얻다",
+        "보장하다",
+        "준비하다",
+        "면제하다"
+      ],
+      "answerIndex": 3,
+      "explanation": "waive는 ‘면제하다’이라는 뜻으로, to choose not to require a fee, rule, or right이라는 의미이다."
+    },
+    {
+      "id": "trx-272",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the closest meaning of “withdraw.”",
+      "choices": [
+        "평가하다",
+        "철회하다",
+        "참여하다",
+        "설립하다"
+      ],
+      "answerIndex": 1,
+      "explanation": "withdraw는 ‘철회하다’이라는 뜻으로, to remove an application, offer, or amount from consideration or use이라는 의미이다."
+    },
+    {
+      "id": "trx-273",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The auditorium can ___ up to 600 guests.",
+      "choices": [
+        "accommodate",
+        "estimate",
+        "postpone",
+        "available"
+      ],
+      "answerIndex": 0,
+      "explanation": "accommodate는 ‘수용하다’이라는 뜻으로, to provide enough space or meet a particular need이라는 의미이다."
+    },
+    {
+      "id": "trx-274",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The project team worked together to ___ its main objective.",
+      "choices": [
+        "proceed",
+        "comply",
+        "evaluate",
+        "accomplish"
+      ],
+      "answerIndex": 3,
+      "explanation": "accomplish는 ‘성취하다’이라는 뜻으로, to succeed in completing a task or reaching a goal이라는 의미이다."
+    },
+    {
+      "id": "trx-275",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please make sure that all figures in the report are ___.",
+      "choices": [
+        "exceed",
+        "accurate",
+        "confirm",
+        "prohibit"
+      ],
+      "answerIndex": 1,
+      "explanation": "accurate는 ‘정확한’이라는 뜻으로, correct and free from errors이라는 의미이다."
+    },
+    {
+      "id": "trx-276",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The company plans to ___ a smaller software firm.",
+      "choices": [
+        "considerable",
+        "prompt",
+        "facilitate",
+        "acquire"
+      ],
+      "answerIndex": 3,
+      "explanation": "acquire는 ‘취득하다’이라는 뜻으로, to obtain or gain something이라는 의미이다."
+    },
+    {
+      "id": "trx-277",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The warehouse has ___ space for the incoming shipment.",
+      "choices": [
+        "adequate",
+        "recommend",
+        "convenient",
+        "implement"
+      ],
+      "answerIndex": 0,
+      "explanation": "adequate는 ‘충분한’이라는 뜻으로, enough in quantity or quality for a particular purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-278",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The board agreed to ___ more funds to staff training.",
+      "choices": [
+        "allocate",
+        "reimburse",
+        "delay",
+        "indicate"
+      ],
+      "answerIndex": 0,
+      "explanation": "allocate는 ‘할당하다’이라는 뜻으로, to set aside money, time, or resources for a purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-279",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Retailers ___ strong demand during the holiday season.",
+      "choices": [
+        "anticipate",
+        "reliable",
+        "maintain",
+        "demonstrate"
+      ],
+      "answerIndex": 0,
+      "explanation": "anticipate는 ‘예상하다’이라는 뜻으로, to expect something and prepare for it이라는 의미이다."
+    },
+    {
+      "id": "trx-280",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "It became ___ that the meeting would need more time.",
+      "choices": [
+        "designate",
+        "apparent",
+        "negotiate",
+        "require"
+      ],
+      "answerIndex": 1,
+      "explanation": "apparent는 ‘분명한’이라는 뜻으로, easy to notice or understand이라는 의미이다."
+    },
+    {
+      "id": "trx-281",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The director must ___ all international travel requests.",
+      "choices": [
+        "approve",
+        "eligible",
+        "notify",
+        "resolve"
+      ],
+      "answerIndex": 0,
+      "explanation": "approve는 ‘승인하다’이라는 뜻으로, to officially accept or permit something이라는 의미이다."
+    },
+    {
+      "id": "trx-282",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Ms. Park will ___ transportation from the airport.",
+      "choices": [
+        "ensure",
+        "obtain",
+        "retain",
+        "arrange"
+      ],
+      "answerIndex": 3,
+      "explanation": "arrange는 ‘준비하다’이라는 뜻으로, to organize or plan something in advance이라는 의미이다."
+    },
+    {
+      "id": "trx-283",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The committee will ___ each application fairly.",
+      "choices": [
+        "establish",
+        "participate",
+        "schedule",
+        "assess"
+      ],
+      "answerIndex": 3,
+      "explanation": "assess는 ‘평가하다’이라는 뜻으로, to judge the quality, importance, or value of something이라는 의미이다."
+    },
+    {
+      "id": "trx-284",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Additional tickets will be ___ on Monday morning.",
+      "choices": [
+        "available",
+        "estimate",
+        "postpone",
+        "submit"
+      ],
+      "answerIndex": 0,
+      "explanation": "available는 ‘이용 가능한’이라는 뜻으로, ready to be used or obtained이라는 의미이다."
+    },
+    {
+      "id": "trx-285",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "All contractors must ___ with the building regulations.",
+      "choices": [
+        "comply",
+        "substantial",
+        "evaluate",
+        "proceed"
+      ],
+      "answerIndex": 0,
+      "explanation": "comply는 ‘준수하다’이라는 뜻으로, to act according to a rule or request이라는 의미이다."
+    },
+    {
+      "id": "trx-286",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please ___ your attendance by Thursday.",
+      "choices": [
+        "supervise",
+        "prohibit",
+        "exceed",
+        "confirm"
+      ],
+      "answerIndex": 3,
+      "explanation": "confirm는 ‘확인하다’이라는 뜻으로, to establish that information is correct or definite이라는 의미이다."
+    },
+    {
+      "id": "trx-287",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The new system saved the company a ___ amount of time.",
+      "choices": [
+        "considerable",
+        "temporary",
+        "facilitate",
+        "prompt"
+      ],
+      "answerIndex": 0,
+      "explanation": "considerable는 ‘상당한’이라는 뜻으로, large or important enough to be noticed이라는 의미이다."
+    },
+    {
+      "id": "trx-288",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Online payment is a ___ option for many customers.",
+      "choices": [
+        "convenient",
+        "terminate",
+        "recommend",
+        "implement"
+      ],
+      "answerIndex": 0,
+      "explanation": "convenient는 ‘편리한’이라는 뜻으로, easy to use or suitable for someone's needs이라는 의미이다."
+    },
+    {
+      "id": "trx-289",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Bad weather may ___ the delivery by one day.",
+      "choices": [
+        "reimburse",
+        "indicate",
+        "delay",
+        "thorough"
+      ],
+      "answerIndex": 2,
+      "explanation": "delay는 ‘지연시키다’이라는 뜻으로, to make something happen later than planned이라는 의미이다."
+    },
+    {
+      "id": "trx-290",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The trial results ___ the product's effectiveness.",
+      "choices": [
+        "maintain",
+        "reliable",
+        "demonstrate",
+        "verify"
+      ],
+      "answerIndex": 2,
+      "explanation": "demonstrate는 ‘입증하다’이라는 뜻으로, to show clearly that something exists or works이라는 의미이다."
+    },
+    {
+      "id": "trx-291",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The manager will ___ a staff member to lead the tour.",
+      "choices": [
+        "waive",
+        "designate",
+        "negotiate",
+        "require"
+      ],
+      "answerIndex": 1,
+      "explanation": "designate는 ‘지정하다’이라는 뜻으로, to officially choose someone or something for a role or purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-292",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Employees with one year of service are ___ for the bonus.",
+      "choices": [
+        "notify",
+        "eligible",
+        "withdraw",
+        "resolve"
+      ],
+      "answerIndex": 1,
+      "explanation": "eligible는 ‘자격이 있는’이라는 뜻으로, meeting the necessary conditions to receive or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-293",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Double-check the address to ___ prompt delivery.",
+      "choices": [
+        "accommodate",
+        "ensure",
+        "retain",
+        "obtain"
+      ],
+      "answerIndex": 1,
+      "explanation": "ensure는 ‘보장하다’이라는 뜻으로, to make certain that something happens이라는 의미이다."
+    },
+    {
+      "id": "trx-294",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The organization hopes to ___ a regional office.",
+      "choices": [
+        "schedule",
+        "establish",
+        "accomplish",
+        "participate"
+      ],
+      "answerIndex": 1,
+      "explanation": "establish는 ‘설립하다’이라는 뜻으로, to create or set up something intended to last이라는 의미이다."
+    },
+    {
+      "id": "trx-295",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Engineers ___ that repairs will take three days.",
+      "choices": [
+        "submit",
+        "accurate",
+        "estimate",
+        "postpone"
+      ],
+      "answerIndex": 2,
+      "explanation": "estimate는 ‘추산하다’이라는 뜻으로, to calculate an approximate amount or value이라는 의미이다."
+    },
+    {
+      "id": "trx-296",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Supervisors ___ employee performance twice a year.",
+      "choices": [
+        "evaluate",
+        "acquire",
+        "proceed",
+        "substantial"
+      ],
+      "answerIndex": 0,
+      "explanation": "evaluate는 ‘평가하다’이라는 뜻으로, to examine something and judge its quality or effectiveness이라는 의미이다."
+    },
+    {
+      "id": "trx-297",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Demand is expected to ___ the current supply.",
+      "choices": [
+        "supervise",
+        "prohibit",
+        "exceed",
+        "adequate"
+      ],
+      "answerIndex": 2,
+      "explanation": "exceed는 ‘초과하다’이라는 뜻으로, to be greater than a number, amount, or limit이라는 의미이다."
+    },
+    {
+      "id": "trx-298",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The online portal will ___ communication between departments.",
+      "choices": [
+        "prompt",
+        "temporary",
+        "facilitate",
+        "allocate"
+      ],
+      "answerIndex": 2,
+      "explanation": "facilitate는 ‘촉진하다’이라는 뜻으로, to make an action or process easier이라는 의미이다."
+    },
+    {
+      "id": "trx-299",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The company will ___ the new policy in January.",
+      "choices": [
+        "terminate",
+        "anticipate",
+        "implement",
+        "recommend"
+      ],
+      "answerIndex": 2,
+      "explanation": "implement는 ‘시행하다’이라는 뜻으로, to put a plan or system into operation이라는 의미이다."
+    },
+    {
+      "id": "trx-300",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Survey results ___ growing interest in the service.",
+      "choices": [
+        "reimburse",
+        "apparent",
+        "thorough",
+        "indicate"
+      ],
+      "answerIndex": 3,
+      "explanation": "indicate는 ‘나타내다’이라는 뜻으로, to show or suggest that something is true이라는 의미이다."
+    },
+    {
+      "id": "trx-301",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Technicians regularly inspect the machines to ___ performance.",
+      "choices": [
+        "reliable",
+        "maintain",
+        "approve",
+        "verify"
+      ],
+      "answerIndex": 1,
+      "explanation": "maintain는 ‘유지하다’이라는 뜻으로, to keep something in good condition or at the same level이라는 의미이다."
+    },
+    {
+      "id": "trx-302",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The purchasing team will ___ a new contract with the supplier.",
+      "choices": [
+        "arrange",
+        "waive",
+        "require",
+        "negotiate"
+      ],
+      "answerIndex": 3,
+      "explanation": "negotiate는 ‘협상하다’이라는 뜻으로, to discuss something in order to reach an agreement이라는 의미이다."
+    },
+    {
+      "id": "trx-303",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The airline will ___ passengers of any schedule changes.",
+      "choices": [
+        "assess",
+        "withdraw",
+        "notify",
+        "resolve"
+      ],
+      "answerIndex": 2,
+      "explanation": "notify는 ‘통지하다’이라는 뜻으로, to formally tell someone about something이라는 의미이다."
+    },
+    {
+      "id": "trx-304",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Visitors must ___ a pass before entering the laboratory.",
+      "choices": [
+        "available",
+        "accommodate",
+        "retain",
+        "obtain"
+      ],
+      "answerIndex": 3,
+      "explanation": "obtain는 ‘얻다’이라는 뜻으로, to get something through effort or a request이라는 의미이다."
+    },
+    {
+      "id": "trx-305",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "More than 200 employees will ___ in the charity walk.",
+      "choices": [
+        "accomplish",
+        "participate",
+        "schedule",
+        "comply"
+      ],
+      "answerIndex": 1,
+      "explanation": "participate는 ‘참여하다’이라는 뜻으로, to take part in an activity or event이라는 의미이다."
+    },
+    {
+      "id": "trx-306",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The organizers may ___ the outdoor concert because of rain.",
+      "choices": [
+        "submit",
+        "postpone",
+        "confirm",
+        "accurate"
+      ],
+      "answerIndex": 1,
+      "explanation": "postpone는 ‘연기하다’이라는 뜻으로, to arrange for an event to happen at a later time이라는 의미이다."
+    },
+    {
+      "id": "trx-307",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Construction can ___ after the permit is issued.",
+      "choices": [
+        "acquire",
+        "considerable",
+        "substantial",
+        "proceed"
+      ],
+      "answerIndex": 3,
+      "explanation": "proceed는 ‘진행하다’이라는 뜻으로, to continue or move forward with an action이라는 의미이다."
+    },
+    {
+      "id": "trx-308",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Building rules ___ smoking near the main entrance.",
+      "choices": [
+        "prohibit",
+        "adequate",
+        "supervise",
+        "convenient"
+      ],
+      "answerIndex": 0,
+      "explanation": "prohibit는 ‘금지하다’이라는 뜻으로, to officially prevent an activity이라는 의미이다."
+    },
+    {
+      "id": "trx-309",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Thank you for your ___ response to our inquiry.",
+      "choices": [
+        "delay",
+        "prompt",
+        "allocate",
+        "temporary"
+      ],
+      "answerIndex": 1,
+      "explanation": "prompt는 ‘신속한’이라는 뜻으로, done quickly and without delay이라는 의미이다."
+    },
+    {
+      "id": "trx-310",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The consultant will ___ a more efficient filing system.",
+      "choices": [
+        "terminate",
+        "recommend",
+        "anticipate",
+        "demonstrate"
+      ],
+      "answerIndex": 1,
+      "explanation": "recommend는 ‘추천하다’이라는 뜻으로, to suggest that someone should choose or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-311",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The company will ___ employees for approved travel expenses.",
+      "choices": [
+        "reimburse",
+        "apparent",
+        "designate",
+        "thorough"
+      ],
+      "answerIndex": 0,
+      "explanation": "reimburse는 ‘상환하다’이라는 뜻으로, to pay back money that someone has spent이라는 의미이다."
+    },
+    {
+      "id": "trx-312",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "We need a ___ supplier that delivers on time.",
+      "choices": [
+        "reliable",
+        "verify",
+        "eligible",
+        "approve"
+      ],
+      "answerIndex": 0,
+      "explanation": "reliable는 ‘신뢰할 수 있는’이라는 뜻으로, consistently good and able to be trusted이라는 의미이다."
+    },
+    {
+      "id": "trx-313",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "This position will ___ occasional weekend work.",
+      "choices": [
+        "arrange",
+        "ensure",
+        "waive",
+        "require"
+      ],
+      "answerIndex": 3,
+      "explanation": "require는 ‘요구하다’이라는 뜻으로, to make something necessary이라는 의미이다."
+    },
+    {
+      "id": "trx-314",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The support team hopes to ___ the issue today.",
+      "choices": [
+        "withdraw",
+        "assess",
+        "resolve",
+        "establish"
+      ],
+      "answerIndex": 2,
+      "explanation": "resolve는 ‘해결하다’이라는 뜻으로, to find a satisfactory solution to a problem이라는 의미이다."
+    },
+    {
+      "id": "trx-315",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The firm introduced flexible hours to ___ skilled employees.",
+      "choices": [
+        "retain",
+        "available",
+        "accommodate",
+        "estimate"
+      ],
+      "answerIndex": 0,
+      "explanation": "retain는 ‘유지하다’이라는 뜻으로, to continue to have or keep something이라는 의미이다."
+    },
+    {
+      "id": "trx-316",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please ___ the inspection before the end of the month.",
+      "choices": [
+        "accomplish",
+        "comply",
+        "evaluate",
+        "schedule"
+      ],
+      "answerIndex": 3,
+      "explanation": "schedule는 ‘일정을 잡다’이라는 뜻으로, to arrange an event for a particular time이라는 의미이다."
+    },
+    {
+      "id": "trx-317",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Applicants must ___ a résumé and two references.",
+      "choices": [
+        "accurate",
+        "submit",
+        "exceed",
+        "confirm"
+      ],
+      "answerIndex": 1,
+      "explanation": "submit는 ‘제출하다’이라는 뜻으로, to formally send a document or request for consideration이라는 의미이다."
+    },
+    {
+      "id": "trx-318",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The renovation required a ___ investment.",
+      "choices": [
+        "acquire",
+        "considerable",
+        "facilitate",
+        "substantial"
+      ],
+      "answerIndex": 3,
+      "explanation": "substantial는 ‘상당한’이라는 뜻으로, large in amount, value, or importance이라는 의미이다."
+    },
+    {
+      "id": "trx-319",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Ms. Ortega will ___ the installation crew.",
+      "choices": [
+        "adequate",
+        "implement",
+        "convenient",
+        "supervise"
+      ],
+      "answerIndex": 3,
+      "explanation": "supervise는 ‘감독하다’이라는 뜻으로, to be responsible for the work of other people이라는 의미이다."
+    },
+    {
+      "id": "trx-320",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The library has opened a ___ entrance during construction.",
+      "choices": [
+        "allocate",
+        "delay",
+        "temporary",
+        "indicate"
+      ],
+      "answerIndex": 2,
+      "explanation": "temporary는 ‘임시의’이라는 뜻으로, lasting for only a limited period이라는 의미이다."
+    },
+    {
+      "id": "trx-321",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Either party may ___ the agreement with written notice.",
+      "choices": [
+        "maintain",
+        "anticipate",
+        "terminate",
+        "demonstrate"
+      ],
+      "answerIndex": 2,
+      "explanation": "terminate는 ‘종료하다’이라는 뜻으로, to bring something to an end이라는 의미이다."
+    },
+    {
+      "id": "trx-322",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The inspector conducted a ___ review of the facility.",
+      "choices": [
+        "negotiate",
+        "thorough",
+        "designate",
+        "apparent"
+      ],
+      "answerIndex": 1,
+      "explanation": "thorough는 ‘철저한’이라는 뜻으로, complete and careful, with attention to every detail이라는 의미이다."
+    },
+    {
+      "id": "trx-323",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Staff members must ___ each customer's identity.",
+      "choices": [
+        "verify",
+        "notify",
+        "approve",
+        "eligible"
+      ],
+      "answerIndex": 0,
+      "explanation": "verify는 ‘검증하다’이라는 뜻으로, to check that something is true or accurate이라는 의미이다."
+    },
+    {
+      "id": "trx-324",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The hotel agreed to ___ the cancellation fee.",
+      "choices": [
+        "waive",
+        "ensure",
+        "obtain",
+        "arrange"
+      ],
+      "answerIndex": 0,
+      "explanation": "waive는 ‘면제하다’이라는 뜻으로, to choose not to require a fee, rule, or right이라는 의미이다."
+    },
+    {
+      "id": "trx-325",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "A candidate may ___ an application at any time.",
+      "choices": [
+        "establish",
+        "withdraw",
+        "assess",
+        "participate"
+      ],
+      "answerIndex": 1,
+      "explanation": "withdraw는 ‘철회하다’이라는 뜻으로, to remove an application, offer, or amount from consideration or use이라는 의미이다."
+    },
+    {
+      "id": "trx-326",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to provide enough space or meet a particular need”: ___ a large group",
+      "choices": [
+        "available",
+        "estimate",
+        "postpone",
+        "accommodate"
+      ],
+      "answerIndex": 3,
+      "explanation": "accommodate는 ‘수용하다’이라는 뜻으로, to provide enough space or meet a particular need이라는 의미이다."
+    },
+    {
+      "id": "trx-327",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to succeed in completing a task or reaching a goal”: ___ a difficult task",
+      "choices": [
+        "accomplish",
+        "evaluate",
+        "comply",
+        "proceed"
+      ],
+      "answerIndex": 0,
+      "explanation": "accomplish는 ‘성취하다’이라는 뜻으로, to succeed in completing a task or reaching a goal이라는 의미이다."
+    },
+    {
+      "id": "trx-328",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “correct and free from errors”: ___ financial records",
+      "choices": [
+        "exceed",
+        "prohibit",
+        "accurate",
+        "confirm"
+      ],
+      "answerIndex": 2,
+      "explanation": "accurate는 ‘정확한’이라는 뜻으로, correct and free from errors이라는 의미이다."
+    },
+    {
+      "id": "trx-329",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to obtain or gain something”: ___ new skills",
+      "choices": [
+        "considerable",
+        "prompt",
+        "acquire",
+        "facilitate"
+      ],
+      "answerIndex": 2,
+      "explanation": "acquire는 ‘취득하다’이라는 뜻으로, to obtain or gain something이라는 의미이다."
+    },
+    {
+      "id": "trx-330",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “enough in quantity or quality for a particular purpose”: ___ safety measures",
+      "choices": [
+        "recommend",
+        "convenient",
+        "adequate",
+        "implement"
+      ],
+      "answerIndex": 2,
+      "explanation": "adequate는 ‘충분한’이라는 뜻으로, enough in quantity or quality for a particular purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-331",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to set aside money, time, or resources for a purpose”: ___ a budget",
+      "choices": [
+        "indicate",
+        "allocate",
+        "reimburse",
+        "delay"
+      ],
+      "answerIndex": 1,
+      "explanation": "allocate는 ‘할당하다’이라는 뜻으로, to set aside money, time, or resources for a purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-332",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to expect something and prepare for it”: ___ customer needs",
+      "choices": [
+        "anticipate",
+        "reliable",
+        "maintain",
+        "demonstrate"
+      ],
+      "answerIndex": 0,
+      "explanation": "anticipate는 ‘예상하다’이라는 뜻으로, to expect something and prepare for it이라는 의미이다."
+    },
+    {
+      "id": "trx-333",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “easy to notice or understand”: an ___ improvement",
+      "choices": [
+        "designate",
+        "apparent",
+        "negotiate",
+        "require"
+      ],
+      "answerIndex": 1,
+      "explanation": "apparent는 ‘분명한’이라는 뜻으로, easy to notice or understand이라는 의미이다."
+    },
+    {
+      "id": "trx-334",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to officially accept or permit something”: ___ a proposal",
+      "choices": [
+        "notify",
+        "approve",
+        "eligible",
+        "resolve"
+      ],
+      "answerIndex": 1,
+      "explanation": "approve는 ‘승인하다’이라는 뜻으로, to officially accept or permit something이라는 의미이다."
+    },
+    {
+      "id": "trx-335",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to organize or plan something in advance”: ___ a meeting",
+      "choices": [
+        "obtain",
+        "arrange",
+        "ensure",
+        "retain"
+      ],
+      "answerIndex": 1,
+      "explanation": "arrange는 ‘준비하다’이라는 뜻으로, to organize or plan something in advance이라는 의미이다."
+    },
+    {
+      "id": "trx-336",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to judge the quality, importance, or value of something”: ___ the risk",
+      "choices": [
+        "assess",
+        "establish",
+        "participate",
+        "schedule"
+      ],
+      "answerIndex": 0,
+      "explanation": "assess는 ‘평가하다’이라는 뜻으로, to judge the quality, importance, or value of something이라는 의미이다."
+    },
+    {
+      "id": "trx-337",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “ready to be used or obtained”: readily ___",
+      "choices": [
+        "submit",
+        "available",
+        "estimate",
+        "postpone"
+      ],
+      "answerIndex": 1,
+      "explanation": "available는 ‘이용 가능한’이라는 뜻으로, ready to be used or obtained이라는 의미이다."
+    },
+    {
+      "id": "trx-338",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to act according to a rule or request”: ___ with regulations",
+      "choices": [
+        "proceed",
+        "substantial",
+        "evaluate",
+        "comply"
+      ],
+      "answerIndex": 3,
+      "explanation": "comply는 ‘준수하다’이라는 뜻으로, to act according to a rule or request이라는 의미이다."
+    },
+    {
+      "id": "trx-339",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to establish that information is correct or definite”: ___ a reservation",
+      "choices": [
+        "confirm",
+        "prohibit",
+        "supervise",
+        "exceed"
+      ],
+      "answerIndex": 0,
+      "explanation": "confirm는 ‘확인하다’이라는 뜻으로, to establish that information is correct or definite이라는 의미이다."
+    },
+    {
+      "id": "trx-340",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “large or important enough to be noticed”: ___ progress",
+      "choices": [
+        "considerable",
+        "facilitate",
+        "temporary",
+        "prompt"
+      ],
+      "answerIndex": 0,
+      "explanation": "considerable는 ‘상당한’이라는 뜻으로, large or important enough to be noticed이라는 의미이다."
+    },
+    {
+      "id": "trx-341",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “easy to use or suitable for someone's needs”: a ___ location",
+      "choices": [
+        "convenient",
+        "terminate",
+        "recommend",
+        "implement"
+      ],
+      "answerIndex": 0,
+      "explanation": "convenient는 ‘편리한’이라는 뜻으로, easy to use or suitable for someone's needs이라는 의미이다."
+    },
+    {
+      "id": "trx-342",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to make something happen later than planned”: ___ a decision",
+      "choices": [
+        "delay",
+        "indicate",
+        "reimburse",
+        "thorough"
+      ],
+      "answerIndex": 0,
+      "explanation": "delay는 ‘지연시키다’이라는 뜻으로, to make something happen later than planned이라는 의미이다."
+    },
+    {
+      "id": "trx-343",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to show clearly that something exists or works”: ___ competence",
+      "choices": [
+        "reliable",
+        "maintain",
+        "verify",
+        "demonstrate"
+      ],
+      "answerIndex": 3,
+      "explanation": "demonstrate는 ‘입증하다’이라는 뜻으로, to show clearly that something exists or works이라는 의미이다."
+    },
+    {
+      "id": "trx-344",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to officially choose someone or something for a role or purpose”: a ___ area",
+      "choices": [
+        "waive",
+        "negotiate",
+        "require",
+        "designate"
+      ],
+      "answerIndex": 3,
+      "explanation": "designate는 ‘지정하다’이라는 뜻으로, to officially choose someone or something for a role or purpose이라는 의미이다."
+    },
+    {
+      "id": "trx-345",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “meeting the necessary conditions to receive or do something”: ___ for a refund",
+      "choices": [
+        "withdraw",
+        "notify",
+        "resolve",
+        "eligible"
+      ],
+      "answerIndex": 3,
+      "explanation": "eligible는 ‘자격이 있는’이라는 뜻으로, meeting the necessary conditions to receive or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-346",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to make certain that something happens”: ___ compliance",
+      "choices": [
+        "ensure",
+        "obtain",
+        "accommodate",
+        "retain"
+      ],
+      "answerIndex": 0,
+      "explanation": "ensure는 ‘보장하다’이라는 뜻으로, to make certain that something happens이라는 의미이다."
+    },
+    {
+      "id": "trx-347",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to create or set up something intended to last”: ___ a procedure",
+      "choices": [
+        "schedule",
+        "accomplish",
+        "participate",
+        "establish"
+      ],
+      "answerIndex": 3,
+      "explanation": "establish는 ‘설립하다’이라는 뜻으로, to create or set up something intended to last이라는 의미이다."
+    },
+    {
+      "id": "trx-348",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to calculate an approximate amount or value”: ___ the cost",
+      "choices": [
+        "accurate",
+        "estimate",
+        "postpone",
+        "submit"
+      ],
+      "answerIndex": 1,
+      "explanation": "estimate는 ‘추산하다’이라는 뜻으로, to calculate an approximate amount or value이라는 의미이다."
+    },
+    {
+      "id": "trx-349",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to examine something and judge its quality or effectiveness”: ___ the results",
+      "choices": [
+        "proceed",
+        "substantial",
+        "evaluate",
+        "acquire"
+      ],
+      "answerIndex": 2,
+      "explanation": "evaluate는 ‘평가하다’이라는 뜻으로, to examine something and judge its quality or effectiveness이라는 의미이다."
+    },
+    {
+      "id": "trx-350",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to be greater than a number, amount, or limit”: ___ expectations",
+      "choices": [
+        "exceed",
+        "prohibit",
+        "adequate",
+        "supervise"
+      ],
+      "answerIndex": 0,
+      "explanation": "exceed는 ‘초과하다’이라는 뜻으로, to be greater than a number, amount, or limit이라는 의미이다."
+    },
+    {
+      "id": "trx-351",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to make an action or process easier”: ___ cooperation",
+      "choices": [
+        "temporary",
+        "facilitate",
+        "prompt",
+        "allocate"
+      ],
+      "answerIndex": 1,
+      "explanation": "facilitate는 ‘촉진하다’이라는 뜻으로, to make an action or process easier이라는 의미이다."
+    },
+    {
+      "id": "trx-352",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to put a plan or system into operation”: ___ a strategy",
+      "choices": [
+        "implement",
+        "recommend",
+        "anticipate",
+        "terminate"
+      ],
+      "answerIndex": 0,
+      "explanation": "implement는 ‘시행하다’이라는 뜻으로, to put a plan or system into operation이라는 의미이다."
+    },
+    {
+      "id": "trx-353",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to show or suggest that something is true”: ___ a preference",
+      "choices": [
+        "apparent",
+        "reimburse",
+        "thorough",
+        "indicate"
+      ],
+      "answerIndex": 3,
+      "explanation": "indicate는 ‘나타내다’이라는 뜻으로, to show or suggest that something is true이라는 의미이다."
+    },
+    {
+      "id": "trx-354",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to keep something in good condition or at the same level”: ___ quality",
+      "choices": [
+        "maintain",
+        "reliable",
+        "verify",
+        "approve"
+      ],
+      "answerIndex": 0,
+      "explanation": "maintain는 ‘유지하다’이라는 뜻으로, to keep something in good condition or at the same level이라는 의미이다."
+    },
+    {
+      "id": "trx-355",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to discuss something in order to reach an agreement”: ___ favorable terms",
+      "choices": [
+        "waive",
+        "arrange",
+        "negotiate",
+        "require"
+      ],
+      "answerIndex": 2,
+      "explanation": "negotiate는 ‘협상하다’이라는 뜻으로, to discuss something in order to reach an agreement이라는 의미이다."
+    },
+    {
+      "id": "trx-356",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to formally tell someone about something”: ___ customers promptly",
+      "choices": [
+        "withdraw",
+        "resolve",
+        "notify",
+        "assess"
+      ],
+      "answerIndex": 2,
+      "explanation": "notify는 ‘통지하다’이라는 뜻으로, to formally tell someone about something이라는 의미이다."
+    },
+    {
+      "id": "trx-357",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to get something through effort or a request”: ___ permission",
+      "choices": [
+        "obtain",
+        "available",
+        "accommodate",
+        "retain"
+      ],
+      "answerIndex": 0,
+      "explanation": "obtain는 ‘얻다’이라는 뜻으로, to get something through effort or a request이라는 의미이다."
+    },
+    {
+      "id": "trx-358",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to take part in an activity or event”: ___ in a workshop",
+      "choices": [
+        "comply",
+        "participate",
+        "schedule",
+        "accomplish"
+      ],
+      "answerIndex": 1,
+      "explanation": "participate는 ‘참여하다’이라는 뜻으로, to take part in an activity or event이라는 의미이다."
+    },
+    {
+      "id": "trx-359",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to arrange for an event to happen at a later time”: ___ a meeting",
+      "choices": [
+        "accurate",
+        "postpone",
+        "confirm",
+        "submit"
+      ],
+      "answerIndex": 1,
+      "explanation": "postpone는 ‘연기하다’이라는 뜻으로, to arrange for an event to happen at a later time이라는 의미이다."
+    },
+    {
+      "id": "trx-360",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to continue or move forward with an action”: ___ with caution",
+      "choices": [
+        "considerable",
+        "acquire",
+        "substantial",
+        "proceed"
+      ],
+      "answerIndex": 3,
+      "explanation": "proceed는 ‘진행하다’이라는 뜻으로, to continue or move forward with an action이라는 의미이다."
+    },
+    {
+      "id": "trx-361",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to officially prevent an activity”: strictly ___ access",
+      "choices": [
+        "supervise",
+        "prohibit",
+        "convenient",
+        "adequate"
+      ],
+      "answerIndex": 1,
+      "explanation": "prohibit는 ‘금지하다’이라는 뜻으로, to officially prevent an activity이라는 의미이다."
+    },
+    {
+      "id": "trx-362",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “done quickly and without delay”: ___ payment",
+      "choices": [
+        "allocate",
+        "delay",
+        "temporary",
+        "prompt"
+      ],
+      "answerIndex": 3,
+      "explanation": "prompt는 ‘신속한’이라는 뜻으로, done quickly and without delay이라는 의미이다."
+    },
+    {
+      "id": "trx-363",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to suggest that someone should choose or do something”: highly ___ a service",
+      "choices": [
+        "recommend",
+        "terminate",
+        "anticipate",
+        "demonstrate"
+      ],
+      "answerIndex": 0,
+      "explanation": "recommend는 ‘추천하다’이라는 뜻으로, to suggest that someone should choose or do something이라는 의미이다."
+    },
+    {
+      "id": "trx-364",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to pay back money that someone has spent”: ___ the full cost",
+      "choices": [
+        "thorough",
+        "apparent",
+        "designate",
+        "reimburse"
+      ],
+      "answerIndex": 3,
+      "explanation": "reimburse는 ‘상환하다’이라는 뜻으로, to pay back money that someone has spent이라는 의미이다."
+    },
+    {
+      "id": "trx-365",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “consistently good and able to be trusted”: a ___ source",
+      "choices": [
+        "eligible",
+        "verify",
+        "approve",
+        "reliable"
+      ],
+      "answerIndex": 3,
+      "explanation": "reliable는 ‘신뢰할 수 있는’이라는 뜻으로, consistently good and able to be trusted이라는 의미이다."
+    },
+    {
+      "id": "trx-366",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to make something necessary”: ___ prior approval",
+      "choices": [
+        "arrange",
+        "waive",
+        "require",
+        "ensure"
+      ],
+      "answerIndex": 2,
+      "explanation": "require는 ‘요구하다’이라는 뜻으로, to make something necessary이라는 의미이다."
+    },
+    {
+      "id": "trx-367",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to find a satisfactory solution to a problem”: ___ a dispute",
+      "choices": [
+        "assess",
+        "withdraw",
+        "resolve",
+        "establish"
+      ],
+      "answerIndex": 2,
+      "explanation": "resolve는 ‘해결하다’이라는 뜻으로, to find a satisfactory solution to a problem이라는 의미이다."
+    },
+    {
+      "id": "trx-368",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to continue to have or keep something”: ___ ownership",
+      "choices": [
+        "retain",
+        "available",
+        "accommodate",
+        "estimate"
+      ],
+      "answerIndex": 0,
+      "explanation": "retain는 ‘유지하다’이라는 뜻으로, to continue to have or keep something이라는 의미이다."
+    },
+    {
+      "id": "trx-369",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to arrange an event for a particular time”: ___ an appointment",
+      "choices": [
+        "accomplish",
+        "comply",
+        "evaluate",
+        "schedule"
+      ],
+      "answerIndex": 3,
+      "explanation": "schedule는 ‘일정을 잡다’이라는 뜻으로, to arrange an event for a particular time이라는 의미이다."
+    },
+    {
+      "id": "trx-370",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to formally send a document or request for consideration”: ___ an application",
+      "choices": [
+        "confirm",
+        "accurate",
+        "exceed",
+        "submit"
+      ],
+      "answerIndex": 3,
+      "explanation": "submit는 ‘제출하다’이라는 뜻으로, to formally send a document or request for consideration이라는 의미이다."
+    },
+    {
+      "id": "trx-371",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “large in amount, value, or importance”: a ___ increase",
+      "choices": [
+        "substantial",
+        "considerable",
+        "facilitate",
+        "acquire"
+      ],
+      "answerIndex": 0,
+      "explanation": "substantial는 ‘상당한’이라는 뜻으로, large in amount, value, or importance이라는 의미이다."
+    },
+    {
+      "id": "trx-372",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to be responsible for the work of other people”: ___ daily operations",
+      "choices": [
+        "adequate",
+        "supervise",
+        "convenient",
+        "implement"
+      ],
+      "answerIndex": 1,
+      "explanation": "supervise는 ‘감독하다’이라는 뜻으로, to be responsible for the work of other people이라는 의미이다."
+    },
+    {
+      "id": "trx-373",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “lasting for only a limited period”: a ___ solution",
+      "choices": [
+        "temporary",
+        "indicate",
+        "allocate",
+        "delay"
+      ],
+      "answerIndex": 0,
+      "explanation": "temporary는 ‘임시의’이라는 뜻으로, lasting for only a limited period이라는 의미이다."
+    },
+    {
+      "id": "trx-374",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to bring something to an end”: ___ a contract",
+      "choices": [
+        "terminate",
+        "anticipate",
+        "maintain",
+        "demonstrate"
+      ],
+      "answerIndex": 0,
+      "explanation": "terminate는 ‘종료하다’이라는 뜻으로, to bring something to an end이라는 의미이다."
+    },
+    {
+      "id": "trx-375",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “complete and careful, with attention to every detail”: a ___ investigation",
+      "choices": [
+        "negotiate",
+        "thorough",
+        "designate",
+        "apparent"
+      ],
+      "answerIndex": 1,
+      "explanation": "thorough는 ‘철저한’이라는 뜻으로, complete and careful, with attention to every detail이라는 의미이다."
+    },
+    {
+      "id": "trx-376",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Choose the word that best completes the expression meaning “to check that something is true or accurate”: ___ the information",
+      "choices": [
+        "notify",
+        "verify",
+        "eligible",
+        "approve"
+      ],
+      "answerIndex": 1,
+      "explanation": "verify는 ‘검증하다’이라는 뜻으로, to check that something is true or accurate이라는 의미이다."
+    }
+  ]
+}

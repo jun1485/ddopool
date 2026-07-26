@@ -1,0 +1,1333 @@
+{
+  "exams": [
+    {
+      "id": "toeic-rc",
+      "title": "TOEIC RC 연습",
+      "shortTitle": "TOEIC RC",
+      "description": "Part 5 문법 · 어휘 자체 제작 문제",
+      "icon": "📘",
+      "subjects": [
+        "문법",
+        "어휘"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "tr-031",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The ___ of the new branch office will be announced next week.",
+      "choices": [
+        "location",
+        "locate",
+        "locally",
+        "located"
+      ],
+      "answerIndex": 0,
+      "explanation": "관사 the 뒤 전치사 of 앞은 명사 자리이므로 location이 적절합니다."
+    },
+    {
+      "id": "tr-032",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Ms. Reyes received an award in recognition of her ___ to the project.",
+      "choices": [
+        "contributes",
+        "contributed",
+        "contribution",
+        "contribute"
+      ],
+      "answerIndex": 2,
+      "explanation": "소유격 her 뒤는 명사 자리이므로 contribution이 적절합니다."
+    },
+    {
+      "id": "tr-033",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "All ___ must present a valid badge at the security desk.",
+      "choices": [
+        "visitors",
+        "visit",
+        "visiting",
+        "visited"
+      ],
+      "answerIndex": 0,
+      "explanation": "주어 자리이며 동사 must present의 주체가 되는 복수 명사 visitors가 적절합니다."
+    },
+    {
+      "id": "tr-034",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The company reported a significant ___ in quarterly revenue.",
+      "choices": [
+        "increasing",
+        "increased",
+        "increasingly",
+        "increase"
+      ],
+      "answerIndex": 3,
+      "explanation": "형용사 significant의 수식을 받는 명사 자리이므로 increase가 적절합니다."
+    },
+    {
+      "id": "tr-035",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Please submit your ___ for the annual conference by Friday.",
+      "choices": [
+        "registering",
+        "registered",
+        "registration",
+        "register"
+      ],
+      "answerIndex": 2,
+      "explanation": "소유격 your 뒤 명사 자리이므로 registration이 적절합니다."
+    },
+    {
+      "id": "tr-036",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The manager emphasized the ___ of accurate record keeping.",
+      "choices": [
+        "importable",
+        "importance",
+        "importantly",
+        "important"
+      ],
+      "answerIndex": 1,
+      "explanation": "the와 of 사이는 명사 자리이므로 importance가 적절합니다."
+    },
+    {
+      "id": "tr-037",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Several ___ have expressed interest in the vacant position.",
+      "choices": [
+        "application",
+        "applied",
+        "applicants",
+        "applying"
+      ],
+      "answerIndex": 2,
+      "explanation": "수량 형용사 several 뒤에는 복수 가산 명사가 오므로 applicants가 적절합니다."
+    },
+    {
+      "id": "tr-038",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The training program provides employees with practical ___.",
+      "choices": [
+        "knowledge",
+        "knowingly",
+        "know",
+        "knowing"
+      ],
+      "answerIndex": 0,
+      "explanation": "형용사 practical의 수식을 받는 명사 자리이므로 knowledge가 적절합니다."
+    },
+    {
+      "id": "tr-039",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The presentation was ___ organized and easy to follow.",
+      "choices": [
+        "good",
+        "well",
+        "better",
+        "goodness"
+      ],
+      "answerIndex": 1,
+      "explanation": "과거분사 organized를 수식하는 부사 자리이므로 well이 적절합니다."
+    },
+    {
+      "id": "tr-040",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Our customer service team responds to inquiries ___.",
+      "choices": [
+        "quickness",
+        "quickly",
+        "quicker",
+        "quick"
+      ],
+      "answerIndex": 1,
+      "explanation": "동사 responds를 수식하는 자리이므로 부사 quickly가 적절합니다."
+    },
+    {
+      "id": "tr-041",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new policy has been ___ effective in reducing waste.",
+      "choices": [
+        "high",
+        "higher",
+        "height",
+        "highly"
+      ],
+      "answerIndex": 3,
+      "explanation": "형용사 effective를 수식하는 부사 자리이므로 highly가 적절합니다."
+    },
+    {
+      "id": "tr-042",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The instructions in the manual are quite ___.",
+      "choices": [
+        "clear",
+        "clarity",
+        "clarify",
+        "clearly"
+      ],
+      "answerIndex": 0,
+      "explanation": "be동사의 보어 자리이므로 형용사 clear가 적절합니다."
+    },
+    {
+      "id": "tr-043",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Employees are ___ encouraged to attend the safety workshop.",
+      "choices": [
+        "strength",
+        "stronger",
+        "strong",
+        "strongly"
+      ],
+      "answerIndex": 3,
+      "explanation": "과거분사 encouraged를 수식하는 부사 자리이므로 strongly가 적절합니다."
+    },
+    {
+      "id": "tr-044",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The renovated lobby looks much more ___ than before.",
+      "choices": [
+        "spaciously",
+        "spacing",
+        "spacious",
+        "space"
+      ],
+      "answerIndex": 2,
+      "explanation": "감각동사 look의 보어 자리이므로 형용사 spacious가 적절합니다."
+    },
+    {
+      "id": "tr-045",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The delivery arrived ___ despite the heavy traffic.",
+      "choices": [
+        "promptly",
+        "prompted",
+        "promptness",
+        "prompt"
+      ],
+      "answerIndex": 0,
+      "explanation": "동사 arrived를 수식하는 부사 자리이므로 promptly가 적절합니다."
+    },
+    {
+      "id": "tr-046",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This model is ___ popular among first-time buyers.",
+      "choices": [
+        "especially",
+        "special",
+        "especial",
+        "specialize"
+      ],
+      "answerIndex": 0,
+      "explanation": "형용사 popular를 수식하는 부사 자리이므로 especially가 적절합니다."
+    },
+    {
+      "id": "tr-047",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The revised schedule is ___ to all department heads.",
+      "choices": [
+        "available",
+        "avail",
+        "availability",
+        "availably"
+      ],
+      "answerIndex": 0,
+      "explanation": "be동사 뒤 보어 자리이므로 형용사 available이 적절합니다."
+    },
+    {
+      "id": "tr-048",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Sales figures have risen ___ over the past two quarters.",
+      "choices": [
+        "steadiness",
+        "steadier",
+        "steadily",
+        "steady"
+      ],
+      "answerIndex": 2,
+      "explanation": "동사 have risen을 수식하는 부사 자리이므로 steadily가 적절합니다."
+    },
+    {
+      "id": "tr-049",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The board of directors ___ to approve the merger last month.",
+      "choices": [
+        "voting",
+        "voted",
+        "to vote",
+        "vote"
+      ],
+      "answerIndex": 1,
+      "explanation": "last month라는 과거 시점 표현이 있으므로 과거 시제 voted가 적절합니다."
+    },
+    {
+      "id": "tr-050",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Each department ___ its own budget proposal by March.",
+      "choices": [
+        "submits",
+        "submitting",
+        "submit",
+        "to submit"
+      ],
+      "answerIndex": 0,
+      "explanation": "Each + 단수 명사는 단수 취급하므로 단수 동사 submits가 적절합니다."
+    },
+    {
+      "id": "tr-051",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The equipment in the laboratory ___ inspected every six months.",
+      "choices": [
+        "are",
+        "being",
+        "have",
+        "is"
+      ],
+      "answerIndex": 3,
+      "explanation": "주어 The equipment가 단수이고 점검을 받는 대상이므로 수동태의 is가 적절합니다."
+    },
+    {
+      "id": "tr-052",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Neither the manager nor the assistants ___ available this afternoon.",
+      "choices": [
+        "is",
+        "was",
+        "has been",
+        "are"
+      ],
+      "answerIndex": 3,
+      "explanation": "neither A nor B 구문에서는 B에 동사를 일치시키므로 복수 동사 are가 적절합니다."
+    },
+    {
+      "id": "tr-053",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "By next Friday, the technicians ___ the installation.",
+      "choices": [
+        "finished",
+        "were finishing",
+        "will have finished",
+        "have finished"
+      ],
+      "answerIndex": 2,
+      "explanation": "미래 시점 이전 완료를 나타내므로 미래완료 will have finished가 적절합니다."
+    },
+    {
+      "id": "tr-054",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Mr. Choi ___ for the company since it opened in 2010.",
+      "choices": [
+        "is working",
+        "works",
+        "has worked",
+        "worked"
+      ],
+      "answerIndex": 2,
+      "explanation": "since와 함께 과거부터 현재까지 계속을 나타내므로 현재완료 has worked가 적절합니다."
+    },
+    {
+      "id": "tr-055",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "When the auditor arrived, the staff ___ the documents.",
+      "choices": [
+        "were reviewing",
+        "will review",
+        "review",
+        "have reviewed"
+      ],
+      "answerIndex": 0,
+      "explanation": "과거 특정 시점에 진행 중이던 동작이므로 과거진행 were reviewing이 적절합니다."
+    },
+    {
+      "id": "tr-056",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The results of the survey ___ published on the company website.",
+      "choices": [
+        "being",
+        "was",
+        "has",
+        "were"
+      ],
+      "answerIndex": 3,
+      "explanation": "주어의 핵이 복수 The results이므로 복수 동사 were가 적절합니다."
+    },
+    {
+      "id": "tr-057",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "If the shipment arrives late, we ___ the client immediately.",
+      "choices": [
+        "notified",
+        "notifying",
+        "will notify",
+        "would have notified"
+      ],
+      "answerIndex": 2,
+      "explanation": "조건절이 현재형인 단순 조건문이므로 주절에는 will notify가 적절합니다."
+    },
+    {
+      "id": "tr-058",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The proposal ___ by the finance team before the meeting.",
+      "choices": [
+        "has reviewing",
+        "had reviewed",
+        "was reviewing",
+        "had been reviewed"
+      ],
+      "answerIndex": 3,
+      "explanation": "회의 이전에 완료된 수동 동작이므로 과거완료 수동 had been reviewed가 적절합니다."
+    },
+    {
+      "id": "tr-059",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "All refunds ___ within five business days of the request.",
+      "choices": [
+        "have processing",
+        "process",
+        "are processed",
+        "processing"
+      ],
+      "answerIndex": 2,
+      "explanation": "환불은 처리되는 대상이므로 수동태 are processed가 적절합니다."
+    },
+    {
+      "id": "tr-060",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The supervisor insisted that the report ___ submitted by noon.",
+      "choices": [
+        "is",
+        "be",
+        "will be",
+        "was"
+      ],
+      "answerIndex": 1,
+      "explanation": "insist that 절에서는 동사원형을 쓰는 가정법 현재가 적용되어 be가 적절합니다."
+    },
+    {
+      "id": "tr-061",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The seminar was canceled ___ a lack of participants.",
+      "choices": [
+        "because",
+        "although",
+        "because of",
+        "so"
+      ],
+      "answerIndex": 2,
+      "explanation": "명사구를 이끄는 자리이므로 전치사구 because of가 적절합니다."
+    },
+    {
+      "id": "tr-062",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the budget was reduced, the team completed the project on time.",
+      "choices": [
+        "Because of",
+        "Despite",
+        "Although",
+        "In spite of"
+      ],
+      "answerIndex": 2,
+      "explanation": "뒤에 절이 이어지므로 접속사 Although가 적절하며 Despite는 명사구를 이끕니다."
+    },
+    {
+      "id": "tr-063",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Employees may work remotely ___ they meet weekly targets.",
+      "choices": [
+        "as long as",
+        "in case of",
+        "owing to",
+        "regardless of"
+      ],
+      "answerIndex": 0,
+      "explanation": "조건을 나타내는 절을 이끄는 접속사 as long as가 적절합니다."
+    },
+    {
+      "id": "tr-064",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The office will be closed ___ the national holiday.",
+      "choices": [
+        "in",
+        "at",
+        "on",
+        "of"
+      ],
+      "answerIndex": 2,
+      "explanation": "특정 날짜나 요일 앞에는 전치사 on을 씁니다."
+    },
+    {
+      "id": "tr-065",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Applications must be received ___ March 31.",
+      "choices": [
+        "during",
+        "by",
+        "since",
+        "until"
+      ],
+      "answerIndex": 1,
+      "explanation": "완료 기한을 나타낼 때는 by를, 동작의 지속 끝점에는 until을 씁니다."
+    },
+    {
+      "id": "tr-066",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The department has grown rapidly ___ the past three years.",
+      "choices": [
+        "while",
+        "over",
+        "by",
+        "since"
+      ],
+      "answerIndex": 1,
+      "explanation": "기간을 나타내는 명사구 앞에는 over가 적절하며 since는 시작 시점과 함께 쓰입니다."
+    },
+    {
+      "id": "tr-067",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The vendor ___ we contacted yesterday offered a discount.",
+      "choices": [
+        "which",
+        "whom",
+        "what",
+        "whose"
+      ],
+      "answerIndex": 1,
+      "explanation": "선행사가 사람이고 contacted의 목적어 자리이므로 목적격 관계대명사 whom이 적절합니다."
+    },
+    {
+      "id": "tr-068",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We selected the supplier ___ prices were the most competitive.",
+      "choices": [
+        "who",
+        "whose",
+        "which",
+        "that"
+      ],
+      "answerIndex": 1,
+      "explanation": "뒤에 명사 prices가 이어지므로 소유격 관계대명사 whose가 적절합니다."
+    },
+    {
+      "id": "tr-069",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The conference room ___ the workshop will be held is on the third floor.",
+      "choices": [
+        "what",
+        "where",
+        "which",
+        "that"
+      ],
+      "answerIndex": 1,
+      "explanation": "장소를 나타내는 선행사를 수식하며 뒤에 완전한 절이 오므로 관계부사 where가 적절합니다."
+    },
+    {
+      "id": "tr-070",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Please indicate ___ you prefer the morning or afternoon session.",
+      "choices": [
+        "both",
+        "neither",
+        "whether",
+        "either"
+      ],
+      "answerIndex": 2,
+      "explanation": "or와 함께 쓰여 명사절을 이끄는 whether가 적절합니다."
+    },
+    {
+      "id": "tr-071",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The manual explains ___ to operate the new machine safely.",
+      "choices": [
+        "what",
+        "how",
+        "which",
+        "that"
+      ],
+      "answerIndex": 1,
+      "explanation": "to부정사와 결합해 방법을 나타내는 how가 적절합니다."
+    },
+    {
+      "id": "tr-072",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ attending the workshop should register in advance.",
+      "choices": [
+        "They",
+        "Them",
+        "Those",
+        "Their"
+      ],
+      "answerIndex": 2,
+      "explanation": "관계사 없이 분사구의 수식을 받는 '~하는 사람들'을 뜻하는 Those가 적절합니다."
+    },
+    {
+      "id": "tr-073",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The results were disappointing ___ the extensive preparation.",
+      "choices": [
+        "although",
+        "even though",
+        "whereas",
+        "in spite of"
+      ],
+      "answerIndex": 3,
+      "explanation": "명사구를 이끄는 양보 표현이 필요하므로 in spite of가 적절합니다."
+    },
+    {
+      "id": "tr-074",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Sales increased ___ the marketing campaign was launched.",
+      "choices": [
+        "afterward",
+        "later",
+        "following",
+        "after"
+      ],
+      "answerIndex": 3,
+      "explanation": "뒤에 절이 이어지므로 접속사 after가 적절하며 following은 전치사입니다."
+    },
+    {
+      "id": "tr-075",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The committee decided ___ the deadline by two weeks.",
+      "choices": [
+        "extending",
+        "extended",
+        "to extend",
+        "extension"
+      ],
+      "answerIndex": 2,
+      "explanation": "decide는 to부정사를 목적어로 취하므로 to extend가 적절합니다."
+    },
+    {
+      "id": "tr-076",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We recommend ___ the software before installing the update.",
+      "choices": [
+        "to back up",
+        "back up",
+        "backed up",
+        "backing up"
+      ],
+      "answerIndex": 3,
+      "explanation": "recommend는 동명사를 목적어로 취하므로 backing up이 적절합니다."
+    },
+    {
+      "id": "tr-077",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The staff members are responsible for ___ the inventory monthly.",
+      "choices": [
+        "check",
+        "checked",
+        "to check",
+        "checking"
+      ],
+      "answerIndex": 3,
+      "explanation": "전치사 for 뒤에는 동명사가 오므로 checking이 적절합니다."
+    },
+    {
+      "id": "tr-078",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The employees ___ in the pilot program reported higher satisfaction.",
+      "choices": [
+        "participating",
+        "participate",
+        "participation",
+        "to participate"
+      ],
+      "answerIndex": 0,
+      "explanation": "명사를 뒤에서 수식하며 능동의 의미이므로 현재분사 participating이 적절합니다."
+    },
+    {
+      "id": "tr-079",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The ___ documents should be filed in the cabinet.",
+      "choices": [
+        "complete",
+        "completed",
+        "completing",
+        "completion"
+      ],
+      "answerIndex": 1,
+      "explanation": "서류가 작성이 완료된 대상이므로 과거분사 completed가 적절합니다."
+    },
+    {
+      "id": "tr-080",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ the survey results, the team revised its strategy.",
+      "choices": [
+        "Having reviewed",
+        "Review",
+        "To be reviewed",
+        "Reviewed"
+      ],
+      "answerIndex": 0,
+      "explanation": "주절보다 앞선 능동 동작을 나타내므로 완료분사 Having reviewed가 적절합니다."
+    },
+    {
+      "id": "tr-081",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The company plans ___ two new branches next year.",
+      "choices": [
+        "opened",
+        "opening",
+        "open",
+        "to open"
+      ],
+      "answerIndex": 3,
+      "explanation": "plan은 to부정사를 목적어로 취하므로 to open이 적절합니다."
+    },
+    {
+      "id": "tr-082",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "We look forward to ___ from you at your earliest convenience.",
+      "choices": [
+        "hearing",
+        "hear",
+        "be heard",
+        "heard"
+      ],
+      "answerIndex": 0,
+      "explanation": "look forward to의 to는 전치사이므로 동명사 hearing이 적절합니다."
+    },
+    {
+      "id": "tr-083",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The manager asked the interns ___ the files by category.",
+      "choices": [
+        "sorting",
+        "sort",
+        "sorted",
+        "to sort"
+      ],
+      "answerIndex": 3,
+      "explanation": "ask + 목적어 + to부정사 구조이므로 to sort가 적절합니다."
+    },
+    {
+      "id": "tr-084",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Employees wishing ___ the training must sign up online.",
+      "choices": [
+        "to join",
+        "join",
+        "joined",
+        "joining"
+      ],
+      "answerIndex": 0,
+      "explanation": "wish는 to부정사를 목적어로 취하므로 to join이 적절합니다."
+    },
+    {
+      "id": "tr-085",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The new printer is ___ faster than the previous model.",
+      "choices": [
+        "very",
+        "much",
+        "so",
+        "too"
+      ],
+      "answerIndex": 1,
+      "explanation": "비교급 faster를 강조하는 표현으로 much가 적절하며 very는 비교급을 수식하지 못합니다."
+    },
+    {
+      "id": "tr-086",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "This is the ___ efficient method we have tested so far.",
+      "choices": [
+        "more",
+        "very",
+        "most",
+        "much"
+      ],
+      "answerIndex": 2,
+      "explanation": "정관사 the와 함께 셋 이상 중 최고를 나타내므로 최상급 most가 적절합니다."
+    },
+    {
+      "id": "tr-087",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The sooner we place the order, ___ we will receive the goods.",
+      "choices": [
+        "soonest",
+        "sooner",
+        "the sooner",
+        "as soon"
+      ],
+      "answerIndex": 2,
+      "explanation": "the 비교급 ~, the 비교급 구문이므로 the sooner가 적절합니다."
+    },
+    {
+      "id": "tr-088",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "If the manager had known about the delay, she ___ the client.",
+      "choices": [
+        "will call",
+        "would call",
+        "would have called",
+        "called"
+      ],
+      "answerIndex": 2,
+      "explanation": "과거 사실의 반대를 가정하는 가정법 과거완료이므로 would have called가 적절합니다."
+    },
+    {
+      "id": "tr-089",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "___ had the meeting started when the power went out.",
+      "choices": [
+        "Hardly",
+        "Rarely",
+        "Nearly",
+        "Almost"
+      ],
+      "answerIndex": 0,
+      "explanation": "Hardly had + 주어 + p.p. when 구문으로 '~하자마자'를 나타냅니다."
+    },
+    {
+      "id": "tr-090",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The cost of the upgrade was higher than ___ of the original plan.",
+      "choices": [
+        "those",
+        "it",
+        "that",
+        "this"
+      ],
+      "answerIndex": 2,
+      "explanation": "단수 명사 the cost를 대신하므로 지시대명사 that이 적절합니다."
+    },
+    {
+      "id": "tr-091",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Not only did the store extend its hours, ___ it also added staff.",
+      "choices": [
+        "and",
+        "so",
+        "but",
+        "or"
+      ],
+      "answerIndex": 2,
+      "explanation": "not only A but also B 구문이므로 but이 적절합니다."
+    },
+    {
+      "id": "tr-092",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The report must be reviewed by either the director ___ the deputy.",
+      "choices": [
+        "nor",
+        "or",
+        "but",
+        "and"
+      ],
+      "answerIndex": 1,
+      "explanation": "either A or B 구문이므로 or가 적절합니다."
+    },
+    {
+      "id": "tr-093",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "Attached ___ the invoice for last month's services.",
+      "choices": [
+        "being",
+        "are",
+        "is",
+        "has"
+      ],
+      "answerIndex": 2,
+      "explanation": "도치 구문에서 주어 the invoice가 단수이므로 is가 적절합니다."
+    },
+    {
+      "id": "tr-094",
+      "examId": "toeic-rc",
+      "subject": "문법",
+      "prompt": "The company offers flexible hours, ___ makes it an attractive employer.",
+      "choices": [
+        "that",
+        "it",
+        "what",
+        "which"
+      ],
+      "answerIndex": 3,
+      "explanation": "앞 절 전체를 선행사로 받는 관계대명사 which가 적절합니다."
+    },
+    {
+      "id": "tr-095",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The technician will ___ the equipment before the inspection.",
+      "choices": [
+        "cultivate",
+        "circulate",
+        "calibrate",
+        "celebrate"
+      ],
+      "answerIndex": 2,
+      "explanation": "장비를 점검 기준에 맞게 조정한다는 뜻의 calibrate가 문맥에 맞습니다."
+    },
+    {
+      "id": "tr-096",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please ___ your receipt when requesting a refund.",
+      "choices": [
+        "involve",
+        "include in",
+        "insert into",
+        "enclose"
+      ],
+      "answerIndex": 3,
+      "explanation": "서류를 함께 넣어 보낸다는 뜻의 enclose가 적절합니다."
+    },
+    {
+      "id": "tr-097",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The manager will ___ the tasks among the team members.",
+      "choices": [
+        "substitute",
+        "contribute",
+        "attribute",
+        "distribute"
+      ],
+      "answerIndex": 3,
+      "explanation": "업무를 나누어 배분한다는 뜻의 distribute가 적절합니다."
+    },
+    {
+      "id": "tr-098",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "All employees must ___ to the company's dress code.",
+      "choices": [
+        "adhere",
+        "adjust",
+        "attach",
+        "admit"
+      ],
+      "answerIndex": 0,
+      "explanation": "규정을 지킨다는 뜻은 adhere to입니다."
+    },
+    {
+      "id": "tr-099",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The supplier failed to ___ the goods on schedule.",
+      "choices": [
+        "delay",
+        "decline",
+        "deliver",
+        "detain"
+      ],
+      "answerIndex": 2,
+      "explanation": "물품을 배송한다는 뜻의 deliver가 문맥에 맞습니다."
+    },
+    {
+      "id": "tr-100",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The new regulation will take ___ at the start of next month.",
+      "choices": [
+        "effective",
+        "affect",
+        "effect",
+        "effectively"
+      ],
+      "answerIndex": 2,
+      "explanation": "'시행되다'를 뜻하는 관용 표현은 take effect입니다."
+    },
+    {
+      "id": "tr-101",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "We need to ___ the budget before submitting the final proposal.",
+      "choices": [
+        "found",
+        "finalize",
+        "fine",
+        "finance"
+      ],
+      "answerIndex": 1,
+      "explanation": "최종 확정한다는 뜻의 finalize가 적절합니다."
+    },
+    {
+      "id": "tr-102",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The hotel offers a ___ range of services for business travelers.",
+      "choices": [
+        "long",
+        "wide",
+        "large",
+        "high"
+      ],
+      "answerIndex": 1,
+      "explanation": "범위가 넓다는 의미로는 a wide range of를 씁니다."
+    },
+    {
+      "id": "tr-103",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Attendance at the orientation session is ___ for new hires.",
+      "choices": [
+        "voluntary",
+        "mandatory",
+        "temporary",
+        "ordinary"
+      ],
+      "answerIndex": 1,
+      "explanation": "의무적이라는 뜻의 mandatory가 문맥에 맞습니다."
+    },
+    {
+      "id": "tr-104",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The firm has a ___ reputation for reliable customer support.",
+      "choices": [
+        "thick",
+        "deep",
+        "heavy",
+        "solid"
+      ],
+      "answerIndex": 3,
+      "explanation": "평판이 견고하다는 의미로는 a solid reputation을 씁니다."
+    },
+    {
+      "id": "tr-105",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The technician ___ the cause of the malfunction quickly.",
+      "choices": [
+        "notified",
+        "identified",
+        "clarified",
+        "qualified"
+      ],
+      "answerIndex": 1,
+      "explanation": "원인을 확인해 밝혀냈다는 뜻의 identified가 적절합니다."
+    },
+    {
+      "id": "tr-106",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Sales representatives are expected to ___ monthly targets.",
+      "choices": [
+        "meet",
+        "make",
+        "give",
+        "take"
+      ],
+      "answerIndex": 0,
+      "explanation": "목표를 달성한다는 뜻으로는 meet a target을 씁니다."
+    },
+    {
+      "id": "tr-107",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The contract will be ___ automatically unless either party objects.",
+      "choices": [
+        "removed",
+        "reduced",
+        "renewed",
+        "reminded"
+      ],
+      "answerIndex": 2,
+      "explanation": "계약이 갱신된다는 뜻의 renewed가 적절합니다."
+    },
+    {
+      "id": "tr-108",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The workshop is designed to ___ participants' presentation skills.",
+      "choices": [
+        "enlarge",
+        "expand",
+        "extend",
+        "enhance"
+      ],
+      "answerIndex": 3,
+      "explanation": "능력을 향상시킨다는 뜻으로는 enhance skills를 씁니다."
+    },
+    {
+      "id": "tr-109",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please ___ the attached form and return it by Friday.",
+      "choices": [
+        "fill out",
+        "fill up",
+        "fill with",
+        "fill in for"
+      ],
+      "answerIndex": 0,
+      "explanation": "서식을 작성한다는 뜻의 fill out이 적절합니다."
+    },
+    {
+      "id": "tr-110",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The manager will ___ the meeting until the data is ready.",
+      "choices": [
+        "postpone",
+        "promote",
+        "prevent",
+        "prohibit"
+      ],
+      "answerIndex": 0,
+      "explanation": "일정을 연기한다는 뜻의 postpone이 적절합니다."
+    },
+    {
+      "id": "tr-111",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Employees who work overtime are ___ to additional pay.",
+      "choices": [
+        "attended",
+        "intended",
+        "attempted",
+        "entitled"
+      ],
+      "answerIndex": 3,
+      "explanation": "권리가 있다는 뜻은 be entitled to입니다."
+    },
+    {
+      "id": "tr-112",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The store will ___ a discount to members during the sale.",
+      "choices": [
+        "offer",
+        "provide of",
+        "supply with",
+        "afford"
+      ],
+      "answerIndex": 0,
+      "explanation": "할인을 제공한다는 뜻으로는 offer a discount를 씁니다."
+    },
+    {
+      "id": "tr-113",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Our records ___ that the payment was received on July 3.",
+      "choices": [
+        "inform",
+        "notify",
+        "indicate",
+        "announce"
+      ],
+      "answerIndex": 2,
+      "explanation": "기록이 무엇을 보여 준다는 뜻의 indicate가 적절합니다."
+    },
+    {
+      "id": "tr-114",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The proposal was rejected due to ___ funding.",
+      "choices": [
+        "indifferent",
+        "independent",
+        "insufficient",
+        "inefficient"
+      ],
+      "answerIndex": 2,
+      "explanation": "자금이 부족하다는 뜻의 insufficient가 문맥에 맞습니다."
+    },
+    {
+      "id": "tr-115",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The company plans to ___ its operations into overseas markets.",
+      "choices": [
+        "expose",
+        "expand",
+        "explore",
+        "expend"
+      ],
+      "answerIndex": 1,
+      "explanation": "사업을 확장한다는 뜻의 expand가 적절합니다."
+    },
+    {
+      "id": "tr-116",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "All visitors must be ___ by a staff member at all times.",
+      "choices": [
+        "accounted",
+        "accompanied",
+        "accumulated",
+        "accomplished"
+      ],
+      "answerIndex": 1,
+      "explanation": "동반된다는 뜻의 be accompanied by가 적절합니다."
+    },
+    {
+      "id": "tr-117",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The manual provides ___ instructions for assembling the device.",
+      "choices": [
+        "detail",
+        "details",
+        "detailed",
+        "detailing"
+      ],
+      "answerIndex": 2,
+      "explanation": "지시 사항이 상세하다는 뜻의 형용사 detailed가 적절합니다."
+    },
+    {
+      "id": "tr-118",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The department is currently ___ applications for the internship.",
+      "choices": [
+        "accepting",
+        "adapting",
+        "adopting",
+        "admitting"
+      ],
+      "answerIndex": 0,
+      "explanation": "지원서를 접수한다는 뜻의 accepting이 적절합니다."
+    },
+    {
+      "id": "tr-119",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Please ___ us of any change in your contact information.",
+      "choices": [
+        "explain",
+        "inform",
+        "announce",
+        "notice"
+      ],
+      "answerIndex": 1,
+      "explanation": "inform + 목적어 + of 구조로 '~에게 알리다'를 나타냅니다."
+    },
+    {
+      "id": "tr-120",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The renovation caused a ___ disruption to daily operations.",
+      "choices": [
+        "temporary",
+        "timeless",
+        "timely",
+        "temporal"
+      ],
+      "answerIndex": 0,
+      "explanation": "일시적이라는 뜻의 temporary가 문맥에 맞습니다."
+    },
+    {
+      "id": "tr-121",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The two companies reached an ___ on the pricing terms.",
+      "choices": [
+        "agreement",
+        "agreeable",
+        "agree",
+        "agreeably"
+      ],
+      "answerIndex": 0,
+      "explanation": "관사 an 뒤 명사 자리이며 '합의'를 뜻하는 agreement가 적절합니다."
+    },
+    {
+      "id": "tr-122",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The consultant will ___ the current workflow for inefficiencies.",
+      "choices": [
+        "apologize",
+        "advertise",
+        "analyze",
+        "authorize"
+      ],
+      "answerIndex": 2,
+      "explanation": "업무 흐름을 분석한다는 뜻의 analyze가 적절합니다."
+    },
+    {
+      "id": "tr-123",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "Tickets are ___ on a first-come, first-served basis.",
+      "choices": [
+        "issues",
+        "issue",
+        "issuing",
+        "issued"
+      ],
+      "answerIndex": 3,
+      "explanation": "티켓이 발급되는 대상이므로 수동의 issued가 적절합니다."
+    },
+    {
+      "id": "tr-124",
+      "examId": "toeic-rc",
+      "subject": "어휘",
+      "prompt": "The factory operates at full ___ during the peak season.",
+      "choices": [
+        "capably",
+        "capable",
+        "capability",
+        "capacity"
+      ],
+      "answerIndex": 3,
+      "explanation": "설비 가동률을 뜻하는 at full capacity 표현이 적절합니다."
+    }
+  ]
+}
