@@ -3,12 +3,15 @@ import { router, useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { RevealView } from "@/components/motion/reveal-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { stagger } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useTheme } from "@/hooks/use-theme";
@@ -96,7 +99,7 @@ export default function NotificationsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -185,22 +188,24 @@ export default function NotificationsScreen() {
           )}
 
           {isLoading && notifications.length === 0 ? (
-            <ThemedText
-              type="small"
-              themeColor="textSecondary"
-              style={styles.loadingText}
-            >
-              알림을 불러오는 중...
-            </ThemedText>
+            <View style={styles.notificationList}>
+              {[0, 1, 2].map((placeholderIndex) => (
+                <SkeletonBlock
+                  key={placeholderIndex}
+                  height={86}
+                  radius={Radius.medium}
+                />
+              ))}
+            </View>
           ) : notifications.length > 0 ? (
             <View style={styles.notificationList}>
               {notifications.map((notification, index) => {
                 const content = getNotificationContent(notification);
                 const unread = notification.read_at == null;
                 return (
-                  <Animated.View
+                  <RevealView
                     key={notification.id}
-                    entering={FadeInDown.delay(index * 45).duration(260)}
+                    delay={stagger(index, 45)}
                   >
                     <Pressable
                       accessibilityRole="button"
@@ -265,7 +270,7 @@ export default function NotificationsScreen() {
                         size={18}
                       />
                     </Pressable>
-                  </Animated.View>
+                  </RevealView>
                 );
               })}
             </View>
@@ -380,7 +385,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   notificationEmoji: {
-    fontSize: 25,
+    fontSize: 24,
     lineHeight: 32,
   },
   notificationCopy: {
@@ -404,7 +409,7 @@ const styles = StyleSheet.create({
   },
   notificationDate: {
     paddingTop: Spacing.half,
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
   emptyCard: {
@@ -423,7 +428,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
   },
   emptyEmoji: {
-    fontSize: 32,
+    fontSize: 31,
     lineHeight: 40,
   },
   emptyDescription: {

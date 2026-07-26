@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 
+import { isNotificationPermissionGranted } from "@/notifications/notification-permission";
+import { registerDevicePushToken } from "@/notifications/push-registration";
+
 const STUDY_REMINDER_ID_KEY = "exam-loop:study-reminder-id:v1";
 const STUDY_REMINDER_CHANNEL_ID = "study-reminders";
 let handlerConfigured = false;
@@ -64,11 +67,23 @@ export async function updateStudyReminder(
       );
 
     const currentPermission = await Notifications.getPermissionsAsync();
-    const permission =
-      currentPermission.status === "granted"
-        ? currentPermission
-        : await Notifications.requestPermissionsAsync();
-    if (permission.status !== "granted") return "denied";
+    const currentPermissionGranted = isNotificationPermissionGranted(
+      currentPermission.status,
+      currentPermission.ios?.status ===
+        Notifications.IosAuthorizationStatus.PROVISIONAL,
+    );
+    const permission = currentPermissionGranted
+      ? currentPermission
+      : await Notifications.requestPermissionsAsync();
+    if (
+      !isNotificationPermissionGranted(
+        permission.status,
+        permission.ios?.status ===
+          Notifications.IosAuthorizationStatus.PROVISIONAL,
+      )
+    )
+      return "denied";
+    void registerDevicePushToken();
 
     await cancelStoredStudyReminder();
     const identifier = await Notifications.scheduleNotificationAsync({
