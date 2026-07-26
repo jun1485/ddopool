@@ -8,12 +8,16 @@ import {
   TextInput,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MascotCat } from "@/components/mascot-cat";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { RevealView } from "@/components/motion/reveal-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Durations, stagger } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
@@ -69,20 +73,13 @@ export default function OnboardingScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.brand}>
-            <View
-              style={[styles.brandIcon, { backgroundColor: theme.primarySoft }]}
-            >
-              <ThemedText style={styles.brandEmoji}>∞</ThemedText>
-            </View>
+            <MascotCat size={40} />
             <ThemedText type="smallBold" style={{ color: theme.primary }}>
               EXAM LOOP
             </ThemedText>
           </View>
 
-          <Animated.View
-            entering={FadeInDown.duration(350)}
-            style={styles.hero}
-          >
+          <RevealView duration={380} style={styles.hero}>
             <ThemedText type="subtitle" style={styles.heroTitle}>
               어떤 시험을{"\n"}준비하고 있나요?
             </ThemedText>
@@ -90,7 +87,7 @@ export default function OnboardingScreen() {
               준비 중인 시험을 고르면 문제와 복습 일정을 내 목표에 맞춰 구성해
               드려요. 여러 개를 선택해도 괜찮아요.
             </ThemedText>
-          </Animated.View>
+          </RevealView>
 
           <View
             style={[
@@ -151,7 +148,10 @@ export default function OnboardingScreen() {
                 </ThemedText>
               </View>
               {selectedExamIds.length > 0 && (
-                <View
+                <RevealView
+                  key={selectedExamIds.length}
+                  variant="zoom"
+                  duration={Durations.fast}
                   style={[
                     styles.countBadge,
                     { backgroundColor: theme.primary },
@@ -160,27 +160,22 @@ export default function OnboardingScreen() {
                   <ThemedText style={styles.countText}>
                     {selectedExamIds.length}
                   </ThemedText>
-                </View>
+                </RevealView>
               )}
             </View>
 
             {isLoading ? (
-              <ThemedText
-                type="small"
-                themeColor="textSecondary"
-                style={styles.loadingText}
-              >
-                시험 목록을 불러오는 중...
-              </ThemedText>
+              <View style={styles.examList}>
+                {[0, 1, 2].map((placeholderIndex) => (
+                  <SkeletonBlock key={placeholderIndex} height={78} />
+                ))}
+              </View>
             ) : filteredExams.length > 0 ? (
               <View style={styles.examList}>
                 {filteredExams.map((exam, index) => {
                   const selected = selectedExamIds.includes(exam.id);
                   return (
-                    <Animated.View
-                      key={exam.id}
-                      entering={FadeInDown.delay(index * 55).duration(280)}
-                    >
+                    <RevealView key={exam.id} delay={stagger(index, 55)}>
                       <Pressable
                         accessibilityRole="checkbox"
                         accessibilityState={{ checked: selected }}
@@ -237,19 +232,24 @@ export default function OnboardingScreen() {
                           ]}
                         >
                           {selected && (
-                            <SymbolView
-                              tintColor={theme.onPrimary}
-                              name={{
-                                ios: "checkmark",
-                                android: "check",
-                                web: "check",
-                              }}
-                              size={16}
-                            />
+                            <RevealView
+                              variant="zoom"
+                              duration={Durations.fast}
+                            >
+                              <SymbolView
+                                tintColor={theme.onPrimary}
+                                name={{
+                                  ios: "checkmark",
+                                  android: "check",
+                                  web: "check",
+                                }}
+                                size={16}
+                              />
+                            </RevealView>
                           )}
                         </View>
                       </Pressable>
-                    </Animated.View>
+                    </RevealView>
                   );
                 })}
               </View>
@@ -368,6 +368,8 @@ export default function OnboardingScreen() {
             </View>
           </View>
 
+          <LegalConsentLinks />
+
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ disabled: selectedExamIds.length === 0 }}
@@ -437,25 +439,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: Spacing.two,
   },
-  brandIcon: {
-    width: 34,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.small,
-  },
-  brandEmoji: {
-    color: "#6657E8",
-    fontSize: 25,
-    lineHeight: 29,
-    fontWeight: 700,
-  },
   hero: {
     gap: Spacing.two,
     paddingTop: Spacing.two,
   },
   heroTitle: {
-    fontSize: 36,
+    fontSize: 35,
     lineHeight: 46,
     fontWeight: 700,
   },
@@ -476,7 +465,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flex: 1,
     paddingVertical: Spacing.two,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   section: {
@@ -488,7 +477,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 27,
     fontWeight: 700,
   },
@@ -502,7 +491,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 18,
     fontWeight: 700,
   },
@@ -531,7 +520,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   examEmoji: {
-    fontSize: 24,
+    fontSize: 23,
     lineHeight: 31,
   },
   examCopy: {
@@ -585,7 +574,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   goalValue: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
     fontWeight: 700,
   },

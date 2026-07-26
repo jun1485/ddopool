@@ -6,14 +6,17 @@ import { Platform, Share, StyleSheet, Switch, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from "@/constants/legal";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useLearningSyncStatus } from "@/hooks/use-learning-sync-status";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
+import { openLegalDocument, openSupportEmail } from "@/lib/external-links";
 import {
   formatStudyReminderTime,
   STUDY_REMINDER_HOURS,
@@ -58,7 +61,7 @@ function getReminderResultMessage(result: StudyReminderResult): string {
 // 설정 화면
 export default function SettingsScreen() {
   const { settings, updateSettings, resetSettings } = useSettings();
-  const { user, isConfigured } = useAuth();
+  const { user, isConfigured, deleteAccount } = useAuth();
   const {
     pendingCount,
     pendingAttemptCount,
@@ -75,9 +78,63 @@ export default function SettingsScreen() {
   const [reminderMessage, setReminderMessage] = useState<string | null>(null);
   const [exportingData, setExportingData] = useState(false);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
+  const [deleteArmed, setDeleteArmed] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [accountDeleteMessage, setAccountDeleteMessage] = useState<
+    string | null
+  >(null);
+  const [informationMessage, setInformationMessage] = useState<string | null>(
+    null,
+  );
   const canSynchronize = user != null && isSyncAvailable && !isSyncing;
   const pendingChangeCount = pendingCount + pendingAttemptCount;
   const syncIssueCount = pendingChangeCount + failedEnqueueCount;
+
+  // 사용자 계정 삭제 2단계 확인 처리
+  const handleDeleteAccountPress = async () => {
+    if (user == null || deletingAccount) return;
+    if (!deleteArmed) {
+      setDeleteArmed(true);
+      setAccountDeleteMessage(
+        "계정과 서버 학습 기록이 모두 삭제돼요. 한 번 더 눌러 확정해 주세요.",
+      );
+      return;
+    }
+    setDeletingAccount(true);
+    setAccountDeleteMessage(null);
+    const deleted = await deleteAccount();
+    setDeletingAccount(false);
+    if (deleted) {
+      router.replace("/onboarding");
+      return;
+    }
+    setDeleteArmed(false);
+    setAccountDeleteMessage(
+      "삭제하지 못했어요. 로그인과 학습 기록은 유지됐으니 다시 시도해 주세요.",
+    );
+  };
+
+  // 설정 법적 문서 링크 열기
+  const handleDocumentPress = async (url: string) => {
+    setInformationMessage(null);
+    try {
+      const opened = await openLegalDocument(url);
+      if (!opened) setInformationMessage("문서 링크를 준비 중이에요.");
+    } catch {
+      setInformationMessage("문서를 열지 못했어요. 다시 시도해 주세요.");
+    }
+  };
+
+  // 설정 고객 문의 메일 열기
+  const handleSupportPress = async () => {
+    setInformationMessage(null);
+    try {
+      const opened = await openSupportEmail();
+      if (!opened) setInformationMessage("문의 이메일을 준비 중이에요.");
+    } catch {
+      setInformationMessage("메일 앱을 열지 못했어요. 다시 시도해 주세요.");
+    }
+  };
 
   // 학습 리마인더 사용 상태 변경
   const handleReminderToggle = async (enabled: boolean) => {
@@ -138,9 +195,7 @@ export default function SettingsScreen() {
         setExportMessage("학습 데이터 공유 화면을 열었어요.");
       }
     } catch {
-      setExportMessage(
-        "학습 데이터를 내보내지 못했어요. 다시 시도해 주세요.",
-      );
+      setExportMessage("학습 데이터를 내보내지 못했어요. 다시 시도해 주세요.");
     } finally {
       setExportingData(false);
     }
@@ -194,7 +249,7 @@ export default function SettingsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="설정 닫기"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.closeButton,
@@ -282,6 +337,63 @@ export default function SettingsScreen() {
                   </View>
                 </View>
               </Pressable>
+
+              {user != null && (
+                <>
+                  <View
+                    style={[
+                      styles.separator,
+                      { backgroundColor: theme.border },
+                    ]}
+                  />
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      deleteArmed ? "계정 삭제 최종 확인" : "계정 삭제"
+                    }
+                    accessibilityState={{ disabled: deletingAccount }}
+                    disabled={deletingAccount}
+                    onPress={() => void handleDeleteAccountPress()}
+                    style={({ pressed }) => pressed && styles.pressed}
+                  >
+                    <View style={styles.row}>
+                      <View style={styles.rowTexts}>
+                        <ThemedText style={{ color: theme.danger }}>
+                          {deletingAccount
+                            ? "계정 삭제 중..."
+                            : deleteArmed
+                              ? "한 번 더 누르면 계정이 삭제돼요"
+                              : "계정 삭제"}
+                        </ThemedText>
+                        <ThemedText type="small" themeColor="textSecondary">
+                          계정, 학습 기록, 요청, 공감과 신고 기록 전체 삭제
+                        </ThemedText>
+                      </View>
+                      <SymbolView
+                        tintColor={theme.danger}
+                        name={{
+                          ios: "person.crop.circle.badge.minus",
+                          android: "person_remove",
+                          web: "person_remove",
+                        }}
+                        size={19}
+                      />
+                    </View>
+                  </Pressable>
+                  {accountDeleteMessage != null && (
+                    <View style={styles.exportMessage}>
+                      <ThemedText
+                        type="small"
+                        style={{
+                          color: deleteArmed ? theme.warning : theme.danger,
+                        }}
+                      >
+                        {accountDeleteMessage}
+                      </ThemedText>
+                    </View>
+                  )}
+                </>
+              )}
             </ThemedView>
           </View>
 
@@ -840,28 +952,6 @@ export default function SettingsScreen() {
                   }}
                 />
               </View>
-              <View
-                style={[styles.separator, { backgroundColor: theme.border }]}
-              />
-              <View style={styles.row}>
-                <View style={styles.rowTexts}>
-                  <ThemedText>답변 확신도 기록</ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    기억 상태에 따라 다음 복습 간격 조정
-                  </ThemedText>
-                </View>
-                <Switch
-                  accessibilityLabel="답변 확신도 기록"
-                  value={settings.confidenceRatingEnabled}
-                  onValueChange={(value) =>
-                    updateSettings({ confidenceRatingEnabled: value })
-                  }
-                  trackColor={{
-                    false: theme.backgroundSelected,
-                    true: theme.primary,
-                  }}
-                />
-              </View>
               {Platform.OS === "web" && (
                 <>
                   <View
@@ -1169,6 +1259,105 @@ export default function SettingsScreen() {
             </ThemedView>
           </View>
 
+          <View style={styles.section}>
+            <View style={styles.sectionTitleRow}>
+              <View
+                style={[
+                  styles.sectionIcon,
+                  { backgroundColor: theme.primarySoft },
+                ]}
+              >
+                <SymbolView
+                  tintColor={theme.primary}
+                  name={{
+                    ios: "info.circle.fill",
+                    android: "info",
+                    web: "info",
+                  }}
+                  size={18}
+                />
+              </View>
+              <ThemedText type="smallBold">정보</ThemedText>
+            </View>
+            <ThemedView type="backgroundElement" style={styles.sectionCard}>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="개인정보처리방침 열기"
+                onPress={() => void handleDocumentPress(PRIVACY_POLICY_URL)}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <View style={styles.row}>
+                  <ThemedText>개인정보처리방침</ThemedText>
+                  <SymbolView
+                    tintColor={theme.textSecondary}
+                    name={{
+                      ios: "arrow.up.right",
+                      android: "open_in_new",
+                      web: "open_in_new",
+                    }}
+                    size={18}
+                  />
+                </View>
+              </Pressable>
+              <View
+                style={[styles.separator, { backgroundColor: theme.border }]}
+              />
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="이용약관 열기"
+                onPress={() => void handleDocumentPress(TERMS_OF_SERVICE_URL)}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <View style={styles.row}>
+                  <ThemedText>이용약관</ThemedText>
+                  <SymbolView
+                    tintColor={theme.textSecondary}
+                    name={{
+                      ios: "arrow.up.right",
+                      android: "open_in_new",
+                      web: "open_in_new",
+                    }}
+                    size={18}
+                  />
+                </View>
+              </Pressable>
+              <View
+                style={[styles.separator, { backgroundColor: theme.border }]}
+              />
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="문의 메일 보내기"
+                onPress={() => void handleSupportPress()}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <View style={styles.row}>
+                  <View style={styles.rowTexts}>
+                    <ThemedText>문의하기</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      메일 앱에서 문의 내용 작성
+                    </ThemedText>
+                  </View>
+                  <SymbolView
+                    tintColor={theme.textSecondary}
+                    name={{
+                      ios: "envelope.fill",
+                      android: "mail",
+                      web: "mail",
+                    }}
+                    size={18}
+                  />
+                </View>
+              </Pressable>
+              {informationMessage != null && (
+                <View style={styles.exportMessage}>
+                  <ThemedText type="small" style={{ color: theme.warning }}>
+                    {informationMessage}
+                  </ThemedText>
+                </View>
+              )}
+            </ThemedView>
+          </View>
+
           <View style={styles.infoRow}>
             <View style={styles.appMark}>
               <ThemedText style={styles.appMarkText}>E</ThemedText>
@@ -1323,7 +1512,7 @@ const styles = StyleSheet.create({
   },
   appMarkText: {
     color: "#FFFFFF",
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 26,
     fontWeight: 800,
   },

@@ -1,4 +1,3 @@
-import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import {
@@ -11,12 +10,15 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { MascotCat } from "@/components/mascot-cat";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
+import { goBack } from "@/lib/navigation";
 
 type AuthMode = "sign-in" | "sign-up";
 
@@ -27,8 +29,17 @@ const AUTH_MODES: { value: AuthMode; label: string }[] = [
 
 // 이메일 로그인·회원가입 화면
 export default function LoginScreen() {
-  const { user, isConfigured, message, signIn, signUp, signOut, clearMessage } =
-    useAuth();
+  const {
+    user,
+    isConfigured,
+    message,
+    signIn,
+    signUp,
+    signOut,
+    requestPasswordReset,
+    resendConfirmation,
+    clearMessage,
+  } = useAuth();
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,6 +51,11 @@ export default function LoginScreen() {
     email.trim().length > 0 &&
     password.length > 0 &&
     !isSubmitting;
+  const canRequestEmail =
+    isConfigured && email.trim().length > 0 && !isSubmitting;
+  const isSuccessMessage =
+    message?.includes("보냈어요") === true ||
+    message?.includes("확인 링크") === true;
 
   // 인증 모드 전환
   const selectMode = (nextMode: AuthMode) => {
@@ -56,7 +72,23 @@ export default function LoginScreen() {
         ? await signIn(email.trim(), password)
         : await signUp(email.trim(), password);
     setIsSubmitting(false);
-    if (result === "authenticated") router.back();
+    if (result === "authenticated") goBack();
+  };
+
+  // 비밀번호 재설정 메일 요청
+  const sendPasswordReset = async () => {
+    if (!canRequestEmail) return;
+    setIsSubmitting(true);
+    await requestPasswordReset(email.trim());
+    setIsSubmitting(false);
+  };
+
+  // 회원가입 인증 메일 재요청
+  const sendConfirmationAgain = async () => {
+    if (!canRequestEmail) return;
+    setIsSubmitting(true);
+    await resendConfirmation(email.trim());
+    setIsSubmitting(false);
   };
 
   if (user != null) {
@@ -84,7 +116,7 @@ export default function LoginScreen() {
           </View>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             style={({ pressed }) => [
               styles.primaryButton,
               { backgroundColor: theme.primary },
@@ -123,7 +155,7 @@ export default function LoginScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="계정 화면 닫기"
-              onPress={() => router.back()}
+              onPress={() => goBack()}
               hitSlop={Spacing.two}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -148,14 +180,7 @@ export default function LoginScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.hero}>
-              <View
-                style={[
-                  styles.heroIcon,
-                  { backgroundColor: theme.primarySoft },
-                ]}
-              >
-                <ThemedText style={styles.heroEmoji}>🔄</ThemedText>
-              </View>
+              <MascotCat size={72} />
               <ThemedText type="subtitle" style={styles.heroTitle}>
                 어디서든 학습을{"\n"}이어서 하세요
               </ThemedText>
@@ -317,16 +342,16 @@ export default function LoginScreen() {
                     {
                       backgroundColor: message.includes("확인 링크")
                         ? theme.successSoft
-                        : theme.dangerSoft,
+                        : isSuccessMessage
+                          ? theme.successSoft
+                          : theme.dangerSoft,
                     },
                   ]}
                 >
                   <ThemedText
                     type="small"
                     style={{
-                      color: message.includes("확인 링크")
-                        ? theme.success
-                        : theme.danger,
+                      color: isSuccessMessage ? theme.success : theme.danger,
                     }}
                   >
                     {message}
@@ -375,6 +400,36 @@ export default function LoginScreen() {
                   />
                 )}
               </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: !canRequestEmail }}
+                disabled={!canRequestEmail}
+                onPress={() =>
+                  void (mode === "sign-in"
+                    ? sendPasswordReset()
+                    : sendConfirmationAgain())
+                }
+                style={({ pressed }) => [
+                  styles.secondaryAction,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <ThemedText
+                  type="smallBold"
+                  style={{
+                    color: canRequestEmail
+                      ? theme.primary
+                      : theme.textSecondary,
+                  }}
+                >
+                  {mode === "sign-in"
+                    ? "비밀번호를 잊으셨나요?"
+                    : "인증 메일 다시 보내기"}
+                </ThemedText>
+              </Pressable>
+
+              {mode === "sign-up" && <LegalConsentLinks />}
             </ThemedView>
 
             <View style={styles.guestNotice}>
@@ -438,21 +493,9 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: Spacing.two,
   },
-  heroIcon: {
-    width: 72,
-    height: 72,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: Spacing.one,
-    borderRadius: 36,
-  },
-  heroEmoji: {
-    fontSize: 34,
-    lineHeight: 42,
-  },
   heroTitle: {
     textAlign: "center",
-    fontSize: 31,
+    fontSize: 30,
     lineHeight: 40,
     fontWeight: 700,
   },
@@ -497,7 +540,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     borderWidth: 1,
     borderRadius: Radius.medium,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   passwordField: {
@@ -513,7 +556,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flex: 1,
     paddingVertical: Spacing.two,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   messageBox: {
@@ -528,6 +571,11 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingHorizontal: Spacing.four,
     borderRadius: Radius.medium,
+  },
+  secondaryAction: {
+    minHeight: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
   guestNotice: {
     flexDirection: "row",
@@ -556,7 +604,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   accountTitle: {
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 38,
     fontWeight: 700,
   },
