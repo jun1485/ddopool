@@ -2,6 +2,7 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -158,22 +159,12 @@ export function ExamReadinessCard({
                     {factor.score}
                   </ThemedText>
                 </View>
-                <View
-                  style={[
-                    styles.factorTrack,
-                    { backgroundColor: theme.backgroundSelected },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.factorFill,
-                      {
-                        width: `${factor.score}%`,
-                        backgroundColor: factorColor,
-                      },
-                    ]}
-                  />
-                </View>
+                <AnimatedProgressBar
+                  progress={(factor.score) / 100}
+                  height={7}
+                  color={factorColor}
+                  trackColor={theme.backgroundSelected}
+                />
               </View>
             );
           })}
@@ -239,7 +230,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -276,12 +267,12 @@ const styles = StyleSheet.create({
     borderRadius: 46,
   },
   score: {
-    fontSize: 34,
+    fontSize: 33,
     lineHeight: 38,
     fontWeight: 900,
   },
   scoreUnit: {
-    fontSize: 11,
+    fontSize: 10,
     lineHeight: 14,
   },
   summaryCopy: {
@@ -295,11 +286,11 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   examEmoji: {
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 23,
   },
   readinessLabel: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 900,
   },
@@ -318,15 +309,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flex: 1,
     gap: Spacing.half,
-  },
-  factorTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  factorFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   recommendation: {
     gap: Spacing.two,

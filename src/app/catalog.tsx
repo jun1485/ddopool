@@ -8,14 +8,24 @@ import {
   TextInput,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { RevealView } from "@/components/motion/reveal-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { RequestTrackingOverview } from "@/components/request-tracking-overview";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { stagger, Timings } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
@@ -83,28 +93,48 @@ function CatalogTabButton({
 }: CatalogTabButtonProps) {
   const theme = useTheme();
 
+  const reduceMotion = useReducedMotion();
+  const selectProgress = useSharedValue(selected ? 1 : 0);
+
+  // 선택 탭 전환 시 배경 보간 진행값 갱신
+  useEffect(() => {
+    const target = selected ? 1 : 0;
+    selectProgress.value = reduceMotion
+      ? target
+      : withTiming(target, Timings.fast);
+  }, [reduceMotion, selectProgress, selected]);
+
+  const pillStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: interpolateColor(
+        selectProgress.value,
+        [0, 1],
+        ["transparent", theme.backgroundElement],
+      ),
+    }),
+    [theme.backgroundElement],
+  );
+
   return (
     <Pressable
       accessibilityRole="tab"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.tabButton,
-        selected && { backgroundColor: theme.backgroundElement },
-        pressed && styles.pressed,
-      ]}
+      style={styles.tabSlot}
     >
-      <ThemedText
-        type="smallBold"
-        style={{ color: selected ? theme.primary : theme.textSecondary }}
-      >
-        {label}
-      </ThemedText>
-      {badgeCount > 0 && (
-        <View style={[styles.tabBadge, { backgroundColor: theme.primary }]}>
-          <ThemedText style={styles.tabBadgeText}>{badgeCount}</ThemedText>
-        </View>
-      )}
+      <Animated.View style={[styles.tabButton, pillStyle]}>
+        <ThemedText
+          type="smallBold"
+          style={{ color: selected ? theme.primary : theme.textSecondary }}
+        >
+          {label}
+        </ThemedText>
+        {badgeCount > 0 && (
+          <View style={[styles.tabBadge, { backgroundColor: theme.primary }]}>
+            <ThemedText style={styles.tabBadgeText}>{badgeCount}</ThemedText>
+          </View>
+        )}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -350,7 +380,7 @@ export default function CatalogScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -416,7 +446,7 @@ export default function CatalogScreen() {
             onPress={() => setSelectedTab("mine")}
           />
           <CatalogTabButton
-            label="관심 요청"
+            label="내 요청"
             selected={activeTab === "requests"}
             badgeCount={requests.length}
             onPress={() => setSelectedTab("requests")}
@@ -430,7 +460,7 @@ export default function CatalogScreen() {
         >
           {activeTab === "search" ? (
             <>
-              <Animated.View entering={FadeInDown.duration(300)}>
+              <RevealView variant="zoom" duration={360}>
                 <View style={[styles.hero, { backgroundColor: theme.primary }]}>
                   <View style={styles.heroCopy}>
                     <ThemedText type="smallBold" style={styles.heroEyebrow}>
@@ -448,7 +478,7 @@ export default function CatalogScreen() {
                     <ThemedText style={styles.heroEmoji}>🎯</ThemedText>
                   </View>
                 </View>
-              </Animated.View>
+              </RevealView>
 
               <View
                 style={[
@@ -499,13 +529,15 @@ export default function CatalogScreen() {
               </View>
 
               {isLoading ? (
-                <ThemedText
-                  type="small"
-                  themeColor="textSecondary"
-                  style={styles.centerText}
-                >
-                  시험 목록을 불러오는 중...
-                </ThemedText>
+                <View style={styles.examList}>
+                  {[0, 1, 2].map((placeholderIndex) => (
+                    <SkeletonBlock
+                      key={placeholderIndex}
+                      height={132}
+                      radius={Radius.medium}
+                    />
+                  ))}
+                </View>
               ) : catalogErrorMessage != null ? (
                 <View
                   style={[
@@ -558,10 +590,7 @@ export default function CatalogScreen() {
                   {filteredExams.length > 0 && (
                     <View style={styles.examList}>
                       {filteredExams.map((exam, index) => (
-                        <Animated.View
-                          key={exam.id}
-                          entering={FadeInDown.delay(index * 50).duration(260)}
-                        >
+                        <RevealView key={exam.id} delay={stagger(index, 50)}>
                           <ExamCatalogCard
                             exam={exam}
                             enrolled={examIds.includes(exam.id)}
@@ -573,7 +602,7 @@ export default function CatalogScreen() {
                               )
                             }
                           />
-                        </Animated.View>
+                        </RevealView>
                       ))}
                     </View>
                   )}
@@ -709,17 +738,14 @@ export default function CatalogScreen() {
               {myExams.length > 0 ? (
                 <View style={styles.examList}>
                   {myExams.map((exam, index) => (
-                    <Animated.View
-                      key={exam.id}
-                      entering={FadeInDown.delay(index * 50).duration(260)}
-                    >
+                    <RevealView key={exam.id} delay={stagger(index, 50)}>
                       <ExamCatalogCard
                         exam={exam}
                         enrolled
                         onToggleEnrollment={() => toggleExam(exam.id)}
                         onStart={() => startCatalogExam(exam.id, true)}
                       />
-                    </Animated.View>
+                    </RevealView>
                   ))}
                 </View>
               ) : (
@@ -766,9 +792,10 @@ export default function CatalogScreen() {
             <>
               <View style={styles.requestTabHeader}>
                 <View>
-                  <ThemedText type="subtitle">관심 시험 요청</ThemedText>
+                  <ThemedText type="subtitle">내 시험 요청</ThemedText>
                   <ThemedText themeColor="textSecondary">
-                    직접 등록하거나 공감한 요청의 진행 상황을 확인하세요.
+                    직접 등록한 요청과 공감한 공개 요청의 진행 상황을
+                    확인하세요.
                   </ThemedText>
                 </View>
                 <Pressable
@@ -813,10 +840,7 @@ export default function CatalogScreen() {
                   {trackedRequests.length > 0 ? (
                     <View style={styles.requestList}>
                       {trackedRequests.map((request, index) => (
-                        <Animated.View
-                          key={request.id}
-                          entering={FadeInDown.delay(index * 50).duration(260)}
-                        >
+                        <RevealView key={request.id} delay={stagger(index, 50)}>
                           <ExamRequestCard
                             request={request}
                             onToggleVote={() => voteRequest(request.id)}
@@ -828,7 +852,7 @@ export default function CatalogScreen() {
                             }
                             onStartPublishedExam={startPublishedRequest}
                           />
-                        </Animated.View>
+                        </RevealView>
                       ))}
                     </View>
                   ) : (
@@ -841,7 +865,7 @@ export default function CatalogScreen() {
                       </ThemedText>
                       <View style={styles.filteredEmptyCopy}>
                         <ThemedText type="smallBold">
-                          이 상태의 관심 요청이 없어요
+                          이 상태의 내 요청이 없어요
                         </ThemedText>
                         <ThemedText type="small" themeColor="textSecondary">
                           다른 상태를 선택하면 전체 진행 상황을 볼 수 있어요.
@@ -877,15 +901,15 @@ export default function CatalogScreen() {
                     <ThemedText style={styles.emptyEmoji}>📮</ThemedText>
                   </View>
                   <ThemedText type="smallBold">
-                    아직 관심 요청이 없어요
+                    아직 내 시험 요청이 없어요
                   </ThemedText>
                   <ThemedText
                     type="small"
                     themeColor="textSecondary"
                     style={styles.emptyDescription}
                   >
-                    공부하고 싶은 시험을 요청하거나 기존 요청에 공감하면 진행
-                    상황을 여기에서 볼 수 있어요.
+                    공부하고 싶은 시험을 요청하거나 승인된 공개 요청에 공감하면
+                    진행 상황을 여기에서 볼 수 있어요.
                   </ThemedText>
                   <Pressable
                     accessibilityRole="button"
@@ -927,9 +951,9 @@ export default function CatalogScreen() {
                 <ThemedText type="small" themeColor="textSecondary">
                   {isConfigured
                     ? user != null
-                      ? "관심 요청과 상태 변경 알림이 연결된 계정에 동기화돼요."
-                      : "로그인하면 관심 요청과 상태 변경 알림을 여러 기기에서 확인할 수 있어요."
-                    : "현재 관심 요청은 이 기기에 안전하게 저장돼요."}
+                      ? "내 요청과 공개 요청 공감 상태가 연결된 계정에 동기화돼요."
+                      : "로그인하면 내 요청과 공개 요청 공감 상태를 여러 기기에서 확인할 수 있어요."
+                    : "현재 내 요청은 이 기기에 안전하게 저장돼요."}
                 </ThemedText>
               </View>
             </>
@@ -976,9 +1000,11 @@ const styles = StyleSheet.create({
     padding: Spacing.one,
     borderRadius: Radius.medium,
   },
+  tabSlot: {
+    flex: 1,
+  },
   tabButton: {
     minHeight: 42,
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -995,7 +1021,7 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     lineHeight: 14,
     fontWeight: 700,
   },
@@ -1023,7 +1049,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: "#FFFFFF",
-    fontSize: 25,
+    fontSize: 24,
     lineHeight: 34,
     fontWeight: 700,
   },
@@ -1040,7 +1066,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "8deg" }],
   },
   heroEmoji: {
-    fontSize: 42,
+    fontSize: 41,
     lineHeight: 52,
   },
   searchBox: {
@@ -1056,7 +1082,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     flex: 1,
     paddingVertical: Spacing.two,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
   },
   centerText: {
@@ -1082,7 +1108,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 27,
     fontWeight: 700,
   },
@@ -1108,7 +1134,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   examEmoji: {
-    fontSize: 26,
+    fontSize: 25,
     lineHeight: 34,
   },
   examCopy: {
@@ -1216,7 +1242,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   filteredEmptyEmoji: {
-    fontSize: 25,
+    fontSize: 24,
     lineHeight: 32,
   },
   filteredEmptyCopy: {
@@ -1247,7 +1273,7 @@ const styles = StyleSheet.create({
     borderRadius: 34,
   },
   emptyEmoji: {
-    fontSize: 32,
+    fontSize: 31,
     lineHeight: 40,
   },
   emptyDescription: {

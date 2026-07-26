@@ -1,6 +1,7 @@
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
@@ -68,22 +69,12 @@ export function SessionRewardCard({
                 +{rewards.earnedXp} XP
               </ThemedText>
             </View>
-            <View
-              style={[
-                styles.levelTrack,
-                { backgroundColor: theme.primarySoft },
-              ]}
-            >
-              <View
-                style={[
-                  styles.levelFill,
-                  {
-                    width: `${rewards.progression.levelProgress * 100}%`,
-                    backgroundColor: theme.primary,
-                  },
-                ]}
-              />
-            </View>
+            <AnimatedProgressBar
+              progress={rewards.progression.levelProgress}
+              height={7}
+              color={theme.primary}
+              trackColor={theme.primarySoft}
+            />
             <ThemedText type="small" themeColor="textSecondary">
               {rewards.levelUp
                 ? "새 레벨을 달성했어요!"
@@ -138,25 +129,14 @@ export function SessionRewardCard({
               {Math.round(rewards.dailyGoalProgress * 100)}%
             </ThemedText>
           </View>
-          <View
-            style={[
-              styles.dailyGoalTrack,
-              { backgroundColor: theme.backgroundSelected },
-            ]}
-          >
-            <View
-              style={[
-                styles.dailyGoalFill,
-                {
-                  width: `${rewards.dailyGoalProgress * 100}%`,
-                  backgroundColor:
-                    rewards.dailyGoalProgress >= 1
-                      ? theme.success
-                      : theme.primary,
-                },
-              ]}
-            />
-          </View>
+          <AnimatedProgressBar
+            progress={rewards.dailyGoalProgress}
+            height={6}
+            color={
+              rewards.dailyGoalProgress >= 1 ? theme.success : theme.primary
+            }
+            trackColor={theme.backgroundSelected}
+          />
         </View>
 
         {rewards.newAchievements.length > 0 && (
@@ -259,7 +239,7 @@ const styles = StyleSheet.create({
   },
   levelText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 20,
     fontWeight: 900,
   },
@@ -274,15 +254,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: Spacing.two,
   },
-  levelTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  levelFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
-  },
   milestoneRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -295,15 +266,6 @@ const styles = StyleSheet.create({
   },
   dailyGoal: {
     gap: Spacing.one,
-  },
-  dailyGoalTrack: {
-    height: 6,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  dailyGoalFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   achievementSection: {
     gap: Spacing.two,
@@ -332,7 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   achievementEmoji: {
-    fontSize: 24,
+    fontSize: 23,
     lineHeight: 30,
   },
   achievementCopy: {
@@ -364,7 +326,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   loadingEmoji: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 29,
   },
   loadingCopy: {

@@ -2,17 +2,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import type { SymbolViewProps } from "expo-symbols";
 import { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -247,8 +243,15 @@ export default function SessionBuilderScreen() {
 
   if (isLoading) {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator color={theme.primary} />
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContent}>
+            <SkeletonBlock width="55%" height={22} />
+            <SkeletonBlock height={92} radius={Radius.medium} />
+            <SkeletonBlock height={140} radius={Radius.medium} />
+            <SkeletonBlock height={120} radius={Radius.medium} />
+          </View>
+        </SafeAreaView>
       </ThemedView>
     );
   }
@@ -259,7 +262,7 @@ export default function SessionBuilderScreen() {
         <ThemedText type="subtitle">시험을 찾을 수 없어요</ThemedText>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.back()}
+          onPress={() => goBack()}
           style={[styles.fallbackButton, { backgroundColor: theme.primary }]}
         >
           <ThemedText type="smallBold" style={styles.primaryText}>
@@ -277,7 +280,7 @@ export default function SessionBuilderScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -765,6 +768,11 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.two,
     paddingBottom: Spacing.six + Spacing.six,
   },
+  loadingContent: {
+    gap: Spacing.three,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.four,
+  },
   hero: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -775,7 +783,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   heroEmoji: {
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 36,
     marginBottom: Spacing.two,
   },
@@ -869,7 +877,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },

@@ -1,10 +1,10 @@
-import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -160,7 +160,7 @@ export default function StudyPlanSettingsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   examEmoji: {
-    fontSize: 24,
+    fontSize: 23,
     lineHeight: 30,
   },
   examCopy: {
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   scoreOptionValue: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
     fontWeight: 900,
   },
@@ -684,7 +684,7 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     color: "#FFFFFF",
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 36,
     fontWeight: 900,
   },
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   },
   previewValue: {
     color: "#FFFFFF",
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 26,
     fontWeight: 800,
   },

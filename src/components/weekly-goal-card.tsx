@@ -1,6 +1,7 @@
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -107,22 +108,12 @@ export function WeeklyGoalCard({
           </View>
         </View>
 
-        <View
-          style={[
-            styles.progressTrack,
-            { backgroundColor: theme.backgroundSelected },
-          ]}
-        >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${progress.progress * 100}%`,
-                backgroundColor: statusColor,
-              },
-            ]}
-          />
-        </View>
+        <AnimatedProgressBar
+          progress={progress.progress}
+          height={9}
+          color={statusColor}
+          trackColor={theme.backgroundSelected}
+        />
 
         <Pressable
           accessibilityRole="button"
@@ -255,7 +246,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -287,7 +278,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   value: {
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 34,
     fontWeight: 900,
   },
@@ -296,15 +287,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-  },
-  progressTrack: {
-    height: 9,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  progressFill: {
-    height: "100%",
     borderRadius: Radius.pill,
   },
   activityRow: {

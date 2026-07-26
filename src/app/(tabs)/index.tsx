@@ -1,12 +1,18 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActiveSessionCard } from "@/components/active-session-card";
+import { MascotCat } from "@/components/mascot-cat";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
+import { CelebrationBurst } from "@/components/motion/celebration-burst";
+import { PulseView } from "@/components/motion/pulse-view";
+import { RevealView } from "@/components/motion/reveal-view";
 import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
 import { ExamPaceCard } from "@/components/exam-pace-card";
 import { LearningMomentumCard } from "@/components/learning-momentum-card";
@@ -14,7 +20,11 @@ import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WeeklyGoalCard } from "@/components/weekly-goal-card";
+import { stagger } from "@/constants/motion";
 import {
+  accentByIndex,
+  Alpha,
+  heroGradient,
   BottomTabInset,
   MaxContentWidth,
   Radius,
@@ -88,7 +98,12 @@ function getGreeting(hour: number): string {
 
 // 시험 선택 홈 화면
 export default function HomeScreen() {
-  const { todayStat, currentWeekActivity, streak } = useDailyStats();
+  const {
+    todayStat,
+    currentWeekActivity,
+    streak,
+    isLoading: isStatsLoading,
+  } = useDailyStats();
   const { lifetime, performance } = useLearningReport();
   const { studiedCounts, dueCounts, totalDue, totalStudied, recentExamId } =
     useSrsSummary();
@@ -213,10 +228,21 @@ export default function HomeScreen() {
       : "진행 중인 학습");
   const dailyProgress = Math.min(todayStat.answered / settings.dailyGoal, 1);
   const remainingGoal = Math.max(settings.dailyGoal - todayStat.answered, 0);
-  const todayAccuracy =
+  const todayAccuracyRate =
     todayStat.answered > 0
-      ? `${Math.round((todayStat.correct / todayStat.answered) * 100)}%`
-      : "–";
+      ? Math.round((todayStat.correct / todayStat.answered) * 100)
+      : null;
+  const isGoalReached = settings.dailyGoal > 0 && remainingGoal === 0;
+  const [goalCelebration, setGoalCelebration] = useState(0);
+  const wasGoalReachedRef = useRef<boolean | null>(null);
+
+  // 목표 달성 전환 시점에만 축하 연출 실행
+  useEffect(() => {
+    if (isStatsLoading) return;
+    if (wasGoalReachedRef.current === false && isGoalReached)
+      setGoalCelebration((count) => count + 1);
+    wasGoalReachedRef.current = isGoalReached;
+  }, [isGoalReached, isStatsLoading]);
 
   // 주간 목표 맞춤 세션 진입
   const startWeeklyGoalSession = () => {
@@ -271,7 +297,10 @@ export default function HomeScreen() {
               <ThemedText type="smallBold" style={{ color: theme.primary }}>
                 {getGreeting(new Date().getHours())}
               </ThemedText>
-              <ThemedText type="subtitle">Exam Loop</ThemedText>
+              <ThemedText style={styles.brandTitle}>Exam Loop</ThemedText>
+            </View>
+            <View style={styles.headerMascot}>
+              <MascotCat size={54} />
             </View>
             <View style={styles.headerActions}>
               <Pressable
@@ -281,7 +310,10 @@ export default function HomeScreen() {
                 hitSlop={Spacing.two}
                 style={({ pressed }) => [
                   styles.iconButton,
-                  { backgroundColor: theme.primarySoft },
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.cardBorder,
+                  },
                   pressed && styles.pressed,
                 ]}
               >
@@ -302,6 +334,10 @@ export default function HomeScreen() {
                 hitSlop={Spacing.two}
                 style={({ pressed }) => [
                   styles.iconButton,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.cardBorder,
+                  },
                   pressed && styles.pressed,
                 ]}
               >
@@ -317,7 +353,9 @@ export default function HomeScreen() {
                   size={21}
                 />
                 {unreadCount > 0 && (
-                  <View
+                  <PulseView
+                    scaleTo={1.16}
+                    duration={1300}
                     style={[
                       styles.notificationBadge,
                       { backgroundColor: theme.danger },
@@ -326,7 +364,7 @@ export default function HomeScreen() {
                     <ThemedText style={styles.notificationBadgeText}>
                       {Math.min(unreadCount, 9)}
                     </ThemedText>
-                  </View>
+                  </PulseView>
                 )}
               </Pressable>
               <Pressable
@@ -336,6 +374,10 @@ export default function HomeScreen() {
                 hitSlop={Spacing.two}
                 style={({ pressed }) => [
                   styles.iconButton,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.cardBorder,
+                  },
                   pressed && styles.pressed,
                 ]}
               >
@@ -352,10 +394,21 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <Animated.View entering={FadeInDown.duration(350)}>
-            <View style={[styles.goalCard, { backgroundColor: theme.primary }]}>
+          <RevealView variant="zoom" duration={420} style={styles.goalWrapper}>
+            <LinearGradient
+              colors={heroGradient(theme)}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.goalCard}
+            >
               <View
                 style={[styles.goalOrb, { backgroundColor: theme.onPrimary }]}
+              />
+              <View
+                style={[
+                  styles.goalOrbSmall,
+                  { backgroundColor: theme.onPrimary },
+                ]}
               />
               <View style={styles.goalHeader}>
                 <View style={styles.goalText}>
@@ -363,70 +416,88 @@ export default function HomeScreen() {
                     오늘의 목표
                   </ThemedText>
                   <ThemedText style={styles.goalTitle}>
-                    {remainingGoal === 0
+                    {isGoalReached
                       ? "목표 달성! 정말 멋져요"
                       : `${remainingGoal}문제만 더 풀면 달성`}
                   </ThemedText>
                 </View>
-                <View style={styles.goalPercent}>
-                  <ThemedText type="smallBold" style={styles.onPrimary}>
-                    {Math.round(dailyProgress * 100)}%
-                  </ThemedText>
-                </View>
+                <PulseView active={isGoalReached} scaleTo={1.06}>
+                  <View style={styles.goalPercent}>
+                    <AnimatedCounter
+                      type="smallBold"
+                      style={styles.onPrimary}
+                      value={Math.round(dailyProgress * 100)}
+                      suffix="%"
+                    />
+                  </View>
+                </PulseView>
               </View>
 
-              <View style={styles.goalTrack}>
-                <View
-                  style={[
-                    styles.goalFill,
-                    { width: `${dailyProgress * 100}%` },
-                  ]}
-                />
-              </View>
+              <AnimatedProgressBar
+                progress={dailyProgress}
+                height={8}
+                shimmer={!isGoalReached && dailyProgress > 0}
+                color={theme.onPrimary}
+                trackColor={Alpha.onPrimaryTrack}
+              />
 
               <View style={styles.goalStats}>
                 <View style={styles.goalStatItem}>
-                  <ThemedText style={styles.goalStatValue}>
-                    {todayStat.answered}
-                  </ThemedText>
+                  <AnimatedCounter
+                    style={styles.goalStatValue}
+                    value={todayStat.answered}
+                  />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     오늘 풀이
                   </ThemedText>
                 </View>
                 <View style={styles.goalDivider} />
                 <View style={styles.goalStatItem}>
-                  <ThemedText style={styles.goalStatValue}>
-                    {todayAccuracy}
-                  </ThemedText>
+                  {todayAccuracyRate == null ? (
+                    <ThemedText style={styles.goalStatValue}>–</ThemedText>
+                  ) : (
+                    <AnimatedCounter
+                      style={styles.goalStatValue}
+                      value={todayAccuracyRate}
+                      suffix="%"
+                    />
+                  )}
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     정답률
                   </ThemedText>
                 </View>
                 <View style={styles.goalDivider} />
                 <View style={styles.goalStatItem}>
-                  <ThemedText style={styles.goalStatValue}>
-                    🔥 {streak}
-                  </ThemedText>
+                  <View style={styles.streakRow}>
+                    <PulseView active={streak > 0} scaleTo={1.18}>
+                      <ThemedText style={styles.goalStatValue}>🔥</ThemedText>
+                    </PulseView>
+                    <AnimatedCounter
+                      style={styles.goalStatValue}
+                      value={streak}
+                    />
+                  </View>
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     연속 학습
                   </ThemedText>
                 </View>
               </View>
-            </View>
-          </Animated.View>
+            </LinearGradient>
+            <CelebrationBurst trigger={goalCelebration} />
+          </RevealView>
 
           {!isActiveSessionLoading && activeQuizSession != null && (
-            <Animated.View entering={FadeInDown.delay(30).duration(320)}>
+            <RevealView delay={stagger(1, 40)}>
               <ActiveSessionCard
                 session={activeQuizSession}
                 title={activeSessionTitle}
                 onResume={() => resumeQuizSession(activeQuizSession)}
                 onDiscard={() => void discardActiveSession()}
               />
-            </Animated.View>
+            </RevealView>
           )}
 
-          <Animated.View entering={FadeInDown.delay(40).duration(320)}>
+          <RevealView delay={stagger(2, 40)}>
             <ExamPaceCard
               pace={examPace}
               exam={targetExam}
@@ -434,9 +505,9 @@ export default function HomeScreen() {
               isLoading={isStudyTargetLoading || isCatalogLoading}
               onPress={() => router.push("./study-plan-settings")}
             />
-          </Animated.View>
+          </RevealView>
 
-          <Animated.View entering={FadeInDown.delay(60).duration(320)}>
+          <RevealView delay={stagger(3, 40)}>
             <DailyStudyPlanCard
               plan={dailyStudyPlan}
               isLoading={isDailyPlanLoading}
@@ -447,9 +518,9 @@ export default function HomeScreen() {
               onEmptyAction={() => router.push("/catalog")}
               onCompletedAction={() => router.push("/report")}
             />
-          </Animated.View>
+          </RevealView>
 
-          <Animated.View entering={FadeInDown.delay(80).duration(320)}>
+          <RevealView delay={stagger(4, 40)}>
             <LearningMomentumCard
               lifetime={lifetime}
               today={todayStat}
@@ -457,14 +528,13 @@ export default function HomeScreen() {
               unlockedAchievementCount={unlockedAchievementCount}
               onOpenProgress={() => router.push("./progress")}
             />
-          </Animated.View>
+          </RevealView>
 
           {recentExam != null && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`${recentExam.shortTitle} 학습 시작`}
               onPress={() => startLearnSession(recentExam)}
-              style={({ pressed }) => pressed && styles.cardPressed}
             >
               <ThemedView type="backgroundElement" style={styles.continueCard}>
                 <View
@@ -522,24 +592,28 @@ export default function HomeScreen() {
           {!isCustomSessionPresetsLoading &&
             savedRoutinePreset != null &&
             savedRoutineExam != null && (
-              <SavedStudyRoutineCard
-                preset={savedRoutinePreset}
-                exam={savedRoutineExam}
-                onStart={startSavedRoutine}
-                onEdit={() => openSessionBuilder(savedRoutineExam.id)}
-              />
+              <RevealView delay={stagger(5, 40)}>
+                <SavedStudyRoutineCard
+                  preset={savedRoutinePreset}
+                  exam={savedRoutineExam}
+                  onStart={startSavedRoutine}
+                  onEdit={() => openSessionBuilder(savedRoutineExam.id)}
+                />
+              </RevealView>
             )}
 
-          <WeeklyGoalCard
-            activities={currentWeekActivity}
-            progress={weeklyGoalProgress}
-            canStart={
-              dailyStudyPlan.questionIds.length > 0 || recentExam != null
-            }
-            onStart={startWeeklyGoalSession}
-            onAdjust={() => router.push("/settings")}
-            onOpenActivity={() => router.push("./activity")}
-          />
+          <RevealView delay={stagger(6, 40)}>
+            <WeeklyGoalCard
+              activities={currentWeekActivity}
+              progress={weeklyGoalProgress}
+              canStart={
+                dailyStudyPlan.questionIds.length > 0 || recentExam != null
+              }
+              onStart={startWeeklyGoalSession}
+              onAdjust={() => router.push("/settings")}
+              onOpenActivity={() => router.push("./activity")}
+            />
+          </RevealView>
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -576,27 +650,20 @@ export default function HomeScreen() {
                   const studied = Math.min(studiedCounts[exam.id] ?? 0, total);
                   const dueCount = dueCounts[exam.id] ?? 0;
                   const progress = total === 0 ? 0 : studied / total;
-                  const accent = [theme.primary, theme.success, theme.warning][
-                    listIndex % 3
-                  ];
-                  const softAccent = [
-                    theme.primarySoft,
-                    theme.successSoft,
-                    theme.warningSoft,
-                  ][listIndex % 3];
+                  const { accent, soft: softAccent } = accentByIndex(
+                    theme,
+                    listIndex,
+                  );
 
                   return (
-                    <Animated.View
+                    <RevealView
                       key={exam.id}
-                      entering={FadeInDown.delay(70 * (listIndex + 1)).duration(
-                        300,
-                      )}
+                      delay={stagger(listIndex + 5, 45)}
                     >
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={`${exam.title} 맞춤 학습 구성`}
                         onPress={() => openSessionBuilder(exam.id)}
-                        style={({ pressed }) => pressed && styles.cardPressed}
                       >
                         <ThemedView
                           type="backgroundElement"
@@ -658,22 +725,12 @@ export default function HomeScreen() {
                               {studied}/{total}
                             </ThemedText>
                           </View>
-                          <View
-                            style={[
-                              styles.cardProgressTrack,
-                              { backgroundColor: softAccent },
-                            ]}
-                          >
-                            <View
-                              style={[
-                                styles.cardProgressFill,
-                                {
-                                  width: `${progress * 100}%`,
-                                  backgroundColor: accent,
-                                },
-                              ]}
-                            />
-                          </View>
+                          <AnimatedProgressBar
+                            progress={progress}
+                            height={7}
+                            color={accent}
+                            trackColor={softAccent}
+                          />
                           <View style={styles.customizeHint}>
                             <SymbolView
                               tintColor={accent}
@@ -702,7 +759,7 @@ export default function HomeScreen() {
                           </View>
                         </ThemedView>
                       </Pressable>
-                    </Animated.View>
+                    </RevealView>
                   );
                 })}
               </View>
@@ -711,7 +768,6 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="준비할 시험 추가"
                 onPress={() => router.push("/catalog")}
-                style={({ pressed }) => pressed && styles.cardPressed}
               >
                 <ThemedView
                   type="backgroundElement"
@@ -798,18 +854,28 @@ const styles = StyleSheet.create({
   headerText: {
     gap: Spacing.half,
   },
+  headerMascot: {
+    flex: 1,
+    alignItems: "center",
+  },
+  brandTitle: {
+    fontSize: 25,
+    lineHeight: 32,
+    fontWeight: 800,
+    letterSpacing: -0.4,
+  },
   headerActions: {
     flexDirection: "row",
     gap: Spacing.two,
   },
   iconButton: {
     position: "relative",
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
     borderRadius: Radius.medium,
-    backgroundColor: "rgba(127, 127, 127, 0.08)",
   },
   notificationBadge: {
     position: "absolute",
@@ -828,13 +894,18 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: 700,
   },
+  goalWrapper: {
+    position: "relative",
+  },
   goalCard: {
     position: "relative",
     overflow: "hidden",
     gap: Spacing.three,
     padding: Spacing.four,
+    borderWidth: 1,
+    borderColor: Alpha.onPrimarySurface,
     borderRadius: Radius.large,
-    ...Shadows.card,
+    ...Shadows.floating,
   },
   goalOrb: {
     position: "absolute",
@@ -844,6 +915,20 @@ const styles = StyleSheet.create({
     opacity: 0.09,
     right: -60,
     top: -70,
+  },
+  goalOrbSmall: {
+    position: "absolute",
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    opacity: 0.07,
+    left: -34,
+    bottom: -46,
+  },
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.one,
   },
   goalHeader: {
     flexDirection: "row",
@@ -857,34 +942,23 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     color: "#FFFFFF",
-    fontSize: 20,
-    lineHeight: 28,
+    fontSize: 18,
+    lineHeight: 26,
     fontWeight: 700,
   },
   goalPercent: {
-    minWidth: 54,
+    minWidth: 46,
     alignItems: "center",
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.twoHalf,
     borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
+    backgroundColor: Alpha.onPrimarySurface,
   },
   onPrimary: {
     color: "#FFFFFF",
   },
   onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
-  },
-  goalTrack: {
-    height: 8,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-  },
-  goalFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
-    backgroundColor: "#FFFFFF",
+    color: Alpha.onPrimaryMuted,
   },
   goalStats: {
     flexDirection: "row",
@@ -897,14 +971,14 @@ const styles = StyleSheet.create({
   },
   goalStatValue: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 24,
     fontWeight: 800,
   },
   goalDivider: {
     width: 1,
     height: 28,
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    backgroundColor: Alpha.onPrimaryDivider,
   },
   continueCard: {
     flexDirection: "row",
@@ -913,7 +987,7 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: Radius.medium,
     borderWidth: 1,
-    borderColor: "rgba(127, 127, 127, 0.1)",
+    borderColor: Alpha.hairline,
     ...Shadows.card,
   },
   continueIcon: {
@@ -948,7 +1022,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -989,7 +1063,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   examIconText: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 29,
   },
   examTexts: {
@@ -1014,15 +1088,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  cardProgressTrack: {
-    height: 7,
-    borderRadius: Radius.pill,
-    overflow: "hidden",
-  },
-  cardProgressFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
-  },
   customizeHint: {
     flexDirection: "row",
     alignItems: "center",
@@ -1035,9 +1100,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.68,
-  },
-  cardPressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.985 }],
   },
 });

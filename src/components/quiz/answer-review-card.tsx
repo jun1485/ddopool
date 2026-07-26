@@ -1,10 +1,12 @@
 import { SymbolView } from "expo-symbols";
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
+import Animated, { FadeInUp, FadeOut } from "react-native-reanimated";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Durations } from "@/constants/motion";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
 import type { QuizAnswer } from "@/hooks/use-quiz-session";
 import { useTheme } from "@/hooks/use-theme";
@@ -181,7 +183,11 @@ export function AnswerReviewCard({
       </View>
 
       {expanded && (
-        <>
+        <Animated.View
+          entering={FadeInUp.duration(Durations.fast)}
+          exiting={FadeOut.duration(Durations.instant)}
+          style={styles.expandedArea}
+        >
           <View
             style={[styles.explanation, { backgroundColor: theme.primarySoft }]}
           >
@@ -202,7 +208,7 @@ export function AnswerReviewCard({
             <ThemedText type="small">{question.explanation}</ThemedText>
           </View>
           {hasLearningNote && noteEditor}
-        </>
+        </Animated.View>
       )}
 
       <View style={[styles.actions, { borderTopColor: theme.border }]}>
@@ -294,6 +300,9 @@ export function AnswerReviewCard({
 }
 
 const styles = StyleSheet.create({
+  expandedArea: {
+    gap: Spacing.three,
+  },
   card: {
     overflow: "hidden",
     gap: Spacing.three,
@@ -331,7 +340,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   prompt: {
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 24,
     fontWeight: 700,
   },

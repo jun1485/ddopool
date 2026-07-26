@@ -6,7 +6,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useSettings } from "@/hooks/use-settings";
 import { selectAdaptiveQuestions } from "@/learning/adaptive-questions";
-import { getConfidenceReviewQuality } from "@/learning/answer-confidence";
 import type { AnswerConfidence } from "@/learning/answer-confidence";
 import { createSrsCard, reviewSrsCard } from "@/srs/sm2";
 import {
@@ -27,10 +26,7 @@ import {
   updateSrsCard,
   updateSrsCards,
 } from "@/storage/srs-store";
-import {
-  recordUncertainAnswerState,
-  recordWrongAnswerState,
-} from "@/storage/wrong-answer-note-store";
+import { recordWrongAnswerState } from "@/storage/wrong-answer-note-store";
 import { queueLearningAttempt } from "@/sync/learning-attempt-sync";
 import {
   enqueueLearningSync,
@@ -98,20 +94,22 @@ export interface QuizSession {
   currentIndex: number;
   selectedIndex: number | null;
   isSubmitted: boolean;
-  answerConfidence: AnswerConfidence | null;
   isLastQuestion: boolean;
+  willRequeueCurrent: boolean;
   correctCount: number;
   answers: QuizAnswer[];
   flaggedQuestionIds: string[];
   selectChoice: (choiceIndex: number) => void;
   submitAnswer: () => void;
-  rateConfidence: (confidence: AnswerConfidence) => void;
   goToQuestion: (questionIndex: number) => void;
   toggleQuestionFlag: () => void;
   goNext: () => void;
   finishMockSession: () => void;
   restartWrongAnswers: () => void;
 }
+
+// 한 문항당 세션 내 재출제 허용 횟수
+const WRONG_ANSWER_RETRY_LIMIT = 2;
 
 // 배열 무작위 섞기
 function shuffle<T>(items: T[]): T[] {
@@ -174,10 +172,9 @@ export function useQuizSession(
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [answerConfidence, setAnswerConfidence] =
-    useState<AnswerConfidence | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+  const [retryCounts, setRetryCounts] = useState<Record<string, number>>({});
   const [flaggedQuestionIds, setFlaggedQuestionIds] = useState<string[]>([]);
   const sessionElapsedMs = useRef(0);
   const activeSegmentStartedAt = useRef<number | null>(null);
@@ -280,16 +277,6 @@ export function useQuizSession(
         setCurrentIndex(activeSession.currentIndex);
         setSelectedIndex(activeSession.selectedIndex);
         setIsSubmitted(activeSession.isSubmitted);
-        setAnswerConfidence(
-          Object.prototype.hasOwnProperty.call(
-            activeSession,
-            "answerConfidence",
-          )
-            ? (activeSession.answerConfidence ?? null)
-            : activeSession.isSubmitted
-              ? "unsure"
-              : null,
-        );
         setCorrectCount(activeSession.correctCount);
         setAnswers(
           activeSession.answers.map((answer) => ({
@@ -376,9 +363,9 @@ export function useQuizSession(
       setCurrentIndex(0);
       setSelectedIndex(null);
       setIsSubmitted(false);
-      setAnswerConfidence(null);
       setCorrectCount(0);
       setAnswers([]);
+      setRetryCounts({});
       setFlaggedQuestionIds([]);
       resetSessionClock();
       sessionFinishLocked.current = false;
@@ -427,7 +414,6 @@ export function useQuizSession(
       currentIndex,
       selectedIndex,
       isSubmitted,
-      answerConfidence,
       correctCount,
       answers,
       elapsedSeconds: getSessionDurationSeconds(),
@@ -435,7 +421,6 @@ export function useQuizSession(
     });
   }, [
     answers,
-    answerConfidence,
     clockRevision,
     correctCount,
     currentIndex,
@@ -450,6 +435,15 @@ export function useQuizSession(
     status,
   ]);
 
+  const currentQuestion = questions[currentIndex] ?? null;
+  // 채점된 오답이면서 재출제 한도가 남은 문항 여부
+  const shouldRequeueCurrent =
+    mode !== "mock" &&
+    isSubmitted &&
+    currentQuestion != null &&
+    selectedIndex !== currentQuestion.answerIndex &&
+    (retryCounts[currentQuestion.id] ?? 0) < WRONG_ANSWER_RETRY_LIMIT;
+
   // 보기 선택
   const selectChoice = useCallback(
     (choiceIndex: number) => {
@@ -459,22 +453,14 @@ export function useQuizSession(
     [isSubmitted],
   );
 
-  // 확신도 기반 SRS·오답 상태 반영
+  // 채점 결과 기반 SRS·오답 상태 반영
   const persistSrsReview = useCallback(
-    (
-      question: Question,
-      isCorrect: boolean,
-      confidence: AnswerConfidence | null,
-    ) => {
+    (question: Question, isCorrect: boolean) => {
       const now = Date.now();
       const syncVersion = getLearningSyncOutboxVersion();
-      const quality =
-        confidence == null
-          ? undefined
-          : getConfidenceReviewQuality(isCorrect, confidence);
       const baseCard =
         cards[question.id] ?? createSrsCard(question.id, question.examId, now);
-      const optimisticCard = reviewSrsCard(baseCard, isCorrect, now, quality);
+      const optimisticCard = reviewSrsCard(baseCard, isCorrect, now);
       setCards((current) => ({
         ...current,
         [question.id]: optimisticCard,
@@ -486,7 +472,6 @@ export function useQuizSession(
               current ?? createSrsCard(question.id, question.examId, now),
               isCorrect,
               now,
-              quality,
             ),
       ).then((card) => {
         setCards((current) => ({ ...current, [question.id]: card }));
@@ -499,9 +484,7 @@ export function useQuizSession(
           syncVersion,
         );
       });
-      if (isCorrect && confidence != null && confidence !== "confident")
-        void recordUncertainAnswerState(question, now);
-      else void recordWrongAnswerState(question, isCorrect, now);
+      void recordWrongAnswerState(question, isCorrect, now);
     },
     [cards, userId],
   );
@@ -519,22 +502,26 @@ export function useQuizSession(
 
     const isCorrect = selectedIndex === question.answerIndex;
     const now = Date.now();
+    // 세션 끝 재출제분은 첫 시도 채점 결과·복습 일정을 덮어쓰지 않음
+    const isRetryAttempt = answers.some(
+      (answer) => answer.questionId === question.id,
+    );
 
     setIsSubmitted(true);
-    setAnswerConfidence(null);
-    if (isCorrect) setCorrectCount((count) => count + 1);
-    setAnswers((current) => [
-      ...current,
-      {
-        questionId: question.id,
-        subject: question.subject,
-        selectedIndex,
-        isCorrect,
-        confidence: null,
-      },
-    ]);
-    if (!settings.confidenceRatingEnabled)
-      persistSrsReview(question, isCorrect, null);
+    if (!isRetryAttempt) {
+      if (isCorrect) setCorrectCount((count) => count + 1);
+      setAnswers((current) => [
+        ...current,
+        {
+          questionId: question.id,
+          subject: question.subject,
+          selectedIndex,
+          isCorrect,
+          confidence: null,
+        },
+      ]);
+      persistSrsReview(question, isCorrect);
+    }
     void recordAnswer(
       isCorrect,
       question.examId,
@@ -556,49 +543,16 @@ export function useQuizSession(
     );
     if (settings.hapticsEnabled) void triggerAnswerHaptic(isCorrect);
   }, [
+    answers,
     currentIndex,
     isSubmitted,
     mode,
     persistSrsReview,
     questions,
     selectedIndex,
-    settings.confidenceRatingEnabled,
     settings.hapticsEnabled,
     userId,
   ]);
-
-  // 현재 답변 확신도 확정
-  const rateConfidence = useCallback(
-    (confidence: AnswerConfidence) => {
-      const question = questions[currentIndex];
-      if (
-        mode === "mock" ||
-        question == null ||
-        !isSubmitted ||
-        answerConfidence != null
-      )
-        return;
-      const isCorrect = selectedIndex === question.answerIndex;
-      setAnswerConfidence(confidence);
-      setAnswers((current) =>
-        current.map((answer) =>
-          answer.questionId === question.id
-            ? { ...answer, confidence }
-            : answer,
-        ),
-      );
-      persistSrsReview(question, isCorrect, confidence);
-    },
-    [
-      answerConfidence,
-      currentIndex,
-      isSubmitted,
-      mode,
-      persistSrsReview,
-      questions,
-      selectedIndex,
-    ],
-  );
 
   // 모의고사 전체 답안 채점
   const finishMockSession = useCallback(() => {
@@ -812,12 +766,26 @@ export function useQuizSession(
       return;
     }
 
-    if (
-      !isSubmitted ||
-      (settings.confidenceRatingEnabled && answerConfidence == null)
-    )
-      return;
-    if (currentIndex + 1 >= questions.length) {
+    if (!isSubmitted) return;
+
+    const question = questions[currentIndex];
+    // 오답 문제는 남은 재출제 횟수만큼 세션 끝에 다시 추가
+    const nextQuestions =
+      question != null && shouldRequeueCurrent
+        ? [
+            ...questions,
+            settings.shuffleChoicesEnabled ? shuffleChoices(question) : question,
+          ]
+        : questions;
+    if (question != null && shouldRequeueCurrent) {
+      setQuestions(nextQuestions);
+      setRetryCounts((current) => ({
+        ...current,
+        [question.id]: (current[question.id] ?? 0) + 1,
+      }));
+    }
+
+    if (currentIndex + 1 >= nextQuestions.length) {
       if (sessionFinishLocked.current) return;
       sessionFinishLocked.current = true;
       const completedAt = Date.now();
@@ -837,9 +805,7 @@ export function useQuizSession(
     setCurrentIndex((index) => index + 1);
     setSelectedIndex(null);
     setIsSubmitted(false);
-    setAnswerConfidence(null);
   }, [
-    answerConfidence,
     answers,
     correctCount,
     currentIndex,
@@ -848,7 +814,8 @@ export function useQuizSession(
     isSubmitted,
     mode,
     questions,
-    settings.confidenceRatingEnabled,
+    settings.shuffleChoicesEnabled,
+    shouldRequeueCurrent,
   ]);
 
   // 오답 문제 재도전 세션 시작
@@ -872,9 +839,9 @@ export function useQuizSession(
     setCurrentIndex(0);
     setSelectedIndex(null);
     setIsSubmitted(false);
-    setAnswerConfidence(null);
     setCorrectCount(0);
     setAnswers([]);
+    setRetryCounts({});
     setFlaggedQuestionIds([]);
     resetSessionClock();
     sessionFinishLocked.current = false;
@@ -890,18 +857,18 @@ export function useQuizSession(
   return {
     status,
     questions,
-    currentQuestion: questions[currentIndex] ?? null,
+    currentQuestion,
     currentIndex,
     selectedIndex,
     isSubmitted,
-    answerConfidence,
-    isLastQuestion: currentIndex + 1 >= questions.length,
+    isLastQuestion:
+      currentIndex + 1 >= questions.length && !shouldRequeueCurrent,
+    willRequeueCurrent: shouldRequeueCurrent,
     correctCount,
     answers,
     flaggedQuestionIds,
     selectChoice,
     submitAnswer,
-    rateConfidence,
     goToQuestion,
     toggleQuestionFlag,
     goNext,

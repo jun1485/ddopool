@@ -1,9 +1,12 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
+import { PulseView } from "@/components/motion/pulse-view";
+import { RevealView } from "@/components/motion/reveal-view";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -13,6 +16,7 @@ import { MockExamTrendCard } from "@/components/mock-exam-trend-card";
 import { StudyTimeInsightsCard } from "@/components/study-time-insights-card";
 import { WrongAnswerSummaryCard } from "@/components/wrong-answer-summary-card";
 import {
+  Alpha,
   BottomTabInset,
   MaxContentWidth,
   Radius,
@@ -215,7 +219,7 @@ export default function ReportScreen() {
             </ThemedText>
           </View>
 
-          <Animated.View entering={FadeInDown.duration(350)}>
+          <RevealView variant="zoom" duration={400}>
             <View style={[styles.heroCard, { backgroundColor: theme.primary }]}>
               <View
                 style={[styles.heroOrb, { backgroundColor: theme.onPrimary }]}
@@ -225,15 +229,20 @@ export default function ReportScreen() {
                   <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
                     누적 학습
                   </ThemedText>
-                  <ThemedText style={styles.heroValue}>
-                    {lifetime.answered}
+                  <View style={styles.heroValueRow}>
+                    <AnimatedCounter
+                      style={styles.heroValue}
+                      value={lifetime.answered}
+                    />
                     <ThemedText style={styles.heroUnit}>문제</ThemedText>
-                  </ThemedText>
+                  </View>
                 </View>
                 <View style={styles.accuracyBadge}>
-                  <ThemedText style={styles.accuracyValue}>
-                    {lifetimeAccuracy}%
-                  </ThemedText>
+                  <AnimatedCounter
+                    style={styles.accuracyValue}
+                    value={lifetimeAccuracy}
+                    suffix="%"
+                  />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     전체 정답률
                   </ThemedText>
@@ -242,34 +251,42 @@ export default function ReportScreen() {
 
               <View style={styles.heroStats}>
                 <View style={styles.heroStat}>
-                  <ThemedText style={styles.heroStatValue}>
-                    {totalStudied}
-                  </ThemedText>
+                  <AnimatedCounter
+                    style={styles.heroStatValue}
+                    value={totalStudied}
+                  />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     학습한 문제
                   </ThemedText>
                 </View>
                 <View style={styles.heroDivider} />
                 <View style={styles.heroStat}>
-                  <ThemedText style={styles.heroStatValue}>
-                    🔥 {streak}
-                  </ThemedText>
+                  <View style={styles.streakRow}>
+                    <PulseView active={streak > 0} scaleTo={1.18}>
+                      <ThemedText style={styles.heroStatValue}>🔥</ThemedText>
+                    </PulseView>
+                    <AnimatedCounter
+                      style={styles.heroStatValue}
+                      value={streak}
+                    />
+                  </View>
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     연속 학습
                   </ThemedText>
                 </View>
                 <View style={styles.heroDivider} />
                 <View style={styles.heroStat}>
-                  <ThemedText style={styles.heroStatValue}>
-                    {totalDue}
-                  </ThemedText>
+                  <AnimatedCounter
+                    style={styles.heroStatValue}
+                    value={totalDue}
+                  />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     복습 대기
                   </ThemedText>
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </RevealView>
 
           <ExamReadinessCard
             items={readinessItems}
@@ -542,22 +559,12 @@ export default function ReportScreen() {
                           {stat.answered > 0 ? `${accuracy}%` : "–"}
                         </ThemedText>
                       </View>
-                      <View
-                        style={[
-                          styles.examTrack,
-                          { backgroundColor: softAccent },
-                        ]}
-                      >
-                        <View
-                          style={[
-                            styles.examFill,
-                            {
-                              width: `${accuracy}%`,
-                              backgroundColor: accent,
-                            },
-                          ]}
-                        />
-                      </View>
+                      <AnimatedProgressBar
+                        progress={(accuracy) / 100}
+                        height={7}
+                        color={accent}
+                        trackColor={softAccent}
+                      />
                       <ThemedText type="small" themeColor="textSecondary">
                         {stat.answered > 0
                           ? `${stat.correct}/${stat.answered} 정답`
@@ -622,17 +629,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: Spacing.three,
   },
+  heroValueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: Spacing.one,
+  },
   heroValue: {
     color: "#FFFFFF",
-    fontSize: 42,
+    fontSize: 41,
     lineHeight: 50,
     fontWeight: 800,
   },
   heroUnit: {
-    color: "rgba(255, 255, 255, 0.76)",
-    fontSize: 16,
+    color: Alpha.onPrimaryMuted,
+    fontSize: 15,
     lineHeight: 22,
     fontWeight: 700,
+  },
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.one,
   },
   accuracyBadge: {
     alignItems: "center",
@@ -644,7 +661,7 @@ const styles = StyleSheet.create({
   },
   accuracyValue: {
     color: "#FFFFFF",
-    fontSize: 24,
+    fontSize: 23,
     lineHeight: 30,
     fontWeight: 800,
   },
@@ -662,7 +679,7 @@ const styles = StyleSheet.create({
   },
   heroStatValue: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 24,
     fontWeight: 800,
   },
@@ -680,7 +697,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -713,7 +730,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   dayLabel: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
   dayAccuracy: {
@@ -766,7 +783,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   focusTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -795,7 +812,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   examEmoji: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
   },
   examBody: {
@@ -806,14 +823,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  examTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  examFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
 });

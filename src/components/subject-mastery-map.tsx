@@ -2,6 +2,7 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -267,22 +268,12 @@ export function SubjectMasteryMap({
                     {STATUS_LABELS[mastery.status]}
                   </ThemedText>
                 </View>
-                <View
-                  style={[
-                    styles.subjectTrack,
-                    { backgroundColor: theme.backgroundSelected },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.subjectFill,
-                      {
-                        width: `${mastery.score}%`,
-                        backgroundColor: color,
-                      },
-                    ]}
-                  />
-                </View>
+                <AnimatedProgressBar
+                  progress={(mastery.score) / 100}
+                  height={6}
+                  color={color}
+                  trackColor={theme.backgroundSelected}
+                />
                 <ThemedText type="small" themeColor="textSecondary">
                   {mastery.studiedQuestions}/{mastery.totalQuestions}문제 경험
                   {mastery.dueQuestions > 0
@@ -372,7 +363,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -445,15 +436,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.two,
-  },
-  subjectTrack: {
-    height: 6,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  subjectFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   detailCard: {
     gap: Spacing.three,

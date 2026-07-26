@@ -1,38 +1,48 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import type { SymbolViewProps } from "expo-symbols";
 import { useCallback, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
   FadeInDown,
+  FadeInRight,
   FadeInUp,
+  FadeOutLeft,
   ZoomIn,
+  useReducedMotion,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { DiagnosticResultCard } from "@/components/diagnostic-result-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
+import { CelebrationBurst } from "@/components/motion/celebration-burst";
+import { ModalOverlay } from "@/components/motion/modal-overlay";
+import { PulseView } from "@/components/motion/pulse-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { AnswerReviewCard } from "@/components/quiz/answer-review-card";
 import { ChoiceButton, ChoiceState } from "@/components/quiz/choice-button";
-import { ConfidenceRating } from "@/components/quiz/confidence-rating";
 import { MockReviewPanel } from "@/components/quiz/mock-review-panel";
 import { QuizProgressBar } from "@/components/quiz/quiz-progress-bar";
 import { SessionRewardCard } from "@/components/session-reward-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WrongAnswerNoteEditor } from "@/components/wrong-answer-note-editor";
-import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import {
+  MaxContentWidth,
+  Radius,
+  Shadows,
+  Spacing,
+} from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useCountdown } from "@/hooks/use-countdown";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { QuizAnswer, useQuizSession } from "@/hooks/use-quiz-session";
 import { useSessionRewards } from "@/hooks/use-session-rewards";
+import { useSelectionTransition } from "@/hooks/use-selection-transition";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
@@ -88,6 +98,88 @@ function CtaButton({
       <ThemedText type="smallBold" style={{ color: foregroundColor }}>
         {label}
       </ThemedText>
+    </Pressable>
+  );
+}
+
+interface ToggleIconButtonProps {
+  active: boolean;
+  accessibilityLabel: string;
+  activeColor: string;
+  activeBackground: string;
+  iconName: SymbolViewProps["name"];
+  onPress: () => void;
+}
+
+// 상태 전환이 부드러운 아이콘 토글 버튼
+function ToggleIconButton({
+  active,
+  accessibilityLabel,
+  activeColor,
+  activeBackground,
+  iconName,
+  onPress,
+}: ToggleIconButtonProps) {
+  const theme = useTheme();
+  const toggleStyle = useSelectionTransition(active, {
+    background: [theme.backgroundElement, activeBackground],
+    border: [theme.border, activeColor],
+    scaleTo: 1.08,
+  });
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ selected: active }}
+      hitSlop={Spacing.two}
+      onPress={onPress}
+    >
+      <Animated.View style={[styles.bookmarkButton, toggleStyle]}>
+        <SymbolView
+          tintColor={active ? activeColor : theme.textSecondary}
+          name={iconName}
+          size={19}
+        />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+interface ReviewFilterChipProps {
+  label: string;
+  selected: boolean;
+  activeTextColor: string;
+  onPress: () => void;
+}
+
+// 답안 리뷰 필터 세그먼트 버튼
+function ReviewFilterChip({
+  label,
+  selected,
+  activeTextColor,
+  onPress,
+}: ReviewFilterChipProps) {
+  const theme = useTheme();
+  const chipStyle = useSelectionTransition(selected, {
+    background: ["rgba(0, 0, 0, 0)", theme.backgroundElement],
+  });
+
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: selected }}
+      onPress={onPress}
+      style={styles.reviewFilterSlot}
+    >
+      <Animated.View style={[styles.reviewFilterChip, chipStyle]}>
+        <ThemedText
+          type="smallBold"
+          style={{ color: selected ? activeTextColor : theme.textSecondary }}
+        >
+          {label}
+        </ThemedText>
+      </Animated.View>
     </Pressable>
   );
 }
@@ -215,6 +307,7 @@ export default function QuizScreen() {
     updateNote,
   } = useWrongAnswerNotes();
   const theme = useTheme();
+  const reduceMotion = useReducedMotion();
   const [exitConfirming, setExitConfirming] = useState(false);
   const [sessionPaused, setSessionPaused] = useState(false);
   const [mockExpired, setMockExpired] = useState(false);
@@ -229,14 +322,13 @@ export default function QuizScreen() {
     currentIndex,
     selectedIndex,
     isSubmitted,
-    answerConfidence,
     isLastQuestion,
+    willRequeueCurrent,
     correctCount,
     answers,
     flaggedQuestionIds,
     selectChoice,
     submitAnswer,
-    rateConfidence,
     goToQuestion,
     toggleQuestionFlag,
     goNext,
@@ -361,11 +453,6 @@ export default function QuizScreen() {
         submitAnswer();
         return;
       }
-      if (
-        settings.confidenceRatingEnabled &&
-        answerConfidence == null
-      )
-        return;
       event.preventDefault();
       goNext();
     };
@@ -373,7 +460,6 @@ export default function QuizScreen() {
     window.addEventListener("keydown", handleKeyboardShortcut);
     return () => window.removeEventListener("keydown", handleKeyboardShortcut);
   }, [
-    answerConfidence,
     currentQuestion,
     exitConfirming,
     goNext,
@@ -385,7 +471,6 @@ export default function QuizScreen() {
     selectChoice,
     selectedIndex,
     sessionPaused,
-    settings.confidenceRatingEnabled,
     settings.keyboardShortcutsEnabled,
     status,
     submitAnswer,
@@ -395,8 +480,24 @@ export default function QuizScreen() {
 
   if (status === "loading") {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator color={theme.primary} />
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContent}>
+            <SkeletonBlock height={7} radius={Radius.pill} />
+            <SkeletonBlock width="45%" height={20} />
+            <SkeletonBlock height={26} />
+            <SkeletonBlock width="80%" height={26} />
+            <View style={styles.loadingChoices}>
+              {[0, 1, 2, 3].map((placeholderIndex) => (
+                <SkeletonBlock
+                  key={placeholderIndex}
+                  height={62}
+                  radius={Radius.medium}
+                />
+              ))}
+            </View>
+          </View>
+        </SafeAreaView>
       </ThemedView>
     );
   }
@@ -423,7 +524,7 @@ export default function QuizScreen() {
                   ? "문제은행에서 학습 범위를 다시 선택해 주세요."
                   : "다른 시험을 선택해 주세요."}
           </ThemedText>
-          <CtaButton label="돌아가기" onPress={() => router.back()} />
+          <CtaButton label="돌아가기" onPress={() => goBack()} />
         </View>
       </ThemedView>
     );
@@ -470,16 +571,22 @@ export default function QuizScreen() {
               entering={ZoomIn.duration(400)}
               style={styles.resultHero}
             >
-              <View
-                style={[
-                  styles.trophyCircle,
-                  { backgroundColor: theme.warningSoft },
-                ]}
-              >
-                <ThemedText style={styles.trophyEmoji}>
-                  {wrongCount === 0 ? "🏆" : "✨"}
-                </ThemedText>
-              </View>
+              <PulseView active={wrongCount === 0} scaleTo={1.05}>
+                <View
+                  style={[
+                    styles.trophyCircle,
+                    { backgroundColor: theme.warningSoft },
+                  ]}
+                >
+                  <ThemedText style={styles.trophyEmoji}>
+                    {wrongCount === 0 ? "🏆" : "✨"}
+                  </ThemedText>
+                </View>
+              </PulseView>
+              <CelebrationBurst
+                trigger={1}
+                distance={wrongCount === 0 ? 120 : 92}
+              />
               <ThemedText type="subtitle">
                 {isDiagnostic
                   ? "빠른 진단 완료!"
@@ -516,11 +623,11 @@ export default function QuizScreen() {
                     { borderColor: theme.primarySoft },
                   ]}
                 >
-                  <ThemedText
+                  <AnimatedCounter
                     style={[styles.accuracyText, { color: theme.primary }]}
-                  >
-                    {accuracy}%
-                  </ThemedText>
+                    value={accuracy}
+                    suffix="%"
+                  />
                   <ThemedText type="small" themeColor="textSecondary">
                     정답률
                   </ThemedText>
@@ -610,12 +717,13 @@ export default function QuizScreen() {
                     >
                       획득 경험치
                     </ThemedText>
-                    <ThemedText
+                    <AnimatedCounter
                       type="smallBold"
                       style={{ color: theme.warning }}
-                    >
-                      +{earnedXp} XP
-                    </ThemedText>
+                      value={earnedXp}
+                      prefix="+"
+                      suffix=" XP"
+                    />
                   </View>
                 </View>
               </ThemedView>
@@ -667,20 +775,12 @@ export default function QuizScreen() {
                             {result.correct}/{result.total} 정답
                           </ThemedText>
                         </View>
-                        <View
-                          style={[
-                            styles.subjectTrack,
-                            { backgroundColor: theme.primarySoft },
-                          ]}
-                        >
-                          <View
-                            style={[
-                              styles.subjectFill,
-                              {
-                                width: `${subjectAccuracy}%`,
-                                backgroundColor: theme.primary,
-                              },
-                            ]}
+                        <View style={styles.subjectTrack}>
+                          <AnimatedProgressBar
+                            progress={subjectAccuracy / 100}
+                            height={7}
+                            color={theme.primary}
+                            trackColor={theme.primarySoft}
                           />
                         </View>
                         <ThemedText
@@ -750,7 +850,7 @@ export default function QuizScreen() {
                   onPress={openReviewLibrary}
                 />
               )}
-              <CtaButton label="돌아가기" onPress={() => router.back()} />
+              <CtaButton label="돌아가기" onPress={() => goBack()} />
             </Animated.View>
 
             <Animated.View
@@ -823,81 +923,27 @@ export default function QuizScreen() {
                   { backgroundColor: theme.backgroundSelected },
                 ]}
               >
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: reviewFilter === "all" }}
+                <ReviewFilterChip
+                  label={`전체 ${answers.length}`}
+                  selected={reviewFilter === "all"}
+                  activeTextColor={theme.primary}
                   onPress={() => selectReviewFilter("all")}
-                  style={({ pressed }) => [
-                    styles.reviewFilterChip,
-                    reviewFilter === "all" && {
-                      backgroundColor: theme.backgroundElement,
-                    },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <ThemedText
-                    type="smallBold"
-                    style={{
-                      color:
-                        reviewFilter === "all"
-                          ? theme.primary
-                          : theme.textSecondary,
-                    }}
-                  >
-                    전체 {answers.length}
-                  </ThemedText>
-                </Pressable>
+                />
                 {answeredWrongCount > 0 && (
-                  <Pressable
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: reviewFilter === "wrong" }}
+                  <ReviewFilterChip
+                    label={`오답 ${answeredWrongCount}`}
+                    selected={reviewFilter === "wrong"}
+                    activeTextColor={theme.danger}
                     onPress={() => selectReviewFilter("wrong")}
-                    style={({ pressed }) => [
-                      styles.reviewFilterChip,
-                      reviewFilter === "wrong" && {
-                        backgroundColor: theme.backgroundElement,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <ThemedText
-                      type="smallBold"
-                      style={{
-                        color:
-                          reviewFilter === "wrong"
-                            ? theme.danger
-                            : theme.textSecondary,
-                      }}
-                    >
-                      오답 {answeredWrongCount}
-                    </ThemedText>
-                  </Pressable>
+                  />
                 )}
                 {unansweredCount > 0 && (
-                  <Pressable
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: reviewFilter === "empty" }}
+                  <ReviewFilterChip
+                    label={`미응답 ${unansweredCount}`}
+                    selected={reviewFilter === "empty"}
+                    activeTextColor={theme.warning}
                     onPress={() => selectReviewFilter("empty")}
-                    style={({ pressed }) => [
-                      styles.reviewFilterChip,
-                      reviewFilter === "empty" && {
-                        backgroundColor: theme.backgroundElement,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <ThemedText
-                      type="smallBold"
-                      style={{
-                        color:
-                          reviewFilter === "empty"
-                            ? theme.warning
-                            : theme.textSecondary,
-                      }}
-                    >
-                      미응답 {unansweredCount}
-                    </ThemedText>
-                  </Pressable>
+                  />
                 )}
               </View>
 
@@ -1086,33 +1132,14 @@ export default function QuizScreen() {
           </ThemedText>
         </View>
 
-        {Platform.OS === "web" && settings.keyboardShortcutsEnabled && (
-          <View
-            accessibilityLabel={`키보드 단축키, 1부터 ${Math.min(currentQuestion.choices.length, 9)}까지 보기 선택, Enter 진행, B 저장${quizMode === "mock" ? ", F 다시 보기 표시" : ""}, Escape 닫기`}
-            style={[
-              styles.shortcutHint,
-              { backgroundColor: theme.backgroundSelected },
-            ]}
-          >
-            <SymbolView
-              tintColor={theme.textSecondary}
-              name={{ ios: "keyboard", android: "keyboard", web: "keyboard" }}
-              size={15}
-            />
-            <ThemedText type="small" themeColor="textSecondary">
-              1–{Math.min(currentQuestion.choices.length, 9)} 선택 · Enter 진행 ·
-              B 저장{quizMode === "mock" ? " · F 표시" : ""} · Esc 닫기
-            </ThemedText>
-          </View>
-        )}
-
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
           <Animated.View
             key={currentQuestion.id}
-            entering={FadeInDown.duration(300)}
+            entering={reduceMotion ? undefined : FadeInRight.duration(280)}
+            exiting={reduceMotion ? undefined : FadeOutLeft.duration(180)}
             style={styles.questionBlock}
           >
             <View style={styles.questionMeta}>
@@ -1172,41 +1199,22 @@ export default function QuizScreen() {
                       />
                     </Pressable>
                   )}
-                  <Pressable
-                    accessibilityRole="button"
+                  <ToggleIconButton
+                    active={isBookmarked}
                     accessibilityLabel={
                       isBookmarked
                         ? "저장 문제에서 제거"
                         : "다시 볼 문제로 저장"
                     }
-                    accessibilityState={{ selected: isBookmarked }}
+                    activeColor={theme.primary}
+                    activeBackground={theme.primarySoft}
+                    iconName={{
+                      ios: isBookmarked ? "bookmark.fill" : "bookmark",
+                      android: isBookmarked ? "bookmark" : "bookmark_border",
+                      web: isBookmarked ? "bookmark" : "bookmark_border",
+                    }}
                     onPress={() => toggleBookmark(currentQuestion.id)}
-                    hitSlop={Spacing.two}
-                    style={({ pressed }) => [
-                      styles.bookmarkButton,
-                      {
-                        backgroundColor: isBookmarked
-                          ? theme.primarySoft
-                          : theme.backgroundElement,
-                        borderColor: isBookmarked
-                          ? theme.primary
-                          : theme.border,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <SymbolView
-                      tintColor={
-                        isBookmarked ? theme.primary : theme.textSecondary
-                      }
-                      name={{
-                        ios: isBookmarked ? "bookmark.fill" : "bookmark",
-                        android: isBookmarked ? "bookmark" : "bookmark_border",
-                        web: isBookmarked ? "bookmark" : "bookmark_border",
-                      }}
-                      size={19}
-                    />
-                  </Pressable>
+                  />
                 </View>
               </View>
               <ThemedText type="small" themeColor="textSecondary">
@@ -1239,74 +1247,6 @@ export default function QuizScreen() {
             </View>
           </Animated.View>
 
-          {isSubmitted && (
-            <Animated.View entering={FadeInUp.duration(250)}>
-              <ThemedView
-                style={[
-                  styles.feedback,
-                  {
-                    backgroundColor: isCorrectAnswer
-                      ? theme.successSoft
-                      : theme.dangerSoft,
-                  },
-                ]}
-              >
-                <ThemedText
-                  type="smallBold"
-                  style={{
-                    color: isCorrectAnswer ? theme.success : theme.danger,
-                  }}
-                >
-                  {isCorrectAnswer ? "🙆 정답입니다!" : "🙅 오답입니다"}
-                </ThemedText>
-                {settings.explanationEnabled && (
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {currentQuestion.explanation}
-                  </ThemedText>
-                )}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="현재 문제 오류 신고"
-                  onPress={() =>
-                    router.push({
-                      pathname: "/question-report",
-                      params: { questionId: currentQuestion.id },
-                    })
-                  }
-                  style={({ pressed }) => [
-                    styles.feedbackReport,
-                    { borderColor: theme.border },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={theme.textSecondary}
-                    name={{
-                      ios: "exclamationmark.bubble",
-                      android: "report_problem",
-                      web: "report_problem",
-                    }}
-                    size={16}
-                  />
-                  <ThemedText type="smallBold" themeColor="textSecondary">
-                    문제에 이상이 있나요?
-                  </ThemedText>
-                </Pressable>
-              </ThemedView>
-            </Animated.View>
-          )}
-
-          {isSubmitted &&
-            quizMode !== "mock" &&
-            settings.confidenceRatingEnabled && (
-              <Animated.View entering={FadeInUp.delay(60).duration(250)}>
-                <ConfidenceRating
-                  isCorrect={isCorrectAnswer}
-                  selected={answerConfidence}
-                  onSelect={rateConfidence}
-                />
-              </Animated.View>
-            )}
         </ScrollView>
 
         {quizMode === "mock" ? (
@@ -1350,40 +1290,105 @@ export default function QuizScreen() {
             </View>
           </View>
         ) : (
-          <CtaButton
-            label={
-              !isSubmitted
-                ? "확인"
-                : settings.confidenceRatingEnabled && answerConfidence == null
-                  ? "확신도를 선택해 주세요"
-                  : isLastQuestion
-                    ? "결과 보기"
-                    : "다음 문제"
-            }
-            disabled={
-              (!isSubmitted && selectedIndex == null) ||
-              (isSubmitted &&
-                settings.confidenceRatingEnabled &&
-                answerConfidence == null)
-            }
-            onPress={!isSubmitted ? submitAnswer : goNext}
-          />
+          !isSubmitted && (
+            <CtaButton
+              label="확인"
+              disabled={selectedIndex == null}
+              onPress={submitAnswer}
+            />
+          )
         )}
       </SafeAreaView>
 
+      {isSubmitted && quizMode !== "mock" && (
+        <ModalOverlay variant="sheet">
+            <ThemedView
+              type="backgroundElement"
+              style={[
+                styles.feedbackSheet,
+                {
+                  borderColor: isCorrectAnswer ? theme.success : theme.danger,
+                },
+              ]}
+            >
+              <View style={styles.feedbackHeader}>
+                <View
+                  style={[
+                    styles.feedbackIcon,
+                    {
+                      backgroundColor: isCorrectAnswer
+                        ? theme.successSoft
+                        : theme.dangerSoft,
+                    },
+                  ]}
+                >
+                  <ThemedText style={styles.feedbackEmoji}>
+                    {isCorrectAnswer ? "🙆" : "🙅"}
+                  </ThemedText>
+                </View>
+                <View style={styles.feedbackHeaderText}>
+                  <ThemedText
+                    style={[
+                      styles.feedbackTitle,
+                      {
+                        color: isCorrectAnswer ? theme.success : theme.danger,
+                      },
+                    ]}
+                  >
+                    {isCorrectAnswer ? "정답입니다!" : "오답입니다"}
+                  </ThemedText>
+                  {!isCorrectAnswer && (
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {willRequeueCurrent
+                        ? "이 문제는 오늘 세션 끝에 다시 나와요"
+                        : `정답은 ${String.fromCharCode(65 + currentQuestion.answerIndex)}번이에요`}
+                    </ThemedText>
+                  )}
+                </View>
+              </View>
+
+              {settings.explanationEnabled && (
+                <ScrollView
+                  style={styles.feedbackExplanationArea}
+                  contentContainerStyle={styles.feedbackExplanation}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {currentQuestion.explanation}
+                  </ThemedText>
+                </ScrollView>
+              )}
+
+              <CtaButton
+                label={isLastQuestion ? "결과 보기" : "다음 문제"}
+                onPress={goNext}
+              />
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="현재 문제 오류 신고"
+                onPress={() =>
+                  router.push({
+                    pathname: "/question-report",
+                    params: { questionId: currentQuestion.id },
+                  })
+                }
+                style={styles.feedbackReport}
+              >
+                <ThemedText type="small" themeColor="textSecondary">
+                  문제에 이상이 있나요?
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+        </ModalOverlay>
+      )}
+
       {exitConfirming && (
-        <View style={styles.exitOverlay} accessibilityViewIsModal>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="종료 확인 닫기"
-            style={styles.exitBackdrop}
-            onPress={() => setExitConfirming(false)}
-          />
-          <Animated.View
-            entering={FadeInUp.duration(220)}
-            style={styles.exitDialogWrap}
-          >
-            <ThemedView type="backgroundElement" style={styles.exitDialog}>
+        <ModalOverlay
+          closeLabel="종료 확인 닫기"
+          onRequestClose={() => setExitConfirming(false)}
+        >
+          <ThemedView type="backgroundElement" style={styles.exitDialog}>
               <View
                 style={[
                   styles.exitIcon,
@@ -1424,23 +1429,17 @@ export default function QuizScreen() {
                   <CtaButton
                     label={quizMode === "mock" ? "종료" : "나중에 이어 풀기"}
                     variant="danger"
-                    onPress={() => router.back()}
+                    onPress={() => goBack()}
                   />
                 </View>
               </View>
-            </ThemedView>
-          </Animated.View>
-        </View>
+          </ThemedView>
+        </ModalOverlay>
       )}
 
       {sessionPaused && !exitConfirming && (
-        <View style={styles.exitOverlay} accessibilityViewIsModal>
-          <View style={styles.exitBackdrop} />
-          <Animated.View
-            entering={FadeInUp.duration(220)}
-            style={styles.exitDialogWrap}
-          >
-            <ThemedView type="backgroundElement" style={styles.exitDialog}>
+        <ModalOverlay>
+          <ThemedView type="backgroundElement" style={styles.exitDialog}>
               <View
                 style={[
                   styles.exitIcon,
@@ -1478,12 +1477,11 @@ export default function QuizScreen() {
                 <CtaButton
                   label="홈에서 나중에 이어 풀기"
                   variant="secondary"
-                  onPress={() => router.back()}
+                  onPress={() => goBack()}
                 />
               </View>
-            </ThemedView>
-          </Animated.View>
-        </View>
+          </ThemedView>
+        </ModalOverlay>
       )}
 
       {mockReviewOpen && (
@@ -1547,7 +1545,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   trophyEmoji: {
-    fontSize: 40,
+    fontSize: 39,
     lineHeight: 48,
   },
   scoreCard: {
@@ -1567,7 +1565,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   accuracyText: {
-    fontSize: 26,
+    fontSize: 25,
     lineHeight: 32,
     fontWeight: 800,
   },
@@ -1592,7 +1590,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   resultSectionTitle: {
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 26,
     fontWeight: 800,
   },
@@ -1620,8 +1618,10 @@ const styles = StyleSheet.create({
     padding: Spacing.one,
     borderRadius: Radius.medium,
   },
-  reviewFilterChip: {
+  reviewFilterSlot: {
     flex: 1,
+  },
+  reviewFilterChip: {
     alignItems: "center",
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.one,
@@ -1648,13 +1648,6 @@ const styles = StyleSheet.create({
   },
   subjectTrack: {
     flex: 1,
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  subjectFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   reviewNotice: {
     flexDirection: "row",
@@ -1700,15 +1693,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
-  shortcutHint: {
-    minHeight: 30,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.two,
-    borderRadius: Radius.small,
-  },
   timerBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -1725,11 +1709,20 @@ const styles = StyleSheet.create({
     borderRadius: Radius.small,
   },
   content: {
-    gap: Spacing.four,
-    paddingVertical: Spacing.three,
+    gap: Spacing.three,
+    paddingVertical: Spacing.two,
+  },
+  loadingContent: {
+    gap: Spacing.three,
+    paddingTop: Spacing.four,
+    paddingHorizontal: Spacing.three,
+  },
+  loadingChoices: {
+    gap: Spacing.two,
+    paddingTop: Spacing.two,
   },
   questionBlock: {
-    gap: Spacing.four,
+    gap: Spacing.twoHalf,
   },
   questionMeta: {
     gap: Spacing.two,
@@ -1748,7 +1741,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     alignSelf: "flex-start",
     paddingHorizontal: Spacing.twoHalf,
-    paddingVertical: Spacing.two,
+    paddingVertical: Spacing.one,
     borderRadius: Radius.pill,
   },
   bookmarkButton: {
@@ -1761,27 +1754,58 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   prompt: {
-    fontSize: 22,
-    lineHeight: 32,
+    fontSize: 18,
+    lineHeight: 27,
     fontWeight: 700,
   },
   choices: {
-    gap: Spacing.twoHalf,
-  },
-  feedback: {
     gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
   },
-  feedbackReport: {
-    minHeight: 38,
+  feedbackSheet: {
+    width: "100%",
+    maxWidth: MaxContentWidth,
+    gap: Spacing.three,
+    padding: Spacing.four,
+    paddingBottom: Spacing.five,
+    borderTopWidth: 3,
+    borderTopLeftRadius: Radius.large,
+    borderTopRightRadius: Radius.large,
+  },
+  feedbackHeader: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-start",
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.two,
-    borderWidth: 1,
-    borderRadius: Radius.pill,
+    gap: Spacing.three,
+  },
+  feedbackIcon: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Radius.medium,
+  },
+  feedbackEmoji: {
+    fontSize: 21,
+    lineHeight: 28,
+  },
+  feedbackHeaderText: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  feedbackTitle: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: 800,
+  },
+  feedbackExplanationArea: {
+    maxHeight: 132,
+  },
+  feedbackExplanation: {
+    paddingRight: Spacing.two,
+  },
+  feedbackReport: {
+    minHeight: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cta: {
     alignItems: "center",
@@ -1814,29 +1838,6 @@ const styles = StyleSheet.create({
     opacity: 0.78,
     transform: [{ scale: 0.985 }],
   },
-  exitOverlay: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 10,
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  exitBackdrop: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: "rgba(8, 10, 16, 0.56)",
-  },
-  exitDialogWrap: {
-    width: "100%",
-    maxWidth: MaxContentWidth,
-    padding: Spacing.three,
-  },
   exitDialog: {
     alignItems: "center",
     gap: Spacing.three,
@@ -1856,7 +1857,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   exitTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },

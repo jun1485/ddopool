@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   optionIcon: {
-    fontSize: 21,
+    fontSize: 20,
     lineHeight: 27,
   },
   optionDescription: {

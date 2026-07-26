@@ -1,10 +1,13 @@
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Durations } from "@/constants/motion";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import type { ActiveQuizSession } from "@/storage/active-quiz-session-store";
@@ -48,7 +51,7 @@ export function ActiveSessionCard({
   return (
     <ThemedView
       type="backgroundElement"
-      style={[styles.card, { borderColor: theme.primary }]}
+      style={[styles.card, { borderColor: theme.primarySoft }]}
     >
       <View style={styles.header}>
         <View style={[styles.icon, { backgroundColor: theme.primarySoft }]}>
@@ -106,25 +109,18 @@ export function ActiveSessionCard({
         </Pressable>
       </View>
 
-      <View
-        style={[
-          styles.progressTrack,
-          { backgroundColor: theme.backgroundSelected },
-        ]}
-      >
-        <View
-          style={[
-            styles.progressFill,
-            {
-              width: `${progress * 100}%`,
-              backgroundColor: theme.primary,
-            },
-          ]}
-        />
-      </View>
+      <AnimatedProgressBar
+        progress={progress}
+        height={7}
+        color={theme.primary}
+        trackColor={theme.backgroundSelected}
+      />
 
       {discardConfirming ? (
-        <View
+        <Animated.View
+          key="discard-confirm"
+          entering={FadeIn.duration(Durations.fast)}
+          exiting={FadeOut.duration(Durations.instant)}
           style={[styles.confirmRow, { backgroundColor: theme.dangerSoft }]}
         >
           <ThemedText
@@ -143,33 +139,38 @@ export function ActiveSessionCard({
               취소
             </ThemedText>
           </Pressable>
-        </View>
+        </Animated.View>
       ) : (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${title} ${completedCount}문제부터 이어 풀기`}
-          onPress={onResume}
-          style={({ pressed }) => [
-            styles.resumeButton,
-            { backgroundColor: theme.primary },
-            pressed && styles.primaryPressed,
-          ]}
+        <Animated.View
+          key="resume-action"
+          entering={FadeIn.duration(Durations.fast)}
         >
-          <ThemedText type="smallBold" style={styles.resumeText}>
-            {completedCount > 0
-              ? `${completedCount}문제부터 이어 풀기`
-              : "첫 문제부터 이어 풀기"}
-          </ThemedText>
-          <SymbolView
-            tintColor={theme.onPrimary}
-            name={{
-              ios: "arrow.right",
-              android: "arrow_forward",
-              web: "arrow_forward",
-            }}
-            size={18}
-          />
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${title} ${completedCount}문제부터 이어 풀기`}
+            onPress={onResume}
+            style={({ pressed }) => [
+              styles.resumeButton,
+              { backgroundColor: theme.primary },
+              pressed && styles.primaryPressed,
+            ]}
+          >
+            <ThemedText type="smallBold" style={styles.resumeText}>
+              {completedCount > 0
+                ? `${completedCount}문제부터 이어 풀기`
+                : "첫 문제부터 이어 풀기"}
+            </ThemedText>
+            <SymbolView
+              tintColor={theme.onPrimary}
+              name={{
+                ios: "arrow.right",
+                android: "arrow_forward",
+                web: "arrow_forward",
+              }}
+              size={18}
+            />
+          </Pressable>
+        </Animated.View>
       )}
     </ThemedView>
   );
@@ -216,15 +217,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
-  },
-  progressTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   resumeButton: {
     minHeight: 48,

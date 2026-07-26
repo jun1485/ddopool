@@ -20,7 +20,15 @@ export function ThemedView({
 
   return (
     <View
-      style={[{ backgroundColor: theme[type ?? "background"] }, style]}
+      style={[
+        { backgroundColor: theme[type ?? "background"] },
+        // 카드 면이 배경과 분리되도록 기본 경계선 적용
+        type === "backgroundElement" && {
+          borderWidth: 1,
+          borderColor: theme.cardBorder,
+        },
+        style,
+      ]}
       {...otherProps}
     />
   );

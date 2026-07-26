@@ -12,6 +12,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedChip } from "@/components/motion/animated-chip";
+import { AnimatedCounter } from "@/components/motion/animated-counter";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -82,29 +84,12 @@ function FilterChip({ label, selected, onPress }: FilterChipProps) {
   const theme = useTheme();
 
   return (
-    <Pressable
-      accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+    <AnimatedChip
+      label={label}
+      selected={selected}
       onPress={onPress}
-      style={({ pressed }) => pressed && styles.pressed}
-    >
-      <View
-        style={[
-          styles.filterChip,
-          {
-            backgroundColor: selected ? theme.primary : theme.backgroundElement,
-            borderColor: selected ? theme.primary : theme.border,
-          },
-        ]}
-      >
-        <ThemedText
-          type="smallBold"
-          style={{ color: selected ? theme.onPrimary : theme.textSecondary }}
-        >
-          {label}
-        </ThemedText>
-      </View>
-    </Pressable>
+      idleTextColor={theme.textSecondary}
+    />
   );
 }
 
@@ -429,9 +414,15 @@ export default function LibraryScreen() {
                   <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
                     현재 학습 범위
                   </ThemedText>
-                  <ThemedText style={styles.sessionTitle}>
-                    {filteredQuestions.length}문제 발견
-                  </ThemedText>
+                  <View style={styles.sessionTitleRow}>
+                    <AnimatedCounter
+                      style={styles.sessionTitle}
+                      value={filteredQuestions.length}
+                    />
+                    <ThemedText style={styles.sessionTitle}>
+                      문제 발견
+                    </ThemedText>
+                  </View>
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     {sessionMode === "mock"
                       ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
@@ -734,7 +725,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     paddingVertical: Spacing.two,
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
     fontWeight: 500,
   },
@@ -764,9 +755,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.one,
   },
+  sessionTitleRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
   sessionTitle: {
     color: "#FFFFFF",
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 36,
     fontWeight: 800,
   },
@@ -839,7 +834,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   resultTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -878,7 +873,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   questionPrompt: {
-    fontSize: 17,
+    fontSize: 16,
     lineHeight: 25,
     fontWeight: 700,
   },

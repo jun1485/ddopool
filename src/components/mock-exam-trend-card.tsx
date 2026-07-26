@@ -2,6 +2,7 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -277,25 +278,14 @@ export function MockExamTrendCard({
                       : `${targetScore - latestScore}점 남음`}
                   </ThemedText>
                 </View>
-                <View
-                  style={[
-                    styles.targetTrack,
-                    { backgroundColor: theme.backgroundElement },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.targetFill,
-                      {
-                        width: `${Math.min((latestScore / targetScore) * 100, 100)}%`,
-                        backgroundColor:
-                          latestScore >= targetScore
-                            ? theme.success
-                            : theme.warning,
-                      },
-                    ]}
-                  />
-                </View>
+                <AnimatedProgressBar
+                  progress={latestScore / targetScore}
+                  height={7}
+                  color={
+                    latestScore >= targetScore ? theme.success : theme.warning
+                  }
+                  trackColor={theme.backgroundElement}
+                />
               </View>
             )}
 
@@ -403,27 +393,18 @@ export function MockExamTrendCard({
                           {subject.correct}/{subject.total} · {accuracy}%
                         </ThemedText>
                       </View>
-                      <View
-                        style={[
-                          styles.subjectTrack,
-                          { backgroundColor: theme.border },
-                        ]}
-                      >
-                        <View
-                          style={[
-                            styles.subjectFill,
-                            {
-                              width: `${accuracy}%`,
-                              backgroundColor:
-                                accuracy >= 70
-                                  ? theme.success
-                                  : accuracy >= 50
-                                    ? theme.warning
-                                    : theme.danger,
-                            },
-                          ]}
-                        />
-                      </View>
+                      <AnimatedProgressBar
+                        progress={accuracy / 100}
+                        height={6}
+                        color={
+                          accuracy >= 70
+                            ? theme.success
+                            : accuracy >= 50
+                              ? theme.warning
+                              : theme.danger
+                        }
+                        trackColor={theme.border}
+                      />
                     </View>
                   );
                 })}
@@ -465,7 +446,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -528,7 +509,7 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   metricValue: {
-    fontSize: 26,
+    fontSize: 25,
     lineHeight: 32,
     fontWeight: 900,
   },
@@ -551,15 +532,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.one,
-  },
-  targetTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  targetFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   chartHeader: {
     flexDirection: "row",
@@ -599,7 +571,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   detailScore: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
     fontWeight: 900,
   },
@@ -614,15 +586,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.two,
-  },
-  subjectTrack: {
-    height: 6,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  subjectFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   secondaryButton: {
     flexDirection: "row",

@@ -3,11 +3,10 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
-import Animated, { FadeInUp } from "react-native-reanimated";
-
+import { ModalOverlay } from "@/components/motion/modal-overlay";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import { Radius, Shadows, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import type { QuizAnswer } from "@/hooks/use-quiz-session";
 import type { Question } from "@/types/exam";
@@ -54,18 +53,12 @@ export function MockReviewPanel({
   };
 
   return (
-    <View style={styles.overlay}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="답안 검토 닫기"
-        style={styles.backdrop}
-        onPress={onClose}
-      />
-      <Animated.View
-        entering={FadeInUp.duration(220)}
-        style={styles.dialogWrap}
-      >
-        <ThemedView type="backgroundElement" style={styles.dialog}>
+    <ModalOverlay
+      variant="sheet"
+      closeLabel="답안 검토 닫기"
+      onRequestClose={onClose}
+    >
+      <ThemedView type="backgroundElement" style={styles.dialog}>
           <View style={styles.header}>
             <View>
               <ThemedText style={styles.title}>답안 검토</ThemedText>
@@ -278,36 +271,12 @@ export function MockReviewPanel({
                 : "답안 제출"}
             </ThemedText>
           </Pressable>
-        </ThemedView>
-      </Animated.View>
-    </View>
+      </ThemedView>
+    </ModalOverlay>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 12,
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: "rgba(8, 10, 16, 0.56)",
-  },
-  dialogWrap: {
-    width: "100%",
-    maxWidth: MaxContentWidth,
-    padding: Spacing.three,
-  },
   dialog: {
     gap: Spacing.three,
     maxHeight: "88%",
@@ -322,7 +291,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   title: {
-    fontSize: 21,
+    fontSize: 20,
     lineHeight: 29,
     fontWeight: 900,
   },
@@ -343,7 +312,7 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   summaryValue: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
     fontWeight: 900,
   },

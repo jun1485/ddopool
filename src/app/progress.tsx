@@ -5,12 +5,23 @@ import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
+import { RevealView } from "@/components/motion/reveal-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { SubjectMasteryMap } from "@/components/subject-mastery-map";
 import type { SubjectMasteryExamItem } from "@/components/subject-mastery-map";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import { stagger } from "@/constants/motion";
+import {
+  Alpha,
+  MaxContentWidth,
+  Radius,
+  Shadows,
+  Spacing,
+} from "@/constants/theme";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useDailyStats } from "@/hooks/use-daily-stats";
@@ -132,7 +143,7 @@ export default function ProgressScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -193,14 +204,12 @@ export default function ProgressScreen() {
                   </ThemedText>
                 </View>
               </View>
-              <View style={styles.heroTrack}>
-                <View
-                  style={[
-                    styles.heroFill,
-                    { width: `${progression.levelProgress * 100}%` },
-                  ]}
-                />
-              </View>
+              <AnimatedProgressBar
+                progress={progression.levelProgress}
+                height={9}
+                color="#FFFFFF"
+                trackColor={Alpha.onPrimaryTrack}
+              />
             </View>
           </Animated.View>
 
@@ -313,19 +322,22 @@ export default function ProgressScreen() {
             </View>
 
             {isLoading ? (
-              <ThemedView type="backgroundElement" style={styles.loadingCard}>
-                <ThemedText type="small" themeColor="textSecondary">
-                  성장 기록을 모으는 중...
-                </ThemedText>
-              </ThemedView>
+              <View style={styles.achievementGrid}>
+                {[0, 1, 2, 3].map((placeholderIndex) => (
+                  <View key={placeholderIndex} style={styles.achievementCell}>
+                    <SkeletonBlock height={124} radius={Radius.medium} />
+                  </View>
+                ))}
+              </View>
             ) : (
               <View style={styles.achievementGrid}>
                 {achievements.map((achievement, index) => {
                   const selected = achievement.id === selectedAchievement?.id;
                   return (
-                    <Animated.View
+                    <RevealView
                       key={achievement.id}
-                      entering={FadeInDown.delay(index * 35).duration(260)}
+                      variant="zoom"
+                      delay={stagger(index, 35)}
                       style={styles.achievementCell}
                     >
                       <Pressable
@@ -390,7 +402,7 @@ export default function ProgressScreen() {
                           </View>
                         )}
                       </Pressable>
-                    </Animated.View>
+                    </RevealView>
                   );
                 })}
               </View>
@@ -445,28 +457,14 @@ export default function ProgressScreen() {
                   {selectedAchievement.progress}/{selectedAchievement.target}
                 </ThemedText>
               </View>
-              <View
-                style={[
-                  styles.detailTrack,
-                  { backgroundColor: theme.backgroundSelected },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.detailFill,
-                    {
-                      width: `${
-                        (selectedAchievement.progress /
+              <AnimatedProgressBar
+                progress={((selectedAchievement.progress /
                           selectedAchievement.target) *
-                        100
-                      }%`,
-                      backgroundColor: selectedAchievement.unlocked
-                        ? theme.success
-                        : theme.primary,
-                    },
-                  ]}
-                />
-              </View>
+                        100) / 100}
+                height={7}
+                color={selectedAchievement.unlocked ? theme.success : theme.primary}
+                trackColor={theme.backgroundSelected}
+              />
             </ThemedView>
           )}
         </ScrollView>
@@ -555,7 +553,7 @@ const styles = StyleSheet.create({
   },
   levelNumber: {
     color: "#FFFFFF",
-    fontSize: 34,
+    fontSize: 33,
     lineHeight: 38,
     fontWeight: 900,
   },
@@ -565,23 +563,12 @@ const styles = StyleSheet.create({
   },
   xpTitle: {
     color: "#FFFFFF",
-    fontSize: 27,
+    fontSize: 26,
     lineHeight: 34,
     fontWeight: 900,
   },
   onPrimaryMuted: {
     color: "rgba(255, 255, 255, 0.76)",
-  },
-  heroTrack: {
-    height: 9,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-  },
-  heroFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
-    backgroundColor: "#FFFFFF",
   },
   statRow: {
     flexDirection: "row",
@@ -597,7 +584,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   statEmoji: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
   },
   section: {
@@ -610,7 +597,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -676,7 +663,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   achievementEmoji: {
-    fontSize: 24,
+    fontSize: 23,
     lineHeight: 30,
   },
   locked: {
@@ -699,7 +686,7 @@ const styles = StyleSheet.create({
   },
   checkText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     lineHeight: 14,
     fontWeight: 900,
   },
@@ -729,22 +716,13 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   detailEmoji: {
-    fontSize: 25,
+    fontSize: 24,
     lineHeight: 32,
   },
   detailCopy: {
     minWidth: 0,
     flex: 1,
     gap: Spacing.half,
-  },
-  detailTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  detailFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   pressed: {
     opacity: 0.72,

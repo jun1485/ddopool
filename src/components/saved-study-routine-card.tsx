@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 27,
     fontWeight: 900,
   },

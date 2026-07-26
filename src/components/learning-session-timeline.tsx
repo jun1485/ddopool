@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   accuracy: {
-    fontSize: 22,
+    fontSize: 21,
     lineHeight: 28,
     fontWeight: 900,
   },

@@ -1,6 +1,7 @@
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -184,22 +185,12 @@ export function ExamPaceCard({
           </View>
         </View>
 
-        <View
-          style={[
-            styles.progressTrack,
-            { backgroundColor: theme.backgroundSelected },
-          ]}
-        >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${pace.progress * 100}%`,
-                backgroundColor: statusColor,
-              },
-            ]}
-          />
-        </View>
+        <AnimatedProgressBar
+          progress={pace.progress}
+          height={8}
+          color={statusColor}
+          trackColor={theme.backgroundSelected}
+        />
         <View style={styles.progressMeta}>
           <ThemedText type="small" themeColor="textSecondary">
             문제은행 진도
@@ -233,7 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   examEmoji: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 29,
   },
   headerCopy: {
@@ -258,22 +249,13 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   dailyTarget: {
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 34,
     fontWeight: 900,
   },
   remainingCopy: {
     alignItems: "flex-end",
     gap: Spacing.half,
-  },
-  progressTrack: {
-    height: 8,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   progressMeta: {
     flexDirection: "row",

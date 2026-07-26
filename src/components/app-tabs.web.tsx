@@ -7,14 +7,31 @@ import {
   TabListProps,
 } from "expo-router/ui";
 import { usePathname } from "expo-router";
+import { useEffect } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  interpolateColor,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
+import { MascotCat } from "@/components/mascot-cat";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
-import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import { Springs, Timings } from "@/constants/motion";
+import {
+  Alpha,
+  MaxContentWidth,
+  Radius,
+  Shadows,
+  Spacing,
+} from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -63,26 +80,51 @@ export function TabButton({
   ...props
 }: TabTriggerSlotProps) {
   const theme = useTheme();
+  const reduceMotion = useReducedMotion();
+  const focusProgress = useSharedValue(isFocused === true ? 1 : 0);
+
+  // 활성 탭 전환 시 배경·확대 진행값 갱신
+  useEffect(() => {
+    const target = isFocused === true ? 1 : 0;
+    focusProgress.value = reduceMotion
+      ? target
+      : withTiming(target, Timings.fast);
+  }, [focusProgress, isFocused, reduceMotion]);
+
+  const pillStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: interpolateColor(
+        focusProgress.value,
+        [0, 1],
+        [theme.backgroundElement, theme.primarySoft],
+      ),
+      transform: [
+        {
+          scale: reduceMotion
+            ? 1
+            : withSpring(1 + focusProgress.value * 0.04, Springs.pop),
+        },
+      ],
+    }),
+    [reduceMotion, theme.backgroundElement, theme.primarySoft],
+  );
 
   return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        style={[
-          styles.tabButtonView,
-          {
-            backgroundColor: isFocused
-              ? theme.primarySoft
-              : theme.backgroundElement,
-          },
-        ]}
-      >
+    <Pressable {...props}>
+      <Animated.View style={[styles.tabButtonView, pillStyle]}>
         <ThemedText
           type="smallBold"
           style={{ color: isFocused ? theme.primary : theme.textSecondary }}
         >
           {children}
         </ThemedText>
-      </ThemedView>
+        {isFocused === true && (
+          <Animated.View
+            entering={reduceMotion ? undefined : FadeIn.duration(180)}
+            style={[styles.activeDot, { backgroundColor: theme.primary }]}
+          />
+        )}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -90,17 +132,17 @@ export function TabButton({
 // 탭 바 컨테이너
 export function CustomTabList(props: TabListProps) {
   const { width } = useWindowDimensions();
+  const showBrand = width >= 520;
 
   return (
     <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        {width >= 520 && (
+      <ThemedView
+        type="backgroundElement"
+        style={[styles.innerContainer, !showBrand && styles.compactContainer]}
+      >
+        {showBrand && (
           <View style={styles.brand}>
-            <View style={styles.brandMark}>
-              <ThemedText type="smallBold" style={styles.brandMarkText}>
-                E
-              </ThemedText>
-            </View>
+            <MascotCat size={34} />
             <ThemedText type="smallBold" style={styles.brandText}>
               Exam Loop
             </ThemedText>
@@ -142,8 +184,12 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
     borderWidth: 1,
-    borderColor: "rgba(127, 127, 127, 0.12)",
+    borderColor: Alpha.hairline,
     ...Shadows.card,
+  },
+  // 브랜드 영역 미노출 폭에서 탭을 가로 전체로 분산
+  compactContainer: {
+    justifyContent: "space-between",
   },
   brand: {
     flexDirection: "row",
@@ -151,26 +197,20 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     marginRight: "auto",
   },
-  brandMark: {
-    width: 30,
-    height: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.small,
-    backgroundColor: "#6657E8",
-  },
-  brandMarkText: {
-    color: "#FFFFFF",
-  },
   brandText: {
     paddingRight: Spacing.two,
   },
-  pressed: {
-    opacity: 0.7,
-  },
   tabButtonView: {
+    alignItems: "center",
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
+    borderRadius: Radius.pill,
+  },
+  activeDot: {
+    position: "absolute",
+    bottom: 3,
+    width: 14,
+    height: 3,
     borderRadius: Radius.pill,
   },
 });

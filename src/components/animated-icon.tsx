@@ -35,8 +35,8 @@ export function AnimatedSplashOverlay() {
 
   const image = (
     <Image
-      style={styles.image}
-      source={require("@/assets/images/expo-logo.png")}
+      style={styles.splashImage}
+      source={require("@/assets/images/splash-icon.png")}
     />
   );
 
@@ -111,7 +111,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.glow}
-          source={require("@/assets/images/logo-glow.png")}
+          source={require("@/assets/images/brand-glow.png")}
         />
       </Animated.View>
 
@@ -125,7 +125,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.image}
-          source={require("@/assets/images/expo-logo.png")}
+          source={require("@/assets/images/splash-icon.png")}
         />
       </Animated.View>
     </View>
@@ -150,19 +150,24 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   image: {
-    width: 76,
-    height: 71,
+    width: 96,
+    height: 96,
+  },
+  // 네이티브 스플래시 imageWidth와 동일 크기 유지
+  splashImage: {
+    width: 220,
+    height: 220,
   },
   background: {
     borderRadius: 40,
-    experimental_backgroundImage: `linear-gradient(180deg, #3C9FFE, #0274DF)`,
+    experimental_backgroundImage: `linear-gradient(180deg, #A594F5, #6A52DE)`,
     width: 128,
     height: 128,
     position: "absolute",
   },
   splashOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "#208AEF",
+    backgroundColor: "#F3ECEC",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1000,

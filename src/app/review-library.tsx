@@ -8,12 +8,15 @@ import {
   TextInput,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedChip } from "@/components/motion/animated-chip";
+import { RevealView } from "@/components/motion/reveal-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { stagger } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
@@ -287,7 +290,7 @@ export default function ReviewLibraryScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -319,8 +322,9 @@ export default function ReviewLibraryScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View
-            entering={FadeInDown.duration(320)}
+          <RevealView
+            variant="zoom"
+            duration={360}
             style={[styles.hero, { backgroundColor: theme.primary }]}
           >
             <View style={styles.heroMain}>
@@ -358,7 +362,7 @@ export default function ReviewLibraryScreen() {
                 해결 {resolvedCount}
               </ThemedText>
             </View>
-          </Animated.View>
+          </RevealView>
 
           <View
             style={[
@@ -412,34 +416,14 @@ export default function ReviewLibraryScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterRow}
           >
-            {FILTER_OPTIONS.map((option) => {
-              const selected = activeFilter === option.id;
-              return (
-                <Pressable
-                  key={option.id}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: selected }}
-                  onPress={() => selectFilter(option.id)}
-                  style={({ pressed }) => [
-                    styles.filterChip,
-                    {
-                      backgroundColor: selected
-                        ? theme.primary
-                        : theme.backgroundElement,
-                      borderColor: selected ? theme.primary : theme.border,
-                    },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <ThemedText
-                    type="smallBold"
-                    style={{ color: selected ? theme.onPrimary : theme.text }}
-                  >
-                    {option.label}
-                  </ThemedText>
-                </Pressable>
-              );
-            })}
+            {FILTER_OPTIONS.map((option) => (
+              <AnimatedChip
+                key={option.id}
+                label={option.label}
+                selected={activeFilter === option.id}
+                onPress={() => selectFilter(option.id)}
+              />
+            ))}
           </ScrollView>
 
           {availableExams.length > 1 && (
@@ -529,11 +513,9 @@ export default function ReviewLibraryScreen() {
           {filteredItems.length > 0 ? (
             <View style={styles.questionList}>
               {filteredItems.map((item, index) => (
-                <Animated.View
+                <RevealView
                   key={item.question.id}
-                  entering={FadeInDown.delay(Math.min(index, 6) * 35).duration(
-                    260,
-                  )}
+                  delay={stagger(index, 35, 6)}
                 >
                   <ReviewQuestionCard
                     item={item}
@@ -544,7 +526,7 @@ export default function ReviewLibraryScreen() {
                     onSelect={() => toggleQuestion(item.question.id)}
                     onToggleBookmark={() => toggleItemBookmark(item)}
                   />
-                </Animated.View>
+                </RevealView>
               ))}
             </View>
           ) : (
@@ -671,13 +653,13 @@ const styles = StyleSheet.create({
   },
   heroValue: {
     color: "#FFFFFF",
-    fontSize: 36,
+    fontSize: 35,
     lineHeight: 43,
     fontWeight: 900,
   },
   heroUnit: {
     color: "rgba(255, 255, 255, 0.76)",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
     fontWeight: 700,
   },
@@ -714,7 +696,7 @@ const styles = StyleSheet.create({
   searchInput: {
     minWidth: 0,
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 20,
   },
   filterRow: {
@@ -747,7 +729,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },

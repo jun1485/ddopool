@@ -5,10 +5,14 @@ import { Platform, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { goBack } from "@/lib/navigation";
 import { LearningSessionTimeline } from "@/components/learning-session-timeline";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { RevealView } from "@/components/motion/reveal-view";
+import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { stagger } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useActivityCalendar } from "@/hooks/use-activity-calendar";
 import { useDailyStats } from "@/hooks/use-daily-stats";
@@ -70,7 +74,7 @@ export default function ActivityScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이전 화면"
-            onPress={() => router.back()}
+            onPress={() => goBack()}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
@@ -135,11 +139,10 @@ export default function ActivityScreen() {
           </View>
 
           {isLoading || activityMonth == null ? (
-            <ThemedView type="backgroundElement" style={styles.loadingCard}>
-              <ThemedText type="small" themeColor="textSecondary">
-                학습 기록을 불러오는 중...
-              </ThemedText>
-            </ThemedView>
+            <View style={styles.loadingGroup}>
+              <SkeletonBlock height={286} radius={Radius.large} />
+              <SkeletonBlock height={104} radius={Radius.medium} />
+            </View>
           ) : (
             <>
               <ThemedView type="backgroundElement" style={styles.calendarCard}>
@@ -210,7 +213,12 @@ export default function ActivityScreen() {
 
                 <View style={styles.calendarGrid}>
                   {Array.from({ length: 6 }, (_, weekIndex) => (
-                    <View key={weekIndex} style={styles.weekRow}>
+                    <RevealView
+                      key={weekIndex}
+                      delay={stagger(weekIndex, 45)}
+                      duration={240}
+                      style={styles.weekRow}
+                    >
                       {activityMonth.days
                         .slice(weekIndex * 7, weekIndex * 7 + 7)
                         .map((day) => {
@@ -272,7 +280,7 @@ export default function ActivityScreen() {
                             </Pressable>
                           );
                         })}
-                    </View>
+                    </RevealView>
                   ))}
                 </View>
 
@@ -455,7 +463,7 @@ const styles = StyleSheet.create({
   },
   streakTitle: {
     color: "#FFFFFF",
-    fontSize: 30,
+    fontSize: 29,
     lineHeight: 38,
     fontWeight: 900,
   },
@@ -470,11 +478,8 @@ const styles = StyleSheet.create({
   onPrimaryMuted: {
     color: "rgba(255, 255, 255, 0.76)",
   },
-  loadingCard: {
-    alignItems: "center",
-    padding: Spacing.five,
-    borderRadius: Radius.large,
-    ...Shadows.card,
+  loadingGroup: {
+    gap: Spacing.three,
   },
   calendarCard: {
     gap: Spacing.three,
@@ -504,7 +509,7 @@ const styles = StyleSheet.create({
   weekLabel: {
     flex: 1,
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
   dayCell: {
@@ -517,7 +522,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.small,
   },
   dayNumber: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
   todayDot: {
@@ -551,7 +556,7 @@ const styles = StyleSheet.create({
     ...Shadows.card,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 27,
     fontWeight: 900,
   },
@@ -572,7 +577,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   detailEmoji: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 29,
   },
   detailCopy: {

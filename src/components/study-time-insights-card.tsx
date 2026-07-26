@@ -2,6 +2,7 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
@@ -297,22 +298,12 @@ export function StudyTimeInsightsCard({
                         {formatStudyTime(duration)} · {Math.round(ratio * 100)}%
                       </ThemedText>
                     </View>
-                    <View
-                      style={[
-                        styles.modeTrack,
-                        { backgroundColor: theme.backgroundSelected },
-                      ]}
-                    >
-                      <View
-                        style={[
-                          styles.modeFill,
-                          {
-                            width: `${ratio * 100}%`,
-                            backgroundColor: accent,
-                          },
-                        ]}
-                      />
-                    </View>
+                    <AnimatedProgressBar
+                      progress={ratio}
+                      height={6}
+                      color={accent}
+                      trackColor={theme.backgroundSelected}
+                    />
                   </View>
                 );
               })}
@@ -359,7 +350,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -408,7 +399,7 @@ const styles = StyleSheet.create({
   },
   totalTime: {
     color: "#FFFFFF",
-    fontSize: 28,
+    fontSize: 27,
     lineHeight: 35,
     fontWeight: 900,
   },
@@ -466,7 +457,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   dayLabel: {
-    fontSize: 11,
+    fontSize: 10,
     lineHeight: 15,
   },
   dayDetail: {
@@ -478,7 +469,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   dayDuration: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 25,
     fontWeight: 900,
   },
@@ -493,15 +484,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.two,
-  },
-  modeTrack: {
-    height: 6,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  modeFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   activityButton: {
     minHeight: 44,

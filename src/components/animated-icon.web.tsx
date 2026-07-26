@@ -63,7 +63,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.glow}
-          source={require("@/assets/images/logo-glow.png")}
+          source={require("@/assets/images/brand-glow.png")}
         />
       </Animated.View>
 
@@ -71,7 +71,7 @@ export function AnimatedIcon() {
         style={styles.background}
         entering={keyframe.duration(DURATION)}
       >
-        <div className={classes.expoLogoBackground} />
+        <div className={classes.brandMarkBackground} />
       </Animated.View>
 
       <Animated.View
@@ -80,7 +80,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.image}
-          source={require("@/assets/images/expo-logo.png")}
+          source={require("@/assets/images/splash-icon.png")}
         />
       </Animated.View>
     </View>
@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
   },
   image: {
     position: "absolute",
-    width: 76,
-    height: 71,
+    width: 96,
+    height: 96,
   },
   background: {
     width: 128,

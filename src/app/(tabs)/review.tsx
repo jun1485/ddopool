@@ -2,14 +2,18 @@ import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useMemo } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { PulseView } from "@/components/motion/pulse-view";
+import { RevealView } from "@/components/motion/reveal-view";
 import { ReviewForecastCard } from "@/components/review-forecast-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { stagger } from "@/constants/motion";
 import {
+  accentByIndex,
   BottomTabInset,
   MaxContentWidth,
   Radius,
@@ -93,7 +97,7 @@ export default function ReviewScreen() {
             </ThemedText>
           </View>
 
-          <Animated.View entering={FadeInDown.duration(350)}>
+          <RevealView variant="zoom" duration={400}>
             <View style={[styles.heroCard, { backgroundColor: theme.primary }]}>
               <View
                 style={[styles.heroOrb, { backgroundColor: theme.onPrimary }]}
@@ -103,24 +107,29 @@ export default function ReviewScreen() {
                   <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
                     지금 복습할 문제
                   </ThemedText>
-                  <ThemedText style={styles.heroCount}>{totalDue}</ThemedText>
+                  <AnimatedCounter
+                    style={styles.heroCount}
+                    value={totalDue}
+                  />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     {totalDue > 0
                       ? "짧게 복습하고 기억을 단단하게 만들어요"
                       : "오늘 예정된 복습을 모두 마쳤어요"}
                   </ThemedText>
                 </View>
-                <View style={styles.heroIcon}>
-                  <SymbolView
-                    tintColor={theme.onPrimary}
-                    name={{
-                      ios: "brain.head.profile",
-                      android: "psychology",
-                      web: "psychology",
-                    }}
-                    size={36}
-                  />
-                </View>
+                <PulseView active={totalDue > 0} scaleTo={1.07}>
+                  <View style={styles.heroIcon}>
+                    <SymbolView
+                      tintColor={theme.onPrimary}
+                      name={{
+                        ios: "brain.head.profile",
+                        android: "psychology",
+                        web: "psychology",
+                      }}
+                      size={36}
+                    />
+                  </View>
+                </PulseView>
               </View>
 
               {totalDue > 0 && (
@@ -148,40 +157,36 @@ export default function ReviewScreen() {
                 </Pressable>
               )}
             </View>
-          </Animated.View>
+          </RevealView>
 
           <View style={styles.scheduleGrid}>
-            <ThemedView type="backgroundElement" style={styles.scheduleCard}>
-              <View
-                style={[styles.scheduleDot, { backgroundColor: theme.danger }]}
-              />
-              <ThemedText style={styles.scheduleValue}>{totalDue}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                지금
-              </ThemedText>
-            </ThemedView>
-            <ThemedView type="backgroundElement" style={styles.scheduleCard}>
-              <View
-                style={[styles.scheduleDot, { backgroundColor: theme.warning }]}
-              />
-              <ThemedText style={styles.scheduleValue}>
-                {upcomingCount}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                24시간 내
-              </ThemedText>
-            </ThemedView>
-            <ThemedView type="backgroundElement" style={styles.scheduleCard}>
-              <View
-                style={[styles.scheduleDot, { backgroundColor: theme.success }]}
-              />
-              <ThemedText style={styles.scheduleValue}>
-                {scheduledCount}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                이후 예정
-              </ThemedText>
-            </ThemedView>
+            {[
+              { label: "지금", value: totalDue, color: theme.danger },
+              { label: "24시간 내", value: upcomingCount, color: theme.warning },
+              { label: "이후 예정", value: scheduledCount, color: theme.success },
+            ].map((schedule, scheduleIndex) => (
+              <RevealView
+                key={schedule.label}
+                delay={stagger(scheduleIndex, 60)}
+                style={styles.scheduleSlot}
+              >
+                <ThemedView type="backgroundElement" style={styles.scheduleCard}>
+                  <View
+                    style={[
+                      styles.scheduleDot,
+                      { backgroundColor: schedule.color },
+                    ]}
+                  />
+                  <AnimatedCounter
+                    style={styles.scheduleValue}
+                    value={schedule.value}
+                  />
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {schedule.label}
+                  </ThemedText>
+                </ThemedView>
+              </RevealView>
+            ))}
           </View>
 
           {!isLoading && totalStudied > 0 && (
@@ -237,20 +242,13 @@ export default function ReviewScreen() {
                 const dueCount = dueCounts[exam.id] ?? 0;
                 const studiedCount = studiedCounts[exam.id] ?? 0;
                 const hasDue = dueCount > 0;
-                const accent = [theme.primary, theme.success, theme.warning][
-                  listIndex % 3
-                ];
-                const softAccent = [
-                  theme.primarySoft,
-                  theme.successSoft,
-                  theme.warningSoft,
-                ][listIndex % 3];
+                const { accent, soft: softAccent } = accentByIndex(
+                  theme,
+                  listIndex,
+                );
 
                 return (
-                  <Animated.View
-                    key={exam.id}
-                    entering={FadeInDown.delay(70 * listIndex).duration(300)}
-                  >
+                  <RevealView key={exam.id} delay={stagger(listIndex, 60)}>
                     <Pressable
                       accessibilityRole="button"
                       accessibilityState={{ disabled: !hasDue }}
@@ -322,7 +320,7 @@ export default function ReviewScreen() {
                         </View>
                       </ThemedView>
                     </Pressable>
-                  </Animated.View>
+                  </RevealView>
                 );
               })}
             </View>
@@ -386,7 +384,7 @@ const styles = StyleSheet.create({
   },
   heroCount: {
     color: "#FFFFFF",
-    fontSize: 48,
+    fontSize: 47,
     lineHeight: 54,
     fontWeight: 800,
   },
@@ -418,8 +416,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: Spacing.two,
   },
-  scheduleCard: {
+  scheduleSlot: {
     flex: 1,
+  },
+  scheduleCard: {
     alignItems: "center",
     gap: Spacing.half,
     paddingVertical: Spacing.three,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   scheduleValue: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 26,
     fontWeight: 800,
   },
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: 800,
   },
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   examIconText: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 29,
   },
   examTexts: {

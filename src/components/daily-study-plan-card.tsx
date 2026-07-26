@@ -280,8 +280,8 @@ export function DailyStudyPlanCard({
 
 const styles = StyleSheet.create({
   card: {
-    gap: Spacing.four,
-    padding: Spacing.four,
+    gap: Spacing.three,
+    padding: Spacing.three,
     borderRadius: Radius.large,
     ...Shadows.card,
   },
@@ -301,8 +301,8 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   title: {
-    fontSize: 19,
-    lineHeight: 26,
+    fontSize: 16,
+    lineHeight: 23,
     fontWeight: 800,
   },
   totalBadge: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   taskEmoji: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 26,
   },
   stepLine: {

@@ -2,6 +2,7 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -58,22 +59,12 @@ export function LearningMomentumCard({
                 {progression.totalXp} XP
               </ThemedText>
             </View>
-            <View
-              style={[
-                styles.levelTrack,
-                { backgroundColor: theme.primarySoft },
-              ]}
-            >
-              <View
-                style={[
-                  styles.levelFill,
-                  {
-                    width: `${progression.levelProgress * 100}%`,
-                    backgroundColor: theme.primary,
-                  },
-                ]}
-              />
-            </View>
+            <AnimatedProgressBar
+              progress={progression.levelProgress}
+              height={7}
+              color={theme.primary}
+              trackColor={theme.primarySoft}
+            />
             <ThemedText type="small" themeColor="textSecondary">
               다음 레벨까지{" "}
               {Math.max(progression.nextLevelXp - progression.totalXp, 0)} XP
@@ -157,24 +148,12 @@ export function LearningMomentumCard({
                     {quest.progress}/{quest.target}
                   </ThemedText>
                 </View>
-                <View
-                  style={[
-                    styles.questTrack,
-                    { backgroundColor: theme.backgroundSelected },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.questFill,
-                      {
-                        width: `${(quest.progress / quest.target) * 100}%`,
-                        backgroundColor: quest.completed
-                          ? theme.success
-                          : theme.warning,
-                      },
-                    ]}
-                  />
-                </View>
+                <AnimatedProgressBar
+                  progress={(quest.progress / quest.target)}
+                  height={5}
+                  color={quest.completed ? theme.success : theme.warning}
+                  trackColor={theme.backgroundSelected}
+                />
               </View>
             </View>
           ))}
@@ -228,7 +207,7 @@ const styles = StyleSheet.create({
   },
   levelText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 20,
     fontWeight: 800,
   },
@@ -241,15 +220,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.two,
-  },
-  levelTrack: {
-    height: 7,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  levelFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   separator: {
     height: 1,
@@ -283,15 +253,6 @@ const styles = StyleSheet.create({
   questBody: {
     flex: 1,
     gap: Spacing.one,
-  },
-  questTrack: {
-    height: 5,
-    overflow: "hidden",
-    borderRadius: Radius.pill,
-  },
-  questFill: {
-    height: "100%",
-    borderRadius: Radius.pill,
   },
   progressButton: {
     minHeight: 44,

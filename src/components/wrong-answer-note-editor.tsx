@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.one,
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 20,
     fontWeight: 500,
   },
