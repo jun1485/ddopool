@@ -20,6 +20,7 @@ import { goBack } from "@/lib/navigation";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RequestStatusTimeline } from "@/components/request-status-timeline";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -602,6 +603,10 @@ export default function ExamRequestDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="시험 요청 상세"
+        description="시험 개설 요청의 투표 현황과 진행 상태 확인."
+      />
       <SafeAreaView style={styles.safeArea}>
         {request != null ? (
           <RequestDetailForm request={request} history={history} />

@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from "@/constants/legal";
@@ -189,7 +190,7 @@ export default function SettingsScreen() {
         setExportMessage("학습 데이터 JSON을 클립보드에 복사했어요.");
       } else {
         await Share.share({
-          title: "Exam Loop 학습 데이터",
+          title: "또풀 학습 데이터",
           message: json,
         });
         setExportMessage("학습 데이터 공유 화면을 열었어요.");
@@ -238,6 +239,10 @@ export default function SettingsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="설정"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <View>
@@ -1360,10 +1365,10 @@ export default function SettingsScreen() {
 
           <View style={styles.infoRow}>
             <View style={styles.appMark}>
-              <ThemedText style={styles.appMarkText}>E</ThemedText>
+              <ThemedText style={styles.appMarkText}>또</ThemedText>
             </View>
             <View style={styles.infoText}>
-              <ThemedText type="smallBold">Exam Loop</ThemedText>
+              <ThemedText type="smallBold">또풀</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
                 버전 {Constants.expoConfig?.version ?? "1.0.0"} · 로컬 우선 학습
               </ThemedText>

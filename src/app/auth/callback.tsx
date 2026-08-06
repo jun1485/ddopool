@@ -10,6 +10,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -64,6 +65,10 @@ export default function AuthCallbackScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="로그인 처리"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
           entering={reduceMotion ? undefined : FadeInDown.duration(320)}

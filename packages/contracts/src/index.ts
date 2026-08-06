@@ -1,4 +1,4 @@
-// Exam Loop API 계약 v1 — DB 스키마(db/migrations/0001~0005)와 1:1 동기
+// 또풀 API 계약 v1 — DB 스키마(db/migrations/0001~0005)와 1:1 동기
 // 소비 방법: 앱 tsconfig paths 별칭 추가 또는 src/types 하위로 파일 복사 (내용 수정 금지, 변경은 이 패키지에서만)
 
 // #region 상태 유니온

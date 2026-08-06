@@ -1,4 +1,4 @@
-# Exam Loop
+# 또풀
 
 시험(컴활·드론 자격·TOEIC 등)을 선택해 문제를 풀고 SM-2 간격 반복으로 복습하는 학습 앱.
 원하는 시험이 없으면 요청·투표로 수요를 모으고, 운영자가 승인하면 AI 파이프라인으로 문제를 제작해 공개하는 구조.
@@ -13,6 +13,7 @@
 - `apps/admin/` — 로컬 전용 단일 HTML 어드민 (요청 큐·문제 검수·신고 처리·이용 제한)
 - `docs/legal/` — 개인정보처리방침·이용약관 초안 (배포 전 `{{...}}` 항목 채우고 웹 호스팅 필요)
 - `services/content-worker/` — AI 문제 생성·분류·검증 워커
+- `public/` — 웹 정적 파일 (`og-image.png`·`robots.txt`, 빌드 시 `dist/` 루트로 복사)
 
 ## 앱 실행
 
@@ -22,7 +23,17 @@ npm start        # 모바일 (Expo Go / 에뮬레이터)
 npm run web      # 웹
 ```
 
-Supabase 환경 변수 없이 실행하면 로컬(mock) 모드로 동작한다.
+Supabase 환경 변수 없이 실행하면 로컬(mock) 모드로 동작한다. 환경 변수 목록은 `.env.example` 참고.
+
+## 웹 배포 (SEO)
+
+웹은 `expo export --platform web`으로 라우트별 정적 HTML을 생성하며, 화면 제목·설명은 `src/components/page-head.tsx`의 `PageHead`로 지정한다. 신규 화면 추가 시 `PageHead`를 넣지 않으면 `src/app/_layout.tsx`의 기본값(사이트 제목·설명)이 적용된다.
+
+배포 도메인이 정해지면 `EXPO_PUBLIC_SITE_URL`을 설정해야 공유 카드(`og:image`)가 절대 URL로 출력된다. 미설정 시 상대 경로로 떨어져 카카오톡·페이스북 썸네일이 표시되지 않는다.
+
+```sh
+EXPO_PUBLIC_SITE_URL=https://example.com npx expo export --platform web
+```
 
 ## Supabase 셋업 (최초 1회)
 

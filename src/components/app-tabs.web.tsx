@@ -144,7 +144,7 @@ export function CustomTabList(props: TabListProps) {
           <View style={styles.brand}>
             <MascotCat size={34} />
             <ThemedText type="smallBold" style={styles.brandText}>
-              Exam Loop
+              또풀
             </ThemedText>
           </View>
         )}

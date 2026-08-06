@@ -9,6 +9,7 @@ import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RevealView } from "@/components/motion/reveal-view";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
@@ -94,6 +95,10 @@ export default function NotificationsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="알림"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable

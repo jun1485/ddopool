@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedChip } from "@/components/motion/animated-chip";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -336,6 +337,10 @@ export default function LibraryScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="문제집"
+        description="북마크한 문제와 시험별 문제집을 모아 보고 바로 풀이 시작."
+      />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}

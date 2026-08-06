@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MascotCat } from "@/components/mascot-cat";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -94,6 +95,10 @@ export default function LoginScreen() {
   if (user != null) {
     return (
       <ThemedView style={styles.container}>
+        <PageHead
+          title="로그인"
+          noIndex
+        />
         <SafeAreaView style={styles.accountSafeArea}>
           <View
             style={[styles.accountIcon, { backgroundColor: theme.successSoft }]}
@@ -146,6 +151,10 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="로그인"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}

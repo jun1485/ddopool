@@ -9,6 +9,7 @@ import { AnimatedCounter } from "@/components/motion/animated-counter";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
 import { ReviewForecastCard } from "@/components/review-forecast-card";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
@@ -84,6 +85,10 @@ export default function ReviewScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="복습"
+        description="틀린 문제를 간격 반복 일정에 맞춰 다시 푸는 복습 화면."
+      />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}

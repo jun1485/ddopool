@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -244,6 +245,10 @@ export default function SessionBuilderScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.container}>
+        <PageHead
+          title="학습 세션 구성"
+          noIndex
+        />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.loadingContent}>
             <SkeletonBlock width="55%" height={22} />
@@ -275,6 +280,10 @@ export default function SessionBuilderScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="학습 세션 구성"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Pressable

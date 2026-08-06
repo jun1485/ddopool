@@ -17,6 +17,7 @@ import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
 import { ExamPaceCard } from "@/components/exam-pace-card";
 import { LearningMomentumCard } from "@/components/learning-momentum-card";
 import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WeeklyGoalCard } from "@/components/weekly-goal-card";
@@ -286,6 +287,10 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="컴활·토익·자격증 기출 반복학습"
+        description="컴활·토익·드론 등 자격시험 기출문제를 풀고 틀린 문제는 간격 반복으로 다시 풀어 완전히 익히는 학습 앱."
+      />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}
@@ -297,7 +302,7 @@ export default function HomeScreen() {
               <ThemedText type="smallBold" style={{ color: theme.primary }}>
                 {getGreeting(new Date().getHours())}
               </ThemedText>
-              <ThemedText style={styles.brandTitle}>Exam Loop</ThemedText>
+              <ThemedText style={styles.brandTitle}>또풀</ThemedText>
             </View>
             <View style={styles.headerMascot}>
               <MascotCat size={54} />

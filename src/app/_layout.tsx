@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { PageHead } from "@/components/page-head";
 import { Durations } from "@/constants/motion";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
@@ -106,6 +107,8 @@ function AppLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      {/* 화면이 자체 지정하지 않을 때의 기본 문서 제목·설명 */}
+      <PageHead />
       <AnimatedSplashOverlay />
       <View style={styles.app}>
         <Stack

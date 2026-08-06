@@ -23,6 +23,7 @@ import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RevealView } from "@/components/motion/reveal-view";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { RequestTrackingOverview } from "@/components/request-tracking-overview";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger, Timings } from "@/constants/motion";
@@ -375,6 +376,10 @@ export default function CatalogScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="시험 찾기"
+        description="컴퓨터활용능력·토익·드론 자격 등 준비 중인 시험을 찾아 문제 풀이 시작. 원하는 시험이 없으면 요청·투표로 추가 가능."
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable

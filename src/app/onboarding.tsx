@@ -15,6 +15,7 @@ import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RevealView } from "@/components/motion/reveal-view";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Durations, stagger } from "@/constants/motion";
@@ -66,6 +67,10 @@ export default function OnboardingScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="시험 선택"
+        description="준비 중인 시험을 고르면 문제와 복습 일정을 목표에 맞춰 구성. 로그인 없이 바로 시작 가능."
+      />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}
@@ -75,7 +80,7 @@ export default function OnboardingScreen() {
           <View style={styles.brand}>
             <MascotCat size={40} />
             <ThemedText type="smallBold" style={{ color: theme.primary }}>
-              EXAM LOOP
+              또풀
             </ThemedText>
           </View>
 

@@ -1,4 +1,4 @@
--- Exam Loop 초기 스키마 (Supabase Postgres 기준)
+-- 또풀 초기 스키마 (Supabase Postgres 기준)
 -- 적용 방법: Supabase SQL Editor에 전체 실행 또는 supabase db push
 
 -- #region ENUM 정의

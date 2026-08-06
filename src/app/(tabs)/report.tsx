@@ -8,6 +8,7 @@ import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { ExamReadinessCard } from "@/components/exam-readiness-card";
@@ -206,6 +207,10 @@ export default function ReportScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="리포트"
+        description="정답률·학습 시간·과목별 취약점을 한눈에 보는 학습 통계."
+      />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}

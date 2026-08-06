@@ -27,6 +27,7 @@ import { ChoiceButton, ChoiceState } from "@/components/quiz/choice-button";
 import { MockReviewPanel } from "@/components/quiz/mock-review-panel";
 import { QuizProgressBar } from "@/components/quiz/quiz-progress-bar";
 import { SessionRewardCard } from "@/components/session-reward-card";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WrongAnswerNoteEditor } from "@/components/wrong-answer-note-editor";
@@ -481,6 +482,10 @@ export default function QuizScreen() {
   if (status === "loading") {
     return (
       <ThemedView style={styles.container}>
+        <PageHead
+          title="문제 풀이"
+          noIndex
+        />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.loadingContent}>
             <SkeletonBlock height={7} radius={Radius.pill} />
@@ -562,6 +567,10 @@ export default function QuizScreen() {
 
     return (
       <ThemedView style={styles.container}>
+        <PageHead
+          title="문제 풀이"
+          noIndex
+        />
         <SafeAreaView style={styles.resultSafeArea}>
           <ScrollView
             contentContainerStyle={styles.resultContent}
@@ -1025,6 +1034,10 @@ export default function QuizScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="문제 풀이"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Pressable

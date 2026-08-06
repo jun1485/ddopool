@@ -15,6 +15,7 @@ import { goBack } from "@/lib/navigation";
 import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -222,6 +223,10 @@ export default function ExamRequestScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="시험 요청"
+        description="원하는 시험이 없을 때 개설을 요청하고 수요를 모으는 화면."
+      />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}

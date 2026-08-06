@@ -10,6 +10,7 @@ import { LearningSessionTimeline } from "@/components/learning-session-timeline"
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RevealView } from "@/components/motion/reveal-view";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
@@ -69,6 +70,10 @@ export default function ActivityScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="학습 활동"
+        description="날짜별 학습 기록과 연속 학습일 확인."
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable

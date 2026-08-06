@@ -8,6 +8,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Spacing } from "@/constants/theme";
@@ -20,6 +21,10 @@ export default function NotFoundScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="페이지를 찾을 수 없음"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
           entering={reduceMotion ? undefined : FadeInDown.duration(320)}

@@ -14,6 +14,7 @@ import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedChip } from "@/components/motion/animated-chip";
 import { RevealView } from "@/components/motion/reveal-view";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
@@ -285,6 +286,10 @@ export default function ReviewLibraryScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="복습 목록"
+        description="복습 예정 문제와 오답 노트 모아 보기."
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Pressable

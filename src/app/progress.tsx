@@ -12,6 +12,7 @@ import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { SubjectMasteryMap } from "@/components/subject-mastery-map";
 import type { SubjectMasteryExamItem } from "@/components/subject-mastery-map";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
@@ -138,6 +139,10 @@ export default function ProgressScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="학습 진행"
+        description="시험별 진도와 목표 달성률 확인."
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable

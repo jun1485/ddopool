@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -155,6 +156,10 @@ export default function StudyPlanSettingsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="학습 계획 설정"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable

@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
@@ -101,6 +102,10 @@ export default function QuestionReportScreen() {
   if (isSubmitted) {
     return (
       <ThemedView style={styles.container}>
+        <PageHead
+          title="문제 신고"
+          noIndex
+        />
         <SafeAreaView style={styles.successSafeArea}>
           <View
             style={[styles.successIcon, { backgroundColor: theme.successSoft }]}
@@ -147,6 +152,10 @@ export default function QuestionReportScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <PageHead
+        title="문제 신고"
+        noIndex
+      />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}
