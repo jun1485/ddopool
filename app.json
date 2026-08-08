@@ -1,16 +1,16 @@
 {
   "expo": {
     "name": "또풀",
-    "slug": "exam-loop",
+    "slug": "ddopool",
     "version": "1.0.0",
     "description": "컴활·토익·자격증 기출문제를 풀고 틀린 문제를 간격 반복으로 다시 푸는 학습 앱",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "examloop",
+    "scheme": "ddopool",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.jun213.examloop",
+      "bundleIdentifier": "com.jun213.ddopool",
       "buildNumber": "1",
       "supportsTablet": false,
       "infoPlist": {
@@ -18,7 +18,7 @@
       }
     },
     "android": {
-      "package": "com.jun213.examloop",
+      "package": "com.jun213.ddopool",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

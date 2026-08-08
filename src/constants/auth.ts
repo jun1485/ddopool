@@ -1,1 +1,1 @@
-export const AUTH_CALLBACK_URL = "examploop://auth/callback";
+export const AUTH_CALLBACK_URL = "ddopool://auth/callback";
