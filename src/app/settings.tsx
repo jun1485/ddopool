@@ -11,13 +11,12 @@ import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from "@/constants/legal";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useLearningSyncStatus } from "@/hooks/use-learning-sync-status";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
-import { openLegalDocument, openSupportEmail } from "@/lib/external-links";
+import { openSupportEmail } from "@/lib/external-links";
 import {
   formatStudyReminderTime,
   STUDY_REMINDER_HOURS,
@@ -113,17 +112,6 @@ export default function SettingsScreen() {
     setAccountDeleteMessage(
       "삭제하지 못했어요. 로그인과 학습 기록은 유지됐으니 다시 시도해 주세요.",
     );
-  };
-
-  // 설정 법적 문서 링크 열기
-  const handleDocumentPress = async (url: string) => {
-    setInformationMessage(null);
-    try {
-      const opened = await openLegalDocument(url);
-      if (!opened) setInformationMessage("문서 링크를 준비 중이에요.");
-    } catch {
-      setInformationMessage("문서를 열지 못했어요. 다시 시도해 주세요.");
-    }
   };
 
   // 설정 고객 문의 메일 열기
@@ -1288,7 +1276,7 @@ export default function SettingsScreen() {
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="개인정보처리방침 열기"
-                onPress={() => void handleDocumentPress(PRIVACY_POLICY_URL)}
+                onPress={() => router.push("/privacy")}
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <View style={styles.row}>
@@ -1310,7 +1298,7 @@ export default function SettingsScreen() {
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="이용약관 열기"
-                onPress={() => void handleDocumentPress(TERMS_OF_SERVICE_URL)}
+                onPress={() => router.push("/terms")}
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <View style={styles.row}>

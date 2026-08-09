@@ -11,7 +11,7 @@
 - `db/scripts/` — 콘텐츠·운영 CLI (아래 표)
 - `packages/contracts/` — 앱↔DB API 계약 (타입·테이블/RPC 이름·매퍼)
 - `apps/admin/` — 로컬 전용 단일 HTML 어드민 (요청 큐·문제 검수·신고 처리·이용 제한)
-- `docs/legal/` — 개인정보처리방침·이용약관 초안 (배포 전 `{{...}}` 항목 채우고 웹 호스팅 필요)
+- `src/data/legal-documents.ts` — 개인정보처리방침·이용약관 본문 (앱 `/privacy`·`/terms` 라우트와 웹 정적 페이지의 단일 정본)
 - `services/content-worker/` — AI 문제 생성·분류·검증 워커
 - `public/` — 웹 정적 파일 (`og-image.png`·`robots.txt`, 빌드 시 `dist/` 루트로 복사)
 
@@ -34,6 +34,65 @@ Supabase 환경 변수 없이 실행하면 로컬(mock) 모드로 동작한다. 
 ```sh
 EXPO_PUBLIC_SITE_URL=https://example.com npx expo export --platform web
 ```
+
+## Google Play 출시
+
+### 제출 전 반드시 채워야 하는 값
+
+| 위치 | 항목 | 용도 |
+|---|---|---|
+| `src/constants/legal.ts` | `OPERATOR_NAME`, `PRIVACY_OFFICER_NAME`, `SUPPORT_EMAIL`, `LEGAL_EFFECTIVE_DATE` | 개인정보처리방침·이용약관 본문 표기. 미기입 시 `IS_LEGAL_PROFILE_COMPLETE`가 false |
+| `.env` | `EXPO_PUBLIC_SITE_URL` | 개인정보처리방침 공개 URL(`/privacy`) 절대 경로 생성. Play 등록정보에 그대로 입력 |
+| `.env` | `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 미설정 시 mock 데이터로 동작 |
+| `.env` | `EXPO_PUBLIC_SENTRY_DSN` | 미설정 시 오류 수집 비활성 |
+| `app.json` | `plugins`의 `@sentry/react-native` 항목에 `organization`·`project` | 소스맵 업로드(선택). 미설정이어도 오류 수집은 동작 |
+
+법률 문서는 앱 라우트 `/privacy`·`/terms`로 제공되며, `expo export --platform web` 시 같은 경로의 정적 HTML이 생성되어 그대로 공개 URL이 된다.
+
+### 데이터 안전(Data safety) 양식 기준
+
+| 데이터 유형 | 수집 | 공유 | 필수 여부 | 목적 |
+|---|---|---|---|---|
+| 이메일 주소 | 계정 연결 시 | 없음 | 선택(로그인 시) | 계정 관리·인증 |
+| 사용자 ID | 계정 연결 시 | 없음 | 선택(로그인 시) | 계정 관리·기기 간 동기화 |
+| 앱 활동(학습 기록) | 계정 연결 시 | 없음 | 선택(로그인 시) | 앱 기능·기기 간 동기화 |
+| 사용자 작성 콘텐츠(시험 요청·신고) | 사용자 전송 시 | 없음 | 선택 | 앱 기능 |
+| 기기 ID(푸시 토큰) | 알림 권한 허용 시 | 없음 | 선택 | 알림 발송 |
+| 진단 정보(오류 로그) | 상시 | Sentry | 선택 불가 | 앱 안정성 진단 |
+
+- 전송 중 암호화: 예 (HTTPS/TLS)
+- 데이터 삭제 요청 가능: 예 (앱 내 설정 → 계정 → 계정 삭제, 앱 외 경로는 문의 이메일)
+- 광고 식별자·위치·연락처·사진·결제 정보: 수집하지 않음
+
+### Android 권한
+
+라이브러리가 자동 추가하는 권한 중 실제로 쓰지 않는 항목은 `app.json`의 `android.blockedPermissions`로 제거한다.
+
+| 권한 | 상태 | 사유 |
+|---|---|---|
+| `INTERNET`, `ACCESS_NETWORK_STATE` | 사용 | API 통신·오프라인 배너 |
+| `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED` | 사용 | 학습 리마인더·재부팅 후 예약 복원 |
+| `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` | 차단 | 파일 저장 기능 없음(데이터 내보내기는 공유 시트 사용) |
+| `ACCESS_WIFI_STATE` | 차단 | 연결 여부만 확인하고 네트워크 상세 정보는 사용하지 않음 |
+
+### 빌드·제출
+
+```sh
+npx eas-cli@latest login
+npx eas-cli@latest init            # app.json에 projectId·owner 기록
+npx eas-cli@latest build --platform android --profile production
+npx eas-cli@latest submit --platform android --profile production
+```
+
+`submit` 프로필은 internal 트랙·draft 상태로 올린다. Play Console에서 서비스 계정 키를 발급해 두면 제출이 비대화형으로 끝난다.
+
+### Play Console에서 별도로 처리해야 하는 항목
+
+- 스토어 등록정보 자산: 512×512 아이콘, 1024×500 피처 그래픽, 폰 스크린샷 2~8장
+- 콘텐츠 등급 설문, 타깃 사용자층·광고 포함 여부 신고
+- 데이터 안전 양식 (위 표 기준으로 입력)
+- 개인정보처리방침 URL 입력 (`EXPO_PUBLIC_SITE_URL` + `/privacy`)
+- 개인 개발자 계정인 경우 비공개 테스트 12명·20일 요건 충족
 
 ## Supabase 셋업 (최초 1회)
 

@@ -12,6 +12,8 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import * as Sentry from "@sentry/react-native";
+
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { PageHead } from "@/components/page-head";
 import { Durations } from "@/constants/motion";
@@ -19,6 +21,7 @@ import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
 import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
 import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
+import { initMonitoring } from "@/lib/monitoring";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ExamCatalogProvider } from "@/providers/exam-catalog-provider";
 import { ExamEnrollmentProvider } from "@/providers/exam-enrollment-provider";
@@ -27,6 +30,7 @@ import { NetworkProvider, OfflineBanner } from "@/providers/network-provider";
 import { NotificationProvider } from "@/providers/notification-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
 
+initMonitoring();
 SplashScreen.preventAutoHideAsync();
 
 // 모달 화면 아래에서 올라오는 전환 옵션
@@ -76,6 +80,8 @@ function AppLayout() {
       pathname === "/exam-request" ||
       pathname === "/login" ||
       pathname === "/auth/callback" ||
+      pathname === "/privacy" ||
+      pathname === "/terms" ||
       pathname === "/+not-found";
     if (!onboardingCompleted && !isOnboardingFlow)
       router.replace("/onboarding");
@@ -135,6 +141,8 @@ function AppLayout() {
           <Stack.Screen name="exam-request" options={MODAL_SCREEN_OPTIONS} />
           <Stack.Screen name="question-report" options={MODAL_SCREEN_OPTIONS} />
           <Stack.Screen name="settings" options={MODAL_SCREEN_OPTIONS} />
+          <Stack.Screen name="privacy" />
+          <Stack.Screen name="terms" />
         </Stack>
         <OfflineBanner />
       </View>
@@ -143,7 +151,7 @@ function AppLayout() {
 }
 
 // 루트 앱 설정 제공
-export default function RootLayout() {
+function RootLayout() {
   return (
     <AuthProvider>
       <SettingsProvider>
@@ -162,6 +170,8 @@ export default function RootLayout() {
     </AuthProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);
 
 const styles = StyleSheet.create({
   app: {
