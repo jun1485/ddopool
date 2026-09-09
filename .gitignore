@@ -34,7 +34,13 @@ blob-report/
 *.pem
 
 # local env files
-.env*.local
+.env
+.env.*
+!.env.example
+
+# local handoff
+docs/handoff/
+docs/work/
 
 # typescript
 *.tsbuildinfo
@@ -44,3 +50,5 @@ example
 # generated native folders
 /ios
 /android
+.vercel
+.env*
