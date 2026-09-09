@@ -1,0 +1,14 @@
+.env*
+.git
+.github
+.expo
+.vercel
+android
+apps
+db
+docs
+e2e
+ios
+*.aab
+*.apk
+{const
