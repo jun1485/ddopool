@@ -16,6 +16,8 @@ export interface Exam {
 
 // 객관식 문제
 export interface Question {
+  sourceType?: "public_past_exam" | "ai_generated" | "manual";
+  version?: number;
   id: string;
   examId: ExamId;
   subject: string;

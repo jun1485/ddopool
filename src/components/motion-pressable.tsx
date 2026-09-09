@@ -1,7 +1,5 @@
-import * as Haptics from "expo-haptics";
 import { forwardRef, useState } from "react";
 import {
-  Platform,
   Pressable as NativePressable,
   type PressableProps,
   type View,
@@ -11,16 +9,15 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import { Springs } from "@/constants/motion";
-import { useSettings } from "@/hooks/use-settings";
 
 const AnimatedPressable = Animated.createAnimatedComponent(NativePressable);
 
 export interface MotionPressableProps extends PressableProps {
   motionScale?: number;
-  hapticFeedback?: boolean;
 }
 
 // 전체 버튼 터치 피드백 제공
@@ -29,7 +26,6 @@ export const MotionPressable = forwardRef<View, MotionPressableProps>(
     {
       disabled,
       motionScale = 0.97,
-      hapticFeedback = true,
       onHoverIn,
       onHoverOut,
       onPressIn,
@@ -40,7 +36,6 @@ export const MotionPressable = forwardRef<View, MotionPressableProps>(
     ref,
   ) {
     const reduceMotion = useReducedMotion();
-    const { settings } = useSettings();
     const hovered = useSharedValue(false);
     const pressed = useSharedValue(false);
     const scale = useSharedValue(1);
@@ -50,10 +45,9 @@ export const MotionPressable = forwardRef<View, MotionPressableProps>(
       transform: [{ scale: scale.value }],
     }));
     // 애니메이션 style 배열과 합칠 수 있도록 상태 기반 style을 평탄화
+    const pressState = { pressed: isPressed, hovered: isHovered };
     const resolvedStyle =
-      typeof style === "function"
-        ? style({ pressed: isPressed, hovered: isHovered })
-        : style;
+      typeof style === "function" ? style(pressState) : style;
 
     return (
       <AnimatedPressable
@@ -61,10 +55,10 @@ export const MotionPressable = forwardRef<View, MotionPressableProps>(
         ref={ref}
         disabled={disabled}
         onHoverIn={(event) => {
+          if (disabled) return;
           hovered.value = true;
           setIsHovered(true);
-          if (!pressed.value)
-            scale.value = reduceMotion ? 1 : withSpring(1.01, Springs.press);
+          if (!pressed.value) scale.value = 1;
           onHoverIn?.(event);
         }}
         onHoverOut={(event) => {
@@ -75,25 +69,18 @@ export const MotionPressable = forwardRef<View, MotionPressableProps>(
           onHoverOut?.(event);
         }}
         onPressIn={(event) => {
+          if (disabled) return;
           pressed.value = true;
           setIsPressed(true);
-          if (
-            hapticFeedback &&
-            settings.hapticsEnabled &&
-            Platform.OS !== "web"
-          )
-            void Haptics.selectionAsync();
           scale.value = reduceMotion
             ? 1
-            : withSpring(motionScale, Springs.press);
+            : withTiming(motionScale, { duration: 90 });
           onPressIn?.(event);
         }}
         onPressOut={(event) => {
           pressed.value = false;
           setIsPressed(false);
-          scale.value = reduceMotion
-            ? 1
-            : withSpring(hovered.value ? 1.01 : 1, Springs.press);
+          scale.value = reduceMotion ? 1 : withSpring(1, Springs.press);
           onPressOut?.(event);
         }}
         style={[resolvedStyle, animatedStyle]}

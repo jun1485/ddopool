@@ -19,13 +19,13 @@ import {
   MockExamSubjectResult,
   recordMockExamResult,
 } from "@/storage/mock-exam-history-store";
-import { loadPerformanceStats, recordAnswer } from "@/storage/stats-store";
 import {
   loadSrsCards,
   SrsCardMap,
   updateSrsCard,
   updateSrsCards,
 } from "@/storage/srs-store";
+import { loadPerformanceStats, recordAnswer } from "@/storage/stats-store";
 import { recordWrongAnswerState } from "@/storage/wrong-answer-note-store";
 import { queueLearningAttempt } from "@/sync/learning-attempt-sync";
 import {
@@ -99,6 +99,7 @@ export interface QuizSession {
   correctCount: number;
   answers: QuizAnswer[];
   flaggedQuestionIds: string[];
+  mockDeadline: number | undefined;
   selectChoice: (choiceIndex: number) => void;
   submitAnswer: () => void;
   goToQuestion: (questionIndex: number) => void;
@@ -175,6 +176,7 @@ export function useQuizSession(
   const [correctCount, setCorrectCount] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [retryCounts, setRetryCounts] = useState<Record<string, number>>({});
+  const [mockDeadline, setMockDeadline] = useState<number>();
   const [flaggedQuestionIds, setFlaggedQuestionIds] = useState<string[]>([]);
   const sessionElapsedMs = useRef(0);
   const activeSegmentStartedAt = useRef<number | null>(null);
@@ -261,7 +263,7 @@ export function useQuizSession(
           loadSrsCards(),
           loadBookmarks(),
           loadPerformanceStats(),
-          resumeRequested && mode !== "mock"
+          resumeRequested
             ? loadActiveQuizSession(Date.now())
             : Promise.resolve(null),
         ]);
@@ -284,7 +286,8 @@ export function useQuizSession(
             confidence: answer.confidence ?? null,
           })),
         );
-        setFlaggedQuestionIds([]);
+        setFlaggedQuestionIds(activeSession.flaggedQuestionIds ?? []);
+        setMockDeadline(activeSession.mockDeadline);
         resetSessionClock(
           activeSession.elapsedSeconds ??
             Math.max(
@@ -302,6 +305,11 @@ export function useQuizSession(
         return;
       }
 
+      setMockDeadline(
+        mode === "mock"
+          ? Date.now() + settings.mockDurationMinutes * 60_000
+          : undefined,
+      );
       const requestedQuestionIds =
         questionIds?.split(",").filter(Boolean) ?? [];
       const selectedQuestionIds = new Set(requestedQuestionIds);
@@ -388,6 +396,7 @@ export function useQuizSession(
     resetSessionClock,
     settings.sessionSize,
     settings.personalizedQuestionsEnabled,
+    settings.mockDurationMinutes,
     settings.shuffleChoicesEnabled,
     settings.shuffleQuestionsEnabled,
     selectQuestionsByExam,
@@ -396,11 +405,7 @@ export function useQuizSession(
 
   // 진행 중인 일반 학습 세션 자동 저장
   useEffect(() => {
-    if (
-      mode === "mock" ||
-      questions.length === 0 ||
-      preparedSessionKey !== sessionRequestKey
-    )
+    if (questions.length === 0 || preparedSessionKey !== sessionRequestKey)
       return;
     if (status === "finished") {
       void clearActiveQuizSession();
@@ -417,11 +422,15 @@ export function useQuizSession(
       correctCount,
       answers,
       elapsedSeconds: getSessionDurationSeconds(),
+      mockDeadline,
+      flaggedQuestionIds,
       updatedAt: Date.now(),
     });
   }, [
     answers,
     clockRevision,
+    mockDeadline,
+    flaggedQuestionIds,
     correctCount,
     currentIndex,
     examId,
@@ -541,7 +550,8 @@ export function useQuizSession(
       },
       userId,
     );
-    if (settings.hapticsEnabled) void triggerAnswerHaptic(isCorrect);
+    if (settings.hapticsEnabled)
+      void triggerAnswerHaptic(isCorrect).catch(() => undefined);
   }, [
     answers,
     currentIndex,
@@ -725,9 +735,7 @@ export function useQuizSession(
         confidence: null,
       };
       const nextAnswers = [
-        ...answers.filter(
-          (answer) => answer.questionId !== currentQuestion.id,
-        ),
+        ...answers.filter((answer) => answer.questionId !== currentQuestion.id),
         currentAnswer,
       ];
       const targetQuestion = questions[questionIndex];
@@ -774,7 +782,9 @@ export function useQuizSession(
       question != null && shouldRequeueCurrent
         ? [
             ...questions,
-            settings.shuffleChoicesEnabled ? shuffleChoices(question) : question,
+            settings.shuffleChoicesEnabled
+              ? shuffleChoices(question)
+              : question,
           ]
         : questions;
     if (question != null && shouldRequeueCurrent) {
@@ -867,6 +877,7 @@ export function useQuizSession(
     correctCount,
     answers,
     flaggedQuestionIds,
+    mockDeadline,
     selectChoice,
     submitAnswer,
     goToQuestion,

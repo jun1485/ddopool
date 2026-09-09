@@ -13,6 +13,7 @@ import Animated, {
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { Durations } from "@/constants/motion";
 import { Alpha, MaxContentWidth } from "@/constants/theme";
+import classes from "./modal-overlay.module.css";
 
 // 모달 표시 형태 (sheet: 하단 시트, center: 중앙 다이얼로그)
 export type ModalOverlayVariant = "sheet" | "center";
@@ -42,6 +43,7 @@ export function ModalOverlay({
 
   return (
     <View
+      {...(Platform.OS === "web" ? { className: classes.overlay } : {})}
       style={[
         styles.overlay,
         variant === "sheet" ? styles.sheetAlign : styles.centerAlign,
@@ -81,7 +83,7 @@ export function ModalOverlay({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: Platform.OS === "web" ? "fixed" : "absolute",
+    ...(Platform.OS === "web" ? {} : { position: "absolute" as const }),
     top: 0,
     left: 0,
     right: 0,

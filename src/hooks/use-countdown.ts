@@ -5,6 +5,7 @@ export function useCountdown(
   durationSeconds: number,
   active: boolean,
   onExpire: () => void,
+  deadline?: number,
 ): number {
   const [remainingSeconds, setRemainingSeconds] = useState(durationSeconds);
   const onExpireRef = useRef(onExpire);
@@ -19,7 +20,7 @@ export function useCountdown(
     if (!active) return;
 
     let expired = false;
-    const expiresAt = Date.now() + durationSeconds * 1000;
+    const expiresAt = deadline ?? Date.now() + durationSeconds * 1000;
 
     // 현재 시각 기준 남은 시간 계산
     const updateRemainingTime = () => {
@@ -39,7 +40,7 @@ export function useCountdown(
       clearTimeout(initialTimer);
       clearInterval(timer);
     };
-  }, [active, durationSeconds]);
+  }, [active, durationSeconds, deadline]);
 
   return remainingSeconds;
 }

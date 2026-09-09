@@ -26,7 +26,12 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
         <meta name="application-name" content={SITE_NAME} />
-        <meta name="theme-color" content="#5B4BE0" />
+        <meta name="theme-color" content="#FAF7F3" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/app-icon.png" />
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />

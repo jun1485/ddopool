@@ -1,6 +1,11 @@
+import { settingsSchema } from "@/storage/data-schemas";
+import { recoverBackupRestore } from "@/storage/backup-recovery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { retryableWrite } from "./retry-write";
+
 const SETTINGS_KEY = "exam-loop:settings";
+let pendingSettingsWrite: Promise<void> = Promise.resolve();
 
 // 화면 테마 설정
 export type ThemePreference = "system" | "light" | "dark";
@@ -14,6 +19,9 @@ export interface AppSettings {
   hapticsEnabled: boolean;
   studyReminderEnabled: boolean;
   studyReminderHour: number;
+  reminderDailyLimit: number;
+  reminderQuietHour: number;
+  reminderPausedDate: string;
   personalizedQuestionsEnabled: boolean;
   shuffleQuestionsEnabled: boolean;
   shuffleChoicesEnabled: boolean;
@@ -48,30 +56,38 @@ export const DEFAULT_SETTINGS: AppSettings = {
   weeklyGoal: 70,
   mockDurationMinutes: 10,
   hapticsEnabled: true,
-  studyReminderEnabled: false,
-  studyReminderHour: 21,
+  studyReminderEnabled: true,
+  studyReminderHour: 12,
+  reminderDailyLimit: 4,
+  reminderQuietHour: 24,
+  reminderPausedDate: "",
   personalizedQuestionsEnabled: true,
   shuffleQuestionsEnabled: true,
   shuffleChoicesEnabled: true,
   explanationEnabled: true,
   confidenceRatingEnabled: true,
   keyboardShortcutsEnabled: true,
-  themePreference: "system",
+  themePreference: "light",
 };
 
 // 저장된 앱 설정 로드
 export async function loadSettings(): Promise<AppSettings> {
-  try {
-    const raw = await AsyncStorage.getItem(SETTINGS_KEY);
-    return raw != null
-      ? { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) }
-      : DEFAULT_SETTINGS;
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  await pendingSettingsWrite;
+  await recoverBackupRestore();
+  const raw = await AsyncStorage.getItem(SETTINGS_KEY);
+  return raw != null
+    ? {
+        ...DEFAULT_SETTINGS,
+        ...settingsSchema.partial().parse(JSON.parse(raw)),
+      }
+    : DEFAULT_SETTINGS;
 }
 
 // 앱 설정 저장
 export async function saveSettings(settings: AppSettings): Promise<void> {
-  await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  const value = JSON.stringify(settings);
+  pendingSettingsWrite = retryableWrite(() =>
+    AsyncStorage.setItem(SETTINGS_KEY, value),
+  );
+  await pendingSettingsWrite;
 }

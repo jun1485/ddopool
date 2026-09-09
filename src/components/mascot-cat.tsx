@@ -65,7 +65,7 @@ export function MascotCat({ size = 52, onPress }: MascotCatProps) {
       <Animated.View style={[styles.layer, bodyStyle]}>
         <Image
           accessible={false}
-          source={require("@/assets/images/mascot-cat.png")}
+          source={require("@/assets/images/icon.png")}
           contentFit="cover"
           style={styles.image}
         />

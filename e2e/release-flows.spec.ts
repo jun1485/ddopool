@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import type { BrowserContext, Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const USER_EMAIL = process.env.E2E_USER_EMAIL;
 const USER_PASSWORD = process.env.E2E_USER_PASSWORD;
@@ -13,6 +13,7 @@ function requireEnvironmentValue(
   value: string | undefined,
   message: string,
 ): asserts value is string {
+  if (value == null && process.env.CI) throw new Error(message);
   if (value == null) test.skip(true, message);
 }
 
@@ -61,6 +62,7 @@ test("회원가입 정보를 제출하고 인증 안내를 확인한다", async 
   await page.getByRole("tab", { name: "회원가입" }).click();
   await page.getByLabel("이메일").fill(NEW_USER_EMAIL);
   await page.getByLabel("비밀번호").fill(USER_PASSWORD);
+  await page.getByRole("checkbox", { name: /만 14세/ }).check();
   await page.getByRole("button", { name: "계정 만들기" }).click();
 
   await expect(

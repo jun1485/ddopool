@@ -1,12 +1,16 @@
 import { SymbolView } from "expo-symbols";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Radius, Shadows, Spacing } from "@/constants/theme";
+import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
+import { supabase } from "@/lib/supabase";
+import { useExamRequestContext } from "@/providers/exam-request-provider";
 import { ExamRequest, ExamRequestStatus } from "@/types/exam-request";
 
 const STATUS_LABELS: Record<ExamRequestStatus, string> = {
@@ -64,6 +68,31 @@ export function ExamRequestCard({
   compact = false,
 }: ExamRequestCardProps) {
   const theme = useTheme();
+  const { user } = useAuth();
+  const { reload } = useExamRequestContext();
+  const [hidden, setHidden] = useState(false);
+  const [hiding, setHiding] = useState(false);
+  const [hideError, setHideError] = useState(false);
+
+  // 요청 숨김·작성자 차단
+  const hideRequest = async (blockAuthor: boolean) => {
+    if (supabase == null || hiding) return;
+    setHiding(true);
+    try {
+      const { error } = await supabase.rpc("hide_exam_request", {
+        p_request_id: request.id,
+        p_block_author: blockAuthor,
+      });
+      if (error) throw error;
+      setHidden(true);
+      await reload();
+    } catch {
+      setHideError(true);
+    } finally {
+      setHiding(false);
+    }
+  };
+  if (hidden) return null;
   const publishedExamId = request.publishedExamId;
   const isInactive = [
     "duplicate",
@@ -84,6 +113,29 @@ export function ExamRequestCard({
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
+      {user != null && !request.isOwned && (
+        <View>
+          <Pressable
+            accessibilityRole="button"
+            disabled={hiding}
+            onPress={() => void hideRequest(false)}
+          >
+            <ThemedText type="small">이 요청 숨기기</ThemedText>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            disabled={hiding}
+            onPress={() => void hideRequest(true)}
+          >
+            <ThemedText type="small">이 작성자의 요청 차단</ThemedText>
+          </Pressable>
+          {hideError && (
+            <ThemedText type="small">
+              처리하지 못했어요. 다시 시도해 주세요.
+            </ThemedText>
+          )}
+        </View>
+      )}
       <View style={styles.header}>
         <View style={styles.titleBlock}>
           <ThemedText type="smallBold" numberOfLines={2}>

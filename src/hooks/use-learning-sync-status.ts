@@ -1,3 +1,4 @@
+import { synchronizeLearningExtras } from "@/sync/learning-extras";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 
@@ -68,6 +69,7 @@ export function useLearningSyncStatus() {
         return false;
       }
       await hydrateRemoteLearningData(learningSyncApi);
+      await synchronizeLearningExtras(user.id);
       await reload();
       setSyncMessage(
         result.discardedCount > 0

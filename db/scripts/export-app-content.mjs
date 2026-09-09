@@ -15,7 +15,9 @@ function extractArrayLiteral(sourcePath) {
   if (assignIndex < 0 || endIndex < 0) {
     throw new Error(`배열 리터럴을 찾지 못했습니다: ${sourcePath}`);
   }
-  const literal = source.slice(assignIndex + 2, endIndex + 2);
+  // 별도 번들 문제의 시드 중복 방지
+  const literal = source.slice(assignIndex + 2, endIndex + 2)
+    .replace(/^\s*\.\.\.ADDITIONAL_(?:EXAMS|QUESTIONS),\r?\n/gm, '');
   return new Function(`return ${literal};`)();
 }
 

@@ -1,3 +1,5 @@
+import { StorageBanner } from "@/components/storage-banner";
+import type { ErrorBoundaryProps, Href } from "expo-router";
 import {
   DarkTheme,
   DefaultTheme,
@@ -6,7 +8,6 @@ import {
   ThemeProvider,
   usePathname,
 } from "expo-router";
-import type { ErrorBoundaryProps, Href } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -18,10 +19,11 @@ import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { PageHead } from "@/components/page-head";
 import { Durations } from "@/constants/motion";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
+import { useStudyReminder } from "@/hooks/use-study-reminder";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
-import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
-import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
 import { initMonitoring } from "@/lib/monitoring";
+import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
+import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ExamCatalogProvider } from "@/providers/exam-catalog-provider";
 import { ExamEnrollmentProvider } from "@/providers/exam-enrollment-provider";
@@ -67,6 +69,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 
 // 앱 화면 테마·라우팅 구성
 function AppLayout() {
+  useStudyReminder();
   const colorScheme = useResolvedColorScheme();
   const pathname = usePathname();
   const { onboardingCompleted, isLoading: isEnrollmentLoading } =
@@ -81,6 +84,7 @@ function AppLayout() {
       pathname === "/login" ||
       pathname === "/auth/callback" ||
       pathname === "/privacy" ||
+      pathname === "/account-delete" ||
       pathname === "/terms" ||
       pathname === "/+not-found";
     if (!onboardingCompleted && !isOnboardingFlow)
@@ -145,6 +149,7 @@ function AppLayout() {
           <Stack.Screen name="terms" />
         </Stack>
         <OfflineBanner />
+        <StorageBanner />
       </View>
     </ThemeProvider>
   );

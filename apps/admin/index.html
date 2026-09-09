@@ -1,453 +1,882 @@
 <!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>또풀 어드민</title>
-<style>
-  :root {
-    --bg: #f7f7f8;
-    --card: #ffffff;
-    --line: #e2e2e6;
-    --text: #1b1b1f;
-    --muted: #6b6f76;
-    --primary: #3c87f7;
-    --success: #2fa14e;
-    --danger: #e5484d;
-    --warn: #b98900;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: "Segoe UI", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); }
-  header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--line); }
-  header h1 { font-size: 16px; margin: 0; }
-  #conn-status { font-size: 12px; color: var(--muted); }
-  #conn-status.ok { color: var(--success); }
-  #conn-status.error { color: var(--danger); }
-  main { max-width: 1080px; margin: 0 auto; padding: 20px; }
-  section.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-  nav { display: flex; gap: 8px; margin-bottom: 16px; }
-  nav button { padding: 8px 16px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; cursor: pointer; font-size: 13px; }
-  nav button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
-  input, select, textarea { padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; width: 100%; }
-  button.action { padding: 7px 14px; border: none; border-radius: 6px; background: var(--primary); color: #fff; cursor: pointer; font-size: 13px; }
-  button.action.subtle { background: #eceef1; color: var(--text); }
-  button.action.danger { background: var(--danger); }
-  button.action.success { background: var(--success); }
-  button.action:disabled { opacity: 0.5; cursor: default; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-  th { color: var(--muted); font-weight: 600; font-size: 12px; }
-  tr.detail-row td { background: #fafafb; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: #eceef1; color: var(--muted); }
-  .badge.published, .badge.approved, .badge.active { background: #e6f6ea; color: var(--success); }
-  .badge.rejected, .badge.blocked, .badge.retired { background: #fdebec; color: var(--danger); }
-  .badge.requested, .badge.needs_review, .badge.review { background: #fdf4dd; color: var(--warn); }
-  .row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 160px; }
-  .row > .fit { flex: 0 0 auto; min-width: 0; }
-  .row > .w-narrow { flex: 0 0 90px; min-width: 90px; }
-  .stat-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-  .stat { flex: 1; min-width: 110px; background: #fafafb; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-  .stat b { display: block; font-size: 20px; }
-  .stat span { font-size: 12px; color: var(--muted); }
-  .muted { color: var(--muted); font-size: 12px; }
-  .choices li { margin-bottom: 4px; }
-  .choices li.answer { color: var(--success); font-weight: 600; }
-  .hidden { display: none; }
-  .notice { font-size: 12px; color: var(--muted); margin-top: 8px; }
-</style>
-</head>
-<body>
-<header>
-  <h1>또풀 어드민</h1>
-  <span id="conn-status">연결 안 됨</span>
-</header>
-<main>
-  <!-- 연결 설정 -->
-  <section class="card" id="config-card">
-    <div class="row">
-      <div>
-        <label for="cfg-url">Supabase URL</label>
-        <input id="cfg-url" placeholder="https://xxxx.supabase.co" />
-      </div>
-      <div>
-        <label for="cfg-key">Service Role Key</label>
-        <input id="cfg-key" type="password" placeholder="service_role 키" />
-      </div>
-      <div class="fit"><button class="action" id="btn-connect">연결</button></div>
-    </div>
-    <p class="notice">service role key는 이 브라우저 localStorage에만 저장됩니다. 이 파일은 로컬 전용이며 절대 배포·호스팅하지 않습니다.</p>
-  </section>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>또풀 어드민</title>
+    <style>
+      :root {
+        --bg: #f7f7f8;
+        --card: #ffffff;
+        --line: #e2e2e6;
+        --text: #1b1b1f;
+        --muted: #6b6f76;
+        --primary: #3c87f7;
+        --success: #2fa14e;
+        --danger: #e5484d;
+        --warn: #b98900;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        background: var(--card);
+        border-bottom: 1px solid var(--line);
+      }
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      #conn-status {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      #conn-status.ok {
+        color: var(--success);
+      }
+      #conn-status.error {
+        color: var(--danger);
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      section.card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      nav {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      nav button {
+        padding: 8px 16px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      nav button.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+      input,
+      select,
+      textarea {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-size: 13px;
+        width: 100%;
+      }
+      button.action {
+        padding: 7px 14px;
+        border: none;
+        border-radius: 6px;
+        background: var(--primary);
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button.action.subtle {
+        background: #eceef1;
+        color: var(--text);
+      }
+      button.action.danger {
+        background: var(--danger);
+      }
+      button.action.success {
+        background: var(--success);
+      }
+      button.action:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 12px;
+      }
+      tr.detail-row td {
+        background: #fafafb;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #eceef1;
+        color: var(--muted);
+      }
+      .badge.published,
+      .badge.approved,
+      .badge.active {
+        background: #e6f6ea;
+        color: var(--success);
+      }
+      .badge.rejected,
+      .badge.blocked,
+      .badge.retired {
+        background: #fdebec;
+        color: var(--danger);
+      }
+      .badge.requested,
+      .badge.needs_review,
+      .badge.review {
+        background: #fdf4dd;
+        color: var(--warn);
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: end;
+        flex-wrap: wrap;
+      }
+      .row > div {
+        flex: 1;
+        min-width: 160px;
+      }
+      .row > .fit {
+        flex: 0 0 auto;
+        min-width: 0;
+      }
+      .row > .w-narrow {
+        flex: 0 0 90px;
+        min-width: 90px;
+      }
+      .stat-grid {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .stat {
+        flex: 1;
+        min-width: 110px;
+        background: #fafafb;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .stat b {
+        display: block;
+        font-size: 20px;
+      }
+      .stat span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .choices li {
+        margin-bottom: 4px;
+      }
+      .choices li.answer {
+        color: var(--success);
+        font-weight: 600;
+      }
+      .hidden {
+        display: none;
+      }
+      .notice {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>또풀 어드민</h1>
+      <span id="conn-status">연결 안 됨</span>
+    </header>
+    <main>
+      <!-- 연결 설정 -->
+      <section class="card" id="config-card">
+        <div class="row">
+          <div>
+            <label for="cfg-url">Supabase URL</label>
+            <input id="cfg-url" placeholder="https://xxxx.supabase.co" />
+          </div>
+          <div>
+            <label for="cfg-key">공개 API 키</label>
+            <input
+              id="cfg-key"
+              type="password"
+              placeholder="publishable 또는 anon 키"
+            />
+          </div>
+          <div>
+            <label for="cfg-email">관리자 이메일</label
+            ><input id="cfg-email" type="email" autocomplete="username" />
+          </div>
+          <div>
+            <label for="cfg-password">관리자 비밀번호</label
+            ><input
+              id="cfg-password"
+              type="password"
+              autocomplete="current-password"
+            />
+          </div>
+          <div class="fit">
+            <button class="action" id="btn-connect">로그인</button>
+          </div>
+        </div>
+        <p class="notice">
+          관리자 계정으로 로그인합니다. 비밀 서비스 키를 입력하지 마세요. 로그인
+          정보는 저장하지 않습니다.
+        </p>
+      </section>
 
-  <nav id="tabs" class="hidden">
-    <button data-tab="dashboard" class="active">대시보드</button>
-    <button data-tab="exams">시험 관리</button>
-    <button data-tab="requests">시험 요청</button>
-    <button data-tab="questions">문제 검수</button>
-    <button data-tab="reports">오류 신고</button>
-    <button data-tab="request-reports">요청 신고</button>
-    <button data-tab="limits">이용 제한</button>
-  </nav>
+      <nav id="tabs" class="hidden">
+        <button data-tab="dashboard" class="active">대시보드</button>
+        <button data-tab="exams">시험 관리</button>
+        <button data-tab="requests">시험 요청</button>
+        <button data-tab="questions">문제 검수</button>
+        <button data-tab="reports">오류 신고</button>
+        <button data-tab="request-reports">요청 신고</button>
+        <button data-tab="limits">이용 제한</button>
+      </nav>
 
-  <!-- 대시보드 -->
-  <section class="card hidden" id="tab-dashboard">
-    <h3>요청 현황</h3>
-    <div class="stat-grid" id="dash-requests"></div>
-    <h3>문제 현황</h3>
-    <div class="stat-grid" id="dash-questions"></div>
-    <h3>신고·이용 제한 현황</h3>
-    <div class="stat-grid" id="dash-moderation"></div>
-  </section>
+      <!-- 대시보드 -->
+      <section class="card hidden" id="tab-dashboard">
+        <h3>요청 현황</h3>
+        <div class="stat-grid" id="dash-requests"></div>
+        <h3>문제 현황</h3>
+        <div class="stat-grid" id="dash-questions"></div>
+        <h3>신고·이용 제한 현황</h3>
+        <div class="stat-grid" id="dash-moderation"></div>
+      </section>
 
-  <!-- 시험 관리 -->
-  <section class="card hidden" id="tab-exams">
-    <h3>시험 등록</h3>
-    <div class="row">
-      <div>
-        <label for="exam-id">examId (영문 슬러그)</label>
-        <input id="exam-id" placeholder="예: korean-history-1" />
-      </div>
-      <div>
-        <label for="exam-title">시험명</label>
-        <input id="exam-title" placeholder="예: 한국사능력검정 1급" />
-      </div>
-      <div>
-        <label for="exam-short">짧은 이름</label>
-        <input id="exam-short" placeholder="예: 한국사 1급" />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label for="exam-desc">설명</label>
-        <input id="exam-desc" placeholder="과목 요약" />
-      </div>
-      <div class="w-narrow">
-        <label for="exam-icon">아이콘</label>
-        <input id="exam-icon" placeholder="📚" />
-      </div>
-      <div>
-        <label for="exam-subjects">과목 (쉼표 구분)</label>
-        <input id="exam-subjects" placeholder="과목1, 과목2" />
-      </div>
-      <div class="fit"><button class="action" id="btn-exam-create">등록</button></div>
-    </div>
-    <p class="notice">draft 상태로 등록됩니다. 문제 업로드·검수·공개 후 active로 전환해야 앱에 노출됩니다.</p>
-    <table id="exam-table">
-      <thead><tr><th>ID</th><th>시험명</th><th>과목</th><th>상태</th><th>전환</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </section>
+      <!-- 시험 관리 -->
+      <section class="card hidden" id="tab-exams">
+        <h3>시험 등록</h3>
+        <div class="row">
+          <div>
+            <label for="exam-id">examId (영문 슬러그)</label>
+            <input id="exam-id" placeholder="예: korean-history-1" />
+          </div>
+          <div>
+            <label for="exam-title">시험명</label>
+            <input id="exam-title" placeholder="예: 한국사능력검정 1급" />
+          </div>
+          <div>
+            <label for="exam-short">짧은 이름</label>
+            <input id="exam-short" placeholder="예: 한국사 1급" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="exam-desc">설명</label>
+            <input id="exam-desc" placeholder="과목 요약" />
+          </div>
+          <div class="w-narrow">
+            <label for="exam-icon">아이콘</label>
+            <input id="exam-icon" placeholder="📚" />
+          </div>
+          <div>
+            <label for="exam-subjects">과목 (쉼표 구분)</label>
+            <input id="exam-subjects" placeholder="과목1, 과목2" />
+          </div>
+          <div class="fit">
+            <button class="action" id="btn-exam-create">등록</button>
+          </div>
+        </div>
+        <p class="notice">
+          draft 상태로 등록됩니다. 문제 업로드·검수·공개 후 active로 전환해야
+          앱에 노출됩니다.
+        </p>
+        <table id="exam-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>시험명</th>
+              <th>과목</th>
+              <th>상태</th>
+              <th>전환</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
 
-  <!-- 시험 요청 -->
-  <section class="card hidden" id="tab-requests">
-    <div class="row">
-      <div>
-        <label for="req-status">상태 필터</label>
-        <select id="req-status"><option value="">전체</option></select>
-      </div>
-      <div class="fit"><button class="action subtle" id="btn-req-reload">새로고침</button></div>
-    </div>
-    <table id="req-table">
-      <thead><tr><th>요청명</th><th>메타</th><th>투표</th><th>상태</th><th>상태 변경</th><th>시험 연결</th><th></th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="notice">published 전환은 시험 연결(examId)이 필요합니다. 상태 변경 시 이력·공개 알림은 DB 트리거가 자동 처리합니다. 같은 시험이 다른 이름으로 등록된 경우 상세에서 대표 요청으로 병합하면 투표가 이관되고 원본 요청명은 검색 별칭으로 남습니다.</p>
-  </section>
+      <!-- 시험 요청 -->
+      <section class="card hidden" id="tab-requests">
+        <div class="row">
+          <div>
+            <label for="req-status">상태 필터</label>
+            <select id="req-status">
+              <option value="">전체</option>
+            </select>
+          </div>
+          <div class="fit">
+            <button class="action subtle" id="btn-req-reload">새로고침</button>
+          </div>
+        </div>
+        <table id="req-table">
+          <thead>
+            <tr>
+              <th>요청명</th>
+              <th>메타</th>
+              <th>투표</th>
+              <th>상태</th>
+              <th>상태 변경</th>
+              <th>시험 연결</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="notice">
+          published 전환은 시험 연결(examId)이 필요합니다. 상태 변경 시
+          이력·공개 알림은 DB 트리거가 자동 처리합니다. 같은 시험이 다른
+          이름으로 등록된 경우 상세에서 대표 요청으로 병합하면 투표가 이관되고
+          원본 요청명은 검색 별칭으로 남습니다.
+        </p>
+      </section>
 
-  <!-- 문제 검수 -->
-  <section class="card hidden" id="tab-questions">
-    <div class="row">
-      <div>
-        <label for="q-status">상태 필터</label>
-        <select id="q-status"><option value="">전체</option></select>
-      </div>
-      <div>
-        <label for="q-exam">시험 필터 (examId)</label>
-        <input id="q-exam" placeholder="예: computer-1" />
-      </div>
-      <div class="fit"><button class="action subtle" id="btn-q-reload">새로고침</button></div>
-      <div class="fit"><button class="action success" id="btn-q-publish-exam">이 시험 승인분 일괄 공개</button></div>
-    </div>
-    <table id="q-table">
-      <thead><tr><th>ID</th><th>시험·과목</th><th>문제</th><th>상태</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </section>
+      <!-- 문제 검수 -->
+      <section class="card hidden" id="tab-questions">
+        <div class="row">
+          <div>
+            <label for="q-status">상태 필터</label>
+            <select id="q-status">
+              <option value="">전체</option>
+            </select>
+          </div>
+          <div>
+            <label for="q-exam">시험 필터 (examId)</label>
+            <input id="q-exam" placeholder="예: computer-1" />
+          </div>
+          <div class="fit">
+            <button class="action subtle" id="btn-q-reload">새로고침</button>
+          </div>
+          <div class="fit">
+            <button class="action success" id="btn-q-publish-exam">
+              이 시험 승인분 일괄 공개
+            </button>
+          </div>
+        </div>
+        <table id="q-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>시험·과목</th>
+              <th>문제</th>
+              <th>상태</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
 
-  <!-- 오류 신고 -->
-  <section class="card hidden" id="tab-reports">
-    <div class="row">
-      <div class="fit"><button class="action subtle" id="btn-rep-reload">새로고침</button></div>
-    </div>
-    <table id="rep-table">
-      <thead><tr><th>문제</th><th>신고 사유</th><th>접수일</th><th>처리</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="notice">신고 인정 후 문제 조치는 문제 검수 탭에서 반려(retired) 처리합니다.</p>
-  </section>
+      <!-- 오류 신고 -->
+      <section class="card hidden" id="tab-reports">
+        <div class="row">
+          <div class="fit">
+            <button class="action subtle" id="btn-rep-reload">새로고침</button>
+          </div>
+        </div>
+        <table id="rep-table">
+          <thead>
+            <tr>
+              <th>문제</th>
+              <th>신고 사유</th>
+              <th>접수일</th>
+              <th>처리</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="notice">
+          신고 인정 후 문제 조치는 문제 검수 탭에서 반려(retired) 처리합니다.
+        </p>
+      </section>
 
-  <!-- 요청 신고 -->
-  <section class="card hidden" id="tab-request-reports">
-    <div class="row">
-      <div>
-        <label for="rreq-status">상태 필터</label>
-        <select id="rreq-status">
-          <option value="open">open</option>
-          <option value="accepted">accepted</option>
-          <option value="dismissed">dismissed</option>
-          <option value="">전체</option>
-        </select>
-      </div>
-      <div class="fit"><button class="action subtle" id="btn-rreq-reload">새로고침</button></div>
-    </div>
-    <table id="rreq-table">
-      <thead><tr><th>요청</th><th>신고 사유</th><th>접수일</th><th>처리</th><th>작성자</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="notice">신고 3건 누적 시 요청은 blocked로 자동 전환되어 앱에서 비공개됩니다. 인정 처리 시 즉시 blocked로 전환합니다.</p>
-  </section>
+      <!-- 요청 신고 -->
+      <section class="card hidden" id="tab-request-reports">
+        <div class="row">
+          <div>
+            <label for="rreq-status">상태 필터</label>
+            <select id="rreq-status">
+              <option value="open">open</option>
+              <option value="accepted">accepted</option>
+              <option value="dismissed">dismissed</option>
+              <option value="">전체</option>
+            </select>
+          </div>
+          <div class="fit">
+            <button class="action subtle" id="btn-rreq-reload">새로고침</button>
+          </div>
+        </div>
+        <table id="rreq-table">
+          <thead>
+            <tr>
+              <th>요청</th>
+              <th>신고 사유</th>
+              <th>접수일</th>
+              <th>처리</th>
+              <th>작성자</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="notice">
+          신고 3건 누적 시 요청은 blocked로 자동 전환되어 앱에서 비공개됩니다.
+          인정 처리 시 즉시 blocked로 전환합니다.
+        </p>
+      </section>
 
-  <!-- 이용 제한 -->
-  <section class="card hidden" id="tab-limits">
-    <h3>사용자 이용 제한</h3>
-    <div class="row">
-      <div>
-        <label for="user-keyword">검색 (이메일·닉네임·사용자 ID)</label>
-        <input id="user-keyword" placeholder="예: name@example.com" />
-      </div>
-      <div class="fit"><button class="action subtle" id="btn-user-search">검색</button></div>
-    </div>
-    <table id="user-table">
-      <thead><tr><th>이메일</th><th>가입일</th><th>역할</th><th>상태</th><th>제한 사유</th><th>처리</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="notice">제한된 계정은 시험 요청·투표·신고가 차단됩니다. 학습 기능은 계속 사용할 수 있습니다.</p>
+      <!-- 이용 제한 -->
+      <section class="card hidden" id="tab-limits">
+        <h3>사용자 이용 제한</h3>
+        <div class="row">
+          <div>
+            <label for="user-keyword">검색 (이메일·닉네임·사용자 ID)</label>
+            <input id="user-keyword" placeholder="예: name@example.com" />
+          </div>
+          <div class="fit">
+            <button class="action subtle" id="btn-user-search">검색</button>
+          </div>
+        </div>
+        <table id="user-table">
+          <thead>
+            <tr>
+              <th>이메일</th>
+              <th>가입일</th>
+              <th>역할</th>
+              <th>상태</th>
+              <th>제한 사유</th>
+              <th>처리</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="notice">
+          제한된 계정은 시험 요청·투표·신고가 차단됩니다. 학습 기능은 계속
+          사용할 수 있습니다.
+        </p>
 
-    <h3>금칙어</h3>
-    <div class="row">
-      <div>
-        <label for="term-input">추가할 금칙어</label>
-        <input id="term-input" placeholder="2~50자 · 자동 정규화 저장" />
-      </div>
-      <div class="fit"><button class="action" id="btn-term-add">추가</button></div>
-      <div class="fit"><button class="action subtle" id="btn-term-reload">새로고침</button></div>
-    </div>
-    <table id="term-table">
-      <thead><tr><th>금칙어</th><th>등록일</th><th>삭제</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="notice">시험 요청의 요청명·기관·등급·사유에 금칙어가 포함되면 등록이 거부됩니다. 공백·특수문자는 제거되고 소문자로 저장됩니다.</p>
-  </section>
-</main>
+        <h3>금칙어</h3>
+        <div class="row">
+          <div>
+            <label for="term-input">추가할 금칙어</label>
+            <input id="term-input" placeholder="2~50자 · 자동 정규화 저장" />
+          </div>
+          <div class="fit">
+            <button class="action" id="btn-term-add">추가</button>
+          </div>
+          <div class="fit">
+            <button class="action subtle" id="btn-term-reload">새로고침</button>
+          </div>
+        </div>
+        <table id="term-table">
+          <thead>
+            <tr>
+              <th>금칙어</th>
+              <th>등록일</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="notice">
+          시험 요청의 요청명·기관·등급·사유에 금칙어가 포함되면 등록이
+          거부됩니다. 공백·특수문자는 제거되고 소문자로 저장됩니다.
+        </p>
+      </section>
+    </main>
 
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.8";
 
-const REQUEST_STATUSES = ["requested", "triage", "approved", "sourcing", "draft", "review", "published", "duplicate", "rejected", "blocked", "archived"];
-const QUESTION_STATUSES = ["imported", "validating", "needs_review", "approved", "published", "retired"];
-const EXAM_STATUSES = ["draft", "active", "outdated"];
-const REPORT_STATUSES = ["open", "accepted", "dismissed"];
+      const REQUEST_STATUSES = [
+        "requested",
+        "triage",
+        "approved",
+        "sourcing",
+        "draft",
+        "review",
+        "published",
+        "duplicate",
+        "rejected",
+        "blocked",
+        "archived",
+      ];
+      const QUESTION_STATUSES = [
+        "imported",
+        "validating",
+        "needs_review",
+        "approved",
+        "published",
+        "retired",
+      ];
+      const EXAM_STATUSES = ["draft", "active", "outdated"];
+      const REPORT_STATUSES = ["open", "accepted", "dismissed"];
 
-// 검수 판정별 문제 상태 매핑
-const STATUS_BY_VERDICT = { approved: "approved", rejected: "retired", needs_fix: "needs_review" };
+      // 검수 판정별 문제 상태 매핑
+      const STATUS_BY_VERDICT = {
+        approved: "approved",
+        rejected: "retired",
+        needs_fix: "needs_review",
+      };
 
-const STORAGE_KEY = "examloop-admin";
-let client = null;
-let requestRows = [];
-let questionRows = [];
+      const STORAGE_KEY = "examloop-admin";
+      let client = null;
+      let requestRows = [];
+      let questionRows = [];
 
-const $ = (id) => document.getElementById(id);
+      const $ = (id) => document.getElementById(id);
 
-// HTML 이스케이프
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
-}
+      // HTML 이스케이프
+      function esc(value) {
+        return String(value ?? "").replace(
+          /[&<>"']/g,
+          (ch) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[ch],
+        );
+      }
 
-// 연결 상태 표시
-function setStatus(text, isError = false) {
-  const status = $("conn-status");
-  status.textContent = text;
-  status.className = isError ? "error" : "ok";
-}
+      // 연결 상태 표시
+      function setStatus(text, isError = false) {
+        const status = $("conn-status");
+        status.textContent = text;
+        status.className = isError ? "error" : "ok";
+      }
 
-// Supabase 연결 및 검증
-async function connect() {
-  const url = $("cfg-url").value.trim();
-  const key = $("cfg-key").value.trim();
-  if (!url || !key) {
-    setStatus("URL과 service role key를 입력해 주세요", true);
-    return;
-  }
-  const candidate = createClient(url, key, { auth: { persistSession: false } });
-  const { error } = await candidate.from("exams").select("id", { count: "exact", head: true });
-  if (error) {
-    setStatus(`연결 실패: ${error.message}`, true);
-    return;
-  }
-  client = candidate;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, key }));
-  setStatus("연결됨");
-  $("tabs").classList.remove("hidden");
-  switchTab("dashboard");
-}
+      // Supabase 연결 및 검증
+      async function connect() {
+        const url = $("cfg-url").value.trim();
+        const key = $("cfg-key").value.trim();
+        if (!url || !key) {
+          setStatus("URL과 공개 API 키를 입력해 주세요", true);
+          return;
+        }
+        const candidate = createClient(url, key, {
+          auth: { persistSession: false },
+        });
+        if (
+          key.startsWith("sb_secret_") ||
+          (key.startsWith("ey") &&
+            JSON.parse(
+              atob(key.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+            ).role === "service_role")
+        ) {
+          setStatus("비밀 서비스 키는 사용할 수 없습니다", true);
+          return;
+        }
+        const { error } = await candidate.auth.signInWithPassword({
+          email: $("cfg-email").value.trim(),
+          password: $("cfg-password").value,
+        });
+        $("cfg-password").value = "";
+        if (error) {
+          setStatus(`연결 실패: ${error.message}`, true);
+          return;
+        }
+        const { data: allowed, error: roleError } =
+          await candidate.rpc("is_admin");
+        if (roleError || allowed !== true) {
+          await candidate.auth.signOut();
+          setStatus("관리자 권한이 필요합니다", true);
+          return;
+        }
+        client = candidate;
+        setStatus("연결됨");
+        $("tabs").classList.remove("hidden");
+        switchTab("dashboard");
+      }
 
-// 탭 전환 및 데이터 로드
-function switchTab(tab) {
-  document.querySelectorAll("nav button").forEach((button) => button.classList.toggle("active", button.dataset.tab === tab));
-  for (const name of ["dashboard", "exams", "requests", "questions", "reports", "request-reports", "limits"]) {
-    $(`tab-${name}`).classList.toggle("hidden", name !== tab);
-  }
-  if (tab === "dashboard") void loadDashboard();
-  if (tab === "exams") void loadExams();
-  if (tab === "requests") void loadRequests();
-  if (tab === "questions") void loadQuestions();
-  if (tab === "reports") void loadReports();
-  if (tab === "request-reports") void loadRequestReports();
-  if (tab === "limits") {
-    void loadUsers();
-    void loadBannedTerms();
-  }
-}
+      // 탭 전환 및 데이터 로드
+      function switchTab(tab) {
+        document
+          .querySelectorAll("nav button")
+          .forEach((button) =>
+            button.classList.toggle("active", button.dataset.tab === tab),
+          );
+        for (const name of [
+          "dashboard",
+          "exams",
+          "requests",
+          "questions",
+          "reports",
+          "request-reports",
+          "limits",
+        ]) {
+          $(`tab-${name}`).classList.toggle("hidden", name !== tab);
+        }
+        if (tab === "dashboard") void loadDashboard();
+        if (tab === "exams") void loadExams();
+        if (tab === "requests") void loadRequests();
+        if (tab === "questions") void loadQuestions();
+        if (tab === "reports") void loadReports();
+        if (tab === "request-reports") void loadRequestReports();
+        if (tab === "limits") {
+          void loadUsers();
+          void loadBannedTerms();
+        }
+      }
 
-// 상태별 카운트 집계
-function countByStatus(rows, statuses) {
-  const counts = Object.fromEntries(statuses.map((status) => [status, 0]));
-  for (const row of rows) counts[row.status] = (counts[row.status] ?? 0) + 1;
-  return counts;
-}
+      // 상태별 카운트 집계
+      function countByStatus(rows, statuses) {
+        const counts = Object.fromEntries(
+          statuses.map((status) => [status, 0]),
+        );
+        for (const row of rows)
+          counts[row.status] = (counts[row.status] ?? 0) + 1;
+        return counts;
+      }
 
-// 대시보드 로드
-async function loadDashboard() {
-  const [requestResult, questionResult, reportResult, requestReportResult, bannedResult] = await Promise.all([
-    client.from("exam_requests").select("status"),
-    client.from("questions").select("status"),
-    client.from("question_reports").select("status"),
-    client.from("exam_request_reports").select("status"),
-    client.from("profiles").select("id", { count: "exact", head: true }).not("banned_at", "is", null),
-  ]);
-  const failure = requestResult.error ?? questionResult.error ?? reportResult.error ?? requestReportResult.error ?? bannedResult.error;
-  if (failure) {
-    setStatus(`대시보드 조회 실패: ${failure.message}`, true);
-    return;
-  }
-  const renderStats = (counts) =>
-    Object.entries(counts)
-      .map(([status, count]) => `<div class="stat"><b>${count}</b><span>${esc(status)}</span></div>`)
-      .join("");
-  $("dash-requests").innerHTML = renderStats(countByStatus(requestResult.data, REQUEST_STATUSES));
-  $("dash-questions").innerHTML = renderStats(countByStatus(questionResult.data, QUESTION_STATUSES));
-  const openQuestionReports = countByStatus(reportResult.data, REPORT_STATUSES).open;
-  const openRequestReports = countByStatus(requestReportResult.data, REPORT_STATUSES).open;
-  $("dash-moderation").innerHTML = [
-    `<div class="stat"><b>${openQuestionReports}</b><span>문제 신고 대기</span></div>`,
-    `<div class="stat"><b>${openRequestReports}</b><span>요청 신고 대기</span></div>`,
-    `<div class="stat"><b>${bannedResult.count ?? 0}</b><span>이용 제한 계정</span></div>`,
-  ].join("");
-}
+      // 대시보드 로드
+      async function loadDashboard() {
+        const [
+          requestResult,
+          questionResult,
+          reportResult,
+          requestReportResult,
+          bannedResult,
+        ] = await Promise.all([
+          client.from("exam_requests").select("status"),
+          client.from("questions").select("status"),
+          client.from("question_reports").select("status"),
+          client.from("exam_request_reports").select("status"),
+          client
+            .from("profiles")
+            .select("id", { count: "exact", head: true })
+            .not("banned_at", "is", null),
+        ]);
+        const failure =
+          requestResult.error ??
+          questionResult.error ??
+          reportResult.error ??
+          requestReportResult.error ??
+          bannedResult.error;
+        if (failure) {
+          setStatus(`대시보드 조회 실패: ${failure.message}`, true);
+          return;
+        }
+        const renderStats = (counts) =>
+          Object.entries(counts)
+            .map(
+              ([status, count]) =>
+                `<div class="stat"><b>${count}</b><span>${esc(status)}</span></div>`,
+            )
+            .join("");
+        $("dash-requests").innerHTML = renderStats(
+          countByStatus(requestResult.data, REQUEST_STATUSES),
+        );
+        $("dash-questions").innerHTML = renderStats(
+          countByStatus(questionResult.data, QUESTION_STATUSES),
+        );
+        const openQuestionReports = countByStatus(
+          reportResult.data,
+          REPORT_STATUSES,
+        ).open;
+        const openRequestReports = countByStatus(
+          requestReportResult.data,
+          REPORT_STATUSES,
+        ).open;
+        $("dash-moderation").innerHTML = [
+          `<div class="stat"><b>${openQuestionReports}</b><span>문제 신고 대기</span></div>`,
+          `<div class="stat"><b>${openRequestReports}</b><span>요청 신고 대기</span></div>`,
+          `<div class="stat"><b>${bannedResult.count ?? 0}</b><span>이용 제한 계정</span></div>`,
+        ].join("");
+      }
 
-// 시험 목록 로드
-async function loadExams() {
-  const [examResult, subjectResult] = await Promise.all([
-    client.from("exams").select("id, title, short_title, icon, status").order("id"),
-    client.from("exam_subjects").select("exam_id, name, sort_order").order("sort_order"),
-  ]);
-  if (examResult.error || subjectResult.error) {
-    setStatus(`시험 조회 실패: ${(examResult.error ?? subjectResult.error).message}`, true);
-    return;
-  }
-  const subjectsByExam = {};
-  for (const subject of subjectResult.data ?? []) {
-    (subjectsByExam[subject.exam_id] ??= []).push(subject.name);
-  }
-  const statusOptions = EXAM_STATUSES.map((status) => `<option value="${status}">${status}</option>`).join("");
-  $("exam-table").querySelector("tbody").innerHTML = (examResult.data ?? [])
-    .map(
-      (exam) => `<tr data-id="${esc(exam.id)}">
+      // 시험 목록 로드
+      async function loadExams() {
+        const [examResult, subjectResult] = await Promise.all([
+          client
+            .from("exams")
+            .select("id, title, short_title, icon, status")
+            .order("id"),
+          client
+            .from("exam_subjects")
+            .select("exam_id, name, sort_order")
+            .order("sort_order"),
+        ]);
+        if (examResult.error || subjectResult.error) {
+          setStatus(
+            `시험 조회 실패: ${(examResult.error ?? subjectResult.error).message}`,
+            true,
+          );
+          return;
+        }
+        const subjectsByExam = {};
+        for (const subject of subjectResult.data ?? []) {
+          (subjectsByExam[subject.exam_id] ??= []).push(subject.name);
+        }
+        const statusOptions = EXAM_STATUSES.map(
+          (status) => `<option value="${status}">${status}</option>`,
+        ).join("");
+        $("exam-table").querySelector("tbody").innerHTML =
+          (examResult.data ?? [])
+            .map(
+              (exam) => `<tr data-id="${esc(exam.id)}">
         <td class="muted">${esc(exam.id)}</td>
         <td>${esc(exam.icon)} ${esc(exam.title)}<div class="muted">${esc(exam.short_title)}</div></td>
         <td class="muted">${esc((subjectsByExam[exam.id] ?? []).join(" · "))}</td>
         <td><span class="badge ${esc(exam.status)}">${esc(exam.status)}</span></td>
         <td><select data-role="status">${statusOptions}</select> <button class="action" data-role="apply">적용</button></td>
       </tr>`,
-    )
-    .join("") || `<tr><td colspan="5" class="muted">등록된 시험이 없습니다</td></tr>`;
-  for (const tr of $("exam-table").querySelectorAll("tbody tr[data-id]")) {
-    tr.querySelector('[data-role="status"]').value =
-      (examResult.data ?? []).find((exam) => exam.id === tr.dataset.id)?.status ?? "draft";
-  }
-}
+            )
+            .join("") ||
+          `<tr><td colspan="5" class="muted">등록된 시험이 없습니다</td></tr>`;
+        for (const tr of $("exam-table").querySelectorAll(
+          "tbody tr[data-id]",
+        )) {
+          tr.querySelector('[data-role="status"]').value =
+            (examResult.data ?? []).find((exam) => exam.id === tr.dataset.id)
+              ?.status ?? "draft";
+        }
+      }
 
-// 시험 신규 등록 (draft)
-async function createExam() {
-  const id = $("exam-id").value.trim();
-  const title = $("exam-title").value.trim();
-  const shortTitle = $("exam-short").value.trim();
-  const description = $("exam-desc").value.trim();
-  const icon = $("exam-icon").value.trim() || "📚";
-  const subjects = $("exam-subjects").value.split(",").map((name) => name.trim()).filter(Boolean);
-  if (!/^[a-z0-9][a-z0-9-]{1,39}$/.test(id)) {
-    alert("examId는 영문 소문자·숫자·하이픈 2~40자입니다");
-    return;
-  }
-  if (!title || !shortTitle || subjects.length === 0) {
-    alert("시험명·짧은 이름·과목을 입력해 주세요");
-    return;
-  }
+      // 시험 신규 등록 (draft)
+      async function createExam() {
+        const id = $("exam-id").value.trim();
+        const title = $("exam-title").value.trim();
+        const shortTitle = $("exam-short").value.trim();
+        const description = $("exam-desc").value.trim();
+        const icon = $("exam-icon").value.trim() || "📚";
+        const subjects = $("exam-subjects")
+          .value.split(",")
+          .map((name) => name.trim())
+          .filter(Boolean);
+        if (!/^[a-z0-9][a-z0-9-]{1,39}$/.test(id)) {
+          alert("examId는 영문 소문자·숫자·하이픈 2~40자입니다");
+          return;
+        }
+        if (!title || !shortTitle || subjects.length === 0) {
+          alert("시험명·짧은 이름·과목을 입력해 주세요");
+          return;
+        }
 
-  const { error } = await client
-    .from("exams")
-    .insert({ id, title, short_title: shortTitle, description, icon, status: "draft" });
-  if (error) {
-    alert(`시험 등록 실패: ${error.message}`);
-    return;
-  }
-  const { error: subjectError } = await client
-    .from("exam_subjects")
-    .insert(subjects.map((name, index) => ({ exam_id: id, name, sort_order: index })));
-  if (subjectError) {
-    alert(`과목 등록 실패: ${subjectError.message}`);
-    return;
-  }
-  for (const field of ["exam-id", "exam-title", "exam-short", "exam-desc", "exam-icon", "exam-subjects"]) {
-    $(field).value = "";
-  }
-  await loadExams();
-}
+        const { error } = await client.from("exams").insert({
+          id,
+          title,
+          short_title: shortTitle,
+          description,
+          icon,
+          status: "draft",
+        });
+        if (error) {
+          alert(`시험 등록 실패: ${error.message}`);
+          return;
+        }
+        const { error: subjectError } = await client
+          .from("exam_subjects")
+          .insert(
+            subjects.map((name, index) => ({
+              exam_id: id,
+              name,
+              sort_order: index,
+            })),
+          );
+        if (subjectError) {
+          alert(`과목 등록 실패: ${subjectError.message}`);
+          return;
+        }
+        for (const field of [
+          "exam-id",
+          "exam-title",
+          "exam-short",
+          "exam-desc",
+          "exam-icon",
+          "exam-subjects",
+        ]) {
+          $(field).value = "";
+        }
+        await loadExams();
+      }
 
-// 시험 노출 상태 전환 (active 전환 시 published_at 기록)
-async function applyExamStatus(tr) {
-  const nextStatus = tr.querySelector('[data-role="status"]').value;
-  const patch = { status: nextStatus };
-  if (nextStatus === "active") patch.published_at = new Date().toISOString();
-  const { error } = await client.from("exams").update(patch).eq("id", tr.dataset.id);
-  if (error) {
-    alert(`상태 전환 실패: ${error.message}`);
-    return;
-  }
-  await loadExams();
-}
+      // 시험 노출 상태 전환 (active 전환 시 published_at 기록)
+      async function applyExamStatus(tr) {
+        const nextStatus = tr.querySelector('[data-role="status"]').value;
+        const patch = { status: nextStatus };
+        if (nextStatus === "active")
+          patch.published_at = new Date().toISOString();
+        const { error } = await client
+          .from("exams")
+          .update(patch)
+          .eq("id", tr.dataset.id);
+        if (error) {
+          alert(`상태 전환 실패: ${error.message}`);
+          return;
+        }
+        await loadExams();
+      }
 
-// 요청 목록 로드
-async function loadRequests() {
-  let query = client
-    .from("exam_requests")
-    .select("id, display_name, organization, grade_level, status, vote_count, published_exam_id, created_at")
-    .order("vote_count", { ascending: false })
-    .limit(100);
-  const filter = $("req-status").value;
-  if (filter) query = query.eq("status", filter);
-  const { data, error } = await query;
-  if (error) {
-    setStatus(`요청 조회 실패: ${error.message}`, true);
-    return;
-  }
-  requestRows = data ?? [];
-  const statusOptions = REQUEST_STATUSES.map((status) => `<option value="${status}">${status}</option>`).join("");
-  $("req-table").querySelector("tbody").innerHTML = requestRows
-    .map((row) => {
-      const meta = [row.organization, row.grade_level].filter(Boolean).join(" · ");
-      return `<tr data-id="${esc(row.id)}">
+      // 요청 목록 로드
+      async function loadRequests() {
+        let query = client
+          .from("exam_requests")
+          .select(
+            "id, display_name, organization, grade_level, status, vote_count, published_exam_id, created_at",
+          )
+          .order("vote_count", { ascending: false })
+          .limit(100);
+        const filter = $("req-status").value;
+        if (filter) query = query.eq("status", filter);
+        const { data, error } = await query;
+        if (error) {
+          setStatus(`요청 조회 실패: ${error.message}`, true);
+          return;
+        }
+        requestRows = data ?? [];
+        const statusOptions = REQUEST_STATUSES.map(
+          (status) => `<option value="${status}">${status}</option>`,
+        ).join("");
+        $("req-table").querySelector("tbody").innerHTML =
+          requestRows
+            .map((row) => {
+              const meta = [row.organization, row.grade_level]
+                .filter(Boolean)
+                .join(" · ");
+              return `<tr data-id="${esc(row.id)}">
         <td>${esc(row.display_name)}<div class="muted">${new Date(row.created_at).toLocaleDateString("ko-KR")}</div></td>
         <td class="muted">${esc(meta)}</td>
         <td>${row.vote_count}</td>
@@ -457,62 +886,73 @@ async function loadRequests() {
         <td><button class="action" data-role="apply">적용</button></td>
         <td><button class="action subtle" data-role="detail">상세</button></td>
       </tr>`;
-    })
-    .join("") || `<tr><td colspan="8" class="muted">표시할 요청이 없습니다</td></tr>`;
-  for (const tr of $("req-table").querySelectorAll("tbody tr[data-id]")) {
-    tr.querySelector('[data-role="status"]').value = requestRows.find((row) => row.id === tr.dataset.id)?.status ?? "requested";
-  }
-}
+            })
+            .join("") ||
+          `<tr><td colspan="8" class="muted">표시할 요청이 없습니다</td></tr>`;
+        for (const tr of $("req-table").querySelectorAll("tbody tr[data-id]")) {
+          tr.querySelector('[data-role="status"]').value =
+            requestRows.find((row) => row.id === tr.dataset.id)?.status ??
+            "requested";
+        }
+      }
 
-// 요청 상태 변경 적용 (트리거가 이력·알림 처리)
-async function applyRequest(tr) {
-  const requestId = tr.dataset.id;
-  const nextStatus = tr.querySelector('[data-role="status"]').value;
-  const examId = tr.querySelector('[data-role="exam"]').value.trim();
-  if (nextStatus === "published" && !examId) {
-    alert("published 전환에는 시험 연결(examId)이 필요합니다");
-    return;
-  }
-  const patch = { status: nextStatus };
-  if (examId) patch.published_exam_id = examId;
-  const { error } = await client.from("exam_requests").update(patch).eq("id", requestId);
-  if (error) {
-    alert(`상태 변경 실패: ${error.message}`);
-    return;
-  }
-  await loadRequests();
-}
+      // 요청 상태 변경 적용 (트리거가 이력·알림 처리)
+      async function applyRequest(tr) {
+        const requestId = tr.dataset.id;
+        const nextStatus = tr.querySelector('[data-role="status"]').value;
+        const examId = tr.querySelector('[data-role="exam"]').value.trim();
+        if (nextStatus === "published" && !examId) {
+          alert("published 전환에는 시험 연결(examId)이 필요합니다");
+          return;
+        }
+        const patch = { status: nextStatus };
+        if (examId) patch.published_exam_id = examId;
+        const { error } = await client
+          .from("exam_requests")
+          .update(patch)
+          .eq("id", requestId);
+        if (error) {
+          alert(`상태 변경 실패: ${error.message}`);
+          return;
+        }
+        await loadRequests();
+      }
 
-// 요청 상세·별칭·병합 패널 토글
-async function toggleRequestDetail(tr) {
-  const next = tr.nextElementSibling;
-  if (next?.classList.contains("detail-row")) {
-    next.remove();
-    return;
-  }
-  document.querySelectorAll("#req-table .detail-row").forEach((row) => row.remove());
-  const request = requestRows.find((row) => row.id === tr.dataset.id);
-  if (!request) return;
+      // 요청 상세·별칭·병합 패널 토글
+      async function toggleRequestDetail(tr) {
+        const next = tr.nextElementSibling;
+        if (next?.classList.contains("detail-row")) {
+          next.remove();
+          return;
+        }
+        document
+          .querySelectorAll("#req-table .detail-row")
+          .forEach((row) => row.remove());
+        const request = requestRows.find((row) => row.id === tr.dataset.id);
+        if (!request) return;
 
-  const { data: aliases, error } = await client
-    .from("exam_request_aliases")
-    .select("id, alias, created_at")
-    .eq("request_id", request.id)
-    .order("alias");
-  if (error) {
-    alert(`별칭 조회 실패: ${error.message}`);
-    return;
-  }
+        const { data: aliases, error } = await client
+          .from("exam_request_aliases")
+          .select("id, alias, created_at")
+          .eq("request_id", request.id)
+          .order("alias");
+        if (error) {
+          alert(`별칭 조회 실패: ${error.message}`);
+          return;
+        }
 
-  const mergeOptions = requestRows
-    .filter((row) => row.id !== request.id && row.status !== "duplicate")
-    .map((row) => `<option value="${esc(row.id)}">${esc(row.display_name)} (${row.vote_count}표)</option>`)
-    .join("");
-  const detail = document.createElement("tr");
-  detail.className = "detail-row";
-  detail.innerHTML = `<td colspan="8">
+        const mergeOptions = requestRows
+          .filter((row) => row.id !== request.id && row.status !== "duplicate")
+          .map(
+            (row) =>
+              `<option value="${esc(row.id)}">${esc(row.display_name)} (${row.vote_count}표)</option>`,
+          )
+          .join("");
+        const detail = document.createElement("tr");
+        detail.className = "detail-row";
+        detail.innerHTML = `<td colspan="8">
     <p class="muted">요청 ID: ${esc(request.id)}</p>
-    <p>검색 별칭: ${(aliases ?? []).length > 0 ? (aliases ?? []).map((row) => esc(row.alias)).join(" · ") : "<span class=\"muted\">없음</span>"}</p>
+    <p>검색 별칭: ${(aliases ?? []).length > 0 ? (aliases ?? []).map((row) => esc(row.alias)).join(" · ") : '<span class="muted">없음</span>'}</p>
     <div class="row">
       <div><input data-role="alias" placeholder="추가할 검색 별칭 (예: 컴활2급)" /></div>
       <div class="fit"><button class="action" data-role="alias-add">별칭 추가</button></div>
@@ -526,96 +966,139 @@ async function toggleRequestDetail(tr) {
       <div class="fit"><button class="action danger" data-role="merge" ${mergeOptions ? "" : "disabled"}>병합</button></div>
     </div>
   </td>`;
-  tr.after(detail);
+        tr.after(detail);
 
-  // 검색 별칭 등록
-  detail.querySelector('[data-role="alias-add"]').addEventListener("click", async () => {
-    const alias = detail.querySelector('[data-role="alias"]').value.trim();
-    if (!alias) {
-      alert("별칭을 입력해 주세요");
-      return;
-    }
-    const { error: aliasError } = await client.rpc("add_exam_request_alias", {
-      p_request_id: request.id,
-      p_alias: alias,
-    });
-    if (aliasError) {
-      alert(`별칭 추가 실패: ${aliasError.message}`);
-      return;
-    }
-    detail.remove();
-    await toggleRequestDetail(tr);
-  });
+        // 검색 별칭 등록
+        detail
+          .querySelector('[data-role="alias-add"]')
+          .addEventListener("click", async () => {
+            const alias = detail
+              .querySelector('[data-role="alias"]')
+              .value.trim();
+            if (!alias) {
+              alert("별칭을 입력해 주세요");
+              return;
+            }
+            const { error: aliasError } = await client.rpc(
+              "add_exam_request_alias",
+              {
+                p_request_id: request.id,
+                p_alias: alias,
+              },
+            );
+            if (aliasError) {
+              alert(`별칭 추가 실패: ${aliasError.message}`);
+              return;
+            }
+            detail.remove();
+            await toggleRequestDetail(tr);
+          });
 
-  // 중복 요청 병합
-  detail.querySelector('[data-role="merge"]').addEventListener("click", async () => {
-    const targetId = detail.querySelector('[data-role="merge-target"]').value;
-    if (!targetId) return;
-    if (!confirm("이 요청의 투표를 대표 요청으로 이관하고 중복 처리합니다. 계속할까요?")) return;
-    const { error: mergeError } = await client.rpc("merge_exam_requests", {
-      p_source_id: request.id,
-      p_target_id: targetId,
-      p_note: detail.querySelector('[data-role="merge-note"]').value.trim() || null,
-    });
-    if (mergeError) {
-      alert(`병합 실패: ${mergeError.message}`);
-      return;
-    }
-    await loadRequests();
-  });
-}
+        // 중복 요청 병합
+        detail
+          .querySelector('[data-role="merge"]')
+          .addEventListener("click", async () => {
+            const targetId = detail.querySelector(
+              '[data-role="merge-target"]',
+            ).value;
+            if (!targetId) return;
+            if (
+              !confirm(
+                "이 요청의 투표를 대표 요청으로 이관하고 중복 처리합니다. 계속할까요?",
+              )
+            )
+              return;
+            const { error: mergeError } = await client.rpc(
+              "merge_exam_requests",
+              {
+                p_source_id: request.id,
+                p_target_id: targetId,
+                p_note:
+                  detail
+                    .querySelector('[data-role="merge-note"]')
+                    .value.trim() || null,
+              },
+            );
+            if (mergeError) {
+              alert(`병합 실패: ${mergeError.message}`);
+              return;
+            }
+            await loadRequests();
+          });
+      }
 
-// 문제 목록 로드
-async function loadQuestions() {
-  let query = client
-    .from("questions")
-    .select("id, exam_id, subject, prompt, choices, answer_index, explanation, status, source_type, version")
-    .order("exam_id")
-    .order("id")
-    .limit(200);
-  const statusFilter = $("q-status").value;
-  const examFilter = $("q-exam").value.trim();
-  if (statusFilter) query = query.eq("status", statusFilter);
-  if (examFilter) query = query.eq("exam_id", examFilter);
-  const { data, error } = await query;
-  if (error) {
-    setStatus(`문제 조회 실패: ${error.message}`, true);
-    return;
-  }
-  questionRows = data ?? [];
-  $("q-table").querySelector("tbody").innerHTML = questionRows
-    .map((row) => {
-      const preview = row.prompt.length > 50 ? `${row.prompt.slice(0, 50)}…` : row.prompt;
-      return `<tr data-id="${esc(row.id)}">
+      // 문제 목록 로드
+      async function loadQuestions() {
+        let query = client
+          .from("questions")
+          .select(
+            "id, exam_id, subject, prompt, choices, answer_index, explanation, status, source_type, version",
+          )
+          .order("exam_id")
+          .order("id")
+          .limit(200);
+        const statusFilter = $("q-status").value;
+        const examFilter = $("q-exam").value.trim();
+        if (statusFilter) query = query.eq("status", statusFilter);
+        if (examFilter) query = query.eq("exam_id", examFilter);
+        const { data, error } = await query;
+        if (error) {
+          setStatus(`문제 조회 실패: ${error.message}`, true);
+          return;
+        }
+        questionRows = data ?? [];
+        $("q-table").querySelector("tbody").innerHTML =
+          questionRows
+            .map((row) => {
+              const preview =
+                row.prompt.length > 50
+                  ? `${row.prompt.slice(0, 50)}…`
+                  : row.prompt;
+              return `<tr data-id="${esc(row.id)}">
         <td class="muted">${esc(row.id)}<div>v${row.version}</div></td>
         <td class="muted">${esc(row.exam_id)}<div>${esc(row.subject)}</div></td>
         <td>${esc(preview)}</td>
         <td><span class="badge ${esc(row.status)}">${esc(row.status)}</span></td>
         <td><button class="action subtle" data-role="toggle">상세</button></td>
       </tr>`;
-    })
-    .join("") || `<tr><td colspan="5" class="muted">표시할 문제가 없습니다</td></tr>`;
-}
+            })
+            .join("") ||
+          `<tr><td colspan="5" class="muted">표시할 문제가 없습니다</td></tr>`;
+      }
 
-// 문제 상세·검수 패널 토글
-function toggleQuestionDetail(tr) {
-  const next = tr.nextElementSibling;
-  if (next?.classList.contains("detail-row")) {
-    next.remove();
-    return;
-  }
-  document.querySelectorAll("#q-table .detail-row").forEach((row) => row.remove());
-  const question = questionRows.find((row) => row.id === tr.dataset.id);
-  if (!question) return;
-  const choices = question.choices
-    .map((choice, index) => `<li class="${index === question.answer_index ? "answer" : ""}">${index}. ${esc(choice)}</li>`)
-    .join("");
-  const detail = document.createElement("tr");
-  detail.className = "detail-row";
-  detail.innerHTML = `<td colspan="5">
+      // 문제 상세·검수 패널 토글
+      function toggleQuestionDetail(tr) {
+        const next = tr.nextElementSibling;
+        if (next?.classList.contains("detail-row")) {
+          next.remove();
+          return;
+        }
+        document
+          .querySelectorAll("#q-table .detail-row")
+          .forEach((row) => row.remove());
+        const question = questionRows.find((row) => row.id === tr.dataset.id);
+        if (!question) return;
+        const choices = question.choices
+          .map(
+            (choice, index) =>
+              `<li class="${index === question.answer_index ? "answer" : ""}">${index}. ${esc(choice)}</li>`,
+          )
+          .join("");
+        const detail = document.createElement("tr");
+        detail.className = "detail-row";
+        detail.innerHTML = `<td colspan="5">
     <p>${esc(question.prompt)}</p>
     <ul class="choices">${choices}</ul>
     <p class="muted">해설: ${esc(question.explanation)}</p>
+    <fieldset><legend>출처·이용 권한</legend>
+      <label>출처명 <input data-role="source-name" /></label>
+      <label>출처 URL <input data-role="source-url" type="url" /></label>
+      <label>이용 조건·라이선스 <input data-role="source-license" /></label>
+      <label>유형 <select data-role="source-type"><option value="manual">자체 제작</option><option value="ai_generated">AI 보조 제작</option><option value="public_past_exam">공개 기출</option></select></label>
+      <label>권리 증빙 <textarea data-role="source-evidence"></textarea></label>
+      <label><input data-role="source-verified" type="checkbox" /> 이용 권한 증빙을 직접 확인함</label>
+      <button class="action" data-role="save-source">출처 연결·재검수 요청</button>
+    </fieldset>
     <div class="row">
       <div><input data-role="note" placeholder="검수 메모 (선택)" /></div>
       <div class="fit"><button class="action success" data-verdict="approved">승인</button></div>
@@ -624,80 +1107,159 @@ function toggleQuestionDetail(tr) {
       <div class="fit"><button class="action" data-role="publish" ${question.status === "approved" ? "" : "disabled"}>공개</button></div>
     </div>
   </td>`;
-  tr.after(detail);
+        tr.after(detail);
+        // 출처 증빙 연결
+        detail
+          .querySelector('[data-role="save-source"]')
+          .addEventListener("click", async () => {
+            const name = detail
+              .querySelector('[data-role="source-name"]')
+              .value.trim();
+            const url = detail
+              .querySelector('[data-role="source-url"]')
+              .value.trim();
+            const license = detail
+              .querySelector('[data-role="source-license"]')
+              .value.trim();
+            const evidence = detail
+              .querySelector('[data-role="source-evidence"]')
+              .value.trim();
+            const sourceType = detail.querySelector(
+              '[data-role="source-type"]',
+            ).value;
+            if (
+              !name ||
+              !license ||
+              !evidence ||
+              !detail.querySelector('[data-role="source-verified"]').checked
+            ) {
+              alert("출처와 이용 조건·증빙 확인을 모두 입력해 주세요");
+              return;
+            }
+            if (url && !url.startsWith("https://")) {
+              alert("출처 URL은 HTTPS 주소여야 합니다");
+              return;
+            }
+            const { data: source, error } = await client
+              .from("content_sources")
+              .insert({
+                exam_id: question.exam_id,
+                name,
+                url: url || null,
+                license,
+                source_type: sourceType,
+                rights_evidence: evidence,
+                rights_verified_at: new Date().toISOString(),
+              })
+              .select("id")
+              .single();
+            if (error) {
+              alert("출처 저장 실패");
+              return;
+            }
+            const { error: linkError } = await client
+              .from("questions")
+              .update({
+                source_id: source.id,
+                source_type: sourceType,
+                status: "needs_review",
+              })
+              .eq("id", question.id);
+            if (linkError) {
+              alert("출처 연결 실패");
+              return;
+            }
+            await loadQuestions();
+          });
 
-  // 검수 판정 기록 및 상태 전환
-  detail.querySelectorAll("[data-verdict]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const verdict = button.dataset.verdict;
-      const note = detail.querySelector('[data-role="note"]').value.trim() || null;
-      const { error: reviewError } = await client.from("question_reviews").insert({ question_id: question.id, verdict, note });
-      if (reviewError) {
-        alert(`검수 기록 실패: ${reviewError.message}`);
-        return;
+        // 검수 판정 기록 및 상태 전환
+        detail.querySelectorAll("[data-verdict]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const verdict = button.dataset.verdict;
+            const note =
+              detail.querySelector('[data-role="note"]').value.trim() || null;
+            const { error: reviewError } = await client
+              .from("question_reviews")
+              .insert({ question_id: question.id, verdict, note });
+            if (reviewError) {
+              alert(`검수 기록 실패: ${reviewError.message}`);
+              return;
+            }
+            const patch = { status: STATUS_BY_VERDICT[verdict] };
+            if (patch.status === "retired")
+              patch.retired_at = new Date().toISOString();
+            const { error } = await client
+              .from("questions")
+              .update(patch)
+              .eq("id", question.id);
+            if (error) {
+              alert(`상태 전환 실패: ${error.message}`);
+              return;
+            }
+            await loadQuestions();
+          });
+        });
+
+        // 승인 문제 단건 공개
+        detail
+          .querySelector('[data-role="publish"]')
+          .addEventListener("click", async () => {
+            const { error } = await client
+              .from("questions")
+              .update({
+                status: "published",
+                published_at: new Date().toISOString(),
+              })
+              .eq("id", question.id)
+              .eq("status", "approved");
+            if (error) {
+              alert(`공개 실패: ${error.message}`);
+              return;
+            }
+            await loadQuestions();
+          });
       }
-      const patch = { status: STATUS_BY_VERDICT[verdict] };
-      if (patch.status === "retired") patch.retired_at = new Date().toISOString();
-      const { error } = await client.from("questions").update(patch).eq("id", question.id);
-      if (error) {
-        alert(`상태 전환 실패: ${error.message}`);
-        return;
+
+      // 시험 단위 승인분 일괄 공개
+      async function publishExamQuestions() {
+        const examId = $("q-exam").value.trim();
+        if (!examId) {
+          alert("시험 필터(examId)를 입력해 주세요");
+          return;
+        }
+        const { data, error } = await client
+          .from("questions")
+          .update({
+            status: "published",
+            published_at: new Date().toISOString(),
+          })
+          .eq("exam_id", examId)
+          .eq("status", "approved")
+          .select("id");
+        if (error) {
+          alert(`일괄 공개 실패: ${error.message}`);
+          return;
+        }
+        alert(`공개 완료: ${data?.length ?? 0}건`);
+        await loadQuestions();
       }
-      await loadQuestions();
-    });
-  });
 
-  // 승인 문제 단건 공개
-  detail.querySelector('[data-role="publish"]').addEventListener("click", async () => {
-    const { error } = await client
-      .from("questions")
-      .update({ status: "published", published_at: new Date().toISOString() })
-      .eq("id", question.id)
-      .eq("status", "approved");
-    if (error) {
-      alert(`공개 실패: ${error.message}`);
-      return;
-    }
-    await loadQuestions();
-  });
-}
-
-// 시험 단위 승인분 일괄 공개
-async function publishExamQuestions() {
-  const examId = $("q-exam").value.trim();
-  if (!examId) {
-    alert("시험 필터(examId)를 입력해 주세요");
-    return;
-  }
-  const { data, error } = await client
-    .from("questions")
-    .update({ status: "published", published_at: new Date().toISOString() })
-    .eq("exam_id", examId)
-    .eq("status", "approved")
-    .select("id");
-  if (error) {
-    alert(`일괄 공개 실패: ${error.message}`);
-    return;
-  }
-  alert(`공개 완료: ${data?.length ?? 0}건`);
-  await loadQuestions();
-}
-
-// 오류 신고 목록 로드
-async function loadReports() {
-  const { data, error } = await client
-    .from("question_reports")
-    .select("id, question_id, reason, status, created_at")
-    .eq("status", "open")
-    .order("created_at", { ascending: true })
-    .limit(100);
-  if (error) {
-    setStatus(`신고 조회 실패: ${error.message}`, true);
-    return;
-  }
-  $("rep-table").querySelector("tbody").innerHTML = (data ?? [])
-    .map(
-      (report) => `<tr data-id="${report.id}">
+      // 오류 신고 목록 로드
+      async function loadReports() {
+        const { data, error } = await client
+          .from("question_reports")
+          .select("id, question_id, reason, status, created_at")
+          .eq("status", "open")
+          .order("created_at", { ascending: true })
+          .limit(100);
+        if (error) {
+          setStatus(`신고 조회 실패: ${error.message}`, true);
+          return;
+        }
+        $("rep-table").querySelector("tbody").innerHTML =
+          (data ?? [])
+            .map(
+              (report) => `<tr data-id="${report.id}">
         <td class="muted">${esc(report.question_id)}</td>
         <td>${esc(report.reason)}</td>
         <td class="muted">${new Date(report.created_at).toLocaleDateString("ko-KR")}</td>
@@ -706,109 +1268,119 @@ async function loadReports() {
           <button class="action subtle" data-resolution="dismissed">기각</button>
         </td>
       </tr>`,
-    )
-    .join("") || `<tr><td colspan="4" class="muted">처리할 신고가 없습니다</td></tr>`;
-}
+            )
+            .join("") ||
+          `<tr><td colspan="4" class="muted">처리할 신고가 없습니다</td></tr>`;
+      }
 
-// 신고 처리 상태 전환
-async function resolveReport(reportId, resolution) {
-  const { error } = await client
-    .from("question_reports")
-    .update({ status: resolution, resolved_at: new Date().toISOString() })
-    .eq("id", reportId);
-  if (error) {
-    alert(`신고 처리 실패: ${error.message}`);
-    return;
-  }
-  await loadReports();
-}
+      // 신고 처리 상태 전환
+      async function resolveReport(reportId, resolution) {
+        const { error } = await client
+          .from("question_reports")
+          .update({ status: resolution, resolved_at: new Date().toISOString() })
+          .eq("id", reportId);
+        if (error) {
+          alert(`신고 처리 실패: ${error.message}`);
+          return;
+        }
+        await loadReports();
+      }
 
-// 시험 요청 신고 목록 로드
-async function loadRequestReports() {
-  let query = client
-    .from("exam_request_reports")
-    .select("id, request_id, reason, status, created_at, exam_requests (display_name, status, requester_id)")
-    .order("created_at", { ascending: true })
-    .limit(100);
-  const filter = $("rreq-status").value;
-  if (filter) query = query.eq("status", filter);
-  const { data, error } = await query;
-  if (error) {
-    setStatus(`요청 신고 조회 실패: ${error.message}`, true);
-    return;
-  }
-  $("rreq-table").querySelector("tbody").innerHTML = (data ?? [])
-    .map((report) => {
-      const request = report.exam_requests ?? {};
-      const requesterId = request.requester_id ?? "";
-      return `<tr data-id="${report.id}" data-request="${esc(report.request_id)}" data-requester="${esc(requesterId)}">
+      // 시험 요청 신고 목록 로드
+      async function loadRequestReports() {
+        let query = client
+          .from("exam_request_reports")
+          .select(
+            "id, request_id, reason, status, created_at, exam_requests (display_name, status, requester_id)",
+          )
+          .order("created_at", { ascending: true })
+          .limit(100);
+        const filter = $("rreq-status").value;
+        if (filter) query = query.eq("status", filter);
+        const { data, error } = await query;
+        if (error) {
+          setStatus(`요청 신고 조회 실패: ${error.message}`, true);
+          return;
+        }
+        $("rreq-table").querySelector("tbody").innerHTML =
+          (data ?? [])
+            .map((report) => {
+              const request = report.exam_requests ?? {};
+              const requesterId = request.requester_id ?? "";
+              return `<tr data-id="${report.id}" data-request="${esc(report.request_id)}" data-requester="${esc(requesterId)}">
         <td>${esc(request.display_name ?? report.request_id)}<div><span class="badge ${esc(request.status ?? "")}">${esc(request.status ?? "-")}</span></div></td>
         <td>${esc(report.reason)}</td>
         <td class="muted">${new Date(report.created_at).toLocaleDateString("ko-KR")}</td>
         <td>
           <span class="badge ${esc(report.status)}">${esc(report.status)}</span>
-          ${report.status === "open" ? `<button class="action danger" data-resolution="accepted">인정·비공개</button>
-          <button class="action subtle" data-resolution="dismissed">기각</button>` : ""}
+          ${
+            report.status === "open"
+              ? `<button class="action danger" data-resolution="accepted">인정·비공개</button>
+          <button class="action subtle" data-resolution="dismissed">기각</button>`
+              : ""
+          }
         </td>
         <td>${requesterId ? `<button class="action subtle" data-role="ban-requester">작성자 제한</button>` : `<span class="muted">삭제된 계정</span>`}</td>
       </tr>`;
-    })
-    .join("") || `<tr><td colspan="5" class="muted">표시할 신고가 없습니다</td></tr>`;
-}
+            })
+            .join("") ||
+          `<tr><td colspan="5" class="muted">표시할 신고가 없습니다</td></tr>`;
+      }
 
-// 요청 신고 처리 (인정 시 요청 비공개 전환)
-async function resolveRequestReport(tr, resolution) {
-  const { error } = await client
-    .from("exam_request_reports")
-    .update({ status: resolution, resolved_at: new Date().toISOString() })
-    .eq("id", tr.dataset.id);
-  if (error) {
-    alert(`신고 처리 실패: ${error.message}`);
-    return;
-  }
-  if (resolution === "accepted") {
-    const { error: blockError } = await client
-      .from("exam_requests")
-      .update({ status: "blocked" })
-      .eq("id", tr.dataset.request);
-    if (blockError) {
-      alert(`요청 비공개 전환 실패: ${blockError.message}`);
-      return;
-    }
-  }
-  await loadRequestReports();
-}
+      // 요청 신고 처리 (인정 시 요청 비공개 전환)
+      async function resolveRequestReport(tr, resolution) {
+        const { error } = await client
+          .from("exam_request_reports")
+          .update({ status: resolution, resolved_at: new Date().toISOString() })
+          .eq("id", tr.dataset.id);
+        if (error) {
+          alert(`신고 처리 실패: ${error.message}`);
+          return;
+        }
+        if (resolution === "accepted") {
+          const { error: blockError } = await client
+            .from("exam_requests")
+            .update({ status: "blocked" })
+            .eq("id", tr.dataset.request);
+          if (blockError) {
+            alert(`요청 비공개 전환 실패: ${blockError.message}`);
+            return;
+          }
+        }
+        await loadRequestReports();
+      }
 
-// 신고 대상 요청 작성자 이용 제한
-async function banRequestAuthor(tr) {
-  const reason = prompt("이용 제한 사유를 입력해 주세요");
-  if (reason == null) return;
-  const { error } = await client.rpc("set_user_ban", {
-    p_user_id: tr.dataset.requester,
-    p_banned: true,
-    p_reason: reason.trim() || null,
-  });
-  if (error) {
-    alert(`이용 제한 실패: ${error.message}`);
-    return;
-  }
-  alert("이용 제한을 적용했습니다");
-}
+      // 신고 대상 요청 작성자 이용 제한
+      async function banRequestAuthor(tr) {
+        const reason = prompt("이용 제한 사유를 입력해 주세요");
+        if (reason == null) return;
+        const { error } = await client.rpc("set_user_ban", {
+          p_user_id: tr.dataset.requester,
+          p_banned: true,
+          p_reason: reason.trim() || null,
+        });
+        if (error) {
+          alert(`이용 제한 실패: ${error.message}`);
+          return;
+        }
+        alert("이용 제한을 적용했습니다");
+      }
 
-// 사용자 목록 로드
-async function loadUsers() {
-  const { data, error } = await client.rpc("admin_list_users", {
-    p_keyword: $("user-keyword").value.trim() || null,
-    p_limit: 50,
-  });
-  if (error) {
-    setStatus(`사용자 조회 실패: ${error.message}`, true);
-    return;
-  }
-  $("user-table").querySelector("tbody").innerHTML = (data ?? [])
-    .map((user) => {
-      const isBanned = user.banned_at != null;
-      return `<tr data-id="${esc(user.id)}">
+      // 사용자 목록 로드
+      async function loadUsers() {
+        const { data, error } = await client.rpc("admin_list_users", {
+          p_keyword: $("user-keyword").value.trim() || null,
+          p_limit: 50,
+        });
+        if (error) {
+          setStatus(`사용자 조회 실패: ${error.message}`, true);
+          return;
+        }
+        $("user-table").querySelector("tbody").innerHTML =
+          (data ?? [])
+            .map((user) => {
+              const isBanned = user.banned_at != null;
+              return `<tr data-id="${esc(user.id)}">
         <td>${esc(user.email)}<div class="muted">${esc(user.nickname ?? "")}</div></td>
         <td class="muted">${new Date(user.created_at).toLocaleDateString("ko-KR")}</td>
         <td><span class="badge ${user.role === "admin" ? "approved" : ""}">${esc(user.role)}</span></td>
@@ -816,138 +1388,183 @@ async function loadUsers() {
         <td>${isBanned ? `<span class="muted">${esc(user.banned_reason ?? "")}</span>` : `<input data-role="reason" placeholder="제한 사유" />`}</td>
         <td><button class="action ${isBanned ? "subtle" : "danger"}" data-role="${isBanned ? "unban" : "ban"}">${isBanned ? "해제" : "제한"}</button></td>
       </tr>`;
-    })
-    .join("") || `<tr><td colspan="6" class="muted">표시할 사용자가 없습니다</td></tr>`;
-}
+            })
+            .join("") ||
+          `<tr><td colspan="6" class="muted">표시할 사용자가 없습니다</td></tr>`;
+      }
 
-// 사용자 이용 제한 상태 전환
-async function applyUserBan(tr, banned) {
-  const reason = tr.querySelector('[data-role="reason"]')?.value.trim() || null;
-  const { error } = await client.rpc("set_user_ban", {
-    p_user_id: tr.dataset.id,
-    p_banned: banned,
-    p_reason: reason,
-  });
-  if (error) {
-    alert(`이용 제한 변경 실패: ${error.message}`);
-    return;
-  }
-  await loadUsers();
-}
+      // 사용자 이용 제한 상태 전환
+      async function applyUserBan(tr, banned) {
+        const reason =
+          tr.querySelector('[data-role="reason"]')?.value.trim() || null;
+        const { error } = await client.rpc("set_user_ban", {
+          p_user_id: tr.dataset.id,
+          p_banned: banned,
+          p_reason: reason,
+        });
+        if (error) {
+          alert(`이용 제한 변경 실패: ${error.message}`);
+          return;
+        }
+        await loadUsers();
+      }
 
-// 금칙어 정규화 (DB normalize_exam_name과 동일 규칙)
-function normalizeTerm(value) {
-  return value.toLocaleLowerCase("ko-KR").replaceAll(/[^0-9a-z가-힣]/g, "");
-}
+      // 금칙어 정규화 (DB normalize_exam_name과 동일 규칙)
+      function normalizeTerm(value) {
+        return value
+          .toLocaleLowerCase("ko-KR")
+          .replaceAll(/[^0-9a-z가-힣]/g, "");
+      }
 
-// 금칙어 목록 로드
-async function loadBannedTerms() {
-  const { data, error } = await client.from("banned_terms").select("term, created_at").order("term").limit(500);
-  if (error) {
-    setStatus(`금칙어 조회 실패: ${error.message}`, true);
-    return;
-  }
-  $("term-table").querySelector("tbody").innerHTML = (data ?? [])
-    .map(
-      (row) => `<tr data-term="${esc(row.term)}">
+      // 금칙어 목록 로드
+      async function loadBannedTerms() {
+        const { data, error } = await client
+          .from("banned_terms")
+          .select("term, created_at")
+          .order("term")
+          .limit(500);
+        if (error) {
+          setStatus(`금칙어 조회 실패: ${error.message}`, true);
+          return;
+        }
+        $("term-table").querySelector("tbody").innerHTML =
+          (data ?? [])
+            .map(
+              (row) => `<tr data-term="${esc(row.term)}">
         <td>${esc(row.term)}</td>
         <td class="muted">${new Date(row.created_at).toLocaleDateString("ko-KR")}</td>
         <td><button class="action subtle" data-role="remove">삭제</button></td>
       </tr>`,
-    )
-    .join("") || `<tr><td colspan="3" class="muted">등록된 금칙어가 없습니다</td></tr>`;
-}
+            )
+            .join("") ||
+          `<tr><td colspan="3" class="muted">등록된 금칙어가 없습니다</td></tr>`;
+      }
 
-// 금칙어 추가
-async function addBannedTerm() {
-  const term = normalizeTerm($("term-input").value);
-  if (term.length < 2 || term.length > 50) {
-    alert("금칙어는 정규화 후 2~50자여야 합니다");
-    return;
-  }
-  const { error } = await client.from("banned_terms").upsert({ term });
-  if (error) {
-    alert(`금칙어 추가 실패: ${error.message}`);
-    return;
-  }
-  $("term-input").value = "";
-  await loadBannedTerms();
-}
+      // 금칙어 추가
+      async function addBannedTerm() {
+        const term = normalizeTerm($("term-input").value);
+        if (term.length < 2 || term.length > 50) {
+          alert("금칙어는 정규화 후 2~50자여야 합니다");
+          return;
+        }
+        const { error } = await client.from("banned_terms").upsert({ term });
+        if (error) {
+          alert(`금칙어 추가 실패: ${error.message}`);
+          return;
+        }
+        $("term-input").value = "";
+        await loadBannedTerms();
+      }
 
-// 금칙어 삭제
-async function removeBannedTerm(term) {
-  const { error } = await client.from("banned_terms").delete().eq("term", term);
-  if (error) {
-    alert(`금칙어 삭제 실패: ${error.message}`);
-    return;
-  }
-  await loadBannedTerms();
-}
+      // 금칙어 삭제
+      async function removeBannedTerm(term) {
+        const { error } = await client
+          .from("banned_terms")
+          .delete()
+          .eq("term", term);
+        if (error) {
+          alert(`금칙어 삭제 실패: ${error.message}`);
+          return;
+        }
+        await loadBannedTerms();
+      }
 
-// #region 이벤트 바인딩
-$("btn-connect").addEventListener("click", () => void connect());
-$("tabs").addEventListener("click", (event) => {
-  const tab = event.target.closest("button")?.dataset.tab;
-  if (tab) switchTab(tab);
-});
-$("btn-exam-create").addEventListener("click", () => void createExam());
-$("exam-table").addEventListener("click", (event) => {
-  if (event.target.dataset.role === "apply") void applyExamStatus(event.target.closest("tr"));
-});
-$("btn-req-reload").addEventListener("click", () => void loadRequests());
-$("req-status").addEventListener("change", () => void loadRequests());
-$("req-table").addEventListener("click", (event) => {
-  const role = event.target.dataset.role;
-  if (role === "apply") void applyRequest(event.target.closest("tr"));
-  if (role === "detail") void toggleRequestDetail(event.target.closest("tr"));
-});
-$("btn-q-reload").addEventListener("click", () => void loadQuestions());
-$("q-status").addEventListener("change", () => void loadQuestions());
-$("btn-q-publish-exam").addEventListener("click", () => void publishExamQuestions());
-$("q-table").addEventListener("click", (event) => {
-  if (event.target.dataset.role === "toggle") toggleQuestionDetail(event.target.closest("tr"));
-});
-$("btn-rep-reload").addEventListener("click", () => void loadReports());
-$("rep-table").addEventListener("click", (event) => {
-  const resolution = event.target.dataset.resolution;
-  if (resolution) void resolveReport(event.target.closest("tr").dataset.id, resolution);
-});
-$("btn-rreq-reload").addEventListener("click", () => void loadRequestReports());
-$("rreq-status").addEventListener("change", () => void loadRequestReports());
-$("rreq-table").addEventListener("click", (event) => {
-  const tr = event.target.closest("tr");
-  const resolution = event.target.dataset.resolution;
-  if (resolution) {
-    void resolveRequestReport(tr, resolution);
-    return;
-  }
-  if (event.target.dataset.role === "ban-requester") void banRequestAuthor(tr);
-});
-$("btn-user-search").addEventListener("click", () => void loadUsers());
-$("user-keyword").addEventListener("keydown", (event) => {
-  if (event.key === "Enter") void loadUsers();
-});
-$("user-table").addEventListener("click", (event) => {
-  const role = event.target.dataset.role;
-  if (role === "ban" || role === "unban") void applyUserBan(event.target.closest("tr"), role === "ban");
-});
-$("btn-term-add").addEventListener("click", () => void addBannedTerm());
-$("btn-term-reload").addEventListener("click", () => void loadBannedTerms());
-$("term-table").addEventListener("click", (event) => {
-  if (event.target.dataset.role === "remove") void removeBannedTerm(event.target.closest("tr").dataset.term);
-});
+      // #region 이벤트 바인딩
+      $("btn-connect").addEventListener(
+        "click",
+        () =>
+          void connect().catch(() =>
+            setStatus(
+              "연결을 완료하지 못했습니다. 입력과 네트워크를 확인해 주세요",
+              true,
+            ),
+          ),
+      );
+      $("tabs").addEventListener("click", (event) => {
+        const tab = event.target.closest("button")?.dataset.tab;
+        if (tab) switchTab(tab);
+      });
+      $("btn-exam-create").addEventListener("click", () => void createExam());
+      $("exam-table").addEventListener("click", (event) => {
+        if (event.target.dataset.role === "apply")
+          void applyExamStatus(event.target.closest("tr"));
+      });
+      $("btn-req-reload").addEventListener("click", () => void loadRequests());
+      $("req-status").addEventListener("change", () => void loadRequests());
+      $("req-table").addEventListener("click", (event) => {
+        const role = event.target.dataset.role;
+        if (role === "apply") void applyRequest(event.target.closest("tr"));
+        if (role === "detail")
+          void toggleRequestDetail(event.target.closest("tr"));
+      });
+      $("btn-q-reload").addEventListener("click", () => void loadQuestions());
+      $("q-status").addEventListener("change", () => void loadQuestions());
+      $("btn-q-publish-exam").addEventListener(
+        "click",
+        () => void publishExamQuestions(),
+      );
+      $("q-table").addEventListener("click", (event) => {
+        if (event.target.dataset.role === "toggle")
+          toggleQuestionDetail(event.target.closest("tr"));
+      });
+      $("btn-rep-reload").addEventListener("click", () => void loadReports());
+      $("rep-table").addEventListener("click", (event) => {
+        const resolution = event.target.dataset.resolution;
+        if (resolution)
+          void resolveReport(event.target.closest("tr").dataset.id, resolution);
+      });
+      $("btn-rreq-reload").addEventListener(
+        "click",
+        () => void loadRequestReports(),
+      );
+      $("rreq-status").addEventListener(
+        "change",
+        () => void loadRequestReports(),
+      );
+      $("rreq-table").addEventListener("click", (event) => {
+        const tr = event.target.closest("tr");
+        const resolution = event.target.dataset.resolution;
+        if (resolution) {
+          void resolveRequestReport(tr, resolution);
+          return;
+        }
+        if (event.target.dataset.role === "ban-requester")
+          void banRequestAuthor(tr);
+      });
+      $("btn-user-search").addEventListener("click", () => void loadUsers());
+      $("user-keyword").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") void loadUsers();
+      });
+      $("user-table").addEventListener("click", (event) => {
+        const role = event.target.dataset.role;
+        if (role === "ban" || role === "unban")
+          void applyUserBan(event.target.closest("tr"), role === "ban");
+      });
+      $("btn-term-add").addEventListener("click", () => void addBannedTerm());
+      $("btn-term-reload").addEventListener(
+        "click",
+        () => void loadBannedTerms(),
+      );
+      $("term-table").addEventListener("click", (event) => {
+        if (event.target.dataset.role === "remove")
+          void removeBannedTerm(event.target.closest("tr").dataset.term);
+      });
 
-// 필터 옵션 구성 및 저장된 연결 정보 복원
-$("req-status").insertAdjacentHTML("beforeend", REQUEST_STATUSES.map((status) => `<option value="${status}">${status}</option>`).join(""));
-$("q-status").insertAdjacentHTML("beforeend", QUESTION_STATUSES.map((status) => `<option value="${status}">${status}</option>`).join(""));
-const saved = localStorage.getItem(STORAGE_KEY);
-if (saved) {
-  const { url, key } = JSON.parse(saved);
-  $("cfg-url").value = url ?? "";
-  $("cfg-key").value = key ?? "";
-  void connect();
-}
-// #endregion
-</script>
-</body>
+      // 필터 옵션 구성 및 저장된 연결 정보 복원
+      $("req-status").insertAdjacentHTML(
+        "beforeend",
+        REQUEST_STATUSES.map(
+          (status) => `<option value="${status}">${status}</option>`,
+        ).join(""),
+      );
+      $("q-status").insertAdjacentHTML(
+        "beforeend",
+        QUESTION_STATUSES.map(
+          (status) => `<option value="${status}">${status}</option>`,
+        ).join(""),
+      );
+      localStorage.removeItem(STORAGE_KEY);
+      // #endregion
+    </script>
+  </body>
 </html>

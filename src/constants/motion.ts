@@ -16,7 +16,7 @@ export const Durations = {
 
 // 물리 전환 프리셋
 export const Springs = {
-  press: { damping: 18, stiffness: 420, mass: 0.35 },
+  press: { damping: 22, stiffness: 480, mass: 0.35 },
   pop: { damping: 12, stiffness: 260, mass: 0.6 },
   gentle: { damping: 20, stiffness: 150, mass: 0.8 },
   bouncy: { damping: 9, stiffness: 220, mass: 0.7 },
@@ -31,7 +31,7 @@ export const Timings = {
 } satisfies Record<string, WithTimingConfig>;
 
 // 오답 흔들림 이동 거리 단계
-export const ShakeOffsets = [-9, 8, -5, 3, 0] as const;
+export const ShakeOffsets = [-5, 4, -2, 1, 0] as const;
 
 // 리스트 순차 등장 지연 산출
 export function stagger(index: number, step = 55, maxIndex = 8): number {

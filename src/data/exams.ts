@@ -1,4 +1,5 @@
 import { Exam } from "@/types/exam";
+import { ADDITIONAL_EXAMS } from "@/data/additional-content";
 
 // 지원 시험 목록
 export const EXAMS: Exam[] = [
@@ -26,6 +27,7 @@ export const EXAMS: Exam[] = [
     icon: "📘",
     subjects: ["문법", "어휘"],
   },
+  ...ADDITIONAL_EXAMS,
 ];
 
 // examId 기준 시험 정보 조회

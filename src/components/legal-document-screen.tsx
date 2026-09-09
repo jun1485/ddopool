@@ -1,4 +1,5 @@
 import { SymbolView } from "expo-symbols";
+import type { PropsWithChildren } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,7 +15,10 @@ import { useTheme } from "@/hooks/use-theme";
 import { goBack } from "@/lib/navigation";
 
 // 법률 문서 화면 공통 레이아웃
-export function LegalDocumentScreen({ document }: { document: LegalDocument }) {
+export function LegalDocumentScreen({
+  document,
+  children,
+}: PropsWithChildren<{ document: LegalDocument }>) {
   const theme = useTheme();
 
   return (
@@ -46,7 +50,7 @@ export function LegalDocumentScreen({ document }: { document: LegalDocument }) {
           <View style={styles.topTitle}>
             <ThemedText type="smallBold">{document.title}</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              시행일 {document.effectiveDate}
+              시행일 {document.effectiveDate || "출시 전 확정 예정"}
             </ThemedText>
           </View>
           <View style={styles.iconButton} />
@@ -58,6 +62,7 @@ export function LegalDocumentScreen({ document }: { document: LegalDocument }) {
           showsVerticalScrollIndicator={false}
         >
           <LegalDocumentView markdown={document.markdown} />
+          {children}
           <ThemedText type="small" themeColor="textSecondary">
             작성일 {document.writtenAt}
           </ThemedText>
