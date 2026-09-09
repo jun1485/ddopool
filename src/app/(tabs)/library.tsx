@@ -1,13 +1,7 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useMemo, useState } from "react";
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -709,8 +703,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     gap: Spacing.four,
     paddingHorizontal: Spacing.four,
-    paddingTop:
-      Platform.OS === "web" ? Spacing.six + Spacing.four : Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.five,
   },
   header: {

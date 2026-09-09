@@ -1,7 +1,9 @@
 import { Question } from "@/types/exam";
+import { ADDITIONAL_QUESTIONS } from "@/data/additional-content";
 
 // 자체 제작 문제은행 (실제 기출 아님 — 시험별 출제 유형 기반 창작 문제)
 export const QUESTIONS: Question[] = [
+  ...ADDITIONAL_QUESTIONS,
   // #region 컴퓨터활용능력 1급 필기
   {
     id: "c1-001",

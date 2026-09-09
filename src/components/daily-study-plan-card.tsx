@@ -44,8 +44,8 @@ export function DailyStudyPlanCard({
             tintColor={theme.textSecondary}
             name={{
               ios: "wand.and.stars",
-              android: "auto_awesome",
-              web: "auto_awesome",
+              android: "checklist",
+              web: "checklist",
             }}
             size={22}
           />
@@ -156,9 +156,9 @@ export function DailyStudyPlanCard({
             <SymbolView
               tintColor={theme.primary}
               name={{
-                ios: "sparkles",
-                android: "auto_awesome",
-                web: "auto_awesome",
+                ios: "list.bullet",
+                android: "checklist",
+                web: "checklist",
               }}
               size={16}
             />
@@ -166,9 +166,7 @@ export function DailyStudyPlanCard({
               오늘의 맞춤 플랜
             </ThemedText>
           </View>
-          <ThemedText style={styles.title}>
-            남은 목표를 가장 효율적인 순서로
-          </ThemedText>
+          <ThemedText style={styles.title}>지금 풀 문제를 골랐어요</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             복습 일정과 취약 과목을 반영한 {plan.totalCount}문제
           </ThemedText>
@@ -218,7 +216,9 @@ export function DailyStudyPlanCard({
                 <View
                   style={[styles.taskIcon, { backgroundColor: softAccent }]}
                 >
-                  <ThemedText style={styles.taskEmoji}>{task.icon}</ThemedText>
+                  <ThemedText type="smallBold" style={{ color: accent }}>
+                    {index + 1}
+                  </ThemedText>
                 </View>
                 {index < plan.tasks.length - 1 && (
                   <View
@@ -270,7 +270,7 @@ export function DailyStudyPlanCard({
           }}
           size={18}
         />
-        <ThemedText type="smallBold" style={styles.startButtonText}>
+        <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
           맞춤 플랜 {plan.totalCount}문제 시작
         </ThemedText>
       </Pressable>
@@ -339,10 +339,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
-  taskEmoji: {
-    fontSize: 19,
-    lineHeight: 26,
-  },
   stepLine: {
     width: 2,
     flex: 1,
@@ -366,9 +362,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  startButtonText: {
-    color: "#FFFFFF",
   },
   stateCard: {
     minHeight: 96,

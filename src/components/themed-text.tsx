@@ -16,6 +16,7 @@ export type ThemedTextProps = TextProps & {
   themeColor?: ThemeColor;
 };
 
+// 본문·제목 위계 표시
 export function ThemedText({
   style,
   type = "default",
@@ -60,13 +61,13 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   title: {
-    fontSize: 47,
+    fontSize: 30,
     fontWeight: 600,
-    lineHeight: 52,
+    lineHeight: 38,
   },
   subtitle: {
-    fontSize: 31,
-    lineHeight: 44,
+    fontSize: 22,
+    lineHeight: 30,
     fontWeight: 600,
   },
   link: {

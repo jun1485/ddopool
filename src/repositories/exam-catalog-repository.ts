@@ -4,9 +4,11 @@ import { Exam, Question } from "@/types/exam";
 export interface ExamCatalogSnapshot {
   exams: Exam[];
   questions: Question[];
+  unavailableExamIds?: string[];
+  isOffline?: boolean;
 }
 
 // 시험 카탈로그 데이터 접근 계약
 export interface ExamCatalogRepository {
-  loadCatalog: () => Promise<ExamCatalogSnapshot>;
+  loadCatalog: (examIds?: string[]) => Promise<ExamCatalogSnapshot>;
 }

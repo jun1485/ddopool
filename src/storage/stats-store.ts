@@ -1,4 +1,11 @@
+import { retryableWrite } from "./retry-write";
+import {
+  dailyStatsSchema,
+  idsSchema,
+  performanceSchema,
+} from "@/storage/data-schemas";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { z } from "zod";
 
 import type { QuestionAttemptRow } from "../../packages/contracts/src";
 
@@ -13,6 +20,15 @@ const LAST_MERGED_ATTEMPT_AT_KEY =
 const DAY_MS = 24 * 60 * 60 * 1000;
 const ATTEMPT_HISTORY_LIMIT = 10_000;
 let statsWriteQueue: Promise<void> = Promise.resolve();
+const studyListeners = new Set<() => void>();
+
+// 학습 기록 변경 구독
+export function subscribeStudyActivity(listener: () => void): () => void {
+  studyListeners.add(listener);
+  return () => {
+    studyListeners.delete(listener);
+  };
+}
 
 // 일일 학습 집계
 export interface DailyStat {
@@ -93,11 +109,11 @@ async function loadAttemptIdentityState(): Promise<{
       fingerprints:
         fingerprintsRaw[1] == null
           ? []
-          : (JSON.parse(fingerprintsRaw[1]) as string[]),
+          : idsSchema.parse(JSON.parse(fingerprintsRaw[1])),
       remoteIds:
         remoteIdsRaw[1] == null
           ? []
-          : (JSON.parse(remoteIdsRaw[1]) as number[]),
+          : z.array(z.number().int()).parse(JSON.parse(remoteIdsRaw[1])),
       lastMergedAttemptAt: lastMergedAttemptAtRaw[1],
     };
   } catch {
@@ -166,7 +182,7 @@ function aggregateAnswer(
 export async function loadDailyStats(): Promise<DailyStatMap> {
   try {
     const raw = await AsyncStorage.getItem(DAILY_STATS_KEY);
-    return raw != null ? (JSON.parse(raw) as DailyStatMap) : {};
+    return raw != null ? dailyStatsSchema.parse(JSON.parse(raw)) : {};
   } catch {
     return {};
   }
@@ -177,7 +193,7 @@ export async function loadPerformanceStats(): Promise<PerformanceStats> {
   try {
     const raw = await AsyncStorage.getItem(PERFORMANCE_STATS_KEY);
     return raw != null
-      ? (JSON.parse(raw) as PerformanceStats)
+      ? performanceSchema.parse(JSON.parse(raw))
       : EMPTY_PERFORMANCE_STATS;
   } catch {
     return EMPTY_PERFORMANCE_STATS;
@@ -197,6 +213,12 @@ async function persistAnswer(
     loadPerformanceStats(),
     loadAttemptIdentityState(),
   ]);
+  if (
+    identityState.fingerprints.includes(
+      createAttemptFingerprint(questionId, now),
+    )
+  )
+    return;
   const nextStats = aggregateAnswer(stats, performance, {
     examId,
     subject,
@@ -208,11 +230,13 @@ async function persistAnswer(
     createAttemptFingerprint(questionId, now),
   ].slice(-ATTEMPT_HISTORY_LIMIT);
 
-  await AsyncStorage.multiSet([
+  const entries: [string, string][] = [
     [DAILY_STATS_KEY, JSON.stringify(nextStats.daily)],
     [PERFORMANCE_STATS_KEY, JSON.stringify(nextStats.performance)],
     [ATTEMPT_FINGERPRINTS_KEY, JSON.stringify(fingerprints)],
-  ]);
+  ];
+  await retryableWrite(() => AsyncStorage.multiSet(entries));
+  studyListeners.forEach((listener) => listener());
 }
 
 // 풀이 1건 학습 성과 순차 반영
@@ -298,6 +322,7 @@ export async function mergeRemoteAttempts(
       if (lastMergedAttemptAt != null)
         statsEntries.push([LAST_MERGED_ATTEMPT_AT_KEY, lastMergedAttemptAt]);
       await AsyncStorage.multiSet(statsEntries);
+      studyListeners.forEach((listener) => listener());
     });
   return statsWriteQueue;
 }
@@ -330,4 +355,9 @@ export function computeStreak(stats: DailyStatMap, now: number): number {
     cursor -= DAY_MS;
   }
   return streak;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleStatsStore(): Promise<void> {
+  await statsWriteQueue.catch(() => undefined);
 }

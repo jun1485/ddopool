@@ -1,3 +1,5 @@
+import { mockHistorySchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { ExamId } from "@/types/exam";
@@ -31,8 +33,7 @@ export type NewMockExamResult = Omit<MockExamResult, "id">;
 // 저장된 모의고사 회차 목록 로드
 async function loadStoredMockExamHistory(): Promise<MockExamResult[]> {
   try {
-    const raw = await AsyncStorage.getItem(MOCK_EXAM_HISTORY_KEY);
-    return raw == null ? [] : (JSON.parse(raw) as MockExamResult[]);
+    return readValidated(MOCK_EXAM_HISTORY_KEY, mockHistorySchema, []);
   } catch {
     return [];
   }
@@ -45,9 +46,7 @@ export async function loadMockExamHistory(): Promise<MockExamResult[]> {
 }
 
 // 모의고사 회차 결과 순차 저장
-export function recordMockExamResult(
-  result: NewMockExamResult,
-): Promise<void> {
+export function recordMockExamResult(result: NewMockExamResult): Promise<void> {
   mockExamHistoryWriteQueue = mockExamHistoryWriteQueue
     .catch(() => undefined)
     .then(async () => {
@@ -58,7 +57,9 @@ export function recordMockExamResult(
       };
       await AsyncStorage.setItem(
         MOCK_EXAM_HISTORY_KEY,
-        JSON.stringify([nextResult, ...current].slice(0, MOCK_EXAM_HISTORY_LIMIT)),
+        JSON.stringify(
+          [nextResult, ...current].slice(0, MOCK_EXAM_HISTORY_LIMIT),
+        ),
       );
     });
   return mockExamHistoryWriteQueue;
@@ -70,4 +71,9 @@ export function clearMockExamHistory(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(MOCK_EXAM_HISTORY_KEY));
   return mockExamHistoryWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleMockExamHistoryStore(): Promise<void> {
+  await mockExamHistoryWriteQueue.catch(() => undefined);
 }

@@ -1,3 +1,5 @@
+import { historySchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { QuizMode } from "@/types/exam";
@@ -24,8 +26,7 @@ export type NewLearningSessionResult = Omit<LearningSessionResult, "id">;
 // 완료 학습 세션 원본 로드
 async function readLearningSessionHistory(): Promise<LearningSessionResult[]> {
   try {
-    const raw = await AsyncStorage.getItem(LEARNING_SESSION_HISTORY_KEY);
-    return raw == null ? [] : (JSON.parse(raw) as LearningSessionResult[]);
+    return readValidated(LEARNING_SESSION_HISTORY_KEY, historySchema, []);
   } catch {
     return [];
   }
@@ -67,4 +68,9 @@ export function clearLearningSessionHistory(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(LEARNING_SESSION_HISTORY_KEY));
   return learningSessionHistoryWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleLearningSessionHistoryStore(): Promise<void> {
+  await learningSessionHistoryWriteQueue.catch(() => undefined);
 }

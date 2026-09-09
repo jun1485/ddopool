@@ -1,10 +1,15 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
-import Animated, { Keyframe, Easing } from "react-native-reanimated";
+import Animated, {
+  Keyframe,
+  Easing,
+  useReducedMotion,
+} from "react-native-reanimated";
 
 import classes from "./animated-icon.module.css";
 const DURATION = 300;
 
+// 웹 시작 화면 중복 표시 방지
 export function AnimatedSplashOverlay() {
   return null;
 }
@@ -54,11 +59,15 @@ const glowKeyframe = new Keyframe({
   },
 });
 
+// 모션 설정에 따른 앱 아이콘 표시
 export function AnimatedIcon() {
+  const reduceMotion = useReducedMotion();
   return (
     <View style={styles.iconContainer}>
       <Animated.View
-        entering={glowKeyframe.duration(60 * 1000 * 4)}
+        entering={
+          reduceMotion ? undefined : glowKeyframe.duration(60 * 1000 * 4)
+        }
         style={styles.glow}
       >
         <Image
@@ -69,18 +78,18 @@ export function AnimatedIcon() {
 
       <Animated.View
         style={styles.background}
-        entering={keyframe.duration(DURATION)}
+        entering={reduceMotion ? undefined : keyframe.duration(DURATION)}
       >
         <div className={classes.brandMarkBackground} />
       </Animated.View>
 
       <Animated.View
         style={styles.imageContainer}
-        entering={logoKeyframe.duration(DURATION)}
+        entering={reduceMotion ? undefined : logoKeyframe.duration(DURATION)}
       >
         <Image
           style={styles.image}
-          source={require("@/assets/images/splash-icon.png")}
+          source={require("@/assets/images/icon.png")}
         />
       </Animated.View>
     </View>

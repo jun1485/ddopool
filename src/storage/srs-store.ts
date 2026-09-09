@@ -1,3 +1,5 @@
+import { srsSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { SrsCard } from "@/types/exam";
@@ -10,8 +12,7 @@ export type SrsCardMap = Record<string, SrsCard>;
 
 // 저장된 SRS 카드 원본 로드
 async function readSrsCards(): Promise<SrsCardMap> {
-  const raw = await AsyncStorage.getItem(SRS_CARDS_KEY);
-  return raw != null ? (JSON.parse(raw) as SrsCardMap) : {};
+  return readValidated(SRS_CARDS_KEY, srsSchema, {});
 }
 
 // 저장된 SRS 카드 전체 로드
@@ -64,4 +65,9 @@ export function clearSrsCards(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(SRS_CARDS_KEY));
   return srsWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleSrsStore(): Promise<void> {
+  await srsWriteQueue.catch(() => undefined);
 }

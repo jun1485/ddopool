@@ -530,3 +530,8 @@ export function clearLearningSyncOutbox(): Promise<void> {
   resetLearningSyncEnqueueFailureCount();
   return clearPromise;
 }
+
+// 저장 대기 작업 종료 대기
+export async function settleLearningSyncOutbox(): Promise<void> {
+  await outboxWriteQueue.catch(() => undefined);
+}

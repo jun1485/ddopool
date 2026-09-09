@@ -55,9 +55,9 @@ export const EXAM_REQUEST_PUBLIC_STATUSES = [
 
 // 요청 상태 공개 노출 여부 판별
 export function isExamRequestPublicStatus(status: ExamRequestStatus): boolean {
-  return (EXAM_REQUEST_PUBLIC_STATUSES as readonly ExamRequestStatus[]).includes(
-    status,
-  );
+  return (
+    EXAM_REQUEST_PUBLIC_STATUSES as readonly ExamRequestStatus[]
+  ).includes(status);
 }
 // #endregion
 
@@ -80,6 +80,8 @@ export interface ExamSubjectRow {
 }
 
 export interface QuestionRow {
+  source_type?: QuestionSourceType;
+  version?: number;
   id: string;
   exam_id: string;
   subject: string;
@@ -177,6 +179,8 @@ export interface RemoteExam {
 }
 
 export interface RemoteQuestion {
+  sourceType?: QuestionSourceType;
+  version?: number;
   id: string;
   examId: string;
   subject: string;
@@ -207,6 +211,8 @@ export function toRemoteExam(
 // QuestionRow → 앱 문제 DTO 변환
 export function toRemoteQuestion(row: QuestionRow): RemoteQuestion {
   return {
+    sourceType: row.source_type,
+    version: row.version,
     id: row.id,
     examId: row.exam_id,
     subject: row.subject,
@@ -350,6 +356,7 @@ export interface ContentExam {
 }
 
 export interface ContentQuestion {
+  sourceId?: number;
   id: string;
   examId: string;
   subject: string;

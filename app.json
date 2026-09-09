@@ -3,7 +3,7 @@
     "name": "또풀",
     "slug": "ddopool",
     "version": "1.0.0",
-    "description": "컴활·토익·자격증 기출문제를 풀고 틀린 문제를 간격 반복으로 다시 푸는 학습 앱",
+    "description": "컴활·토익 문법·어휘·자격증 연습문제를 풀고 틀린 문제를 간격 반복으로 복습하는 학습 앱",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ddopool",
@@ -21,9 +21,8 @@
       "package": "com.jun213.ddopool",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#DDD2F2",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -38,11 +37,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-sharing",
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FAF7F3",
+          "dark": {
+            "backgroundColor": "#211D21"
+          },
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
@@ -57,6 +60,11 @@
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    }
+    },
+    "extra": {
+      "releaseMode": false,
+      "router": {}
+    },
+    "owner": "jun213"
   }
 }

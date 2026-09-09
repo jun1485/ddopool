@@ -1,3 +1,5 @@
+import { idsSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BOOKMARKS_KEY = "exam-loop:bookmarks";
@@ -23,8 +25,7 @@ export function subscribeBookmarks(
 export async function loadBookmarks(): Promise<string[]> {
   try {
     await bookmarkWriteQueue.catch(() => undefined);
-    const raw = await AsyncStorage.getItem(BOOKMARKS_KEY);
-    return raw != null ? (JSON.parse(raw) as string[]) : [];
+    return readValidated(BOOKMARKS_KEY, idsSchema, []);
   } catch {
     return [];
   }
@@ -48,4 +49,9 @@ export function clearBookmarks(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(BOOKMARKS_KEY));
   return bookmarkWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleBookmarkStore(): Promise<void> {
+  await bookmarkWriteQueue.catch(() => undefined);
 }

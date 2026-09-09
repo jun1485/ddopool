@@ -7,10 +7,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  useReducedMotion,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { MascotCat } from "@/components/mascot-cat";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
@@ -46,11 +48,14 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const theme = useTheme();
+  const reduceMotion = useReducedMotion();
   const canSubmit =
     isConfigured &&
     email.trim().length > 0 &&
     password.length > 0 &&
+    (mode === "sign-in" || accepted) &&
     !isSubmitting;
   const canRequestEmail =
     isConfigured && email.trim().length > 0 && !isSubmitting;
@@ -61,6 +66,7 @@ export default function LoginScreen() {
   // 인증 모드 전환
   const selectMode = (nextMode: AuthMode) => {
     setMode(nextMode);
+    setAccepted(false);
     clearMessage();
   };
 
@@ -68,37 +74,43 @@ export default function LoginScreen() {
   const submitAuth = async () => {
     if (!canSubmit) return;
     setIsSubmitting(true);
-    const result =
-      mode === "sign-in"
-        ? await signIn(email.trim(), password)
-        : await signUp(email.trim(), password);
-    setIsSubmitting(false);
-    if (result === "authenticated") goBack();
+    try {
+      const result =
+        mode === "sign-in"
+          ? await signIn(email.trim(), password)
+          : await signUp(email.trim(), password, accepted);
+      if (result === "authenticated") goBack();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // 비밀번호 재설정 메일 요청
   const sendPasswordReset = async () => {
     if (!canRequestEmail) return;
     setIsSubmitting(true);
-    await requestPasswordReset(email.trim());
-    setIsSubmitting(false);
+    try {
+      await requestPasswordReset(email.trim());
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // 회원가입 인증 메일 재요청
   const sendConfirmationAgain = async () => {
     if (!canRequestEmail) return;
     setIsSubmitting(true);
-    await resendConfirmation(email.trim());
-    setIsSubmitting(false);
+    try {
+      await resendConfirmation(email.trim());
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (user != null) {
     return (
       <ThemedView style={styles.container}>
-        <PageHead
-          title="로그인"
-          noIndex
-        />
+        <PageHead title="로그인" noIndex />
         <SafeAreaView style={styles.accountSafeArea}>
           <View
             style={[styles.accountIcon, { backgroundColor: theme.successSoft }]}
@@ -151,10 +163,7 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="로그인"
-        noIndex
-      />
+      <PageHead title="로그인" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -183,13 +192,12 @@ export default function LoginScreen() {
           </View>
 
           <Animated.ScrollView
-            entering={FadeInDown.duration(320)}
+            entering={reduceMotion ? undefined : FadeInDown.duration(320)}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.hero}>
-              <MascotCat size={72} />
               <ThemedText type="subtitle" style={styles.heroTitle}>
                 어디서든 학습을{"\n"}이어서 하세요
               </ThemedText>
@@ -223,8 +231,8 @@ export default function LoginScreen() {
                     계정 서버 연결 준비 중
                   </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Supabase 프로젝트 URL과 공개 키가 설정되면 로그인과 동기화가
-                    활성화돼요. 현재 학습은 기기에 계속 저장됩니다.
+                    계정 연결 기능을 준비하고 있어요. 지금은 로그인 없이 학습할
+                    수 있고, 기록은 이 기기에 저장돼요.
                   </ThemedText>
                 </View>
               </View>
@@ -438,7 +446,22 @@ export default function LoginScreen() {
                 </ThemedText>
               </Pressable>
 
-              {mode === "sign-up" && <LegalConsentLinks />}
+              {mode === "sign-up" && (
+                <>
+                  <Pressable
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: accepted }}
+                    aria-checked={accepted}
+                    onPress={() => setAccepted((value) => !value)}
+                  >
+                    <ThemedText>
+                      {accepted ? "☑" : "☐"} 만 14세 이상이며 이용약관과
+                      개인정보처리방침에 동의합니다.
+                    </ThemedText>
+                  </Pressable>
+                  <LegalConsentLinks />
+                </>
+              )}
             </ThemedView>
 
             <View style={styles.guestNotice}>

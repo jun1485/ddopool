@@ -72,7 +72,7 @@ test("월간 캘린더에서 날짜별 학습 기록을 탐색한다", async ({ 
 
   await expect(page.getByText("학습 캘린더", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "이전 달" })).toBeVisible();
-  await expect(page.getByText("학습한 날")).toBeVisible();
+  await expect(page.getByText("학습한 날", { exact: true })).toBeVisible();
 });
 
 test("중단한 학습을 홈에서 같은 문제 상태로 이어 푼다", async ({ page }) => {
@@ -81,11 +81,10 @@ test("중단한 학습을 홈에서 같은 문제 상태로 이어 푼다", asyn
     .getByRole("button", { name: "컴활 1급 학습 시작" })
     .click();
   await page.getByRole("radio").first().click();
-  await page.getByRole("button", { name: "확인" }).click();
   await page.getByRole("button", { name: "학습 종료" }).click();
   await page.getByRole("button", { name: "나중에 이어 풀기" }).click();
 
   await expect(page.getByText("이어 풀 수 있어요")).toBeVisible();
   await page.getByRole("button", { name: /1문제부터 이어 풀기/ }).click();
-  await expect(page.getByRole("button", { name: "다음 문제" })).toBeVisible();
+  await expect(page.getByRole("radio").first()).toHaveAttribute("aria-checked", "true");
 });

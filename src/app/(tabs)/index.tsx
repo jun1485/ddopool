@@ -1,8 +1,7 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActiveSessionCard } from "@/components/active-session-card";
@@ -14,6 +13,7 @@ import { CelebrationBurst } from "@/components/motion/celebration-burst";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
 import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
+import { StudyDeadlineCard } from "@/components/study-deadline-card";
 import { ExamPaceCard } from "@/components/exam-pace-card";
 import { LearningMomentumCard } from "@/components/learning-momentum-card";
 import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
@@ -25,7 +25,6 @@ import { stagger } from "@/constants/motion";
 import {
   accentByIndex,
   Alpha,
-  heroGradient,
   BottomTabInset,
   MaxContentWidth,
   Radius,
@@ -288,8 +287,8 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <PageHead
-        title="컴활·토익·자격증 기출 반복학습"
-        description="컴활·토익·드론 등 자격시험 기출문제를 풀고 틀린 문제는 간격 반복으로 다시 풀어 완전히 익히는 학습 앱."
+        title="컴활·토익·자격증 연습문제 반복학습"
+        description="컴활·토익·드론 등 자격시험 연습문제를 풀고 틀린 문제는 간격 반복으로 다시 풀어 완전히 익히는 학습 앱."
       />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
@@ -299,13 +298,10 @@ export default function HomeScreen() {
         >
           <View style={styles.header}>
             <View style={styles.headerText}>
-              <ThemedText type="smallBold" style={{ color: theme.primary }}>
+              <ThemedText type="small" themeColor="textSecondary">
                 {getGreeting(new Date().getHours())}
               </ThemedText>
               <ThemedText style={styles.brandTitle}>또풀</ThemedText>
-            </View>
-            <View style={styles.headerMascot}>
-              <MascotCat size={54} />
             </View>
             <View style={styles.headerActions}>
               <Pressable
@@ -399,98 +395,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <RevealView variant="zoom" duration={420} style={styles.goalWrapper}>
-            <LinearGradient
-              colors={heroGradient(theme)}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.goalCard}
-            >
-              <View
-                style={[styles.goalOrb, { backgroundColor: theme.onPrimary }]}
-              />
-              <View
-                style={[
-                  styles.goalOrbSmall,
-                  { backgroundColor: theme.onPrimary },
-                ]}
-              />
-              <View style={styles.goalHeader}>
-                <View style={styles.goalText}>
-                  <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
-                    오늘의 목표
-                  </ThemedText>
-                  <ThemedText style={styles.goalTitle}>
-                    {isGoalReached
-                      ? "목표 달성! 정말 멋져요"
-                      : `${remainingGoal}문제만 더 풀면 달성`}
-                  </ThemedText>
-                </View>
-                <PulseView active={isGoalReached} scaleTo={1.06}>
-                  <View style={styles.goalPercent}>
-                    <AnimatedCounter
-                      type="smallBold"
-                      style={styles.onPrimary}
-                      value={Math.round(dailyProgress * 100)}
-                      suffix="%"
-                    />
-                  </View>
-                </PulseView>
-              </View>
-
-              <AnimatedProgressBar
-                progress={dailyProgress}
-                height={8}
-                shimmer={!isGoalReached && dailyProgress > 0}
-                color={theme.onPrimary}
-                trackColor={Alpha.onPrimaryTrack}
-              />
-
-              <View style={styles.goalStats}>
-                <View style={styles.goalStatItem}>
-                  <AnimatedCounter
-                    style={styles.goalStatValue}
-                    value={todayStat.answered}
-                  />
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
-                    오늘 풀이
-                  </ThemedText>
-                </View>
-                <View style={styles.goalDivider} />
-                <View style={styles.goalStatItem}>
-                  {todayAccuracyRate == null ? (
-                    <ThemedText style={styles.goalStatValue}>–</ThemedText>
-                  ) : (
-                    <AnimatedCounter
-                      style={styles.goalStatValue}
-                      value={todayAccuracyRate}
-                      suffix="%"
-                    />
-                  )}
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
-                    정답률
-                  </ThemedText>
-                </View>
-                <View style={styles.goalDivider} />
-                <View style={styles.goalStatItem}>
-                  <View style={styles.streakRow}>
-                    <PulseView active={streak > 0} scaleTo={1.18}>
-                      <ThemedText style={styles.goalStatValue}>🔥</ThemedText>
-                    </PulseView>
-                    <AnimatedCounter
-                      style={styles.goalStatValue}
-                      value={streak}
-                    />
-                  </View>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
-                    연속 학습
-                  </ThemedText>
-                </View>
-              </View>
-            </LinearGradient>
-            <CelebrationBurst trigger={goalCelebration} />
-          </RevealView>
-
           {!isActiveSessionLoading && activeQuizSession != null && (
             <RevealView delay={stagger(1, 40)}>
               <ActiveSessionCard
@@ -503,16 +407,6 @@ export default function HomeScreen() {
           )}
 
           <RevealView delay={stagger(2, 40)}>
-            <ExamPaceCard
-              pace={examPace}
-              exam={targetExam}
-              targetScore={studyTarget?.targetScore}
-              isLoading={isStudyTargetLoading || isCatalogLoading}
-              onPress={() => router.push("./study-plan-settings")}
-            />
-          </RevealView>
-
-          <RevealView delay={stagger(3, 40)}>
             <DailyStudyPlanCard
               plan={dailyStudyPlan}
               isLoading={isDailyPlanLoading}
@@ -522,6 +416,117 @@ export default function HomeScreen() {
               onStartPlan={startStudyPlanSession}
               onEmptyAction={() => router.push("/catalog")}
               onCompletedAction={() => router.push("/report")}
+            />
+          </RevealView>
+
+          <StudyDeadlineCard />
+          <RevealView variant="fade" duration={180} style={styles.goalWrapper}>
+            <View
+              style={[
+                styles.goalCard,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <View style={styles.goalHeader}>
+                <View style={styles.goalText}>
+                  <ThemedText
+                    type="smallBold"
+                    style={{ color: theme.textSecondary }}
+                  >
+                    오늘의 목표
+                  </ThemedText>
+                  <ThemedText style={[styles.goalTitle, { color: theme.text }]}>
+                    {isGoalReached
+                      ? "오늘 목표를 채웠어요"
+                      : `남은 문제 ${remainingGoal}개`}
+                  </ThemedText>
+                </View>
+                <MascotCat size={64} />
+              </View>
+
+              <AnimatedProgressBar
+                progress={dailyProgress}
+                height={8}
+                shimmer={!isGoalReached && dailyProgress > 0}
+                color={theme.primary}
+                trackColor={theme.backgroundSelected}
+              />
+
+              <View style={styles.goalStats}>
+                <View style={styles.goalStatItem}>
+                  <AnimatedCounter
+                    style={[styles.goalStatValue, { color: theme.text }]}
+                    value={todayStat.answered}
+                  />
+                  <ThemedText
+                    type="small"
+                    style={{ color: theme.textSecondary }}
+                  >
+                    오늘 풀이
+                  </ThemedText>
+                </View>
+                <View
+                  style={[
+                    styles.goalDivider,
+                    { backgroundColor: theme.border },
+                  ]}
+                />
+                <View style={styles.goalStatItem}>
+                  {todayAccuracyRate == null ? (
+                    <ThemedText
+                      style={[styles.goalStatValue, { color: theme.text }]}
+                    >
+                      –
+                    </ThemedText>
+                  ) : (
+                    <AnimatedCounter
+                      style={[styles.goalStatValue, { color: theme.text }]}
+                      value={todayAccuracyRate}
+                      suffix="%"
+                    />
+                  )}
+                  <ThemedText
+                    type="small"
+                    style={{ color: theme.textSecondary }}
+                  >
+                    정답률
+                  </ThemedText>
+                </View>
+                <View
+                  style={[
+                    styles.goalDivider,
+                    { backgroundColor: theme.border },
+                  ]}
+                />
+                <View style={styles.goalStatItem}>
+                  <View style={styles.streakRow}>
+                    <AnimatedCounter
+                      style={[styles.goalStatValue, { color: theme.text }]}
+                      value={streak}
+                    />
+                  </View>
+                  <ThemedText
+                    type="small"
+                    style={{ color: theme.textSecondary }}
+                  >
+                    연속 학습
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+            <CelebrationBurst trigger={goalCelebration} />
+          </RevealView>
+
+          <RevealView delay={stagger(3, 40)}>
+            <ExamPaceCard
+              pace={examPace}
+              exam={targetExam}
+              targetScore={studyTarget?.targetScore}
+              isLoading={isStudyTargetLoading || isCatalogLoading}
+              onPress={() => router.push("./study-plan-settings")}
             />
           </RevealView>
 
@@ -846,8 +851,7 @@ const styles = StyleSheet.create({
   content: {
     minWidth: 0,
     paddingHorizontal: Spacing.four,
-    paddingTop:
-      Platform.OS === "web" ? Spacing.six + Spacing.four : Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.five,
     gap: Spacing.four,
   },
@@ -858,10 +862,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     gap: Spacing.half,
-  },
-  headerMascot: {
-    flex: 1,
-    alignItems: "center",
   },
   brandTitle: {
     fontSize: 25,
@@ -910,25 +910,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Alpha.onPrimarySurface,
     borderRadius: Radius.large,
-    ...Shadows.floating,
-  },
-  goalOrb: {
-    position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    opacity: 0.09,
-    right: -60,
-    top: -70,
-  },
-  goalOrbSmall: {
-    position: "absolute",
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    opacity: 0.07,
-    left: -34,
-    bottom: -46,
   },
   streakRow: {
     flexDirection: "row",
@@ -951,34 +932,21 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     fontWeight: 700,
   },
-  goalPercent: {
-    minWidth: 46,
-    alignItems: "center",
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.twoHalf,
-    borderRadius: Radius.pill,
-    backgroundColor: Alpha.onPrimarySurface,
-  },
-  onPrimary: {
-    color: "#FFFFFF",
-  },
-  onPrimaryMuted: {
-    color: Alpha.onPrimaryMuted,
-  },
   goalStats: {
     flexDirection: "row",
     alignItems: "center",
   },
   goalStatItem: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingLeft: Spacing.three,
     gap: Spacing.half,
   },
   goalStatValue: {
     color: "#FFFFFF",
-    fontSize: 17,
-    lineHeight: 24,
-    fontWeight: 800,
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: 600,
   },
   goalDivider: {
     width: 1,
