@@ -1,12 +1,17 @@
 import { SITE_URL } from "@/constants/site";
 
 // 법률 문서·스토어 등록정보에 표기하는 운영 주체
-export const OPERATOR_NAME = "";
-export const PRIVACY_OFFICER_NAME = "";
-export const SUPPORT_EMAIL = "";
+export const OPERATOR_NAME =
+  process.env.EXPO_PUBLIC_OPERATOR_NAME?.trim() ?? "";
+export const PRIVACY_OFFICER_NAME =
+  process.env.EXPO_PUBLIC_PRIVACY_OFFICER_NAME?.trim() ?? "";
+export const SUPPORT_EMAIL =
+  process.env.EXPO_PUBLIC_SUPPORT_EMAIL?.trim() ?? "";
 
 // 법률 문서 시행일
-export const LEGAL_EFFECTIVE_DATE = "";
+export const LEGAL_EFFECTIVE_DATE =
+  process.env.EXPO_PUBLIC_LEGAL_EFFECTIVE_DATE?.trim() ?? "";
+export const LEGAL_VERSION = "2026-09-05";
 
 // 신고·운영 감사 기록 보존 기간
 export const REPORT_RETENTION_PERIOD = "1년";

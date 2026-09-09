@@ -1,28 +1,28 @@
+import { useEffect, useState } from "react";
+import { toDateKey } from "@/storage/stats-store";
+import { useSettingsActions } from "@/hooks/use-settings-actions";
+import { WebReminderControls } from "@/components/web-reminder-controls";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
-import { Platform, Share, StyleSheet, Switch, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import { Platform, StyleSheet, Switch, View } from "react-native";
+import Animated, {
+  FadeInDown,
+  useReducedMotion,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
-import { useAuth } from "@/hooks/use-auth";
-import { useLearningSyncStatus } from "@/hooks/use-learning-sync-status";
-import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
-import { openSupportEmail } from "@/lib/external-links";
+import { goBack } from "@/lib/navigation";
 import {
   formatStudyReminderTime,
   STUDY_REMINDER_HOURS,
-  updateStudyReminder,
 } from "@/notifications/study-reminder";
-import type { StudyReminderResult } from "@/notifications/study-reminder";
 import {
   DAILY_GOAL_OPTIONS,
   MOCK_DURATION_OPTIONS,
@@ -30,207 +30,53 @@ import {
   THEME_OPTIONS,
   WEEKLY_GOAL_OPTIONS,
 } from "@/storage/settings-store";
-import { clearBookmarks } from "@/storage/bookmark-store";
-import { clearAchievements } from "@/storage/achievement-store";
-import { clearActiveQuizSession } from "@/storage/active-quiz-session-store";
-import { clearCustomSessionPresets } from "@/storage/custom-session-preset-store";
-import { createLearningDataExport } from "@/storage/learning-data-export";
-import { clearLearningSessionHistory } from "@/storage/learning-session-history-store";
-import { clearMockExamHistory } from "@/storage/mock-exam-history-store";
-import { clearPendingLearningAttempts } from "@/storage/pending-learning-attempt-store";
-import { clearDailyStats } from "@/storage/stats-store";
-import { clearStudyTarget } from "@/storage/study-target-store";
-import { clearSrsCards } from "@/storage/srs-store";
-import { clearWrongAnswerNotes } from "@/storage/wrong-answer-note-store";
-import { invalidateRemoteLearningHydration } from "@/sync/hydrate-remote-learning-data";
-import { invalidateLearningAttemptSync } from "@/sync/learning-attempt-sync";
-import { clearLearningSyncOutbox } from "@/sync/learning-sync-outbox";
-import { clearLocalLearningMigration } from "@/sync/migrate-local-learning-data";
-
-// 학습 리마인더 처리 결과 문구 생성
-function getReminderResultMessage(result: StudyReminderResult): string {
-  if (result === "scheduled") return "매일 선택한 시간으로 예약됐어요.";
-  if (result === "disabled") return "학습 리마인더를 껐어요.";
-  if (result === "denied")
-    return "알림 권한이 꺼져 있어 기기 설정에서 허용이 필요해요.";
-  if (result === "unsupported")
-    return "웹에서는 학습 리마인더를 지원하지 않아요.";
-  return "리마인더를 변경하지 못했어요. 다시 시도해 주세요.";
-}
 
 // 설정 화면
 export default function SettingsScreen() {
-  const { settings, updateSettings, resetSettings } = useSettings();
-  const { user, isConfigured, deleteAccount } = useAuth();
+  const theme = useTheme();
+  const [today, setToday] = useState(() => toDateKey(Date.now()));
+  // 자정 이후 휴식 버튼 날짜 갱신
+  useEffect(() => {
+    const timer = setInterval(() => setToday(toDateKey(Date.now())), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+  const reduceMotion = useReducedMotion();
   const {
-    pendingCount,
-    pendingAttemptCount,
+    resetRequestVisibility,
+    settings,
+    updateSettings,
+    user,
+    isConfigured,
     failedEnqueueCount,
     isSyncing,
     syncMessage,
-    isSyncAvailable,
-    synchronize,
-  } = useLearningSyncStatus();
-  const theme = useTheme();
-  const [resetArmed, setResetArmed] = useState(false);
-  const [resetDone, setResetDone] = useState(false);
-  const [reminderUpdating, setReminderUpdating] = useState(false);
-  const [reminderMessage, setReminderMessage] = useState<string | null>(null);
-  const [exportingData, setExportingData] = useState(false);
-  const [exportMessage, setExportMessage] = useState<string | null>(null);
-  const [deleteArmed, setDeleteArmed] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(false);
-  const [accountDeleteMessage, setAccountDeleteMessage] = useState<
-    string | null
-  >(null);
-  const [informationMessage, setInformationMessage] = useState<string | null>(
-    null,
-  );
-  const canSynchronize = user != null && isSyncAvailable && !isSyncing;
-  const pendingChangeCount = pendingCount + pendingAttemptCount;
-  const syncIssueCount = pendingChangeCount + failedEnqueueCount;
-
-  // 사용자 계정 삭제 2단계 확인 처리
-  const handleDeleteAccountPress = async () => {
-    if (user == null || deletingAccount) return;
-    if (!deleteArmed) {
-      setDeleteArmed(true);
-      setAccountDeleteMessage(
-        "계정과 서버 학습 기록이 모두 삭제돼요. 한 번 더 눌러 확정해 주세요.",
-      );
-      return;
-    }
-    setDeletingAccount(true);
-    setAccountDeleteMessage(null);
-    const deleted = await deleteAccount();
-    setDeletingAccount(false);
-    if (deleted) {
-      router.replace("/onboarding");
-      return;
-    }
-    setDeleteArmed(false);
-    setAccountDeleteMessage(
-      "삭제하지 못했어요. 로그인과 학습 기록은 유지됐으니 다시 시도해 주세요.",
-    );
-  };
-
-  // 설정 고객 문의 메일 열기
-  const handleSupportPress = async () => {
-    setInformationMessage(null);
-    try {
-      const opened = await openSupportEmail();
-      if (!opened) setInformationMessage("문의 이메일을 준비 중이에요.");
-    } catch {
-      setInformationMessage("메일 앱을 열지 못했어요. 다시 시도해 주세요.");
-    }
-  };
-
-  // 학습 리마인더 사용 상태 변경
-  const handleReminderToggle = async (enabled: boolean) => {
-    if (reminderUpdating) return;
-    setReminderUpdating(true);
-    const result = await updateStudyReminder(
-      enabled,
-      settings.studyReminderHour,
-    );
-    if (result === "scheduled" || result === "disabled")
-      updateSettings({ studyReminderEnabled: enabled });
-    if (result === "denied") updateSettings({ studyReminderEnabled: false });
-    setReminderMessage(getReminderResultMessage(result));
-    setReminderUpdating(false);
-  };
-
-  // 학습 리마인더 시간 변경
-  const selectReminderHour = async (hour: number) => {
-    if (!settings.studyReminderEnabled) {
-      updateSettings({ studyReminderHour: hour });
-      return;
-    }
-    setReminderUpdating(true);
-    const result = await updateStudyReminder(true, hour);
-    if (result === "scheduled") updateSettings({ studyReminderHour: hour });
-    setReminderMessage(getReminderResultMessage(result));
-    setReminderUpdating(false);
-  };
-
-  // 학습 기록 수동 동기화
-  const handleSyncPress = async () => {
-    if (canSynchronize) await synchronize();
-  };
-
-  // 개인 학습 데이터 JSON 내보내기
-  const handleDataExport = async () => {
-    if (exportingData) return;
-    setExportingData(true);
-    setExportMessage(null);
-
-    try {
-      const json = await createLearningDataExport(
-        Constants.expoConfig?.version ?? "1.0.0",
-        Date.now(),
-      );
-      if (
-        Platform.OS === "web" &&
-        typeof navigator !== "undefined" &&
-        navigator.clipboard != null
-      ) {
-        await navigator.clipboard.writeText(json);
-        setExportMessage("학습 데이터 JSON을 클립보드에 복사했어요.");
-      } else {
-        await Share.share({
-          title: "또풀 학습 데이터",
-          message: json,
-        });
-        setExportMessage("학습 데이터 공유 화면을 열었어요.");
-      }
-    } catch {
-      setExportMessage("학습 데이터를 내보내지 못했어요. 다시 시도해 주세요.");
-    } finally {
-      setExportingData(false);
-    }
-  };
-
-  // 앱 설정·학습 리마인더 기본값 복원
-  const handleResetSettings = async () => {
-    await updateStudyReminder(false, settings.studyReminderHour);
-    resetSettings();
-    setReminderMessage("설정과 학습 리마인더가 기본값으로 복원됐어요.");
-  };
-
-  // 학습 데이터 초기화 2단계 확인 처리
-  const handleResetPress = async () => {
-    if (!resetArmed) {
-      setResetArmed(true);
-      setResetDone(false);
-      return;
-    }
-    invalidateRemoteLearningHydration();
-    invalidateLearningAttemptSync();
-    await Promise.all([
-      clearSrsCards(),
-      clearDailyStats(),
-      clearBookmarks(),
-      clearAchievements(),
-      clearActiveQuizSession(),
-      clearCustomSessionPresets(),
-      clearLearningSessionHistory(),
-      clearMockExamHistory(),
-      clearWrongAnswerNotes(),
-      clearStudyTarget(),
-      clearLearningSyncOutbox(),
-      clearPendingLearningAttempts(),
-      clearLocalLearningMigration(),
-    ]);
-    setResetArmed(false);
-    setResetDone(true);
-  };
-
+    resetArmed,
+    resetDone,
+    reminderUpdating,
+    reminderMessage,
+    exportingData,
+    exportMessage,
+    deleteArmed,
+    deletingAccount,
+    accountDeleteMessage,
+    informationMessage,
+    canSynchronize,
+    pendingChangeCount,
+    syncIssueCount,
+    pendingBackup,
+    handleDeleteAccountPress,
+    handleSupportPress,
+    handleReminderToggle,
+    selectReminderHour,
+    handleSyncPress,
+    handleDataExport,
+    handleDataImport,
+    handleResetSettings,
+    handleResetPress,
+  } = useSettingsActions();
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="설정"
-        noIndex
-      />
+      <PageHead title="설정" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <View>
@@ -258,7 +104,7 @@ export default function SettingsScreen() {
         </View>
 
         <Animated.ScrollView
-          entering={FadeInDown.duration(320)}
+          entering={reduceMotion ? undefined : FadeInDown.duration(320)}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -416,25 +262,27 @@ export default function SettingsScreen() {
                   <ThemedText>매일 학습 알림</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
                     {Platform.OS === "web"
-                      ? "모바일 앱에서 원하는 시간에 알림 제공"
+                      ? "아래에서 웹 알림을 연결해 주세요"
                       : settings.studyReminderEnabled
-                        ? `${formatStudyReminderTime(settings.studyReminderHour)}에 학습 알림`
+                        ? `${formatStudyReminderTime(settings.studyReminderHour)}부터 최대 ${settings.reminderDailyLimit}회 · 오후 9시부터 마감 알림 · 풀이 후 중단`
                         : "필요할 때만 직접 켜는 선택형 알림"}
                   </ThemedText>
                 </View>
-                <Switch
-                  accessibilityLabel="매일 학습 알림"
-                  accessibilityState={{
-                    disabled: Platform.OS === "web" || reminderUpdating,
-                  }}
-                  disabled={Platform.OS === "web" || reminderUpdating}
-                  value={Platform.OS !== "web" && settings.studyReminderEnabled}
-                  onValueChange={(value) => void handleReminderToggle(value)}
-                  trackColor={{
-                    false: theme.backgroundSelected,
-                    true: theme.primary,
-                  }}
-                />
+                {Platform.OS !== "web" && (
+                  <Switch
+                    accessibilityLabel="매일 학습 알림"
+                    accessibilityState={{
+                      disabled: reminderUpdating,
+                    }}
+                    disabled={reminderUpdating}
+                    value={settings.studyReminderEnabled}
+                    onValueChange={(value) => void handleReminderToggle(value)}
+                    trackColor={{
+                      false: theme.backgroundSelected,
+                      true: theme.primary,
+                    }}
+                  />
+                )}
               </View>
 
               <View
@@ -457,9 +305,9 @@ export default function SettingsScreen() {
                         accessibilityRole="radio"
                         accessibilityState={{
                           checked: isSelected,
-                          disabled: Platform.OS === "web" || reminderUpdating,
+                          disabled: reminderUpdating,
                         }}
-                        disabled={Platform.OS === "web" || reminderUpdating}
+                        disabled={reminderUpdating}
                         onPress={() => void selectReminderHour(hour)}
                         style={({ pressed }) => pressed && styles.pressed}
                       >
@@ -481,7 +329,7 @@ export default function SettingsScreen() {
                                 : theme.textSecondary,
                             }}
                           >
-                            {hour < 12 ? `오전 ${hour}` : `오후 ${hour - 12}`}
+                            {formatStudyReminderTime(hour)}
                           </ThemedText>
                         </View>
                       </Pressable>
@@ -490,6 +338,73 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
+              <View style={styles.blockRow}>
+                <ThemedText>하루 최대 알림</ThemedText>
+                <View style={styles.chipRow}>
+                  {[1, 2, 4].map((limit) => (
+                    <Pressable
+                      key={limit}
+                      accessibilityRole="radio"
+                      accessibilityState={{
+                        checked: settings.reminderDailyLimit === limit,
+                      }}
+                      onPress={() =>
+                        updateSettings({ reminderDailyLimit: limit })
+                      }
+                      style={styles.chip}
+                    >
+                      <ThemedText>
+                        {limit}회
+                        {settings.reminderDailyLimit === limit ? " ✓" : ""}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+                <ThemedText>조용한 시간 시작</ThemedText>
+                <View style={styles.chipRow}>
+                  {[21, 23, 24].map((hour) => (
+                    <Pressable
+                      key={hour}
+                      accessibilityRole="radio"
+                      accessibilityState={{
+                        checked: settings.reminderQuietHour === hour,
+                      }}
+                      onPress={() =>
+                        updateSettings({ reminderQuietHour: hour })
+                      }
+                      style={styles.chip}
+                    >
+                      <ThemedText>
+                        {hour === 24 ? "자정" : hour + "시"}
+                        {settings.reminderQuietHour === hour ? " ✓" : ""}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  style={styles.chip}
+                  onPress={() =>
+                    updateSettings({
+                      reminderPausedDate:
+                        settings.reminderPausedDate === today
+                          ? ""
+                          : toDateKey(Date.now()),
+                    })
+                  }
+                >
+                  <ThemedText>
+                    {settings.reminderPausedDate === today
+                      ? "오늘 알림 다시 받기"
+                      : "오늘은 알림 쉬기"}
+                  </ThemedText>
+                </Pressable>
+                <ThemedText type="small" themeColor="textSecondary">
+                  설정 시간부터 순서대로 보내며, 조용한 시간 이후에는 보내지
+                  않아요. 쉬기는 내일 자동으로 끝나요.
+                </ThemedText>
+              </View>
+              <WebReminderControls />
               {reminderMessage != null && (
                 <>
                   <View
@@ -1065,7 +980,7 @@ export default function SettingsScreen() {
                               : `${pendingChangeCount}개 변경 사항 · 계정 연결 후 자동 전송`
                             : user != null
                               ? "최신 기록 확인을 위해 눌러서 동기화"
-                              : "계정 연결 시 현재 학습 상태를 이관해요"}
+                              : "비회원 기록과 로그인 계정 기록은 따로 보관해요"}
                     </ThemedText>
                   </View>
                   <View
@@ -1164,6 +1079,36 @@ export default function SettingsScreen() {
                 </View>
               </Pressable>
 
+              {user != null && (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void resetRequestVisibility()}
+                >
+                  <View style={styles.row}>
+                    <ThemedText>요청 숨김·작성자 차단 전체 해제</ThemedText>
+                  </View>
+                </Pressable>
+              )}
+              <Pressable
+                accessibilityRole="button"
+                disabled={user != null || exportingData}
+                onPress={() => void handleDataImport()}
+              >
+                <View style={styles.row}>
+                  <View style={styles.rowTexts}>
+                    <ThemedText>
+                      {pendingBackup == null
+                        ? "백업 파일 가져오기"
+                        : "현재 기록 교체·복원 확정"}
+                    </ThemedText>
+                    <ThemedText type="small">
+                      로그아웃 상태에서 비회원 기록에 복원합니다. 계정 기록은
+                      교체하지 않습니다.
+                    </ThemedText>
+                  </View>
+                </View>
+              </Pressable>
+
               {exportMessage != null && (
                 <View style={styles.exportMessage}>
                   <ThemedText
@@ -1216,7 +1161,7 @@ export default function SettingsScreen() {
                 accessibilityLabel={
                   resetArmed
                     ? "학습 데이터 초기화 최종 확인"
-                    : "학습 데이터 초기화"
+                    : "이 기기 학습 데이터 초기화"
                 }
                 onPress={handleResetPress}
                 style={({ pressed }) => pressed && styles.pressed}
@@ -1228,11 +1173,11 @@ export default function SettingsScreen() {
                         ? "한 번 더 누르면 삭제됩니다"
                         : user != null
                           ? "이 기기 학습 데이터 초기화"
-                          : "학습 데이터 초기화"}
+                          : "이 기기 학습 데이터 초기화"}
                     </ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
                       {resetDone
-                        ? "초기화가 완료됐어요"
+                        ? "이 기기 기록을 비웠어요. 계정의 서버 기록은 동기화 시 다시 내려옵니다."
                         : user != null
                           ? "서버 기록은 유지되며 다음 동기화 때 다시 복원될 수 있어요"
                           : "복습 일정, 저장 문제와 학습 통계가 모두 삭제돼요"}
@@ -1501,7 +1446,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
-    backgroundColor: "#6657E8",
+    backgroundColor: "#51434F",
   },
   appMarkText: {
     color: "#FFFFFF",

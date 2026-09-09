@@ -48,7 +48,9 @@ export default function AuthCallbackScreen() {
       if (active) setStatus(result);
     };
 
-    void resolveCallback();
+    void resolveCallback().catch(() => {
+      if (active) setStatus("failed");
+    });
     return () => {
       active = false;
     };
@@ -58,17 +60,17 @@ export default function AuthCallbackScreen() {
   const submitPassword = async () => {
     if (!canSubmit) return;
     setIsSubmitting(true);
-    const updated = await updatePassword(password);
-    setIsSubmitting(false);
-    if (updated) router.replace("/");
+    try {
+      const updated = await updatePassword(password);
+      if (updated) router.replace("/");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="로그인 처리"
-        noIndex
-      />
+      <PageHead title="로그인 처리" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
           entering={reduceMotion ? undefined : FadeInDown.duration(320)}

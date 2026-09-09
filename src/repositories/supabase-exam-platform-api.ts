@@ -15,9 +15,9 @@ import type {
 import {
   RPC,
   TABLES,
+  toRegisterPushTokenParams,
   toRemoteExam,
   toRemoteQuestion,
-  toRegisterPushTokenParams,
   toReportExamRequestParams,
   toRequestExamParams,
   toRpcRows,
@@ -25,6 +25,7 @@ import {
 } from "../../packages/contracts/src";
 
 import { supabase } from "@/lib/supabase";
+import { readAllPages } from "@/repositories/read-all-pages";
 
 // 설정된 Supabase 클라이언트 제공
 function getSupabaseClient() {
@@ -48,37 +49,44 @@ export class SupabaseExamPlatformApi implements ExamPlatformApi {
   // 공개 시험 목록 조회
   async listActiveExams(): Promise<RemoteExam[]> {
     const client = getSupabaseClient();
-    const [examResult, subjectResult] = await Promise.all([
-      client
-        .from(TABLES.exams)
-        .select("id,title,short_title,description,icon,status,published_at")
-        .eq("status", "active")
-        .returns<ExamRow[]>(),
-      client
-        .from(TABLES.examSubjects)
-        .select("id,exam_id,name,sort_order")
-        .returns<ExamSubjectRow[]>(),
+    const [exams, subjects] = await Promise.all([
+      readAllPages((from, to) =>
+        client
+          .from(TABLES.exams)
+          .select("id,title,short_title,description,icon,status,published_at")
+          .eq("status", "active")
+          .order("id")
+          .range(from, to)
+          .returns<ExamRow[]>(),
+      ),
+      readAllPages((from, to) =>
+        client
+          .from(TABLES.examSubjects)
+          .select("id,exam_id,name,sort_order")
+          .order("id")
+          .range(from, to)
+          .returns<ExamSubjectRow[]>(),
+      ),
     ]);
-    if (examResult.error != null) throw examResult.error;
-    if (subjectResult.error != null) throw subjectResult.error;
-    return (examResult.data ?? []).map((exam) =>
-      toRemoteExam(exam, subjectResult.data ?? []),
-    );
+    return exams.map((exam) => toRemoteExam(exam, subjects));
   }
 
   // 시험별 공개 문제 목록 조회
   async listPublishedQuestions(examId: string): Promise<RemoteQuestion[]> {
     const client = getSupabaseClient();
-    const { data, error } = await client
-      .from(TABLES.questions)
-      .select(
-        "id,exam_id,subject,prompt,choices,answer_index,explanation,difficulty,status",
-      )
-      .eq("exam_id", examId)
-      .eq("status", "published")
-      .returns<QuestionRow[]>();
-    if (error != null) throw error;
-    return (data ?? []).map(toRemoteQuestion);
+    const data = await readAllPages((from, to) =>
+      client
+        .from(TABLES.questions)
+        .select(
+          "id,exam_id,subject,prompt,choices,answer_index,explanation,difficulty,status,source_type,version",
+        )
+        .eq("exam_id", examId)
+        .eq("status", "published")
+        .order("id")
+        .range(from, to)
+        .returns<QuestionRow[]>(),
+    );
+    return data.map(toRemoteQuestion);
   }
 
   // 시험 요청 검색
@@ -168,14 +176,16 @@ export class SupabaseExamPlatformApi implements ExamPlatformApi {
   async listMyNotifications(): Promise<NotificationRow[]> {
     const client = getSupabaseClient();
     const userId = await getCurrentUserId();
-    const { data, error } = await client
-      .from(TABLES.notifications)
-      .select("id,user_id,type,payload,read_at,created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .returns<NotificationRow[]>();
-    if (error != null) throw error;
-    return data ?? [];
+    return readAllPages((from, to) =>
+      client
+        .from(TABLES.notifications)
+        .select("id,user_id,type,payload,read_at,created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to)
+        .returns<NotificationRow[]>(),
+    );
   }
 
   // 알림 읽음 처리

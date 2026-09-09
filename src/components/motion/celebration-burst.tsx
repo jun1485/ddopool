@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
+  cancelAnimation,
   interpolate,
   useAnimatedStyle,
   useReducedMotion,
@@ -50,6 +51,7 @@ function BurstParticle({
         easing: Easing.out(Easing.quad),
       }),
     );
+    return () => cancelAnimation(progress);
   }, [delay, progress, trigger]);
 
   const particleStyle = useAnimatedStyle(() => ({
@@ -73,8 +75,8 @@ function BurstParticle({
 export function CelebrationBurst({
   trigger,
   colors,
-  particleCount = 14,
-  distance = 86,
+  particleCount = 8,
+  distance = 54,
 }: CelebrationBurstProps) {
   const theme = useTheme();
   const reduceMotion = useReducedMotion();

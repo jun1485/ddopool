@@ -1,3 +1,5 @@
+import { enrollmentSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const EXAM_ENROLLMENT_KEY = "exam-loop:exam-enrollment:v1";
@@ -24,8 +26,11 @@ export function subscribeExamEnrollment(
 export async function loadExamEnrollment(): Promise<ExamEnrollmentState | null> {
   try {
     await enrollmentWriteQueue.catch(() => undefined);
-    const raw = await AsyncStorage.getItem(EXAM_ENROLLMENT_KEY);
-    return raw == null ? null : (JSON.parse(raw) as ExamEnrollmentState);
+    return readValidated(
+      EXAM_ENROLLMENT_KEY,
+      enrollmentSchema.nullable(),
+      null,
+    );
   } catch {
     return null;
   }
@@ -53,4 +58,9 @@ export function clearExamEnrollment(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(EXAM_ENROLLMENT_KEY));
   return enrollmentWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleExamEnrollmentStore(): Promise<void> {
+  await enrollmentWriteQueue.catch(() => undefined);
 }

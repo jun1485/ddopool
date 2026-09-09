@@ -1,3 +1,5 @@
+import { retryableWrite } from "./retry-write";
+import { activeSessionSchema } from "@/storage/data-schemas";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { AnswerConfidence } from "@/learning/answer-confidence";
@@ -19,7 +21,7 @@ export interface StoredQuizAnswer {
 // 이어 풀기 세션 상태
 export interface ActiveQuizSession {
   examId: string;
-  mode: Exclude<QuizMode, "mock">;
+  mode: QuizMode;
   questions: Question[];
   currentIndex: number;
   selectedIndex: number | null;
@@ -30,6 +32,8 @@ export interface ActiveQuizSession {
   startedAt?: number;
   elapsedSeconds?: number;
   updatedAt: number;
+  mockDeadline?: number;
+  flaggedQuestionIds?: string[];
 }
 
 const activeSessionListeners = new Set<
@@ -72,7 +76,7 @@ export async function loadActiveQuizSession(
     await activeSessionWriteQueue.catch(() => undefined);
     const raw = await AsyncStorage.getItem(ACTIVE_QUIZ_SESSION_KEY);
     if (raw == null) return null;
-    const session = JSON.parse(raw) as ActiveQuizSession;
+    const session = activeSessionSchema.parse(JSON.parse(raw));
     if (isActiveQuizSessionValid(session, now)) return session;
     await AsyncStorage.removeItem(ACTIVE_QUIZ_SESSION_KEY);
     return null;
@@ -85,20 +89,27 @@ export async function loadActiveQuizSession(
 export function saveActiveQuizSession(
   session: ActiveQuizSession,
 ): Promise<void> {
-  notifyActiveSession(session);
   activeSessionWriteQueue = activeSessionWriteQueue
     .catch(() => undefined)
     .then(() =>
-      AsyncStorage.setItem(ACTIVE_QUIZ_SESSION_KEY, JSON.stringify(session)),
+      retryableWrite(() =>
+        AsyncStorage.setItem(ACTIVE_QUIZ_SESSION_KEY, JSON.stringify(session)),
+      ),
     );
-  return activeSessionWriteQueue;
+  return activeSessionWriteQueue.then(() => notifyActiveSession(session));
 }
 
 // 이어 풀기 세션 제거
 export function clearActiveQuizSession(): Promise<void> {
-  notifyActiveSession(null);
   activeSessionWriteQueue = activeSessionWriteQueue
     .catch(() => undefined)
-    .then(() => AsyncStorage.removeItem(ACTIVE_QUIZ_SESSION_KEY));
-  return activeSessionWriteQueue;
+    .then(() =>
+      retryableWrite(() => AsyncStorage.removeItem(ACTIVE_QUIZ_SESSION_KEY)),
+    );
+  return activeSessionWriteQueue.then(() => notifyActiveSession(null));
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleActiveQuizSessionStore(): Promise<void> {
+  await activeSessionWriteQueue.catch(() => undefined);
 }

@@ -1,3 +1,4 @@
+import { pendingAttemptsSchema } from "@/storage/data-schemas";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { RecordAttemptInput } from "../../packages/contracts/src";
@@ -19,7 +20,7 @@ async function readPendingLearningAttempts(): Promise<
 > {
   const raw = await AsyncStorage.getItem(PENDING_LEARNING_ATTEMPTS_KEY);
   if (raw == null) return [];
-  const attempts = JSON.parse(raw) as PendingLearningAttempt[];
+  const attempts = pendingAttemptsSchema.parse(JSON.parse(raw));
   if (!Array.isArray(attempts))
     throw new Error("서버 이관 대기 풀이 이력 형식이 올바르지 않습니다.");
   return attempts;
@@ -96,4 +97,9 @@ export function clearPendingLearningAttempts(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(PENDING_LEARNING_ATTEMPTS_KEY));
   return pendingAttemptWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settlePendingLearningAttemptStore(): Promise<void> {
+  await pendingAttemptWriteQueue.catch(() => undefined);
 }

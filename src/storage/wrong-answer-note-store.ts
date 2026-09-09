@@ -1,3 +1,5 @@
+import { notesSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { Question } from "@/types/exam";
@@ -5,11 +7,7 @@ import type { Question } from "@/types/exam";
 const WRONG_ANSWER_NOTES_KEY = "exam-loop:wrong-answer-notes:v1";
 let wrongAnswerWriteQueue: Promise<void> = Promise.resolve();
 
-export type WrongAnswerTag =
-  | "concept"
-  | "calculation"
-  | "misread"
-  | "guess";
+export type WrongAnswerTag = "concept" | "calculation" | "misread" | "guess";
 
 // 문제별 오답 노트
 export interface WrongAnswerNote {
@@ -30,8 +28,7 @@ const wrongAnswerListeners = new Set<(notes: WrongAnswerNoteMap) => void>();
 // 오답 노트 원본 로드
 async function readWrongAnswerNotes(): Promise<WrongAnswerNoteMap> {
   try {
-    const raw = await AsyncStorage.getItem(WRONG_ANSWER_NOTES_KEY);
-    return raw == null ? {} : (JSON.parse(raw) as WrongAnswerNoteMap);
+    return readValidated(WRONG_ANSWER_NOTES_KEY, notesSchema, {});
   } catch {
     return {};
   }
@@ -159,4 +156,9 @@ export function clearWrongAnswerNotes(): Promise<void> {
       notifyWrongAnswerNotes({});
     });
   return wrongAnswerWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleWrongAnswerNoteStore(): Promise<void> {
+  await wrongAnswerWriteQueue.catch(() => undefined);
 }

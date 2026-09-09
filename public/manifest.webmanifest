@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "또풀",
+  "short_name": "또풀",
+  "description": "매일 한 문제를 풀고 복습 알림을 받는 학습 웹 앱",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F3",
+  "theme_color": "#FAF7F3",
+  "icons": [
+    {
+      "src": "/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

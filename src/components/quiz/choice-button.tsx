@@ -1,6 +1,5 @@
-import * as Haptics from "expo-haptics";
 import { useEffect } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -26,12 +25,6 @@ export interface ChoiceButtonProps {
   state: ChoiceState;
   disabled?: boolean;
   onPress: () => void;
-}
-
-// 보기 선택 터치 햅틱 실행
-function triggerSelectionHaptic(): void {
-  if (Platform.OS === "web") return;
-  void Haptics.selectionAsync();
 }
 
 // 퀴즈 보기 선택 버튼
@@ -135,10 +128,7 @@ export function ChoiceButton({
         aria-checked={state === "selected"}
         accessibilityLabel={`${String.fromCharCode(65 + index)}. ${label}`}
         disabled={disabled}
-        onPress={() => {
-          triggerSelectionHaptic();
-          onPress();
-        }}
+        onPress={onPress}
       >
         <View style={styles.button}>
           <View style={[styles.badge, { backgroundColor: palette.badge }]}>

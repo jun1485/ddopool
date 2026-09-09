@@ -6,32 +6,16 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from "expo-router/ui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePathname } from "expo-router";
-import { useEffect } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
-import Animated, {
-  FadeIn,
-  interpolateColor,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { FadeIn, useReducedMotion } from "react-native-reanimated";
 
-import { MascotCat } from "@/components/mascot-cat";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
-import { Springs, Timings } from "@/constants/motion";
-import {
-  Alpha,
-  MaxContentWidth,
-  Radius,
-  Shadows,
-  Spacing,
-} from "@/constants/theme";
+import { Alpha, MaxContentWidth, Radius, Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -39,13 +23,21 @@ import { useTheme } from "@/hooks/use-theme";
 export default function AppTabs() {
   const { bookmarkedQuestionIds } = useBookmarks();
   const pathname = usePathname();
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const reduceMotion = useReducedMotion();
 
   return (
     <Tabs>
       <Animated.View
         key={pathname}
-        entering={FadeIn.duration(220)}
-        style={styles.tabContent}
+        entering={reduceMotion ? undefined : FadeIn.duration(220)}
+        style={[
+          styles.tabContent,
+          width < 520
+            ? { paddingBottom: 72 + insets.bottom }
+            : { paddingTop: 64 },
+        ]}
       >
         <TabSlot style={styles.tabSlot} />
       </Animated.View>
@@ -60,6 +52,9 @@ export default function AppTabs() {
                 ? `문제집 · ${bookmarkedQuestionIds.length}`
                 : "문제집"}
             </TabButton>
+          </TabTrigger>
+          <TabTrigger name="discover" href="./discover" asChild>
+            <TabButton>시험찾기</TabButton>
           </TabTrigger>
           <TabTrigger name="review" href="/review" asChild>
             <TabButton>복습</TabButton>
@@ -81,37 +76,16 @@ export function TabButton({
 }: TabTriggerSlotProps) {
   const theme = useTheme();
   const reduceMotion = useReducedMotion();
-  const focusProgress = useSharedValue(isFocused === true ? 1 : 0);
-
-  // 활성 탭 전환 시 배경·확대 진행값 갱신
-  useEffect(() => {
-    const target = isFocused === true ? 1 : 0;
-    focusProgress.value = reduceMotion
-      ? target
-      : withTiming(target, Timings.fast);
-  }, [focusProgress, isFocused, reduceMotion]);
-
-  const pillStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: interpolateColor(
-        focusProgress.value,
-        [0, 1],
-        [theme.backgroundElement, theme.primarySoft],
-      ),
-      transform: [
-        {
-          scale: reduceMotion
-            ? 1
-            : withSpring(1 + focusProgress.value * 0.04, Springs.pop),
-        },
-      ],
-    }),
-    [reduceMotion, theme.backgroundElement, theme.primarySoft],
-  );
+  const { width } = useWindowDimensions();
 
   return (
     <Pressable {...props}>
-      <Animated.View style={[styles.tabButtonView, pillStyle]}>
+      <Animated.View
+        style={[
+          styles.tabButtonView,
+          width < 520 && styles.compactTabButtonView,
+        ]}
+      >
         <ThemedText
           type="smallBold"
           style={{ color: isFocused ? theme.primary : theme.textSecondary }}
@@ -133,16 +107,22 @@ export function TabButton({
 export function CustomTabList(props: TabListProps) {
   const { width } = useWindowDimensions();
   const showBrand = width >= 520;
+  const insets = useSafeAreaInsets();
 
   return (
-    <View {...props} style={styles.tabListContainer}>
+    <View
+      {...props}
+      style={[
+        styles.tabListContainer,
+        !showBrand && [styles.mobileBar, { paddingBottom: insets.bottom }],
+      ]}
+    >
       <ThemedView
         type="backgroundElement"
         style={[styles.innerContainer, !showBrand && styles.compactContainer]}
       >
         {showBrand && (
           <View style={styles.brand}>
-            <MascotCat size={34} />
             <ThemedText type="smallBold" style={styles.brandText}>
               또풀
             </ThemedText>
@@ -166,16 +146,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    padding: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
     zIndex: 10,
   },
+  mobileBar: { bottom: 0, paddingTop: 0, paddingHorizontal: 0 },
   innerContainer: {
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    borderRadius: Radius.large,
+    borderRadius: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
@@ -183,13 +165,15 @@ const styles = StyleSheet.create({
     minWidth: 0,
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: Alpha.hairline,
-    ...Shadows.card,
   },
   // 브랜드 영역 미노출 폭에서 탭을 가로 전체로 분산
   compactContainer: {
     justifyContent: "space-between",
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    borderColor: Alpha.hairline,
   },
   brand: {
     flexDirection: "row",
@@ -206,11 +190,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.pill,
   },
+  compactTabButtonView: {
+    paddingHorizontal: Spacing.one,
+  },
   activeDot: {
     position: "absolute",
     bottom: 3,
-    width: 14,
-    height: 3,
+    width: 24,
+    height: 2,
     borderRadius: Radius.pill,
   },
 });

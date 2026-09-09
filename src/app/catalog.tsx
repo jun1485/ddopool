@@ -57,6 +57,10 @@ interface ExamCatalogCardProps {
   onStart: () => void;
 }
 
+interface CatalogScreenProps {
+  embedded?: boolean;
+}
+
 // 시험 검색 텍스트 정규화
 function normalizeSearchText(value: string): string {
   return value.trim().toLocaleLowerCase("ko-KR");
@@ -276,7 +280,9 @@ function ExamCatalogCard({
 }
 
 // 시험 검색·요청 화면
-export default function CatalogScreen() {
+export default function CatalogScreen({
+  embedded = false,
+}: CatalogScreenProps) {
   const params = useLocalSearchParams<{ tab?: CatalogTab }>();
   const [selectedTab, setSelectedTab] = useState<CatalogTab | null>(null);
   const [searchText, setSearchText] = useState("");
@@ -382,27 +388,29 @@ export default function CatalogScreen() {
       />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="이전 화면"
-            onPress={() => goBack()}
-            hitSlop={Spacing.two}
-            style={({ pressed }) => [
-              styles.iconButton,
-              { backgroundColor: theme.backgroundElement },
-              pressed && styles.pressed,
-            ]}
-          >
-            <SymbolView
-              tintColor={theme.text}
-              name={{
-                ios: "chevron.left",
-                android: "arrow_back",
-                web: "arrow_back",
-              }}
-              size={22}
-            />
-          </Pressable>
+          {!embedded && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="이전 화면"
+              onPress={() => goBack()}
+              hitSlop={Spacing.two}
+              style={({ pressed }) => [
+                styles.iconButton,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
+              ]}
+            >
+              <SymbolView
+                tintColor={theme.text}
+                name={{
+                  ios: "chevron.left",
+                  android: "arrow_back",
+                  web: "arrow_back",
+                }}
+                size={22}
+              />
+            </Pressable>
+          )}
           <View style={styles.topTitle}>
             <ThemedText type="smallBold">시험 카탈로그</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">

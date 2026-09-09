@@ -1,3 +1,5 @@
+import { achievementsSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { AchievementId } from "@/learning/achievements";
@@ -8,8 +10,7 @@ let achievementWriteQueue: Promise<AchievementId[]> = Promise.resolve([]);
 // 해제 업적 식별자 목록 로드
 export async function loadUnlockedAchievements(): Promise<AchievementId[]> {
   try {
-    const raw = await AsyncStorage.getItem(ACHIEVEMENTS_KEY);
-    return raw == null ? [] : (JSON.parse(raw) as AchievementId[]);
+    return readValidated(ACHIEVEMENTS_KEY, achievementsSchema, []);
   } catch {
     return [];
   }
@@ -39,4 +40,9 @@ export function clearAchievements(): Promise<void> {
       return [];
     });
   return achievementWriteQueue.then(() => undefined);
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleAchievementStore(): Promise<void> {
+  await achievementWriteQueue.catch(() => undefined);
 }
