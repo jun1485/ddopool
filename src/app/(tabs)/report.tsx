@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AnimatedCounter } from "@/components/motion/animated-counter";
@@ -565,7 +565,7 @@ export default function ReportScreen() {
                         </ThemedText>
                       </View>
                       <AnimatedProgressBar
-                        progress={(accuracy) / 100}
+                        progress={accuracy / 100}
                         height={7}
                         color={accent}
                         trackColor={softAccent}
@@ -604,8 +604,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     gap: Spacing.four,
     paddingHorizontal: Spacing.four,
-    paddingTop:
-      Platform.OS === "web" ? Spacing.six + Spacing.four : Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.five,
   },
   header: {

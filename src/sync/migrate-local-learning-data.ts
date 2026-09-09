@@ -10,6 +10,7 @@ import {
 } from "@/storage/pending-learning-attempt-store";
 import { loadSrsCards } from "@/storage/srs-store";
 import { resetLearningAttemptStorageFailureCount } from "@/sync/learning-attempt-sync";
+import type { LearningSyncResult } from "@/sync/learning-sync-outbox";
 import {
   completeLearningSyncOutboxRecovery,
   enqueueLearningSync,
@@ -19,7 +20,6 @@ import {
   resetLearningSyncEnqueueFailureCount,
   retryFailedLearningSyncOperations,
 } from "@/sync/learning-sync-outbox";
-import type { LearningSyncResult } from "@/sync/learning-sync-outbox";
 
 const LEARNING_MIGRATION_KEY = "exam-loop:learning-sync-migrated:v1";
 const MIGRATION_FLUSH_LIMIT = 2;
@@ -159,4 +159,9 @@ export function clearLocalLearningMigration(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(LEARNING_MIGRATION_KEY));
   return migrationQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleMigrateLocalLearningData(): Promise<void> {
+  await migrationQueue.catch(() => undefined);
 }

@@ -1,3 +1,4 @@
+import type { PostgrestError } from "@supabase/supabase-js";
 import type {
   LearningSyncApi,
   QuestionAttemptRow,
@@ -7,7 +8,6 @@ import type {
   UserExamEnrollmentRow,
   UserQuestionProgressRow,
 } from "../../packages/contracts/src";
-import type { PostgrestError } from "@supabase/supabase-js";
 import {
   TABLES,
   toQuestionAttemptInsert,
@@ -16,6 +16,7 @@ import {
 
 import { supabase } from "@/lib/supabase";
 import { PermanentLearningSyncError } from "@/sync/learning-sync-error";
+import { isPermanentSyncError } from "@/sync/sync-error-policy";
 
 const PAGE_SIZE = 1_000;
 
@@ -38,11 +39,7 @@ async function getSyncUserId(): Promise<string> {
 
 // 영구 저장 오류 분류
 function throwMutationError(error: PostgrestError, status: number): never {
-  if (
-    /^(22|23)/.test(error.code) ||
-    error.code === "42501" ||
-    (status >= 400 && status < 500)
-  )
+  if (isPermanentSyncError(error.code, status))
     throw new PermanentLearningSyncError(error.code, error.message);
   throw error;
 }

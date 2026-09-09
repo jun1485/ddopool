@@ -10,9 +10,14 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      backgroundColor={colors.background}
+      backgroundColor={colors.backgroundElement}
       indicatorColor={colors.primarySoft}
-      labelStyle={{ selected: { color: colors.text } }}
+      labelVisibilityMode="labeled"
+      iconColor={{ default: colors.textSecondary, selected: colors.primary }}
+      labelStyle={{
+        default: { color: colors.textSecondary, fontSize: 12 },
+        selected: { color: colors.text, fontSize: 12, fontWeight: "600" },
+      }}
     >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>홈</NativeTabs.Trigger.Label>
@@ -37,6 +42,16 @@ export default function AppTabs() {
             {String(bookmarkedQuestionIds.length)}
           </NativeTabs.Trigger.Badge>
         )}
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="discover">
+        <NativeTabs.Trigger.Label>시험찾기</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={require("@/assets/images/tabIcons/explore.png")}
+          sf="magnifyingglass"
+          md="search"
+          renderingMode="template"
+        />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="review">

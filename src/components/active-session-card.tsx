@@ -147,7 +147,7 @@ export function ActiveSessionCard({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`${title} ${completedCount}문제부터 이어 풀기`}
+            accessibilityLabel={`${title} ${session.currentIndex + 1}문제부터 이어 풀기`}
             onPress={onResume}
             style={({ pressed }) => [
               styles.resumeButton,
@@ -156,8 +156,8 @@ export function ActiveSessionCard({
             ]}
           >
             <ThemedText type="smallBold" style={styles.resumeText}>
-              {completedCount > 0
-                ? `${completedCount}문제부터 이어 풀기`
+              {session.currentIndex > 0
+                ? `${session.currentIndex + 1}문제부터 이어 풀기`
                 : "첫 문제부터 이어 풀기"}
             </ThemedText>
             <SymbolView

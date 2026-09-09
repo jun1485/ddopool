@@ -1,3 +1,5 @@
+import { targetSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { StudyTarget } from "@/learning/exam-pace";
@@ -25,8 +27,7 @@ export function subscribeStudyTarget(
 export async function loadStudyTarget(): Promise<StudyTarget | null> {
   try {
     await studyTargetWriteQueue.catch(() => undefined);
-    const raw = await AsyncStorage.getItem(STUDY_TARGET_KEY);
-    return raw == null ? null : (JSON.parse(raw) as StudyTarget);
+    return readValidated(STUDY_TARGET_KEY, targetSchema, null);
   } catch {
     return null;
   }
@@ -48,4 +49,9 @@ export function clearStudyTarget(): Promise<void> {
     .catch(() => undefined)
     .then(() => AsyncStorage.removeItem(STUDY_TARGET_KEY));
   return studyTargetWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleStudyTargetStore(): Promise<void> {
+  await studyTargetWriteQueue.catch(() => undefined);
 }

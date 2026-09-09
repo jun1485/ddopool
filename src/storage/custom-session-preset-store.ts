@@ -1,3 +1,5 @@
+import { presetsSchema } from "@/storage/data-schemas";
+import { readValidated } from "@/storage/read-validated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { CustomSessionStrategy } from "@/learning/custom-session";
@@ -29,8 +31,7 @@ const customSessionPresetListeners = new Set<
 // 저장 학습 루틴 원본 로드
 async function readCustomSessionPresets(): Promise<CustomSessionPresetMap> {
   try {
-    const raw = await AsyncStorage.getItem(CUSTOM_SESSION_PRESETS_KEY);
-    return raw == null ? {} : (JSON.parse(raw) as CustomSessionPresetMap);
+    return readValidated(CUSTOM_SESSION_PRESETS_KEY, presetsSchema, {});
   } catch {
     return {};
   }
@@ -87,4 +88,9 @@ export function clearCustomSessionPresets(): Promise<void> {
       notifyCustomSessionPresets({});
     });
   return customSessionPresetWriteQueue;
+}
+
+// 저장 대기 작업 종료 대기
+export async function settleCustomSessionPresetStore(): Promise<void> {
+  await customSessionPresetWriteQueue.catch(() => undefined);
 }

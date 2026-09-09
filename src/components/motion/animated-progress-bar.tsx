@@ -57,7 +57,7 @@ export function AnimatedProgressBar({
     }
     glow.value = withRepeat(
       withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-      -1,
+      2,
       true,
     );
     return () => cancelAnimation(glow);

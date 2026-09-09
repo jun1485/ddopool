@@ -2,13 +2,19 @@ import { Image } from "expo-image";
 import * as SplashScreen from "expo-splash-screen";
 import { useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import Animated, { Easing, Keyframe } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  Keyframe,
+  useReducedMotion,
+} from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 
 const INITIAL_SCALE_FACTOR = Dimensions.get("screen").height / 90;
 const DURATION = 600;
 
+// 시작 화면 모션 표시
 export function AnimatedSplashOverlay() {
+  const reduceMotion = useReducedMotion();
   const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
 
@@ -36,7 +42,7 @@ export function AnimatedSplashOverlay() {
   const image = (
     <Image
       style={styles.splashImage}
-      source={require("@/assets/images/splash-icon.png")}
+      source={require("@/assets/images/icon.png")}
     />
   );
 
@@ -56,7 +62,8 @@ export function AnimatedSplashOverlay() {
     <View
       onLayout={() => {
         SplashScreen.hideAsync().finally(() => {
-          setAnimate(true);
+          if (reduceMotion) setVisible(false);
+          else setAnimate(true);
         });
       }}
       style={styles.splashOverlay}
@@ -102,11 +109,15 @@ const glowKeyframe = new Keyframe({
   },
 });
 
+// 앱 아이콘 모션 표시
 export function AnimatedIcon() {
+  const reduceMotion = useReducedMotion();
   return (
     <View style={styles.iconContainer}>
       <Animated.View
-        entering={glowKeyframe.duration(60 * 1000 * 4)}
+        entering={
+          reduceMotion ? undefined : glowKeyframe.duration(60 * 1000 * 4)
+        }
         style={styles.glow}
       >
         <Image
@@ -116,16 +127,16 @@ export function AnimatedIcon() {
       </Animated.View>
 
       <Animated.View
-        entering={keyframe.duration(DURATION)}
+        entering={reduceMotion ? undefined : keyframe.duration(DURATION)}
         style={styles.background}
       />
       <Animated.View
         style={styles.imageContainer}
-        entering={logoKeyframe.duration(DURATION)}
+        entering={reduceMotion ? undefined : logoKeyframe.duration(DURATION)}
       >
         <Image
           style={styles.image}
-          source={require("@/assets/images/splash-icon.png")}
+          source={require("@/assets/images/icon.png")}
         />
       </Animated.View>
     </View>

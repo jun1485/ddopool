@@ -3,40 +3,40 @@
 // SUPABASE_ANON_KEY 제공 시 실제 사용자 플로우(가입→요청→투표→사전 검수 공개→신고→푸시 토큰→계정 삭제→RLS 차단)까지 검증
 
 const REQUIRED_TABLES = [
-  'profiles',
-  'exams',
-  'exam_subjects',
-  'exam_aliases',
-  'content_sources',
-  'questions',
-  'question_versions',
-  'question_reviews',
-  'question_reports',
-  'exam_requests',
-  'exam_request_votes',
-  'exam_request_status_history',
-  'exam_request_reports',
-  'banned_terms',
-  'push_tokens',
-  'notifications',
-  'audit_logs',
-  'user_exam_enrollments',
-  'question_attempts',
-  'user_question_progress',
-  'user_bookmarks',
+  "profiles",
+  "exams",
+  "exam_subjects",
+  "exam_aliases",
+  "content_sources",
+  "questions",
+  "question_versions",
+  "question_reviews",
+  "question_reports",
+  "exam_requests",
+  "exam_request_votes",
+  "exam_request_status_history",
+  "exam_request_reports",
+  "banned_terms",
+  "push_tokens",
+  "notifications",
+  "audit_logs",
+  "user_exam_enrollments",
+  "question_attempts",
+  "user_question_progress",
+  "user_bookmarks",
 ];
 
-const TEST_EXAM_ID = 'setup-check-exam';
-const TEST_QUESTION_ID = 'setup-check-q1';
+const TEST_EXAM_ID = "setup-check-exam";
+const TEST_QUESTION_ID = "setup-check-q1";
 
 const results = [];
 let hasFailure = false;
 
 // 검증 항목 결과 기록
-function report(name, passed, detail = '') {
+function report(name, passed, detail = "") {
   results.push({ name, passed, detail });
   if (!passed) hasFailure = true;
-  console.log(`${passed ? '✓' : '✗'} ${name}${detail ? ` — ${detail}` : ''}`);
+  console.log(`${passed ? "✓" : "✗"} ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -44,345 +44,475 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error('SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY 환경 변수가 필요합니다');
+  console.error(
+    "SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY 환경 변수가 필요합니다",
+  );
   process.exit(1);
 }
 
 let createClient;
 try {
-  ({ createClient } = await import('@supabase/supabase-js'));
+  ({ createClient } = await import("@supabase/supabase-js"));
 } catch {
-  console.error('의존성이 없습니다 — db 폴더에서 npm install 을 먼저 실행해 주세요');
+  console.error(
+    "의존성이 없습니다 — db 폴더에서 npm install 을 먼저 실행해 주세요",
+  );
   process.exit(1);
 }
 
-const service = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+const service = createClient(supabaseUrl, serviceRoleKey, {
+  auth: { persistSession: false },
+});
 
 // #region 구조 검증 (테이블 존재)
-console.log('\n[1/4] 테이블 존재 검증');
+console.log("\n[1/4] 테이블 존재 검증");
 for (const table of REQUIRED_TABLES) {
-  const { error } = await service.from(table).select('*', { count: 'exact', head: true });
-  report(`테이블 ${table}`, error == null, error?.message ?? '');
+  const { error } = await service
+    .from(table)
+    .select("*", { count: "exact", head: true });
+  report(`테이블 ${table}`, error == null, error?.message ?? "");
 }
 // #endregion
 
 // #region 트리거 검증 (버전 스냅샷·상태 이력) — 테스트 시험/문제 생성 후 정리
-console.log('\n[2/4] 트리거 동작 검증');
-await service.from('exams').delete().eq('id', TEST_EXAM_ID);
+console.log("\n[2/4] 트리거 동작 검증");
+await service.from("exams").delete().eq("id", TEST_EXAM_ID);
 
 const { error: examInsertError } = await service
-  .from('exams')
-  .insert({ id: TEST_EXAM_ID, title: '셋업 검증용 시험', short_title: '셋업검증', status: 'draft' });
-report('테스트 시험 생성', examInsertError == null, examInsertError?.message ?? '');
+  .from("exams")
+  .insert({
+    id: TEST_EXAM_ID,
+    title: "셋업 검증용 시험",
+    short_title: "셋업검증",
+    status: "draft",
+  });
+report(
+  "테스트 시험 생성",
+  examInsertError == null,
+  examInsertError?.message ?? "",
+);
 
 if (examInsertError == null) {
-  const { error: questionInsertError } = await service.from('questions').insert({
-    id: TEST_QUESTION_ID,
-    exam_id: TEST_EXAM_ID,
-    subject: '검증',
-    prompt: '셋업 검증 문제?',
-    choices: ['보기1', '보기2', '보기3', '보기4'],
-    answer_index: 0,
-    explanation: '검증용',
-  });
-  report('테스트 문제 생성', questionInsertError == null, questionInsertError?.message ?? '');
+  const { error: questionInsertError } = await service
+    .from("questions")
+    .insert({
+      id: TEST_QUESTION_ID,
+      exam_id: TEST_EXAM_ID,
+      subject: "검증",
+      prompt: "셋업 검증 문제?",
+      choices: ["보기1", "보기2", "보기3", "보기4"],
+      answer_index: 0,
+      explanation: "검증용",
+    });
+  report(
+    "테스트 문제 생성",
+    questionInsertError == null,
+    questionInsertError?.message ?? "",
+  );
 
-  await service.from('questions').update({ prompt: '셋업 검증 문제 (수정)?' }).eq('id', TEST_QUESTION_ID);
+  await service
+    .from("questions")
+    .update({ prompt: "셋업 검증 문제 (수정)?" })
+    .eq("id", TEST_QUESTION_ID);
   const { data: versionRow } = await service
-    .from('questions')
-    .select('version')
-    .eq('id', TEST_QUESTION_ID)
+    .from("questions")
+    .select("version")
+    .eq("id", TEST_QUESTION_ID)
     .maybeSingle();
-  report('문제 수정 시 version 증가 트리거', versionRow?.version === 2, `version=${versionRow?.version}`);
+  report(
+    "문제 수정 시 version 증가 트리거",
+    versionRow?.version === 2,
+    `version=${versionRow?.version}`,
+  );
 
   const { count: snapshotCount } = await service
-    .from('question_versions')
-    .select('*', { count: 'exact', head: true })
-    .eq('question_id', TEST_QUESTION_ID);
-  report('버전 스냅샷 기록 트리거', snapshotCount === 2, `snapshots=${snapshotCount}`);
+    .from("question_versions")
+    .select("*", { count: "exact", head: true })
+    .eq("question_id", TEST_QUESTION_ID);
+  report(
+    "버전 스냅샷 기록 트리거",
+    snapshotCount === 2,
+    `snapshots=${snapshotCount}`,
+  );
 
   // 잘못된 answer_index 차단 (check 제약)
-  const { error: constraintError } = await service.from('questions').insert({
+  const { error: constraintError } = await service.from("questions").insert({
     id: `${TEST_QUESTION_ID}-bad`,
     exam_id: TEST_EXAM_ID,
-    subject: '검증',
-    prompt: '제약 검증?',
-    choices: ['a', 'b'],
+    subject: "검증",
+    prompt: "제약 검증?",
+    choices: ["a", "b"],
     answer_index: 5,
-    explanation: '',
+    explanation: "",
   });
-  report('answer_index 범위 check 제약', constraintError != null);
+  report("answer_index 범위 check 제약", constraintError != null);
 }
 // #endregion
 
 // #region RPC 가드 검증 (service role은 auth.uid() null → 로그인 요구)
-console.log('\n[3/4] RPC 검증');
-const { error: rpcGuardError } = await service.rpc('request_exam', {
-  p_display_name: '셋업검증테스트',
+console.log("\n[3/4] RPC 검증");
+const { error: rpcGuardError } = await service.rpc("request_exam", {
+  p_display_name: "셋업검증테스트",
   p_organization: null,
   p_grade_level: null,
   p_exam_url: null,
   p_note: null,
 });
 report(
-  'request_exam 존재·미인증 가드',
-  rpcGuardError != null && rpcGuardError.message.includes('로그인'),
-  rpcGuardError?.message ?? '가드 없이 통과됨',
+  "request_exam 존재·미인증 가드",
+  rpcGuardError != null && rpcGuardError.message.includes("로그인"),
+  rpcGuardError?.message ?? "가드 없이 통과됨",
 );
 
-const { error: deleteAccountGuardError } = await service.rpc('delete_my_account');
+const { error: deleteAccountGuardError } =
+  await service.rpc("delete_my_account");
 report(
-  'delete_my_account 존재·미인증 가드',
-  deleteAccountGuardError != null && deleteAccountGuardError.message.includes('로그인'),
-  deleteAccountGuardError?.message ?? '가드 없이 통과됨',
+  "delete_my_account 존재·미인증 가드",
+  deleteAccountGuardError != null &&
+    deleteAccountGuardError.message.includes("로그인"),
+  deleteAccountGuardError?.message ?? "가드 없이 통과됨",
 );
 
-const { error: reportGuardError } = await service.rpc('report_exam_request', {
-  p_request_id: '00000000-0000-0000-0000-000000000000',
-  p_reason: '가드 검증',
+const { error: reportGuardError } = await service.rpc("report_exam_request", {
+  p_request_id: "00000000-0000-0000-0000-000000000000",
+  p_reason: "가드 검증",
 });
 report(
-  'report_exam_request 존재·미인증 가드',
-  reportGuardError != null && reportGuardError.message.includes('로그인'),
-  reportGuardError?.message ?? '가드 없이 통과됨',
+  "report_exam_request 존재·미인증 가드",
+  reportGuardError != null && reportGuardError.message.includes("로그인"),
+  reportGuardError?.message ?? "가드 없이 통과됨",
 );
 
-const { error: pushGuardError } = await service.rpc('register_push_token', {
-  p_token: 'setup-check-token',
-  p_platform: 'ios',
+const { error: pushGuardError } = await service.rpc("register_push_token", {
+  p_token: "setup-check-token",
+  p_platform: "ios",
 });
 report(
-  'register_push_token 존재·미인증 가드',
-  pushGuardError != null && pushGuardError.message.includes('로그인'),
-  pushGuardError?.message ?? '가드 없이 통과됨',
+  "register_push_token 존재·미인증 가드",
+  pushGuardError != null && pushGuardError.message.includes("로그인"),
+  pushGuardError?.message ?? "가드 없이 통과됨",
 );
 
-const { data: adminUsers, error: adminListError } = await service.rpc('admin_list_users', {
-  p_keyword: null,
-  p_limit: 1,
-});
+const { data: adminUsers, error: adminListError } = await service.rpc(
+  "admin_list_users",
+  {
+    p_keyword: null,
+    p_limit: 1,
+  },
+);
 report(
-  'admin_list_users service role 허용',
+  "admin_list_users service role 허용",
   adminListError == null && Array.isArray(adminUsers),
-  adminListError?.message ?? '',
+  adminListError?.message ?? "",
 );
 // #endregion
 
 // #region 사용자 플로우 검증 (SUPABASE_ANON_KEY 제공 시)
-console.log('\n[4/4] 사용자 플로우 검증');
+console.log("\n[4/4] 사용자 플로우 검증");
 let testUserId = null;
 let testRequestId = null;
 let accountDeleted = false;
 
 if (!anonKey) {
-  console.log('- SUPABASE_ANON_KEY 미제공 — 사용자 플로우 검증 생략');
+  console.log("- SUPABASE_ANON_KEY 미제공 — 사용자 플로우 검증 생략");
 } else {
   const testEmail = `setup-check-${Date.now()}@example.com`;
   const testPassword = `Check!${Date.now()}`;
 
   try {
-    const { data: created, error: createUserError } = await service.auth.admin.createUser({
-      email: testEmail,
-      password: testPassword,
-      email_confirm: true,
-    });
-    report('테스트 사용자 생성 (admin API)', createUserError == null, createUserError?.message ?? '');
+    const { data: created, error: createUserError } =
+      await service.auth.admin.createUser({
+        email: testEmail,
+        password: testPassword,
+        email_confirm: true,
+        user_metadata: {
+          age_over_14: true,
+          legal_version: "setup-verification",
+        },
+      });
+    report(
+      "테스트 사용자 생성 (admin API)",
+      createUserError == null,
+      createUserError?.message ?? "",
+    );
     testUserId = created?.user?.id ?? null;
 
     if (testUserId != null) {
       const { data: profileRow } = await service
-        .from('profiles')
-        .select('id')
-        .eq('id', testUserId)
+        .from("profiles")
+        .select("id")
+        .eq("id", testUserId)
         .maybeSingle();
-      report('가입 시 프로필 자동 생성 트리거', profileRow != null);
+      report("가입 시 프로필 자동 생성 트리거", profileRow != null);
 
-      const userClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+      const userClient = createClient(supabaseUrl, anonKey, {
+        auth: { persistSession: false },
+      });
       const { error: signInError } = await userClient.auth.signInWithPassword({
         email: testEmail,
         password: testPassword,
       });
-      report('이메일 로그인', signInError == null, signInError?.message ?? '');
+      report("이메일 로그인", signInError == null, signInError?.message ?? "");
 
       if (signInError == null) {
         // 요청 등록 + 자동 투표
         const { data: request, error: requestError } = await userClient
-          .rpc('request_exam', {
-            p_display_name: '셋업검증테스트시험',
+          .rpc("request_exam", {
+            p_display_name: "셋업검증테스트시험",
             p_organization: null,
             p_grade_level: null,
             p_exam_url: null,
             p_note: null,
           })
           .single();
-        report('request_exam 요청 등록', requestError == null && request?.id != null, requestError?.message ?? '');
+        report(
+          "request_exam 요청 등록",
+          requestError == null && request?.id != null,
+          requestError?.message ?? "",
+        );
         testRequestId = request?.id ?? null;
-        report('자동 투표 집계 (vote_count=1)', request?.vote_count === 1, `vote_count=${request?.vote_count}`);
-        report('RPC 반환 운영 메타 비노출', request?.admin_note == null && request?.requester_id == null);
+        report(
+          "자동 투표 집계 (vote_count=1)",
+          request?.vote_count === 1,
+          `vote_count=${request?.vote_count}`,
+        );
+        report(
+          "RPC 반환 운영 메타 비노출",
+          request?.admin_note == null && request?.requester_id == null,
+        );
 
         // 중복 요청 병합
         const { data: duplicated } = await userClient
-          .rpc('request_exam', {
-            p_display_name: '셋업 검증 테스트 시험!!',
+          .rpc("request_exam", {
+            p_display_name: "셋업 검증 테스트 시험!!",
             p_organization: null,
             p_grade_level: null,
             p_exam_url: null,
             p_note: null,
           })
           .single();
-        report('동일 시험 중복 요청 병합', duplicated?.id === testRequestId && duplicated?.vote_count === 1);
+        report(
+          "동일 시험 중복 요청 병합",
+          duplicated?.id === testRequestId && duplicated?.vote_count === 1,
+        );
 
         // RLS 차단: 일반 사용자의 요청 상태 직접 변경
         const { data: forbiddenUpdate } = await userClient
-          .from('exam_requests')
-          .update({ status: 'published' })
-          .eq('id', testRequestId)
-          .select('id');
-        report('RLS 차단: 사용자 요청 상태 변경', (forbiddenUpdate ?? []).length === 0);
+          .from("exam_requests")
+          .update({ status: "published" })
+          .eq("id", testRequestId)
+          .select("id");
+        report(
+          "RLS 차단: 사용자 요청 상태 변경",
+          (forbiddenUpdate ?? []).length === 0,
+        );
 
         // 컬럼 권한 차단: 운영 메타 select
         const { error: columnError } = await userClient
-          .from('exam_requests')
-          .select('admin_note')
-          .eq('id', testRequestId);
-        report('컬럼 권한 차단: admin_note 조회', columnError != null, columnError?.message ?? '차단 안 됨');
+          .from("exam_requests")
+          .select("admin_note")
+          .eq("id", testRequestId);
+        report(
+          "컬럼 권한 차단: admin_note 조회",
+          columnError != null,
+          columnError?.message ?? "차단 안 됨",
+        );
 
         // 금칙어 포함 요청 차단
-        const { error: bannedTermError } = await userClient.rpc('request_exam', {
-          p_display_name: '씨발셋업검증',
-          p_organization: null,
-          p_grade_level: null,
-          p_exam_url: null,
-          p_note: null,
-        });
+        const { error: bannedTermError } = await userClient.rpc(
+          "request_exam",
+          {
+            p_display_name: "씨발셋업검증",
+            p_organization: null,
+            p_grade_level: null,
+            p_exam_url: null,
+            p_note: null,
+          },
+        );
         report(
-          '금칙어 포함 요청 등록 차단',
-          bannedTermError != null && bannedTermError.message.includes('사용할 수 없는'),
-          bannedTermError?.message ?? '차단 안 됨',
+          "금칙어 포함 요청 등록 차단",
+          bannedTermError != null &&
+            bannedTermError.message.includes("사용할 수 없는"),
+          bannedTermError?.message ?? "차단 안 됨",
         );
 
         // 사전 검수 공개 정책 (requested 상태는 작성자 외 비공개)
-        const publicClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+        const publicClient = createClient(supabaseUrl, anonKey, {
+          auth: { persistSession: false },
+        });
         const { data: hiddenRequest } = await publicClient
-          .from('exam_requests')
-          .select('id')
-          .eq('id', testRequestId);
-        report('미검수 요청 비공개 (작성자 외 조회 차단)', (hiddenRequest ?? []).length === 0);
+          .from("exam_requests")
+          .select("id")
+          .eq("id", testRequestId);
+        report(
+          "미검수 요청 비공개 (작성자 외 조회 차단)",
+          (hiddenRequest ?? []).length === 0,
+        );
 
         const { data: ownRequest } = await userClient
-          .from('exam_requests')
-          .select('id')
-          .eq('id', testRequestId);
-        report('미검수 요청 작성자 본인 조회 허용', (ownRequest ?? []).length === 1);
+          .from("exam_requests")
+          .select("id")
+          .eq("id", testRequestId);
+        report(
+          "미검수 요청 작성자 본인 조회 허용",
+          (ownRequest ?? []).length === 1,
+        );
 
-        await service.from('exam_requests').update({ status: 'triage' }).eq('id', testRequestId);
+        await service
+          .from("exam_requests")
+          .update({ status: "triage" })
+          .eq("id", testRequestId);
         const { data: visibleRequest } = await publicClient
-          .from('exam_requests')
-          .select('id')
-          .eq('id', testRequestId);
-        report('검수 통과 요청 공개 전환', (visibleRequest ?? []).length === 1);
+          .from("exam_requests")
+          .select("id")
+          .eq("id", testRequestId);
+        report("검수 통과 요청 공개 전환", (visibleRequest ?? []).length === 1);
 
         // 투표자 노출 차단
         const { data: publicVotes } = await publicClient
-          .from('exam_request_votes')
-          .select('voter_id')
-          .eq('request_id', testRequestId);
-        report('투표자 목록 비노출', (publicVotes ?? []).length === 0);
+          .from("exam_request_votes")
+          .select("voter_id")
+          .eq("request_id", testRequestId);
+        report("투표자 목록 비노출", (publicVotes ?? []).length === 0);
 
         // 요청 신고 접수·중복 차단
-        const { error: requestReportError } = await userClient.rpc('report_exam_request', {
-          p_request_id: testRequestId,
-          p_reason: '셋업 검증 신고',
-        });
-        report('report_exam_request 신고 접수', requestReportError == null, requestReportError?.message ?? '');
+        const { error: requestReportError } = await userClient.rpc(
+          "report_exam_request",
+          {
+            p_request_id: testRequestId,
+            p_reason: "셋업 검증 신고",
+          },
+        );
+        report(
+          "report_exam_request 신고 접수",
+          requestReportError == null,
+          requestReportError?.message ?? "",
+        );
 
-        await userClient.rpc('report_exam_request', {
+        await userClient.rpc("report_exam_request", {
           p_request_id: testRequestId,
-          p_reason: '중복 신고',
+          p_reason: "중복 신고",
         });
         const { count: reportCount } = await service
-          .from('exam_request_reports')
-          .select('*', { count: 'exact', head: true })
-          .eq('request_id', testRequestId);
-        report('동일 사용자 중복 신고 차단', reportCount === 1, `reports=${reportCount}`);
+          .from("exam_request_reports")
+          .select("*", { count: "exact", head: true })
+          .eq("request_id", testRequestId);
+        report(
+          "동일 사용자 중복 신고 차단",
+          reportCount === 1,
+          `reports=${reportCount}`,
+        );
 
         // 승인 전환 → 투표자 알림 트리거
-        await service.from('exam_requests').update({ status: 'approved' }).eq('id', testRequestId);
+        await service
+          .from("exam_requests")
+          .update({ status: "approved" })
+          .eq("id", testRequestId);
         const { data: notifications } = await userClient
-          .from('notifications')
-          .select('type, payload')
-          .eq('type', 'request_status_changed');
+          .from("notifications")
+          .select("type, payload")
+          .eq("type", "request_status_changed");
         const approvalNotified = (notifications ?? []).some(
-          (row) => row.payload?.request_id === testRequestId && row.payload?.status === 'approved',
+          (row) =>
+            row.payload?.request_id === testRequestId &&
+            row.payload?.status === "approved",
         );
-        report('승인 전환 시 투표자 알림 트리거', approvalNotified);
+        report("승인 전환 시 투표자 알림 트리거", approvalNotified);
 
         // 푸시 토큰 등록·해제
         const testPushToken = `ExponentPushToken[setup-check-${Date.now()}]`;
-        const { error: pushRegisterError } = await userClient.rpc('register_push_token', {
-          p_token: testPushToken,
-          p_platform: 'ios',
-        });
-        report('register_push_token 등록', pushRegisterError == null, pushRegisterError?.message ?? '');
+        const { error: pushRegisterError } = await userClient.rpc(
+          "register_push_token",
+          {
+            p_token: testPushToken,
+            p_platform: "ios",
+          },
+        );
+        report(
+          "register_push_token 등록",
+          pushRegisterError == null,
+          pushRegisterError?.message ?? "",
+        );
 
         const { data: ownToken } = await userClient
-          .from('push_tokens')
-          .select('token, platform')
-          .eq('token', testPushToken)
+          .from("push_tokens")
+          .select("token, platform")
+          .eq("token", testPushToken)
           .maybeSingle();
-        report('푸시 토큰 본인 조회', ownToken?.platform === 'ios');
+        report("푸시 토큰 본인 조회", ownToken?.platform === "ios");
 
-        await userClient.rpc('unregister_push_token', { p_token: testPushToken });
+        await userClient.rpc("unregister_push_token", {
+          p_token: testPushToken,
+        });
         const { count: remainingTokens } = await service
-          .from('push_tokens')
-          .select('*', { count: 'exact', head: true })
-          .eq('token', testPushToken);
-        report('unregister_push_token 해제', remainingTokens === 0, `tokens=${remainingTokens}`);
+          .from("push_tokens")
+          .select("*", { count: "exact", head: true })
+          .eq("token", testPushToken);
+        report(
+          "unregister_push_token 해제",
+          remainingTokens === 0,
+          `tokens=${remainingTokens}`,
+        );
 
         // 계정 삭제 (프로필·학습 기록 연쇄 삭제)
-        const { error: deleteAccountError } = await userClient.rpc('delete_my_account');
-        report('delete_my_account 실행', deleteAccountError == null, deleteAccountError?.message ?? '');
+        const { error: deleteAccountError } =
+          await userClient.rpc("delete_my_account");
+        report(
+          "delete_my_account 실행",
+          deleteAccountError == null,
+          deleteAccountError?.message ?? "",
+        );
 
         if (deleteAccountError == null) {
           accountDeleted = true;
           const { data: deletedProfile } = await service
-            .from('profiles')
-            .select('id')
-            .eq('id', testUserId)
+            .from("profiles")
+            .select("id")
+            .eq("id", testUserId)
             .maybeSingle();
-          report('계정 삭제 후 프로필 제거', deletedProfile == null);
+          report("계정 삭제 후 프로필 제거", deletedProfile == null);
 
-          const { data: deletedUser } = await service.auth.admin.getUserById(testUserId);
-          report('계정 삭제 후 인증 사용자 제거', deletedUser?.user == null);
+          const { data: deletedUser } =
+            await service.auth.admin.getUserById(testUserId);
+          report("계정 삭제 후 인증 사용자 제거", deletedUser?.user == null);
 
           const { data: survivedRequest } = await service
-            .from('exam_requests')
-            .select('requester_id')
-            .eq('id', testRequestId)
+            .from("exam_requests")
+            .select("requester_id")
+            .eq("id", testRequestId)
             .maybeSingle();
-          report('계정 삭제 후 요청 작성자 익명화', survivedRequest != null && survivedRequest.requester_id == null);
+          report(
+            "계정 삭제 후 요청 작성자 익명화",
+            survivedRequest != null && survivedRequest.requester_id == null,
+          );
         }
 
         // 익명 로그인 프로바이더 설정 확인 (참고용)
-        const anonProbe = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+        const anonProbe = createClient(supabaseUrl, anonKey, {
+          auth: { persistSession: false },
+        });
         const { error: anonError } = await anonProbe.auth.signInAnonymously();
         console.log(
           anonError == null
-            ? '- 참고: Anonymous sign-in 활성화됨'
+            ? "- 참고: Anonymous sign-in 활성화됨"
             : `- 참고: Anonymous sign-in 비활성 (${anonError.message})`,
         );
       }
     }
   } finally {
     // 테스트 데이터 정리 (계정 삭제 검증 통과 시 사용자는 이미 제거됨)
-    if (testRequestId != null) await service.from('exam_requests').delete().eq('id', testRequestId);
-    if (testUserId != null && !accountDeleted) await service.auth.admin.deleteUser(testUserId);
+    if (testRequestId != null)
+      await service.from("exam_requests").delete().eq("id", testRequestId);
+    if (testUserId != null && !accountDeleted)
+      await service.auth.admin.deleteUser(testUserId);
   }
 }
 
-await service.from('exams').delete().eq('id', TEST_EXAM_ID);
+await service.from("exams").delete().eq("id", TEST_EXAM_ID);
 // #endregion
 
 const passed = results.filter((row) => row.passed).length;
-console.log(`\n검증 완료: ${passed}/${results.length} 통과${hasFailure ? ' — 실패 항목을 확인해 주세요' : ''}`);
+console.log(
+  `\n검증 완료: ${passed}/${results.length} 통과${hasFailure ? " — 실패 항목을 확인해 주세요" : ""}`,
+);
 process.exit(hasFailure ? 1 : 0);

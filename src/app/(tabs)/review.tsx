@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useMemo } from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
@@ -112,10 +112,7 @@ export default function ReviewScreen() {
                   <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
                     지금 복습할 문제
                   </ThemedText>
-                  <AnimatedCounter
-                    style={styles.heroCount}
-                    value={totalDue}
-                  />
+                  <AnimatedCounter style={styles.heroCount} value={totalDue} />
                   <ThemedText type="small" style={styles.onPrimaryMuted}>
                     {totalDue > 0
                       ? "짧게 복습하고 기억을 단단하게 만들어요"
@@ -167,15 +164,26 @@ export default function ReviewScreen() {
           <View style={styles.scheduleGrid}>
             {[
               { label: "지금", value: totalDue, color: theme.danger },
-              { label: "24시간 내", value: upcomingCount, color: theme.warning },
-              { label: "이후 예정", value: scheduledCount, color: theme.success },
+              {
+                label: "24시간 내",
+                value: upcomingCount,
+                color: theme.warning,
+              },
+              {
+                label: "이후 예정",
+                value: scheduledCount,
+                color: theme.success,
+              },
             ].map((schedule, scheduleIndex) => (
               <RevealView
                 key={schedule.label}
                 delay={stagger(scheduleIndex, 60)}
                 style={styles.scheduleSlot}
               >
-                <ThemedView type="backgroundElement" style={styles.scheduleCard}>
+                <ThemedView
+                  type="backgroundElement"
+                  style={styles.scheduleCard}
+                >
                   <View
                     style={[
                       styles.scheduleDot,
@@ -352,8 +360,7 @@ const styles = StyleSheet.create({
   content: {
     minWidth: 0,
     paddingHorizontal: Spacing.four,
-    paddingTop:
-      Platform.OS === "web" ? Spacing.six + Spacing.four : Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.five,
     gap: Spacing.four,
   },
