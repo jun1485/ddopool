@@ -12,6 +12,7 @@ import {
   clearActiveQuizSession,
   loadActiveQuizSession,
   saveActiveQuizSession,
+  shouldResumeActiveQuizSession,
 } from "@/storage/active-quiz-session-store";
 import { loadBookmarks } from "@/storage/bookmark-store";
 import { recordLearningSessionResult } from "@/storage/learning-session-history-store";
@@ -179,6 +180,7 @@ export function useQuizSession(
   const [mockDeadline, setMockDeadline] = useState<number>();
   const [flaggedQuestionIds, setFlaggedQuestionIds] = useState<string[]>([]);
   const sessionElapsedMs = useRef(0);
+  const sessionStartedAt = useRef(0);
   const activeSegmentStartedAt = useRef<number | null>(null);
   const sessionPausedRef = useRef(paused);
   const sessionStatusRef = useRef<QuizStatus>("loading");
@@ -258,21 +260,26 @@ export function useQuizSession(
 
     // 세션 출제 문제 구성
     const prepare = async () => {
+      const requestedQuestionIds =
+        questionIds?.split(",").filter(Boolean) ?? [];
       const [storedCards, bookmarkedQuestionIds, performance, activeSession] =
         await Promise.all([
           loadSrsCards(),
           loadBookmarks(),
           loadPerformanceStats(),
-          resumeRequested
-            ? loadActiveQuizSession(Date.now())
-            : Promise.resolve(null),
+          loadActiveQuizSession(Date.now()),
         ]);
       if (cancelled) return;
 
       if (
         activeSession != null &&
-        activeSession.examId === examId &&
-        activeSession.mode === mode
+        shouldResumeActiveQuizSession(
+          activeSession,
+          examId,
+          mode,
+          requestedQuestionIds,
+          resumeRequested,
+        )
       ) {
         setCards(storedCards);
         setQuestions(activeSession.questions);
@@ -286,8 +293,11 @@ export function useQuizSession(
             confidence: answer.confidence ?? null,
           })),
         );
+        setRetryCounts(activeSession.retryCounts ?? {});
         setFlaggedQuestionIds(activeSession.flaggedQuestionIds ?? []);
         setMockDeadline(activeSession.mockDeadline);
+        sessionStartedAt.current =
+          activeSession.startedAt ?? activeSession.updatedAt;
         resetSessionClock(
           activeSession.elapsedSeconds ??
             Math.max(
@@ -305,13 +315,13 @@ export function useQuizSession(
         return;
       }
 
+      const startedAt = Date.now();
+      sessionStartedAt.current = startedAt;
       setMockDeadline(
         mode === "mock"
-          ? Date.now() + settings.mockDurationMinutes * 60_000
+          ? startedAt + settings.mockDurationMinutes * 60_000
           : undefined,
       );
-      const requestedQuestionIds =
-        questionIds?.split(",").filter(Boolean) ?? [];
       const selectedQuestionIds = new Set(requestedQuestionIds);
       const examQuestions =
         selectedQuestionIds.size > 0
@@ -358,10 +368,19 @@ export function useQuizSession(
                 Date.now(),
                 settings.shuffleQuestionsEnabled,
               )
-            : (settings.shuffleQuestionsEnabled
-                ? shuffle(targets)
-                : targets
-              ).slice(0, sessionLimit);
+            : (() => {
+                const orderedTargets = settings.shuffleQuestionsEnabled
+                  ? shuffle(targets)
+                  : targets;
+                return [
+                  ...orderedTargets.filter(
+                    (question) => storedCards[question.id] == null,
+                  ),
+                  ...orderedTargets.filter(
+                    (question) => storedCards[question.id] != null,
+                  ),
+                ].slice(0, sessionLimit);
+              })();
       const picked = selectedQuestions.map((question) =>
         settings.shuffleChoicesEnabled ? shuffleChoices(question) : question,
       );
@@ -421,6 +440,8 @@ export function useQuizSession(
       isSubmitted,
       correctCount,
       answers,
+      retryCounts,
+      startedAt: sessionStartedAt.current,
       elapsedSeconds: getSessionDurationSeconds(),
       mockDeadline,
       flaggedQuestionIds,
@@ -439,6 +460,7 @@ export function useQuizSession(
     mode,
     preparedSessionKey,
     questions,
+    retryCounts,
     selectedIndex,
     sessionRequestKey,
     status,

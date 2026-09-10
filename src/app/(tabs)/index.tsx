@@ -105,8 +105,15 @@ export default function HomeScreen() {
     isLoading: isStatsLoading,
   } = useDailyStats();
   const { lifetime, performance } = useLearningReport();
-  const { studiedCounts, dueCounts, totalDue, totalStudied, recentExamId } =
-    useSrsSummary();
+  const {
+    cards,
+    studiedCounts,
+    dueCounts,
+    totalDue,
+    totalStudied,
+    recentExamId,
+    isLoading: isSrsLoading,
+  } = useSrsSummary();
   const { bookmarkedQuestionIds } = useBookmarks();
   const {
     exams,
@@ -260,6 +267,7 @@ export default function HomeScreen() {
       questions: selectQuestionsByExam(savedRoutinePreset.examId),
       selectedSubjects: savedRoutinePreset.selectedSubjects,
       performance,
+      cards,
       count: savedRoutinePreset.questionCount,
       strategy: savedRoutinePreset.strategy,
     });
@@ -600,6 +608,7 @@ export default function HomeScreen() {
           )}
 
           {!isCustomSessionPresetsLoading &&
+            !isSrsLoading &&
             savedRoutinePreset != null &&
             savedRoutineExam != null && (
               <RevealView delay={stagger(5, 40)}>

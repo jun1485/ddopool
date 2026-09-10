@@ -1,4 +1,5 @@
 import type { PerformanceStats } from "@/storage/stats-store";
+import type { SrsCardMap } from "@/storage/srs-store";
 import type { Question } from "@/types/exam";
 
 // 맞춤 세션 출제 전략
@@ -8,6 +9,7 @@ interface CustomSessionInput {
   questions: Question[];
   selectedSubjects: string[];
   performance: PerformanceStats;
+  cards: SrsCardMap;
   count: number;
   strategy: CustomSessionStrategy;
 }
@@ -54,11 +56,30 @@ function getSubjectAccuracy(
   question: Question,
   performance: PerformanceStats,
 ): number {
-  const stat =
-    performance.bySubject[`${question.examId}:${question.subject}`];
+  const stat = performance.bySubject[`${question.examId}:${question.subject}`];
   return stat == null || stat.answered === 0
     ? 101
     : stat.correct / stat.answered;
+}
+
+// 출제 전략별 문제 목록 구성
+function selectQuestionsByStrategy(
+  questions: Question[],
+  selectedSubjects: string[],
+  performance: PerformanceStats,
+  count: number,
+  strategy: CustomSessionStrategy,
+): Question[] {
+  if (strategy === "random") return shuffleQuestions(questions).slice(0, count);
+  if (strategy === "weakness")
+    return [...questions]
+      .sort(
+        (left, right) =>
+          getSubjectAccuracy(left, performance) -
+          getSubjectAccuracy(right, performance),
+      )
+      .slice(0, count);
+  return selectBalancedQuestions(questions, selectedSubjects, count);
 }
 
 // 맞춤 조건 기반 세션 문제 선정
@@ -66,6 +87,7 @@ export function selectCustomSessionQuestions({
   questions,
   selectedSubjects,
   performance,
+  cards,
   count,
   strategy,
 }: CustomSessionInput): Question[] {
@@ -73,16 +95,23 @@ export function selectCustomSessionQuestions({
     selectedSubjects.includes(question.subject),
   );
   const limit = Math.min(Math.max(count, 0), available.length);
-
-  if (strategy === "random")
-    return shuffleQuestions(available).slice(0, limit);
-  if (strategy === "weakness")
-    return [...available]
-      .sort(
-        (left, right) =>
-          getSubjectAccuracy(left, performance) -
-          getSubjectAccuracy(right, performance),
-      )
-      .slice(0, limit);
-  return selectBalancedQuestions(available, selectedSubjects, limit);
+  const unseen = available.filter((question) => cards[question.id] == null);
+  const reviewed = available.filter((question) => cards[question.id] != null);
+  const selectedUnseen = selectQuestionsByStrategy(
+    unseen,
+    selectedSubjects,
+    performance,
+    limit,
+    strategy,
+  );
+  return [
+    ...selectedUnseen,
+    ...selectQuestionsByStrategy(
+      reviewed,
+      selectedSubjects,
+      performance,
+      limit - selectedUnseen.length,
+      strategy,
+    ),
+  ];
 }
