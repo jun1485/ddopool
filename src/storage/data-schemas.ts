@@ -182,6 +182,7 @@ export const activeSessionSchema = z
     isSubmitted: z.boolean(),
     answerConfidence: confidenceSchema.nullable().optional(),
     correctCount: count,
+    retryCounts: z.record(z.string(), count).optional(),
     answers: z.array(
       z.object({
         questionId: z.string(),

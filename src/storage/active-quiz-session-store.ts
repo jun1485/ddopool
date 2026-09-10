@@ -6,7 +6,6 @@ import type { AnswerConfidence } from "@/learning/answer-confidence";
 import type { Question, QuizMode } from "@/types/exam";
 
 const ACTIVE_QUIZ_SESSION_KEY = "exam-loop:active-quiz-session:v1";
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 let activeSessionWriteQueue: Promise<void> = Promise.resolve();
 
 // 저장 세션 답안
@@ -29,6 +28,7 @@ export interface ActiveQuizSession {
   answerConfidence?: AnswerConfidence | null;
   correctCount: number;
   answers: StoredQuizAnswer[];
+  retryCounts?: Record<string, number>;
   startedAt?: number;
   elapsedSeconds?: number;
   updatedAt: number;
@@ -60,11 +60,38 @@ export function isActiveQuizSessionValid(
   session: ActiveQuizSession,
   now: number,
 ): boolean {
+  const startedDate = new Date(session.startedAt ?? session.updatedAt);
+  const currentDate = new Date(now);
   return (
     session.questions.length > 0 &&
     session.currentIndex >= 0 &&
     session.currentIndex < session.questions.length &&
-    now - session.updatedAt <= SESSION_TTL_MS
+    startedDate.getFullYear() === currentDate.getFullYear() &&
+    startedDate.getMonth() === currentDate.getMonth() &&
+    startedDate.getDate() === currentDate.getDate()
+  );
+}
+
+// 요청 경로와 저장 세션의 이어 풀기 가능 여부 판정
+export function shouldResumeActiveQuizSession(
+  session: ActiveQuizSession,
+  examId: string,
+  mode: QuizMode,
+  requestedQuestionIds: string[],
+  resumeRequested: boolean,
+): boolean {
+  if (session.examId !== examId || session.mode !== mode) return false;
+  if (resumeRequested || requestedQuestionIds.length === 0) return true;
+
+  const activeQuestionIds = new Set(
+    session.questions.map((question) => question.id),
+  );
+  const requestedIds = new Set(requestedQuestionIds);
+  return (
+    activeQuestionIds.size === requestedIds.size &&
+    requestedQuestionIds.every((questionId) =>
+      activeQuestionIds.has(questionId),
+    )
   );
 }
 

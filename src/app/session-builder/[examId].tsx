@@ -17,6 +17,7 @@ import { useCustomSessionPresets } from "@/hooks/use-custom-session-presets";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useLearningReport } from "@/hooks/use-learning-report";
 import { useSettings } from "@/hooks/use-settings";
+import { useSrsSummary } from "@/hooks/use-srs-summary";
 import { useTheme } from "@/hooks/use-theme";
 import {
   CustomSessionStrategy,
@@ -122,6 +123,7 @@ export default function SessionBuilderScreen() {
   const { findExam, selectQuestionsByExam, isLoading } = useExamCatalog();
   const { performance } = useLearningReport();
   const { settings } = useSettings();
+  const { cards, isLoading: isSrsLoading } = useSrsSummary();
   const { presets, savePreset } = useCustomSessionPresets();
   const theme = useTheme();
   const exam = findExam(params.examId);
@@ -180,6 +182,7 @@ export default function SessionBuilderScreen() {
       questions,
       selectedSubjects,
       performance,
+      cards,
       count: questionCount,
       strategy,
     });
@@ -200,6 +203,7 @@ export default function SessionBuilderScreen() {
       questions,
       selectedSubjects: availableSubjects,
       performance,
+      cards,
       count: diagnosticQuestionCount,
       strategy: "balanced",
     });
@@ -242,13 +246,10 @@ export default function SessionBuilderScreen() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isSrsLoading) {
     return (
       <ThemedView style={styles.container}>
-        <PageHead
-          title="학습 세션 구성"
-          noIndex
-        />
+        <PageHead title="학습 세션 구성" noIndex />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.loadingContent}>
             <SkeletonBlock width="55%" height={22} />
@@ -280,10 +281,7 @@ export default function SessionBuilderScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="학습 세션 구성"
-        noIndex
-      />
+      <PageHead title="학습 세션 구성" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Pressable

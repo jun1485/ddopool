@@ -4,8 +4,7 @@ import type { Question } from "@/types/exam";
 
 type AdaptiveGroup = "due" | "new" | "practice";
 
-const ADAPTIVE_GROUPS: AdaptiveGroup[] = ["due", "new", "practice"];
-const GROUP_PATTERN: AdaptiveGroup[] = ["due", "new", "due", "new", "practice"];
+const ADAPTIVE_GROUPS: AdaptiveGroup[] = ["new", "due", "practice"];
 
 // 문제 과목 취약도 계산
 function calculateSubjectWeakness(
@@ -98,35 +97,8 @@ export function selectAdaptiveQuestions(
     );
   });
 
-  const selected: Question[] = [];
-  let patternIndex = 0;
-  while (
-    selected.length < Math.min(limit, questions.length) &&
-    Object.values(groups).some((group) => group.length > 0)
-  ) {
-    const preferredGroup = GROUP_PATTERN[patternIndex % GROUP_PATTERN.length];
-    const fallbackGroup = ADAPTIVE_GROUPS.filter(
-      (group) => groups[group].length > 0,
-    ).sort((left, right) => {
-      const leftQuestion = groups[left][0];
-      const rightQuestion = groups[right][0];
-      return (
-        calculateQuestionPriority(
-          rightQuestion,
-          cards,
-          performance,
-          now,
-          false,
-        ) -
-        calculateQuestionPriority(leftQuestion, cards, performance, now, false)
-      );
-    })[0];
-    const nextGroup =
-      groups[preferredGroup].length > 0 ? preferredGroup : fallbackGroup;
-    const nextQuestion =
-      nextGroup == null ? undefined : groups[nextGroup].shift();
-    if (nextQuestion != null) selected.push(nextQuestion);
-    patternIndex += 1;
-  }
-  return selected;
+  return ADAPTIVE_GROUPS.flatMap((group) => groups[group]).slice(
+    0,
+    Math.min(limit, questions.length),
+  );
 }
