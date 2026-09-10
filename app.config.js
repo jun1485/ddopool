@@ -12,6 +12,14 @@ module.exports = ({ config }) => {
   if (production) validateReleaseEnvironment(process.env, projectId);
   return {
     ...config,
+    ...(projectId
+      ? {
+          updates: {
+            ...config.updates,
+            url: `https://u.expo.dev/${projectId}`,
+          },
+        }
+      : {}),
     extra: {
       ...config.extra,
       releaseMode: production,
