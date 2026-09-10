@@ -22,7 +22,8 @@ function createSupabaseClient() {
   if (
     !isSupabaseConfigured ||
     supabaseUrl == null ||
-    supabasePublishableKey == null
+    supabasePublishableKey == null ||
+    typeof localStorage === "undefined"
   )
     return null;
   return createClient(supabaseUrl, supabasePublishableKey, {
