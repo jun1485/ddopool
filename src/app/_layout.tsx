@@ -11,7 +11,8 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import * as Sentry from "@sentry/react-native";
 
@@ -120,7 +121,10 @@ function AppLayout() {
       {/* 화면이 자체 지정하지 않을 때의 기본 문서 제목·설명 */}
       <PageHead />
       <AnimatedSplashOverlay />
-      <View style={styles.app}>
+      <SafeAreaView
+        edges={Platform.OS === "android" ? ["bottom"] : []}
+        style={styles.app}
+      >
         <Stack
           screenOptions={{
             headerShown: false,
@@ -150,7 +154,7 @@ function AppLayout() {
         </Stack>
         <OfflineBanner />
         <StorageBanner />
-      </View>
+      </SafeAreaView>
     </ThemeProvider>
   );
 }
