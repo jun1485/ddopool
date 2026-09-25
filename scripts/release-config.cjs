@@ -10,7 +10,7 @@ const REQUIRED_RELEASE_VALUES = [
 ];
 
 // 출시 설정 누락·잘못된 주소 차단
-function validateReleaseEnvironment(env, projectId) {
+function validateReleaseEnvironment(env, projectId, { native = true } = {}) {
   const errors = REQUIRED_RELEASE_VALUES.filter((name) => !env[name]?.trim());
   for (const name of ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SITE_URL"]) {
     if (!env[name]) continue;
@@ -40,7 +40,10 @@ function validateReleaseEnvironment(env, projectId) {
       new Date(date).toISOString().slice(0, 10) !== date)
   )
     errors.push("EXPO_PUBLIC_LEGAL_EFFECTIVE_DATE");
-  if (!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(projectId ?? ""))
+  if (
+    native &&
+    !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(projectId ?? "")
+  )
     errors.push("EAS_PROJECT_ID");
   if (errors.length)
     throw new Error(

@@ -37,4 +37,15 @@ assert.throws(() =>
     projectId,
   ),
 );
-console.log("출시 설정 누락·주소·시행일 검증 통과");
+assert.doesNotThrow(() =>
+  validateReleaseEnvironment(env, undefined, { native: false }),
+);
+assert.throws(() =>
+  validateReleaseEnvironment(
+    { ...env, EXPO_PUBLIC_OPERATOR_NAME: "" },
+    undefined,
+    { native: false },
+  ),
+);
+assert.throws(() => validateReleaseEnvironment(env, undefined));
+console.log("출시 설정 누락·주소·시행일·웹 배포 검증 통과");
