@@ -22,7 +22,7 @@ import { Durations } from "@/constants/motion";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useStudyReminder } from "@/hooks/use-study-reminder";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
-import { initMonitoring } from "@/lib/monitoring";
+import { captureHandledError, initMonitoring } from "@/lib/monitoring";
 import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
 import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -44,7 +44,12 @@ const MODAL_SCREEN_OPTIONS = {
 } as const;
 
 // 루트 화면 오류 복구 안내
-export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  // 화면 렌더 오류 수집
+  useEffect(() => {
+    captureHandledError(error, "root-error-boundary");
+  }, [error]);
+
   return (
     <View style={styles.errorContainer}>
       <View style={styles.errorIcon}>

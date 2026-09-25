@@ -27,20 +27,23 @@ export function initMonitoring(): void {
   });
 }
 
-// 처리된 오류 수동 기록
-export function captureHandledError(_error: unknown, context: string): void {
+// 처리된 오류 발생 위치·종류 기록
+export function captureHandledError(error: unknown, context: string): void {
   if (!isMonitoringConfigured) return;
-  Sentry.captureException(new Error("처리 중 오류 발생"), {
-    tags: {
-      context,
-      error_kind:
-        _error instanceof TypeError
-          ? "type"
-          : _error instanceof RangeError
-            ? "range"
-            : _error instanceof SyntaxError
-              ? "syntax"
-              : "operation",
+  Sentry.captureException(
+    error instanceof Error ? error : new Error("처리 중 오류 발생"),
+    {
+      tags: {
+        context,
+        error_kind:
+          error instanceof TypeError
+            ? "type"
+            : error instanceof RangeError
+              ? "range"
+              : error instanceof SyntaxError
+                ? "syntax"
+                : "operation",
+      },
     },
-  });
+  );
 }
