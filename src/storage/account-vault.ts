@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { settleLearningWrites } from "@/storage/settle-learning-writes";
 import { recoverBackupRestore } from "@/storage/backup-recovery";
+import { deleteOwnerRows } from "@/storage/learning-rows";
+import { OWNER_KEY, resolveVaultOwner } from "@/storage/vault-owner";
 
 export const ACCOUNT_DATA_KEYS = [
   "learning-extras-baseline:v1",
@@ -27,8 +29,9 @@ export const ACCOUNT_DATA_KEYS = [
   "attempt-fingerprints:v1",
   "merged-remote-attempts:v1",
   "last-merged-attempt-answered-at:v1",
+  "last-merged-attempt-id:v1",
+  "merge-skip-before:v1",
 ].flatMap((key) => [`exam-loop:${key}`, `exam-loop:${key}:corrupt`]);
-const OWNER_KEY = "exam-loop:account-owner:v1";
 const JOURNAL_KEY = "exam-loop:account-transition:v1";
 const DELETED_OWNER_KEY = "exam-loop:deleted-account:v1";
 const DELETE_REQUEST_KEY = "exam-loop:account-delete-request:v1";
@@ -68,6 +71,7 @@ export async function recoverDeletedAccount(): Promise<boolean> {
   const owner = await AsyncStorage.getItem(OWNER_KEY);
   if (owner === deletedOwner) await switchAccountVault(null, true);
   await AsyncStorage.removeItem(vaultKey(deletedOwner));
+  await deleteOwnerRows(deletedOwner);
   return true;
 }
 
@@ -86,8 +90,10 @@ async function applyJournal(): Promise<void> {
     ACCOUNT_DATA_KEYS.includes(key),
   );
   if (entries.length > 0) await AsyncStorage.multiSet(entries);
-  if (journal.eraseOwner != null)
+  if (journal.eraseOwner != null) {
     await AsyncStorage.removeItem(vaultKey(journal.eraseOwner));
+    await deleteOwnerRows(journal.eraseOwner);
+  }
   await AsyncStorage.setItem(OWNER_KEY, journal.owner);
   await AsyncStorage.removeItem(JOURNAL_KEY);
 }
@@ -104,10 +110,7 @@ export function switchAccountVault(
       await settleLearningWrites();
       await recoverBackupRestore();
       await applyJournal();
-      const owner =
-        (await AsyncStorage.getItem(OWNER_KEY)) ??
-        (await AsyncStorage.getItem("exam-loop:learning-sync-migrated:v1")) ??
-        "guest";
+      const owner = await resolveVaultOwner();
       if (owner === nextOwner && !eraseCurrent) {
         await AsyncStorage.setItem(OWNER_KEY, owner);
         return;

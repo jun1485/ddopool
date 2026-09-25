@@ -93,14 +93,14 @@ export async function restoreLearningBackup(json: string): Promise<void> {
     JSON.stringify(value),
   ]);
   // 복원 이전 서버 이력의 통계 중복 합산 방지
-  entries.push([
-    "exam-loop:last-merged-attempt-answered-at:v1",
-    new Date().toISOString(),
-  ]);
+  entries.push(["exam-loop:merge-skip-before:v1", new Date().toISOString()]);
+  // 기기 행 저장소의 파생 식별자까지 비우도록 빈 목록 기록
+  for (const key of ["attempt-fingerprints:v1", "merged-remote-attempts:v1"])
+    entries.push([`exam-loop:${key}`, "[]"]);
   const derivedKeys = [
     "active-quiz-session:v1",
-    "attempt-fingerprints:v1",
-    "merged-remote-attempts:v1",
+    "last-merged-attempt-id:v1",
+    "last-merged-attempt-answered-at:v1",
     "learning-extras-baseline:v1",
   ].map((key) => `exam-loop:${key}`);
   await beginBackupRestore([...entries.map(([key]) => key), ...derivedKeys]);

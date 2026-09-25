@@ -6,12 +6,15 @@ import {
   recoverDeletedAccount,
   switchAccountVault,
 } from "./account-vault";
+import { deleteOwnerRows } from "./learning-rows";
+import { loadSrsCards, updateSrsCard } from "./srs-store";
 
 jest.mock("@react-native-async-storage/async-storage", () =>
   jest.requireActual(
     "@react-native-async-storage/async-storage/jest/async-storage-mock",
   ),
 );
+jest.mock("@/lib/monitoring", () => ({ captureHandledError: jest.fn() }));
 jest.mock("@/storage/settle-learning-writes", () => ({
   settleLearningWrites: jest
     .fn<() => Promise<void>>()
@@ -85,4 +88,31 @@ test("손상된 보관함은 이전 기록을 지우기 전에 실패한다", as
   await AsyncStorage.setItem("exam-loop:account-vault:v1:account-b", "invalid");
   await expect(switchAccountVault("account-b")).rejects.toThrow();
   expect(await AsyncStorage.getItem(NOTE_KEY)).toBe("원본 메모");
+});
+
+test("계정별 SRS 행이 분리되고 계정 삭제 전환 시 해당 행만 지워진다", async () => {
+  await Promise.all(["guest", "account-a", "account-b"].map(deleteOwnerRows));
+  const card = (questionId: string) => ({
+    questionId,
+    examId: "computer-1",
+    repetitions: 1,
+    easeFactor: 2.5,
+    intervalDays: 1,
+    dueAt: 1_000,
+    lastReviewedAt: 500,
+  });
+
+  await switchAccountVault("account-a");
+  await updateSrsCard("q-a", () => card("q-a"));
+  await switchAccountVault("account-b");
+  expect(await loadSrsCards()).toEqual({});
+  await updateSrsCard("q-b", () => card("q-b"));
+  await switchAccountVault("account-a");
+  expect(await loadSrsCards()).toEqual({ "q-a": card("q-a") });
+
+  await switchAccountVault(null, true);
+  await switchAccountVault("account-a");
+  expect(await loadSrsCards()).toEqual({});
+  await switchAccountVault("account-b");
+  expect(await loadSrsCards()).toEqual({ "q-b": card("q-b") });
 });

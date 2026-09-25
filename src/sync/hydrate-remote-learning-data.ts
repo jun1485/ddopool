@@ -12,7 +12,7 @@ import {
 import { loadPendingLearningAttempts } from "@/storage/pending-learning-attempt-store";
 import { SrsCardMap, updateSrsCards } from "@/storage/srs-store";
 import {
-  loadLastMergedAttemptAt,
+  loadLastMergedAttemptId,
   mergeRemoteAttempts,
 } from "@/storage/stats-store";
 import { loadLearningSyncOutbox } from "@/sync/learning-sync-outbox";
@@ -58,7 +58,7 @@ export async function hydrateRemoteLearningData(
     (await loadPendingLearningAttempts()).length > 0
   )
     return;
-  const attemptsSince = await loadLastMergedAttemptAt();
+  const lastMergedAttemptId = await loadLastMergedAttemptId();
   const [
     remoteEnrollments,
     remoteProgress,
@@ -69,7 +69,7 @@ export async function hydrateRemoteLearningData(
     api.listMyEnrollments(),
     api.listMyProgress(),
     api.listMyBookmarks(),
-    api.listMyAttempts(attemptsSince),
+    api.listMyAttempts(lastMergedAttemptId),
     loadExamEnrollment(),
   ]);
   if (currentHydrationVersion !== hydrationVersion) return;

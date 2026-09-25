@@ -5,6 +5,8 @@ import {
   retryStorageWrite,
 } from "./retry-write";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SQLite from "expo-sqlite";
+import { deleteOwnerRows } from "./learning-rows";
 import { recordAnswer, loadDailyStats, toDateKey } from "./stats-store";
 
 jest.mock("@react-native-async-storage/async-storage", () =>
@@ -37,9 +39,11 @@ test("저장 실패 시 다음 쓰기를 보류하고 같은 값을 재시도한
 
 test("채점 저장 재시도와 같은 답안 재전송은 한 번만 집계한다", async () => {
   await AsyncStorage.clear();
+  await deleteOwnerRows("guest");
   const now = Date.now();
+  const database = await SQLite.openDatabaseAsync("ddopool-learning.db");
   jest
-    .mocked(AsyncStorage.multiSet)
+    .spyOn(database, "withExclusiveTransactionAsync")
     .mockRejectedValueOnce(new Error("저장 공간 부족"));
   const saved = recordAnswer(true, "computer-1", "시험", now, "question-1");
   await new Promise((resolve) => setTimeout(resolve, 0));

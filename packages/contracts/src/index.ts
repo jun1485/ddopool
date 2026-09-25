@@ -494,7 +494,7 @@ export interface LearningSyncApi {
   // SRS 진행 상태 조회
   listMyProgress(examId?: string): Promise<UserQuestionProgressRow[]>;
   // 풀이 이력 조회 (통계 집계용)
-  listMyAttempts(sinceIso?: string): Promise<QuestionAttemptRow[]>;
+  listMyAttempts(afterId?: number): Promise<QuestionAttemptRow[]>;
   // 북마크 추가
   addBookmark(questionId: string): Promise<void>;
   // 북마크 제거
