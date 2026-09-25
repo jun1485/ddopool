@@ -10,6 +10,9 @@ module.exports = ({ config }) => {
     process.env.EAS_BUILD_PROJECT_ID ??
     config.extra?.eas?.projectId;
   if (production) validateReleaseEnvironment(process.env, projectId);
+  // 웹 운영 배포의 법률 표기·서비스 주소 누락 차단
+  else if (process.env.VERCEL_ENV === "production")
+    validateReleaseEnvironment(process.env, projectId, { native: false });
   return {
     ...config,
     ...(projectId
