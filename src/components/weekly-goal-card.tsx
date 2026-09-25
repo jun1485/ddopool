@@ -216,7 +216,7 @@ export function WeeklyGoalCard({
                 pressed && styles.startPressed,
               ]}
             >
-              <ThemedText type="smallBold" style={styles.startText}>
+              <ThemedText themeColor="onPrimary" type="smallBold">
                 학습 시작
               </ThemedText>
               <SymbolView
@@ -335,9 +335,6 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.medium,
-  },
-  startText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.72,

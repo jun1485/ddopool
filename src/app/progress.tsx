@@ -16,13 +16,7 @@ import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger } from "@/constants/motion";
-import {
-  Alpha,
-  MaxContentWidth,
-  Radius,
-  Shadows,
-  Spacing,
-} from "@/constants/theme";
+import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useDailyStats } from "@/hooks/use-daily-stats";
@@ -186,20 +180,33 @@ export default function ProgressScreen() {
                 style={[styles.heroOrb, { backgroundColor: theme.onPrimary }]}
               />
               <View style={styles.heroHeader}>
-                <View style={styles.levelMark}>
-                  <ThemedText style={styles.levelCaption}>LEVEL</ThemedText>
-                  <ThemedText style={styles.levelNumber}>
+                <View
+                  style={[
+                    styles.levelMark,
+                    {
+                      borderColor: theme.onPrimaryLine,
+                      backgroundColor: theme.onPrimarySurface,
+                    },
+                  ]}
+                >
+                  <ThemedText
+                    themeColor="onPrimaryMuted"
+                    style={styles.levelCaption}
+                  >
+                    LEVEL
+                  </ThemedText>
+                  <ThemedText themeColor="onPrimary" style={styles.levelNumber}>
                     {progression.level}
                   </ThemedText>
                 </View>
                 <View style={styles.heroCopy}>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     누적 학습 경험치
                   </ThemedText>
-                  <ThemedText style={styles.xpTitle}>
+                  <ThemedText themeColor="onPrimary" style={styles.xpTitle}>
                     {progression.totalXp.toLocaleString()} XP
                   </ThemedText>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     다음 레벨까지{" "}
                     {Math.max(
                       progression.nextLevelXp - progression.totalXp,
@@ -212,8 +219,8 @@ export default function ProgressScreen() {
               <AnimatedProgressBar
                 progress={progression.levelProgress}
                 height={9}
-                color="#FFFFFF"
-                trackColor={Alpha.onPrimaryTrack}
+                color={theme.onPrimary}
+                trackColor={theme.onPrimaryTrack}
               />
             </View>
           </Animated.View>
@@ -403,7 +410,12 @@ export default function ProgressScreen() {
                               { backgroundColor: theme.success },
                             ]}
                           >
-                            <ThemedText style={styles.checkText}>✓</ThemedText>
+                            <ThemedText
+                              themeColor="onPrimary"
+                              style={styles.checkText}
+                            >
+                              ✓
+                            </ThemedText>
                           </View>
                         )}
                       </Pressable>
@@ -463,11 +475,15 @@ export default function ProgressScreen() {
                 </ThemedText>
               </View>
               <AnimatedProgressBar
-                progress={((selectedAchievement.progress /
-                          selectedAchievement.target) *
-                        100) / 100}
+                progress={
+                  ((selectedAchievement.progress / selectedAchievement.target) *
+                    100) /
+                  100
+                }
                 height={7}
-                color={selectedAchievement.unlocked ? theme.success : theme.primary}
+                color={
+                  selectedAchievement.unlocked ? theme.success : theme.primary
+                }
                 trackColor={theme.backgroundSelected}
               />
             </ThemedView>
@@ -545,19 +561,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.38)",
     borderRadius: Radius.large,
-    backgroundColor: "rgba(255, 255, 255, 0.13)",
   },
   levelCaption: {
-    color: "rgba(255, 255, 255, 0.72)",
     fontSize: 10,
     lineHeight: 14,
     fontWeight: 800,
     letterSpacing: 1.2,
   },
   levelNumber: {
-    color: "#FFFFFF",
     fontSize: 33,
     lineHeight: 38,
     fontWeight: 900,
@@ -567,13 +579,9 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   xpTitle: {
-    color: "#FFFFFF",
     fontSize: 26,
     lineHeight: 34,
     fontWeight: 900,
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   statRow: {
     flexDirection: "row",
@@ -690,7 +698,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   checkText: {
-    color: "#FFFFFF",
     fontSize: 10,
     lineHeight: 14,
     fontWeight: 900,

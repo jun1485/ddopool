@@ -370,7 +370,10 @@ export default function HomeScreen() {
                       { backgroundColor: theme.danger },
                     ]}
                   >
-                    <ThemedText style={styles.notificationBadgeText}>
+                    <ThemedText
+                      themeColor="onPrimary"
+                      style={styles.notificationBadgeText}
+                    >
                       {Math.min(unreadCount, 9)}
                     </ThemedText>
                   </PulseView>
@@ -446,7 +449,10 @@ export default function HomeScreen() {
                   >
                     오늘의 목표
                   </ThemedText>
-                  <ThemedText style={[styles.goalTitle, { color: theme.text }]}>
+                  <ThemedText
+                    themeColor="onPrimary"
+                    style={[styles.goalTitle, { color: theme.text }]}
+                  >
                     {isGoalReached
                       ? "오늘 목표를 채웠어요"
                       : `남은 문제 ${remainingGoal}개`}
@@ -466,6 +472,7 @@ export default function HomeScreen() {
               <View style={styles.goalStats}>
                 <View style={styles.goalStatItem}>
                   <AnimatedCounter
+                    themeColor="onPrimary"
                     style={[styles.goalStatValue, { color: theme.text }]}
                     value={todayStat.answered}
                   />
@@ -485,12 +492,14 @@ export default function HomeScreen() {
                 <View style={styles.goalStatItem}>
                   {todayAccuracyRate == null ? (
                     <ThemedText
+                      themeColor="onPrimary"
                       style={[styles.goalStatValue, { color: theme.text }]}
                     >
                       –
                     </ThemedText>
                   ) : (
                     <AnimatedCounter
+                      themeColor="onPrimary"
                       style={[styles.goalStatValue, { color: theme.text }]}
                       value={todayAccuracyRate}
                       suffix="%"
@@ -512,6 +521,7 @@ export default function HomeScreen() {
                 <View style={styles.goalStatItem}>
                   <View style={styles.streakRow}>
                     <AnimatedCounter
+                      themeColor="onPrimary"
                       style={[styles.goalStatValue, { color: theme.text }]}
                       value={streak}
                     />
@@ -903,7 +913,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   notificationBadgeText: {
-    color: "#FFFFFF",
     fontSize: 10,
     lineHeight: 12,
     fontWeight: 700,
@@ -917,7 +926,6 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     padding: Spacing.four,
     borderWidth: 1,
-    borderColor: Alpha.onPrimarySurface,
     borderRadius: Radius.large,
   },
   streakRow: {
@@ -936,7 +944,6 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   goalTitle: {
-    color: "#FFFFFF",
     fontSize: 18,
     lineHeight: 26,
     fontWeight: 700,
@@ -952,7 +959,6 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   goalStatValue: {
-    color: "#FFFFFF",
     fontSize: 24,
     lineHeight: 32,
     fontWeight: 600,
@@ -960,7 +966,6 @@ const styles = StyleSheet.create({
   goalDivider: {
     width: 1,
     height: 28,
-    backgroundColor: Alpha.onPrimaryDivider,
   },
   continueCard: {
     flexDirection: "row",

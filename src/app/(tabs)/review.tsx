@@ -109,18 +109,27 @@ export default function ReviewScreen() {
               />
               <View style={styles.heroTop}>
                 <View style={styles.heroCopy}>
-                  <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                     지금 복습할 문제
                   </ThemedText>
-                  <AnimatedCounter style={styles.heroCount} value={totalDue} />
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <AnimatedCounter
+                    themeColor="onPrimary"
+                    style={styles.heroCount}
+                    value={totalDue}
+                  />
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     {totalDue > 0
                       ? "짧게 복습하고 기억을 단단하게 만들어요"
                       : "오늘 예정된 복습을 모두 마쳤어요"}
                   </ThemedText>
                 </View>
                 <PulseView active={totalDue > 0} scaleTo={1.07}>
-                  <View style={styles.heroIcon}>
+                  <View
+                    style={[
+                      styles.heroIcon,
+                      { backgroundColor: theme.onPrimarySurface },
+                    ]}
+                  >
                     <SymbolView
                       tintColor={theme.onPrimary}
                       name={{
@@ -141,6 +150,7 @@ export default function ReviewScreen() {
                   onPress={startAllReviewSession}
                   style={({ pressed }) => [
                     styles.reviewAllButton,
+                    { backgroundColor: theme.onPrimary },
                     pressed && styles.heroPressed,
                   ]}
                 >
@@ -395,7 +405,6 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   heroCount: {
-    color: "#FFFFFF",
     fontSize: 47,
     lineHeight: 54,
     fontWeight: 800,
@@ -406,10 +415,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.large,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.78)",
   },
   reviewAllButton: {
     flexDirection: "row",
@@ -418,7 +423,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: Spacing.twoHalf,
     borderRadius: Radius.medium,
-    backgroundColor: "#FFFFFF",
   },
   heroPressed: {
     opacity: 0.86,

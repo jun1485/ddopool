@@ -174,7 +174,7 @@ export function MockExamTrendCard({
                 pressed && styles.actionPressed,
               ]}
             >
-              <ThemedText type="smallBold" style={styles.primaryButtonText}>
+              <ThemedText themeColor="onPrimary" type="smallBold">
                 첫 모의고사 시작
               </ThemedText>
               <SymbolView
@@ -495,9 +495,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
     paddingHorizontal: Spacing.four,
     borderRadius: Radius.medium,
-  },
-  primaryButtonText: {
-    color: "#FFFFFF",
   },
   metrics: {
     flexDirection: "row",

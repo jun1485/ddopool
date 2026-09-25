@@ -281,7 +281,7 @@ export default function SessionBuilderScreen() {
           onPress={() => goBack()}
           style={[styles.fallbackButton, { backgroundColor: theme.primary }]}
         >
-          <ThemedText type="smallBold" style={styles.primaryText}>
+          <ThemedText themeColor="onPrimary" type="smallBold">
             돌아가기
           </ThemedText>
         </Pressable>
@@ -334,17 +334,26 @@ export default function SessionBuilderScreen() {
             }
             style={[styles.hero, { backgroundColor: theme.primary }]}
           >
-            <View>
+            <View style={styles.heroCopy}>
               <ThemedText style={styles.heroEmoji}>{exam.icon}</ThemedText>
-              <ThemedText type="subtitle" style={styles.heroTitle}>
+              <ThemedText themeColor="onPrimary" type="subtitle">
                 오늘 무엇에 집중할까요?
               </ThemedText>
-              <ThemedText type="small" style={styles.heroDescription}>
+              <ThemedText
+                themeColor="onPrimaryMuted"
+                type="small"
+                style={styles.heroDescription}
+              >
                 필요한 범위만 골라 한 세션으로 바로 시작하세요.
               </ThemedText>
             </View>
-            <View style={styles.heroBadge}>
-              <ThemedText type="smallBold" style={styles.primaryText}>
+            <View
+              style={[
+                styles.heroBadge,
+                { backgroundColor: theme.onPrimarySurface },
+              ]}
+            >
+              <ThemedText themeColor="onPrimary" type="smallBold">
                 {questionCount > 0
                   ? `${questionCount}문제 · ${formatEstimatedMinutes(questionCount, mode)}`
                   : "과목 선택 필요"}
@@ -423,7 +432,7 @@ export default function SessionBuilderScreen() {
                   pressed && styles.pressed,
                 ]}
               >
-                <ThemedText type="smallBold" style={styles.primaryText}>
+                <ThemedText themeColor="onPrimary" type="smallBold">
                   {isStartingDiagnostic ? "진단 여는 중" : "진단 시작"}
                 </ThemedText>
               </Pressable>
@@ -729,7 +738,7 @@ export default function SessionBuilderScreen() {
               pressed && styles.startPressed,
             ]}
           >
-            <ThemedText type="smallBold" style={styles.primaryText}>
+            <ThemedText themeColor="onPrimary" type="smallBold">
               세션 시작
             </ThemedText>
             <SymbolView
@@ -809,23 +818,23 @@ const styles = StyleSheet.create({
     borderRadius: Radius.large,
     ...Shadows.card,
   },
+  heroCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
   heroEmoji: {
     fontSize: 27,
     lineHeight: 36,
     marginBottom: Spacing.two,
   },
-  heroTitle: {
-    color: "#FFFFFF",
-  },
   heroDescription: {
-    color: "rgba(255, 255, 255, 0.76)",
     marginTop: Spacing.one,
   },
   heroBadge: {
+    flexShrink: 0,
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.one,
     borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
   },
   section: {
     gap: Spacing.three,
@@ -1000,9 +1009,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: Spacing.four,
     borderRadius: Radius.medium,
-  },
-  primaryText: {
-    color: "#FFFFFF",
   },
   disabled: {
     opacity: 0.4,

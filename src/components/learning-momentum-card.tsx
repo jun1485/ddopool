@@ -48,7 +48,7 @@ export function LearningMomentumCard({
       >
         <View style={styles.header}>
           <View style={[styles.levelBadge, { backgroundColor: theme.primary }]}>
-            <ThemedText style={styles.levelText}>
+            <ThemedText themeColor="onPrimary" style={styles.levelText}>
               LV.{progression.level}
             </ThemedText>
           </View>
@@ -149,7 +149,7 @@ export function LearningMomentumCard({
                   </ThemedText>
                 </View>
                 <AnimatedProgressBar
-                  progress={(quest.progress / quest.target)}
+                  progress={quest.progress / quest.target}
                   height={5}
                   color={quest.completed ? theme.success : theme.warning}
                   trackColor={theme.backgroundSelected}
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   levelText: {
-    color: "#FFFFFF",
     fontSize: 14,
     lineHeight: 20,
     fontWeight: 800,

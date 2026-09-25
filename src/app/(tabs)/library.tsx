@@ -169,7 +169,9 @@ function QuestionCard({
                       <ThemedText
                         type="smallBold"
                         style={{
-                          color: isAnswer ? "#FFFFFF" : theme.textSecondary,
+                          color: isAnswer
+                            ? theme.onPrimary
+                            : theme.textSecondary,
                         }}
                       >
                         {choiceIndex + 1}
@@ -473,28 +475,34 @@ export default function LibraryScreen() {
                   />
                   <View style={styles.sessionHeader}>
                     <View style={styles.sessionCopy}>
-                      <ThemedText
-                        type="smallBold"
-                        style={styles.onPrimaryMuted}
-                      >
+                      <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                         현재 학습 범위
                       </ThemedText>
                       <View style={styles.sessionTitleRow}>
                         <AnimatedCounter
+                          themeColor="onPrimary"
                           style={styles.sessionTitle}
                           value={filteredQuestions.length}
                         />
-                        <ThemedText style={styles.sessionTitle}>
+                        <ThemedText
+                          themeColor="onPrimary"
+                          style={styles.sessionTitle}
+                        >
                           문제 발견
                         </ThemedText>
                       </View>
-                      <ThemedText type="small" style={styles.onPrimaryMuted}>
+                      <ThemedText themeColor="onPrimaryMuted" type="small">
                         {sessionMode === "mock"
                           ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
                           : `저장 ${filteredBookmarkCount} · 한 세션 최대 ${settings.sessionSize}문제`}
                       </ThemedText>
                     </View>
-                    <View style={styles.sessionIcon}>
+                    <View
+                      style={[
+                        styles.sessionIcon,
+                        { backgroundColor: theme.onPrimarySurface },
+                      ]}
+                    >
                       <SymbolView
                         tintColor={theme.onPrimary}
                         name={{
@@ -506,7 +514,12 @@ export default function LibraryScreen() {
                       />
                     </View>
                   </View>
-                  <View style={styles.modeGroup}>
+                  <View
+                    style={[
+                      styles.modeGroup,
+                      { backgroundColor: theme.onPrimarySurface },
+                    ]}
+                  >
                     <Pressable
                       accessibilityRole="radio"
                       accessibilityLabel="바로 학습 모드"
@@ -515,7 +528,9 @@ export default function LibraryScreen() {
                       onPress={() => setSessionMode("learn")}
                       style={({ pressed }) => [
                         styles.modeOption,
-                        sessionMode === "learn" && styles.modeOptionSelected,
+                        sessionMode === "learn" && {
+                          backgroundColor: theme.onPrimary,
+                        },
                         pressed && styles.modePressed,
                       ]}
                     >
@@ -523,7 +538,7 @@ export default function LibraryScreen() {
                         tintColor={
                           sessionMode === "learn"
                             ? theme.primary
-                            : "rgba(255, 255, 255, 0.78)"
+                            : theme.onPrimaryMuted
                         }
                         name={{
                           ios: "bolt.fill",
@@ -533,11 +548,10 @@ export default function LibraryScreen() {
                         size={17}
                       />
                       <ThemedText
+                        themeColor="onPrimaryMuted"
                         type="smallBold"
                         style={
-                          sessionMode === "learn"
-                            ? { color: theme.primary }
-                            : styles.onPrimaryMuted
+                          sessionMode === "learn" && { color: theme.primary }
                         }
                       >
                         바로 학습
@@ -551,7 +565,9 @@ export default function LibraryScreen() {
                       onPress={() => setSessionMode("mock")}
                       style={({ pressed }) => [
                         styles.modeOption,
-                        sessionMode === "mock" && styles.modeOptionSelected,
+                        sessionMode === "mock" && {
+                          backgroundColor: theme.onPrimary,
+                        },
                         pressed && styles.modePressed,
                       ]}
                     >
@@ -559,7 +575,7 @@ export default function LibraryScreen() {
                         tintColor={
                           sessionMode === "mock"
                             ? theme.primary
-                            : "rgba(255, 255, 255, 0.78)"
+                            : theme.onPrimaryMuted
                         }
                         name={{
                           ios: "timer",
@@ -569,11 +585,12 @@ export default function LibraryScreen() {
                         size={17}
                       />
                       <ThemedText
+                        themeColor="onPrimaryMuted"
                         type="smallBold"
                         style={
                           sessionMode === "mock"
                             ? { color: theme.primary }
-                            : styles.onPrimaryMuted
+                            : undefined
                         }
                       >
                         모의고사
@@ -594,6 +611,7 @@ export default function LibraryScreen() {
                     }
                     style={({ pressed }) => [
                       styles.startButton,
+                      { backgroundColor: theme.onPrimary },
                       filteredQuestions.length === 0 && styles.disabled,
                       pressed && styles.startButtonPressed,
                     ]}
@@ -819,13 +837,9 @@ const styles = StyleSheet.create({
     alignItems: "baseline",
   },
   sessionTitle: {
-    color: "#FFFFFF",
     fontSize: 27,
     lineHeight: 36,
     fontWeight: 800,
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.78)",
   },
   sessionIcon: {
     width: 58,
@@ -833,7 +847,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.large,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
   },
   startButton: {
     flexDirection: "row",
@@ -842,14 +855,12 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: Spacing.twoHalf,
     borderRadius: Radius.medium,
-    backgroundColor: "#FFFFFF",
   },
   modeGroup: {
     flexDirection: "row",
     gap: Spacing.one,
     padding: Spacing.one,
     borderRadius: Radius.medium,
-    backgroundColor: "rgba(255, 255, 255, 0.13)",
   },
   modeOption: {
     flex: 1,
@@ -859,9 +870,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.small,
-  },
-  modeOptionSelected: {
-    backgroundColor: "#FFFFFF",
   },
   modePressed: {
     opacity: 0.76,

@@ -49,9 +49,7 @@ export function StudyTimeInsightsCard({
   const insights = calculateStudyTimeInsights(results, range, evaluatedAt);
   const selectedDay =
     insights.days.find((day) => day.dateKey === selectedDateKey) ??
-    [...insights.days]
-      .reverse()
-      .find((day) => day.durationSeconds > 0) ??
+    [...insights.days].reverse().find((day) => day.durationSeconds > 0) ??
     insights.days[insights.days.length - 1];
   const maxDuration = Math.max(
     ...insights.days.map((day) => day.durationSeconds),
@@ -71,7 +69,9 @@ export function StudyTimeInsightsCard({
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
         <View>
-          <ThemedText style={styles.sectionTitle}>학습 시간 인사이트</ThemedText>
+          <ThemedText style={styles.sectionTitle}>
+            학습 시간 인사이트
+          </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             완료 세션 기준 실제 활성 학습 시간
           </ThemedText>
@@ -145,15 +145,20 @@ export function StudyTimeInsightsCard({
           <>
             <View style={[styles.hero, { backgroundColor: theme.primary }]}>
               <View>
-                <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
+                <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                   최근 {range}일 총 학습
                 </ThemedText>
-                <ThemedText style={styles.totalTime}>
+                <ThemedText themeColor="onPrimary" style={styles.totalTime}>
                   {formatStudyTime(insights.totalSeconds)}
                 </ThemedText>
               </View>
-              <View style={styles.heroBadge}>
-                <ThemedText type="smallBold" style={styles.onPrimary}>
+              <View
+                style={[
+                  styles.heroBadge,
+                  { backgroundColor: theme.onPrimarySurface },
+                ]}
+              >
+                <ThemedText themeColor="onPrimary" type="smallBold">
                   {insights.activeDays}일 활동
                 </ThemedText>
               </View>
@@ -169,7 +174,10 @@ export function StudyTimeInsightsCard({
                 </ThemedText>
               </View>
               <View
-                style={[styles.metricDivider, { backgroundColor: theme.border }]}
+                style={[
+                  styles.metricDivider,
+                  { backgroundColor: theme.border },
+                ]}
               />
               <View style={styles.metric}>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -180,7 +188,10 @@ export function StudyTimeInsightsCard({
                 </ThemedText>
               </View>
               <View
-                style={[styles.metricDivider, { backgroundColor: theme.border }]}
+                style={[
+                  styles.metricDivider,
+                  { backgroundColor: theme.border },
+                ]}
               />
               <View style={styles.metric}>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -222,8 +233,7 @@ export function StudyTimeInsightsCard({
                             height:
                               day.durationSeconds === 0
                                 ? Spacing.one
-                                : 8 +
-                                  (day.durationSeconds / maxDuration) * 48,
+                                : 8 + (day.durationSeconds / maxDuration) * 48,
                             backgroundColor: selected
                               ? theme.primary
                               : day.durationSeconds > 0
@@ -238,9 +248,7 @@ export function StudyTimeInsightsCard({
                       style={[
                         styles.dayLabel,
                         {
-                          color: selected
-                            ? theme.primary
-                            : theme.textSecondary,
+                          color: selected ? theme.primary : theme.textSecondary,
                         },
                       ]}
                     >
@@ -291,9 +299,7 @@ export function StudyTimeInsightsCard({
                 return (
                   <View key={mode} style={styles.mode}>
                     <View style={styles.modeHeader}>
-                      <ThemedText type="small">
-                        {MODE_LABELS[mode]}
-                      </ThemedText>
+                      <ThemedText type="small">{MODE_LABELS[mode]}</ThemedText>
                       <ThemedText type="smallBold">
                         {formatStudyTime(duration)} · {Math.round(ratio * 100)}%
                       </ThemedText>
@@ -398,22 +404,14 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   totalTime: {
-    color: "#FFFFFF",
     fontSize: 27,
     lineHeight: 35,
     fontWeight: 900,
-  },
-  onPrimary: {
-    color: "#FFFFFF",
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   heroBadge: {
     paddingHorizontal: Spacing.twoHalf,
     paddingVertical: Spacing.two,
     borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
   },
   metrics: {
     flexDirection: "row",

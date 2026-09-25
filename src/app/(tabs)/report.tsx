@@ -17,7 +17,6 @@ import { MockExamTrendCard } from "@/components/mock-exam-trend-card";
 import { StudyTimeInsightsCard } from "@/components/study-time-insights-card";
 import { WrongAnswerSummaryCard } from "@/components/wrong-answer-summary-card";
 import {
-  Alpha,
   BottomTabInset,
   MaxContentWidth,
   Radius,
@@ -231,24 +230,36 @@ export default function ReportScreen() {
               />
               <View style={styles.heroHeader}>
                 <View>
-                  <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                     누적 학습
                   </ThemedText>
                   <View style={styles.heroValueRow}>
                     <AnimatedCounter
+                      themeColor="onPrimary"
                       style={styles.heroValue}
                       value={lifetime.answered}
                     />
-                    <ThemedText style={styles.heroUnit}>문제</ThemedText>
+                    <ThemedText
+                      themeColor="onPrimaryMuted"
+                      style={styles.heroUnit}
+                    >
+                      문제
+                    </ThemedText>
                   </View>
                 </View>
-                <View style={styles.accuracyBadge}>
+                <View
+                  style={[
+                    styles.accuracyBadge,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                >
                   <AnimatedCounter
+                    themeColor="onPrimary"
                     style={styles.accuracyValue}
                     value={lifetimeAccuracy}
                     suffix="%"
                   />
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     전체 정답률
                   </ThemedText>
                 </View>
@@ -257,35 +268,53 @@ export default function ReportScreen() {
               <View style={styles.heroStats}>
                 <View style={styles.heroStat}>
                   <AnimatedCounter
+                    themeColor="onPrimary"
                     style={styles.heroStatValue}
                     value={totalStudied}
                   />
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     학습한 문제
                   </ThemedText>
                 </View>
-                <View style={styles.heroDivider} />
+                <View
+                  style={[
+                    styles.heroDivider,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                />
                 <View style={styles.heroStat}>
                   <View style={styles.streakRow}>
                     <PulseView active={streak > 0} scaleTo={1.18}>
-                      <ThemedText style={styles.heroStatValue}>🔥</ThemedText>
+                      <ThemedText
+                        themeColor="onPrimary"
+                        style={styles.heroStatValue}
+                      >
+                        🔥
+                      </ThemedText>
                     </PulseView>
                     <AnimatedCounter
+                      themeColor="onPrimary"
                       style={styles.heroStatValue}
                       value={streak}
                     />
                   </View>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     연속 학습
                   </ThemedText>
                 </View>
-                <View style={styles.heroDivider} />
+                <View
+                  style={[
+                    styles.heroDivider,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                />
                 <View style={styles.heroStat}>
                   <AnimatedCounter
+                    themeColor="onPrimary"
                     style={styles.heroStatValue}
                     value={totalDue}
                   />
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     복습 대기
                   </ThemedText>
                 </View>
@@ -639,13 +668,11 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   heroValue: {
-    color: "#FFFFFF",
     fontSize: 41,
     lineHeight: 50,
     fontWeight: 800,
   },
   heroUnit: {
-    color: Alpha.onPrimaryMuted,
     fontSize: 15,
     lineHeight: 22,
     fontWeight: 700,
@@ -661,16 +688,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.medium,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
   },
   accuracyValue: {
-    color: "#FFFFFF",
     fontSize: 23,
     lineHeight: 30,
     fontWeight: 800,
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   heroStats: {
     flexDirection: "row",
@@ -682,7 +704,6 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   heroStatValue: {
-    color: "#FFFFFF",
     fontSize: 17,
     lineHeight: 24,
     fontWeight: 800,
@@ -690,7 +711,6 @@ const styles = StyleSheet.create({
   heroDivider: {
     width: 1,
     height: 28,
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
   },
   section: {
     gap: Spacing.three,

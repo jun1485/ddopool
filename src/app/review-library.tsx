@@ -386,15 +386,25 @@ export default function ReviewLibraryScreen() {
               >
                 <View style={styles.heroMain}>
                   <View>
-                    <ThemedText type="smallBold" style={styles.heroMuted}>
+                    <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                       다시 볼 문제
                     </ThemedText>
-                    <ThemedText style={styles.heroValue}>
+                    <ThemedText themeColor="onPrimary" style={styles.heroValue}>
                       {items.length}
-                      <ThemedText style={styles.heroUnit}>문제</ThemedText>
+                      <ThemedText
+                        themeColor="onPrimaryMuted"
+                        style={styles.heroUnit}
+                      >
+                        문제
+                      </ThemedText>
                     </ThemedText>
                   </View>
-                  <View style={styles.heroIcon}>
+                  <View
+                    style={[
+                      styles.heroIcon,
+                      { backgroundColor: theme.onPrimarySurface },
+                    ]}
+                  >
                     <SymbolView
                       tintColor={theme.onPrimary}
                       name={{
@@ -407,15 +417,25 @@ export default function ReviewLibraryScreen() {
                   </View>
                 </View>
                 <View style={styles.heroStats}>
-                  <ThemedText type="small" style={styles.heroMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     미해결 {unresolvedCount}
                   </ThemedText>
-                  <View style={styles.heroDivider} />
-                  <ThemedText type="small" style={styles.heroMuted}>
+                  <View
+                    style={[
+                      styles.heroDivider,
+                      { backgroundColor: theme.onPrimaryTrack },
+                    ]}
+                  />
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     북마크 {bookmarkedQuestionIds.length}
                   </ThemedText>
-                  <View style={styles.heroDivider} />
-                  <ThemedText type="small" style={styles.heroMuted}>
+                  <View
+                    style={[
+                      styles.heroDivider,
+                      { backgroundColor: theme.onPrimaryTrack },
+                    ]}
+                  />
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     해결 {resolvedCount}
                   </ThemedText>
                 </View>
@@ -627,7 +647,7 @@ export default function ReviewLibraryScreen() {
                 pressed && styles.startPressed,
               ]}
             >
-              <ThemedText type="smallBold" style={styles.startButtonText}>
+              <ThemedText themeColor="onPrimary" type="smallBold">
                 선택 학습
               </ThemedText>
               <SymbolView
@@ -704,19 +724,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   heroValue: {
-    color: "#FFFFFF",
     fontSize: 35,
     lineHeight: 43,
     fontWeight: 900,
   },
   heroUnit: {
-    color: "rgba(255, 255, 255, 0.76)",
     fontSize: 14,
     lineHeight: 21,
     fontWeight: 700,
-  },
-  heroMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   heroIcon: {
     width: 52,
@@ -724,7 +739,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
   },
   heroStats: {
     flexDirection: "row",
@@ -734,7 +748,6 @@ const styles = StyleSheet.create({
   heroDivider: {
     width: 1,
     height: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.24)",
   },
   searchBox: {
     minHeight: 48,
@@ -883,9 +896,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingHorizontal: Spacing.four,
     borderRadius: Radius.medium,
-  },
-  startButtonText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.76,

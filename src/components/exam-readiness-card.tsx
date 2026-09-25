@@ -160,7 +160,7 @@ export function ExamReadinessCard({
                   </ThemedText>
                 </View>
                 <AnimatedProgressBar
-                  progress={(factor.score) / 100}
+                  progress={factor.score / 100}
                   height={7}
                   color={factorColor}
                   trackColor={theme.backgroundSelected}
@@ -206,7 +206,7 @@ export function ExamReadinessCard({
               pressed && styles.actionPressed,
             ]}
           >
-            <ThemedText type="smallBold" style={styles.actionText}>
+            <ThemedText themeColor="onPrimary" type="smallBold">
               추천 학습 바로 시작
             </ThemedText>
             <SymbolView
@@ -328,9 +328,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     marginTop: Spacing.one,
     borderRadius: Radius.medium,
-  },
-  actionText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.72,
