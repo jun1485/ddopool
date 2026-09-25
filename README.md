@@ -6,7 +6,7 @@
 ## 저장소 구조
 
 - `src/` — Expo 앱 (iOS·Android·웹). 로컬 우선 학습 + Supabase 로그인 시 동기화
-- `db/migrations/` — Supabase 스키마 (0001→0002→0003→0004→0005→0006 순서 실행)
+- `db/migrations/` — Supabase 스키마 (0001→…→0014 번호 순서 실행)
 - `db/seed/bundles/` — 시험별 문항 번들 (시험 1개 + 문항 100+, `import-content`로 개별 업로드)
 - `db/scripts/` — 콘텐츠·운영 CLI (아래 표)
 - `packages/contracts/` — 앱↔DB API 계약 (타입·테이블/RPC 이름·매퍼)
@@ -99,7 +99,7 @@ npx eas-cli@latest submit --platform android --profile production
 ## Supabase 셋업 (최초 1회)
 
 1. [Supabase 대시보드](https://supabase.com/dashboard)에서 프로젝트 생성
-2. SQL Editor에서 `db/migrations/0001_init.sql` → `0002` → `0003` → `0004` → `0005` → `0006` → `0007` → `0008` → `0009` → `0010` 순서 실행
+2. SQL Editor에서 `db/migrations/0001_init.sql` → `0002` → `0003` → `0004` → `0005` → `0006` → `0007` → `0008` → `0009` → `0010` → `0011` → `0012` → `0013` → `0014` 순서 실행
 3. Authentication → Providers에서 이메일 활성화. 비회원 학습은 기기 저장이며 Anonymous 계정 생성은 사용하지 않습니다.
 4. 앱 환경 변수 설정: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 5. 초기 콘텐츠 업로드:

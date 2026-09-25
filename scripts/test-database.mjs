@@ -310,6 +310,80 @@ try {
   );
   console.log("알림 정책 소유권·입력 제한·현지 시간·오늘 쉬기 검증 통과");
   console.log("웹 구독 소유권·주소 제한·조회 차단·해제 연쇄 정리 검증 통과");
+
+  // 출처 증빙 비공개
+  await db.exec("reset role");
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    userB,
+  ]);
+  await db.exec("set role authenticated");
+  assert.equal(
+    (await db.query("select name from public.content_sources")).rows.length,
+    1,
+  );
+  await assert.rejects(
+    db.query("select rights_evidence from public.content_sources"),
+    /permission denied/,
+  );
+
+  // 비공개 요청 투표 차단·반복 투표 제한
+  await db.exec("reset role");
+  const hiddenRequestId = (
+    await db.query(
+      `insert into public.exam_requests(normalized_name,display_name,requester_id,status) values('비공개요청','비공개요청',$1,'requested') returning id`,
+      [userA],
+    )
+  ).rows[0].id;
+  const openRequestId = (
+    await db.query(
+      `insert into public.exam_requests(normalized_name,display_name,requester_id,status) values('공개요청','공개요청',$1,'approved') returning id`,
+      [userA],
+    )
+  ).rows[0].id;
+  await db.exec("set role authenticated");
+  await assert.rejects(
+    db.query(
+      "insert into public.exam_request_votes(request_id,voter_id) values($1,$2)",
+      [hiddenRequestId, userB],
+    ),
+    /row-level security/,
+  );
+  for (let count = 0; count < 30; count += 1) {
+    await db.query(
+      "insert into public.exam_request_votes(request_id,voter_id) values($1,$2)",
+      [openRequestId, userB],
+    );
+    await db.query(
+      "delete from public.exam_request_votes where request_id=$1 and voter_id=$2",
+      [openRequestId, userB],
+    );
+  }
+  await assert.rejects(
+    db.query(
+      "insert into public.exam_request_votes(request_id,voter_id) values($1,$2)",
+      [openRequestId, userB],
+    ),
+    /요청이 많습니다/,
+  );
+
+  // 다른 계정 소유 네이티브 토큰 탈취 차단
+  await db.exec("reset role");
+  await db.query(
+    "insert into public.push_tokens(token,user_id,platform) values('owned-device',$1,'ios')",
+    [userA],
+  );
+  await db.exec("set role authenticated");
+  await db.query("select public.register_push_token('owned-device','ios')");
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select user_id from public.push_tokens where token='owned-device'",
+      )
+    ).rows[0].user_id,
+    userA,
+  );
+  console.log("출처 증빙 비공개·투표 가시성·반복 제한·토큰 소유권 검증 통과");
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;
