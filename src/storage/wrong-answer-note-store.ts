@@ -28,7 +28,7 @@ const wrongAnswerListeners = new Set<(notes: WrongAnswerNoteMap) => void>();
 // 오답 노트 원본 로드
 async function readWrongAnswerNotes(): Promise<WrongAnswerNoteMap> {
   try {
-    return readValidated(WRONG_ANSWER_NOTES_KEY, notesSchema, {});
+    return await readValidated(WRONG_ANSWER_NOTES_KEY, notesSchema, {});
   } catch {
     return {};
   }

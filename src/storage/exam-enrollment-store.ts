@@ -26,7 +26,7 @@ export function subscribeExamEnrollment(
 export async function loadExamEnrollment(): Promise<ExamEnrollmentState | null> {
   try {
     await enrollmentWriteQueue.catch(() => undefined);
-    return readValidated(
+    return await readValidated(
       EXAM_ENROLLMENT_KEY,
       enrollmentSchema.nullable(),
       null,
