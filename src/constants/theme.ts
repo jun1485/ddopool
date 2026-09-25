@@ -21,6 +21,10 @@ export const Colors = {
     slate: "#576E87",
     slateSoft: "#EAF0F5",
     onPrimary: "#FFFFFF",
+    onPrimaryMuted: "rgba(255, 255, 255, 0.76)",
+    onPrimarySurface: "rgba(255, 255, 255, 0.16)",
+    onPrimaryTrack: "rgba(255, 255, 255, 0.22)",
+    onPrimaryLine: "rgba(255, 255, 255, 0.38)",
     success: "#4C7566",
     successSoft: "#EAF2EE",
     danger: "#D33F58",
@@ -48,6 +52,10 @@ export const Colors = {
     slate: "#B0C7DF",
     slateSoft: "#2B3744",
     onPrimary: "#2B222C",
+    onPrimaryMuted: "rgba(43, 34, 44, 0.74)",
+    onPrimarySurface: "rgba(43, 34, 44, 0.1)",
+    onPrimaryTrack: "rgba(43, 34, 44, 0.16)",
+    onPrimaryLine: "rgba(43, 34, 44, 0.3)",
     success: "#9FC9B6",
     successSoft: "#283C33",
     danger: "#FF6E88",
@@ -165,11 +173,6 @@ export const Shadows = {
 
 // 컬러 배경 위 반투명 레이어 색
 export const Alpha = {
-  onPrimaryStrong: "rgba(255, 255, 255, 0.92)",
-  onPrimaryMuted: "rgba(255, 255, 255, 0.76)",
-  onPrimarySurface: "rgba(255, 255, 255, 0.16)",
-  onPrimaryTrack: "rgba(255, 255, 255, 0.22)",
-  onPrimaryDivider: "rgba(255, 255, 255, 0.18)",
   hairline: "rgba(127, 127, 127, 0.12)",
   scrim: "rgba(9, 11, 17, 0.55)",
 } as const;

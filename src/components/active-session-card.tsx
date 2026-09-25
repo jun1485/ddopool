@@ -155,7 +155,7 @@ export function ActiveSessionCard({
               pressed && styles.primaryPressed,
             ]}
           >
-            <ThemedText type="smallBold" style={styles.resumeText}>
+            <ThemedText themeColor="onPrimary" type="smallBold">
               {session.currentIndex > 0
                 ? `${session.currentIndex + 1}문제부터 이어 풀기`
                 : "첫 문제부터 이어 풀기"}
@@ -225,9 +225,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  resumeText: {
-    color: "#FFFFFF",
   },
   confirmRow: {
     minHeight: 48,

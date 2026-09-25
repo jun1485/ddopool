@@ -201,7 +201,7 @@ export function ExamRequestCard({
               }}
               size={17}
             />
-            <ThemedText type="smallBold" style={styles.publishedButtonText}>
+            <ThemedText themeColor="onPrimary" type="smallBold">
               내 시험에 추가하고 학습 시작
             </ThemedText>
           </Pressable>
@@ -306,9 +306,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  publishedButtonText: {
-    color: "#FFFFFF",
   },
   footer: {
     minHeight: 34,

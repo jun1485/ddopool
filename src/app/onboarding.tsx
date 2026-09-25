@@ -162,7 +162,7 @@ export default function OnboardingScreen() {
                     { backgroundColor: theme.primary },
                   ]}
                 >
-                  <ThemedText style={styles.countText}>
+                  <ThemedText themeColor="onPrimary" style={styles.countText}>
                     {selectedExamIds.length}
                   </ThemedText>
                 </RevealView>
@@ -361,7 +361,7 @@ export default function OnboardingScreen() {
                       type="small"
                       style={{
                         color: selected
-                          ? "rgba(255, 255, 255, 0.76)"
+                          ? theme.onPrimaryMuted
                           : theme.textSecondary,
                       }}
                     >
@@ -495,7 +495,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   countText: {
-    color: "#FFFFFF",
     fontSize: 13,
     lineHeight: 18,
     fontWeight: 700,

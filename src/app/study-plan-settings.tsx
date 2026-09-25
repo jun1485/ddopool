@@ -441,15 +441,23 @@ export default function StudyPlanSettingsScreen() {
             <View style={[styles.preview, { backgroundColor: theme.primary }]}>
               <View style={styles.previewHeader}>
                 <View style={styles.previewCopy}>
-                  <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                     {activeExam.shortTitle} 권장 페이스
                   </ThemedText>
-                  <ThemedText style={styles.previewTitle}>
+                  <ThemedText
+                    themeColor="onPrimary"
+                    style={styles.previewTitle}
+                  >
                     하루 {preview.dailyQuestionTarget}문제
                   </ThemedText>
                 </View>
-                <View style={styles.dDayBadge}>
-                  <ThemedText type="smallBold" style={styles.onPrimary}>
+                <View
+                  style={[
+                    styles.dDayBadge,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                >
+                  <ThemedText themeColor="onPrimary" type="smallBold">
                     {preview.daysRemaining === 0
                       ? "D-DAY"
                       : `D-${preview.daysRemaining}`}
@@ -458,33 +466,52 @@ export default function StudyPlanSettingsScreen() {
               </View>
               <View style={styles.previewStats}>
                 <View style={styles.previewStat}>
-                  <ThemedText style={styles.previewValue}>
+                  <ThemedText
+                    themeColor="onPrimary"
+                    style={styles.previewValue}
+                  >
                     {preview.remainingQuestions}
                   </ThemedText>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     남은 문제
                   </ThemedText>
                 </View>
-                <View style={styles.previewDivider} />
+                <View
+                  style={[
+                    styles.previewDivider,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                />
                 <View style={styles.previewStat}>
-                  <ThemedText style={styles.previewValue}>
+                  <ThemedText
+                    themeColor="onPrimary"
+                    style={styles.previewValue}
+                  >
                     {activeTargetScore}점
                   </ThemedText>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     목표 점수
                   </ThemedText>
                 </View>
-                <View style={styles.previewDivider} />
+                <View
+                  style={[
+                    styles.previewDivider,
+                    { backgroundColor: theme.onPrimarySurface },
+                  ]}
+                />
                 <View style={styles.previewStat}>
-                  <ThemedText style={styles.previewValue}>
+                  <ThemedText
+                    themeColor="onPrimary"
+                    style={styles.previewValue}
+                  >
                     {Math.round(preview.progress * 100)}%
                   </ThemedText>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
+                  <ThemedText themeColor="onPrimaryMuted" type="small">
                     현재 진도
                   </ThemedText>
                 </View>
               </View>
-              <ThemedText type="small" style={styles.onPrimaryMuted}>
+              <ThemedText themeColor="onPrimaryMuted" type="small">
                 {getPaceMessage(preview.status)}
               </ThemedText>
             </View>
@@ -687,7 +714,6 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   previewTitle: {
-    color: "#FFFFFF",
     fontSize: 27,
     lineHeight: 36,
     fontWeight: 900,
@@ -696,13 +722,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: Radius.pill,
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
-  },
-  onPrimary: {
-    color: "#FFFFFF",
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   previewStats: {
     flexDirection: "row",
@@ -714,7 +733,6 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   previewValue: {
-    color: "#FFFFFF",
     fontSize: 18,
     lineHeight: 26,
     fontWeight: 800,
@@ -722,7 +740,6 @@ const styles = StyleSheet.create({
   previewDivider: {
     width: 1,
     height: 28,
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
   },
   saveButton: {
     minHeight: 52,

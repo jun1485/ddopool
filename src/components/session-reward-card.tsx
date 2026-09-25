@@ -54,7 +54,7 @@ export function SessionRewardCard({
       <ThemedView type="backgroundElement" style={styles.card}>
         <View style={styles.header}>
           <View style={[styles.levelBadge, { backgroundColor: theme.primary }]}>
-            <ThemedText style={styles.levelText}>
+            <ThemedText themeColor="onPrimary" style={styles.levelText}>
               LV.{rewards.progression.level}
             </ThemedText>
           </View>
@@ -238,7 +238,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   levelText: {
-    color: "#FFFFFF",
     fontSize: 14,
     lineHeight: 20,
     fontWeight: 900,

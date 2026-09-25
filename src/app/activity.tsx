@@ -120,14 +120,19 @@ export default function ActivityScreen() {
             />
             <View style={styles.heroHeader}>
               <View>
-                <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
+                <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                   현재 학습 스트릭
                 </ThemedText>
-                <ThemedText style={styles.streakTitle}>
+                <ThemedText themeColor="onPrimary" style={styles.streakTitle}>
                   🔥 {streak}일
                 </ThemedText>
               </View>
-              <View style={styles.heroBadge}>
+              <View
+                style={[
+                  styles.heroBadge,
+                  { backgroundColor: theme.onPrimarySurface },
+                ]}
+              >
                 <SymbolView
                   tintColor={theme.onPrimary}
                   name={{
@@ -139,7 +144,7 @@ export default function ActivityScreen() {
                 />
               </View>
             </View>
-            <ThemedText type="small" style={styles.onPrimaryMuted}>
+            <ThemedText themeColor="onPrimaryMuted" type="small">
               하루 한 문제도 기록에 남아요. 진한 날짜일수록 더 많이 학습한
               날이에요.
             </ThemedText>
@@ -469,7 +474,6 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   streakTitle: {
-    color: "#FFFFFF",
     fontSize: 29,
     lineHeight: 38,
     fontWeight: 900,
@@ -480,10 +484,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-  },
-  onPrimaryMuted: {
-    color: "rgba(255, 255, 255, 0.76)",
   },
   loadingGroup: {
     gap: Spacing.three,

@@ -269,7 +269,7 @@ export function SubjectMasteryMap({
                   </ThemedText>
                 </View>
                 <AnimatedProgressBar
-                  progress={(mastery.score) / 100}
+                  progress={mastery.score / 100}
                   height={6}
                   color={color}
                   trackColor={theme.backgroundSelected}
@@ -340,7 +340,7 @@ export function SubjectMasteryMap({
             pressed && styles.startPressed,
           ]}
         >
-          <ThemedText type="smallBold" style={styles.startText}>
+          <ThemedText themeColor="onPrimary" type="smallBold">
             {getActionLabel(selectedMastery)}
           </ThemedText>
           <SymbolView
@@ -466,9 +466,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  startText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.72,

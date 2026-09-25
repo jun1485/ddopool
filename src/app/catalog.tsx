@@ -136,7 +136,9 @@ function CatalogTabButton({
         </ThemedText>
         {badgeCount > 0 && (
           <View style={[styles.tabBadge, { backgroundColor: theme.primary }]}>
-            <ThemedText style={styles.tabBadgeText}>{badgeCount}</ThemedText>
+            <ThemedText themeColor="onPrimary" style={styles.tabBadgeText}>
+              {badgeCount}
+            </ThemedText>
           </View>
         )}
       </Animated.View>
@@ -476,18 +478,23 @@ export default function CatalogScreen({
               <RevealView variant="zoom" duration={360}>
                 <View style={[styles.hero, { backgroundColor: theme.primary }]}>
                   <View style={styles.heroCopy}>
-                    <ThemedText type="smallBold" style={styles.heroEyebrow}>
+                    <ThemedText themeColor="onPrimaryMuted" type="smallBold">
                       원하는 시험부터 시작
                     </ThemedText>
-                    <ThemedText style={styles.heroTitle}>
+                    <ThemedText themeColor="onPrimary" style={styles.heroTitle}>
                       준비 중인 시험을{"\n"}검색해 보세요
                     </ThemedText>
-                    <ThemedText type="small" style={styles.heroDescription}>
+                    <ThemedText themeColor="onPrimaryMuted" type="small">
                       현재 {exams.length}개 시험 · 요청이 모이면 새 문제은행
                       준비
                     </ThemedText>
                   </View>
-                  <View style={styles.heroIcon}>
+                  <View
+                    style={[
+                      styles.heroIcon,
+                      { backgroundColor: theme.onPrimarySurface },
+                    ]}
+                  >
                     <ThemedText style={styles.heroEmoji}>🎯</ThemedText>
                   </View>
                 </View>
@@ -1033,7 +1040,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   tabBadgeText: {
-    color: "#FFFFFF",
     fontSize: 10,
     lineHeight: 14,
     fontWeight: 700,
@@ -1057,17 +1063,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.two,
   },
-  heroEyebrow: {
-    color: "rgba(255, 255, 255, 0.74)",
-  },
   heroTitle: {
-    color: "#FFFFFF",
     fontSize: 24,
     lineHeight: 34,
     fontWeight: 700,
-  },
-  heroDescription: {
-    color: "rgba(255, 255, 255, 0.78)",
   },
   heroIcon: {
     width: 88,
@@ -1075,7 +1074,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 44,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
     transform: [{ rotate: "8deg" }],
   },
   heroEmoji: {

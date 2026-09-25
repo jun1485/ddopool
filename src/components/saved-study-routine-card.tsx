@@ -129,7 +129,7 @@ export function SavedStudyRoutineCard({
           }}
           size={18}
         />
-        <ThemedText type="smallBold" style={styles.startText}>
+        <ThemedText themeColor="onPrimary" type="smallBold">
           저장 루틴 바로 시작
         </ThemedText>
       </Pressable>
@@ -193,9 +193,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  startText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.76,

@@ -151,7 +151,7 @@ export function DiagnosticResultCard({
           pressed && styles.pressed,
         ]}
       >
-        <ThemedText type="smallBold" style={styles.actionText}>
+        <ThemedText themeColor="onPrimary" type="smallBold">
           맞춤 학습 만들기
         </ThemedText>
         <SymbolView
@@ -247,9 +247,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  actionText: {
-    color: "#FFFFFF",
   },
   pressed: {
     opacity: 0.84,
