@@ -147,7 +147,7 @@ function CatalogTabButton({
 // 시험 맞춤 세션 구성 화면 진입
 function startExam(examId: string, diagnostic = false) {
   router.push({
-    pathname: "./session-builder/[examId]",
+    pathname: "/session-builder/[examId]",
     params: diagnostic ? { examId, intent: "diagnostic" } : { examId },
   });
 }

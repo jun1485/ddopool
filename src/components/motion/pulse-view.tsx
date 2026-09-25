@@ -38,7 +38,7 @@ export function PulseView({
     }
     pulse.value = withRepeat(
       withTiming(1, { duration, easing: Easing.inOut(Easing.quad) }),
-      -1,
+      2,
       true,
     );
     return () => cancelAnimation(pulse);

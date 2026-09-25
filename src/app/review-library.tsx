@@ -1,12 +1,14 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import {
+  FlatList,
   Platform,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
+  type ListRenderItemInfo,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,7 +19,6 @@ import { RevealView } from "@/components/motion/reveal-view";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { stagger } from "@/constants/motion";
 import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
@@ -213,6 +214,7 @@ export default function ReviewLibraryScreen() {
     useState<ReviewLibraryFilter | null>(null);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const activeFilter =
     selectedFilter ??
@@ -229,34 +231,52 @@ export default function ReviewLibraryScreen() {
         items,
         filter: activeFilter,
         examId: selectedExamId,
-        query,
+        query: deferredQuery,
       }),
-    [activeFilter, items, query, selectedExamId],
+    [activeFilter, deferredQuery, items, selectedExamId],
   );
-  const availableExams = exams.filter((exam) =>
-    items.some((item) => item.question.examId === exam.id),
+  const itemExamIds = useMemo(
+    () => new Set(items.map((item) => item.question.examId)),
+    [items],
   );
-  const unresolvedCount = items.filter(
-    (item) => item.note != null && item.note.resolvedAt == null,
-  ).length;
-  const resolvedCount = items.filter(
-    (item) => item.note?.resolvedAt != null,
-  ).length;
-  const visibleQuestionIds = filteredItems.map((item) => item.question.id);
+  const availableExams = useMemo(
+    () => exams.filter((exam) => itemExamIds.has(exam.id)),
+    [exams, itemExamIds],
+  );
+  const [unresolvedCount, resolvedCount] = useMemo(
+    () =>
+      items.reduce<[number, number]>(
+        (counts, item) => {
+          if (item.note?.resolvedAt != null) counts[1] += 1;
+          else if (item.note != null) counts[0] += 1;
+          return counts;
+        },
+        [0, 0],
+      ),
+    [items],
+  );
+  const visibleQuestionIds = useMemo(
+    () => filteredItems.map((item) => item.question.id),
+    [filteredItems],
+  );
+  const selectedQuestionIdSet = useMemo(
+    () => new Set(selectedQuestionIds),
+    [selectedQuestionIds],
+  );
   const allVisibleSelected =
     visibleQuestionIds.length > 0 &&
     visibleQuestionIds.every((questionId) =>
-      selectedQuestionIds.includes(questionId),
+      selectedQuestionIdSet.has(questionId),
     );
 
   // 문제 선택 상태 전환
-  const toggleQuestion = (questionId: string) => {
+  const toggleQuestion = useCallback((questionId: string) => {
     setSelectedQuestionIds((current) =>
       current.includes(questionId)
         ? current.filter((item) => item !== questionId)
         : [...current, questionId],
     );
-  };
+  }, []);
 
   // 현재 필터 문제 전체 선택 전환
   const toggleAllVisible = () => {
@@ -276,13 +296,32 @@ export default function ReviewLibraryScreen() {
   };
 
   // 문제 북마크 상태 전환
-  const toggleItemBookmark = (item: ReviewLibraryItem) => {
-    if (item.bookmarked && activeFilter === "bookmarked")
-      setSelectedQuestionIds((current) =>
-        current.filter((questionId) => questionId !== item.question.id),
-      );
-    toggleBookmark(item.question.id);
-  };
+  const toggleItemBookmark = useCallback(
+    (item: ReviewLibraryItem) => {
+      if (item.bookmarked && activeFilter === "bookmarked")
+        setSelectedQuestionIds((current) =>
+          current.filter((questionId) => questionId !== item.question.id),
+        );
+      toggleBookmark(item.question.id);
+    },
+    [activeFilter, toggleBookmark],
+  );
+
+  // 화면에 필요한 복습 카드만 렌더링
+  const renderReviewQuestion = useCallback(
+    ({ item }: ListRenderItemInfo<ReviewLibraryItem>) => (
+      <RevealView>
+        <ReviewQuestionCard
+          item={item}
+          examTitle={findExam(item.question.examId)?.shortTitle ?? "시험"}
+          selected={selectedQuestionIdSet.has(item.question.id)}
+          onSelect={() => toggleQuestion(item.question.id)}
+          onToggleBookmark={() => toggleItemBookmark(item)}
+        />
+      </RevealView>
+    ),
+    [findExam, selectedQuestionIdSet, toggleItemBookmark, toggleQuestion],
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -322,219 +361,222 @@ export default function ReviewLibraryScreen() {
           <View style={styles.headerSpacer} />
         </View>
 
-        <ScrollView
+        <FlatList
+          data={filteredItems}
+          renderItem={renderReviewQuestion}
+          keyExtractor={(item) => item.question.id}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-        >
-          <RevealView
-            variant="zoom"
-            duration={360}
-            style={[styles.hero, { backgroundColor: theme.primary }]}
-          >
-            <View style={styles.heroMain}>
-              <View>
-                <ThemedText type="smallBold" style={styles.heroMuted}>
-                  다시 볼 문제
-                </ThemedText>
-                <ThemedText style={styles.heroValue}>
-                  {items.length}
-                  <ThemedText style={styles.heroUnit}>문제</ThemedText>
-                </ThemedText>
-              </View>
-              <View style={styles.heroIcon}>
-                <SymbolView
-                  tintColor={theme.onPrimary}
-                  name={{
-                    ios: "tray.full.fill",
-                    android: "inventory_2",
-                    web: "inventory_2",
-                  }}
-                  size={28}
-                />
-              </View>
-            </View>
-            <View style={styles.heroStats}>
-              <ThemedText type="small" style={styles.heroMuted}>
-                미해결 {unresolvedCount}
-              </ThemedText>
-              <View style={styles.heroDivider} />
-              <ThemedText type="small" style={styles.heroMuted}>
-                북마크 {bookmarkedQuestionIds.length}
-              </ThemedText>
-              <View style={styles.heroDivider} />
-              <ThemedText type="small" style={styles.heroMuted}>
-                해결 {resolvedCount}
-              </ThemedText>
-            </View>
-          </RevealView>
+          initialNumToRender={5}
+          maxToRenderPerBatch={5}
+          updateCellsBatchingPeriod={40}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === "android"}
+          ItemSeparatorComponent={() => (
+            <View style={styles.questionSeparator} />
+          )}
+          ListHeaderComponentStyle={styles.virtualListHeader}
+          ListHeaderComponent={
+            <View style={styles.listHeaderContent}>
+              <RevealView
+                variant="zoom"
+                duration={360}
+                style={[styles.hero, { backgroundColor: theme.primary }]}
+              >
+                <View style={styles.heroMain}>
+                  <View>
+                    <ThemedText type="smallBold" style={styles.heroMuted}>
+                      다시 볼 문제
+                    </ThemedText>
+                    <ThemedText style={styles.heroValue}>
+                      {items.length}
+                      <ThemedText style={styles.heroUnit}>문제</ThemedText>
+                    </ThemedText>
+                  </View>
+                  <View style={styles.heroIcon}>
+                    <SymbolView
+                      tintColor={theme.onPrimary}
+                      name={{
+                        ios: "tray.full.fill",
+                        android: "inventory_2",
+                        web: "inventory_2",
+                      }}
+                      size={28}
+                    />
+                  </View>
+                </View>
+                <View style={styles.heroStats}>
+                  <ThemedText type="small" style={styles.heroMuted}>
+                    미해결 {unresolvedCount}
+                  </ThemedText>
+                  <View style={styles.heroDivider} />
+                  <ThemedText type="small" style={styles.heroMuted}>
+                    북마크 {bookmarkedQuestionIds.length}
+                  </ThemedText>
+                  <View style={styles.heroDivider} />
+                  <ThemedText type="small" style={styles.heroMuted}>
+                    해결 {resolvedCount}
+                  </ThemedText>
+                </View>
+              </RevealView>
 
-          <View
-            style={[
-              styles.searchBox,
-              {
-                backgroundColor: theme.backgroundElement,
-                borderColor: theme.border,
-              },
-            ]}
-          >
-            <SymbolView
-              tintColor={theme.textSecondary}
-              name={{
-                ios: "magnifyingglass",
-                android: "search",
-                web: "search",
-              }}
-              size={19}
-            />
-            <TextInput
-              accessibilityLabel="복습 문제 검색"
-              value={query}
-              onChangeText={setQuery}
-              placeholder="문제, 과목, 메모 검색"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.searchInput, { color: theme.text }]}
-              returnKeyType="search"
-            />
-            {query.length > 0 && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="검색어 지우기"
-                onPress={() => setQuery("")}
-                hitSlop={Spacing.two}
+              <View
+                style={[
+                  styles.searchBox,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.border,
+                  },
+                ]}
               >
                 <SymbolView
                   tintColor={theme.textSecondary}
                   name={{
-                    ios: "xmark.circle.fill",
-                    android: "cancel",
-                    web: "cancel",
+                    ios: "magnifyingglass",
+                    android: "search",
+                    web: "search",
                   }}
-                  size={18}
+                  size={19}
                 />
-              </Pressable>
-            )}
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filterRow}
-          >
-            {FILTER_OPTIONS.map((option) => (
-              <AnimatedChip
-                key={option.id}
-                label={option.label}
-                selected={activeFilter === option.id}
-                onPress={() => selectFilter(option.id)}
-              />
-            ))}
-          </ScrollView>
-
-          {availableExams.length > 1 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.examRow}
-            >
-              <Pressable
-                accessibilityRole="radio"
-                accessibilityState={{ checked: selectedExamId == null }}
-                onPress={() => setSelectedExamId(null)}
-                style={({ pressed }) => [
-                  styles.examChip,
-                  {
-                    backgroundColor:
-                      selectedExamId == null
-                        ? theme.primarySoft
-                        : theme.backgroundElement,
-                    borderColor:
-                      selectedExamId == null ? theme.primary : theme.border,
-                  },
-                  pressed && styles.pressed,
-                ]}
-              >
-                <ThemedText
-                  type="smallBold"
-                  style={{
-                    color: selectedExamId == null ? theme.primary : theme.text,
-                  }}
-                >
-                  모든 시험
-                </ThemedText>
-              </Pressable>
-              {availableExams.map((exam) => {
-                const selected = selectedExamId === exam.id;
-                return (
+                <TextInput
+                  accessibilityLabel="복습 문제 검색"
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder="문제, 과목, 메모 검색"
+                  placeholderTextColor={theme.textSecondary}
+                  style={[styles.searchInput, { color: theme.text }]}
+                  returnKeyType="search"
+                />
+                {query.length > 0 && (
                   <Pressable
-                    key={exam.id}
+                    accessibilityRole="button"
+                    accessibilityLabel="검색어 지우기"
+                    onPress={() => setQuery("")}
+                    hitSlop={Spacing.two}
+                  >
+                    <SymbolView
+                      tintColor={theme.textSecondary}
+                      name={{
+                        ios: "xmark.circle.fill",
+                        android: "cancel",
+                        web: "cancel",
+                      }}
+                      size={18}
+                    />
+                  </Pressable>
+                )}
+              </View>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterRow}
+              >
+                {FILTER_OPTIONS.map((option) => (
+                  <AnimatedChip
+                    key={option.id}
+                    label={option.label}
+                    selected={activeFilter === option.id}
+                    onPress={() => selectFilter(option.id)}
+                  />
+                ))}
+              </ScrollView>
+
+              {availableExams.length > 1 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.examRow}
+                >
+                  <Pressable
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
-                    onPress={() => setSelectedExamId(exam.id)}
+                    accessibilityState={{ checked: selectedExamId == null }}
+                    onPress={() => setSelectedExamId(null)}
                     style={({ pressed }) => [
                       styles.examChip,
                       {
-                        backgroundColor: selected
-                          ? theme.primarySoft
-                          : theme.backgroundElement,
-                        borderColor: selected ? theme.primary : theme.border,
+                        backgroundColor:
+                          selectedExamId == null
+                            ? theme.primarySoft
+                            : theme.backgroundElement,
+                        borderColor:
+                          selectedExamId == null ? theme.primary : theme.border,
                       },
                       pressed && styles.pressed,
                     ]}
                   >
-                    <ThemedText type="small">{exam.icon}</ThemedText>
                     <ThemedText
                       type="smallBold"
-                      style={{ color: selected ? theme.primary : theme.text }}
+                      style={{
+                        color:
+                          selectedExamId == null ? theme.primary : theme.text,
+                      }}
                     >
-                      {exam.shortTitle}
+                      모든 시험
                     </ThemedText>
                   </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
+                  {availableExams.map((exam) => {
+                    const selected = selectedExamId === exam.id;
+                    return (
+                      <Pressable
+                        key={exam.id}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: selected }}
+                        onPress={() => setSelectedExamId(exam.id)}
+                        style={({ pressed }) => [
+                          styles.examChip,
+                          {
+                            backgroundColor: selected
+                              ? theme.primarySoft
+                              : theme.backgroundElement,
+                            borderColor: selected
+                              ? theme.primary
+                              : theme.border,
+                          },
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <ThemedText type="small">{exam.icon}</ThemedText>
+                        <ThemedText
+                          type="smallBold"
+                          style={{
+                            color: selected ? theme.primary : theme.text,
+                          }}
+                        >
+                          {exam.shortTitle}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
 
-          <View style={styles.listHeader}>
-            <View>
-              <ThemedText style={styles.sectionTitle}>문제 목록</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                조건에 맞는 {filteredItems.length}문제
-              </ThemedText>
+              <View style={styles.listHeader}>
+                <View>
+                  <ThemedText style={styles.sectionTitle}>문제 목록</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    조건에 맞는 {filteredItems.length}문제
+                  </ThemedText>
+                </View>
+                {filteredItems.length > 0 && (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={toggleAllVisible}
+                    style={({ pressed }) => pressed && styles.pressed}
+                  >
+                    <ThemedText
+                      type="smallBold"
+                      style={{ color: theme.primary }}
+                    >
+                      {allVisibleSelected ? "전체 해제" : "전체 선택"}
+                    </ThemedText>
+                  </Pressable>
+                )}
+              </View>
             </View>
-            {filteredItems.length > 0 && (
-              <Pressable
-                accessibilityRole="button"
-                onPress={toggleAllVisible}
-                style={({ pressed }) => pressed && styles.pressed}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                  {allVisibleSelected ? "전체 해제" : "전체 선택"}
-                </ThemedText>
-              </Pressable>
-            )}
-          </View>
-
-          {filteredItems.length > 0 ? (
-            <View style={styles.questionList}>
-              {filteredItems.map((item, index) => (
-                <RevealView
-                  key={item.question.id}
-                  delay={stagger(index, 35, 6)}
-                >
-                  <ReviewQuestionCard
-                    item={item}
-                    examTitle={
-                      findExam(item.question.examId)?.shortTitle ?? "시험"
-                    }
-                    selected={selectedQuestionIds.includes(item.question.id)}
-                    onSelect={() => toggleQuestion(item.question.id)}
-                    onToggleBookmark={() => toggleItemBookmark(item)}
-                  />
-                </RevealView>
-              ))}
-            </View>
-          ) : (
+          }
+          ListEmptyComponent={
             <ThemedView type="backgroundElement" style={styles.emptyState}>
               <View
                 style={[
@@ -559,8 +601,8 @@ export default function ReviewLibraryScreen() {
                 필터나 검색어를 바꿔보세요.
               </ThemedText>
             </ThemedView>
-          )}
-        </ScrollView>
+          }
+        />
 
         {selectedQuestionIds.length > 0 && (
           <ThemedView
@@ -640,10 +682,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   content: {
-    gap: Spacing.four,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.six + Spacing.six,
+  },
+  virtualListHeader: {
+    marginBottom: Spacing.four,
+  },
+  listHeaderContent: {
+    gap: Spacing.four,
   },
   hero: {
     gap: Spacing.three,
@@ -738,8 +785,8 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     fontWeight: 800,
   },
-  questionList: {
-    gap: Spacing.three,
+  questionSeparator: {
+    height: Spacing.three,
   },
   questionCard: {
     position: "relative",

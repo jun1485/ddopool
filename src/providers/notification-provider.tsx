@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -27,6 +28,7 @@ interface NotificationContextValue {
 const NotificationContext = createContext<NotificationContextValue | null>(
   null,
 );
+const BACKGROUND_REFRESH_INTERVAL_MS = 60_000;
 
 // 인앱 알림 상태 제공
 export function NotificationProvider({ children }: PropsWithChildren) {
@@ -34,10 +36,11 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const lastRefreshAtRef = useRef(0);
 
   // 인앱 알림 목록 갱신
   const reload = useCallback(async () => {
-    setIsLoading(true);
+    lastRefreshAtRef.current = Date.now();
     setErrorMessage(null);
     try {
       if (isSupabaseConfigured && user == null) setNotifications([]);
@@ -64,7 +67,10 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       } catch {
         if (active) setErrorMessage("알림을 불러오지 못했어요.");
       } finally {
-        if (active) setIsLoading(false);
+        if (active) {
+          lastRefreshAtRef.current = Date.now();
+          setIsLoading(false);
+        }
       }
     };
 
@@ -86,7 +92,11 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   // 앱 복귀 시 인앱 알림 목록 갱신
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") void reload();
+      if (
+        state === "active" &&
+        Date.now() - lastRefreshAtRef.current >= BACKGROUND_REFRESH_INTERVAL_MS
+      )
+        void reload();
     });
     return () => subscription.remove();
   }, [reload]);

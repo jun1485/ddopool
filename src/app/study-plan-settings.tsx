@@ -156,10 +156,7 @@ export default function StudyPlanSettingsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="학습 계획 설정"
-        noIndex
-      />
+      <PageHead title="학습 계획 설정" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable
@@ -193,7 +190,9 @@ export default function StudyPlanSettingsScreen() {
         </View>
 
         <Animated.ScrollView
-          entering={FadeInDown.duration(320)}
+          entering={
+            Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+          }
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           bounces={false}

@@ -1,16 +1,11 @@
 import { Image } from "expo-image";
-import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
-  Easing,
-  cancelAnimation,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
-  withRepeat,
   withSequence,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
@@ -25,24 +20,10 @@ export interface MascotCatProps {
 // 흰 고양이 학습 마스코트 표시
 export function MascotCat({ size = 52, onPress }: MascotCatProps) {
   const reduceMotion = useReducedMotion();
-  const bob = useSharedValue(0);
   const tapBounce = useSharedValue(0);
 
-  // 마스코트 부유 모션 반복
-  useEffect(() => {
-    if (reduceMotion) return;
-    bob.value = withRepeat(
-      withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.quad) }),
-      -1,
-      true,
-    );
-    return () => {
-      cancelAnimation(bob);
-    };
-  }, [bob, reduceMotion]);
-
   const bodyStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -bob.value * 2 - tapBounce.value * 4 }],
+    transform: [{ translateY: -tapBounce.value * 4 }],
   }));
 
   // 마스코트 탭 반동
@@ -65,7 +46,7 @@ export function MascotCat({ size = 52, onPress }: MascotCatProps) {
       <Animated.View style={[styles.layer, bodyStyle]}>
         <Image
           accessible={false}
-          source={require("@/assets/images/icon.png")}
+          source={require("@/assets/images/splash-icon.png")}
           contentFit="cover"
           style={styles.image}
         />

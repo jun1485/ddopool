@@ -64,7 +64,6 @@ export function ModalOverlay({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={closeLabel}
-            motionScale={1}
             onPress={onRequestClose}
             style={styles.backdrop}
           />

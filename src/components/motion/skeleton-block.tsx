@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { type DimensionValue, StyleSheet } from "react-native";
+import { Platform, type DimensionValue, StyleSheet } from "react-native";
 import Animated, {
   Easing,
   cancelAnimation,
@@ -31,7 +31,7 @@ export function SkeletonBlock({
 
   // 로딩 중 반복 밝기 전환
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || Platform.OS === "android") return;
     pulse.value = withRepeat(
       withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }),
       -1,

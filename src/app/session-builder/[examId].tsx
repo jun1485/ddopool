@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import type { SymbolViewProps } from "expo-symbols";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -139,6 +139,7 @@ export default function SessionBuilderScreen() {
   const [mode, setMode] = useState<CustomSessionMode>("learn");
   const [strategy, setStrategy] = useState<CustomSessionStrategy>("balanced");
   const [requestedCount, setRequestedCount] = useState(settings.sessionSize);
+  const [isStartingDiagnostic, setIsStartingDiagnostic] = useState(false);
   const selectedSubjects = availableSubjects.filter(
     (subject) => !excludedSubjects.includes(subject),
   );
@@ -165,6 +166,13 @@ export default function SessionBuilderScreen() {
     selectedSubjects.every((subject) =>
       savedPreset.selectedSubjects.includes(subject),
     );
+
+  // 진단 화면 전환 실패 시 버튼 잠금 복구
+  useEffect(() => {
+    if (!isStartingDiagnostic) return;
+    const timer = setTimeout(() => setIsStartingDiagnostic(false), 1_500);
+    return () => clearTimeout(timer);
+  }, [isStartingDiagnostic]);
 
   // 과목 선택 상태 전환
   const toggleSubject = (subject: string) => {
@@ -198,7 +206,7 @@ export default function SessionBuilderScreen() {
 
   // 과목 균형형 빠른 진단 시작
   const startDiagnostic = () => {
-    if (diagnosticQuestionCount === 0) return;
+    if (diagnosticQuestionCount === 0 || isStartingDiagnostic) return;
     const selectedQuestions = selectCustomSessionQuestions({
       questions,
       selectedSubjects: availableSubjects,
@@ -207,6 +215,8 @@ export default function SessionBuilderScreen() {
       count: diagnosticQuestionCount,
       strategy: "balanced",
     });
+    if (selectedQuestions.length === 0) return;
+    setIsStartingDiagnostic(true);
     router.push({
       pathname: "/quiz/[examId]",
       params: {
@@ -319,7 +329,9 @@ export default function SessionBuilderScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View
-            entering={FadeInDown.duration(320)}
+            entering={
+              Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+            }
             style={[styles.hero, { backgroundColor: theme.primary }]}
           >
             <View>
@@ -340,7 +352,13 @@ export default function SessionBuilderScreen() {
             </View>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(50).duration(320)}>
+          <Animated.View
+            entering={
+              Platform.OS === "android"
+                ? undefined
+                : FadeInDown.delay(50).duration(320)
+            }
+          >
             <ThemedView
               type="backgroundElement"
               style={[
@@ -392,19 +410,21 @@ export default function SessionBuilderScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`${exam.shortTitle} 빠른 진단 시작`}
                 accessibilityState={{
-                  disabled: diagnosticQuestionCount === 0,
+                  disabled:
+                    diagnosticQuestionCount === 0 || isStartingDiagnostic,
                 }}
-                disabled={diagnosticQuestionCount === 0}
+                disabled={diagnosticQuestionCount === 0 || isStartingDiagnostic}
                 onPress={startDiagnostic}
                 style={({ pressed }) => [
                   styles.diagnosticButton,
                   { backgroundColor: theme.primary },
-                  diagnosticQuestionCount === 0 && styles.disabled,
+                  (diagnosticQuestionCount === 0 || isStartingDiagnostic) &&
+                    styles.disabled,
                   pressed && styles.pressed,
                 ]}
               >
                 <ThemedText type="smallBold" style={styles.primaryText}>
-                  진단 시작
+                  {isStartingDiagnostic ? "진단 여는 중" : "진단 시작"}
                 </ThemedText>
               </Pressable>
             </ThemedView>

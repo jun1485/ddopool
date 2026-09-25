@@ -60,7 +60,7 @@ function startLearnSession(exam: Exam) {
 // 시험별 맞춤 세션 구성 화면 진입
 function openSessionBuilder(examId: string) {
   router.push({
-    pathname: "./session-builder/[examId]",
+    pathname: "/session-builder/[examId]",
     params: { examId },
   });
 }
@@ -534,7 +534,7 @@ export default function HomeScreen() {
               exam={targetExam}
               targetScore={studyTarget?.targetScore}
               isLoading={isStudyTargetLoading || isCatalogLoading}
-              onPress={() => router.push("./study-plan-settings")}
+              onPress={() => router.push("/study-plan-settings")}
             />
           </RevealView>
 
@@ -544,7 +544,7 @@ export default function HomeScreen() {
               today={todayStat}
               dailyGoal={settings.dailyGoal}
               unlockedAchievementCount={unlockedAchievementCount}
-              onOpenProgress={() => router.push("./progress")}
+              onOpenProgress={() => router.push("/progress")}
             />
           </RevealView>
 
@@ -630,7 +630,7 @@ export default function HomeScreen() {
               }
               onStart={startWeeklyGoalSession}
               onAdjust={() => router.push("/settings")}
-              onOpenActivity={() => router.push("./activity")}
+              onOpenActivity={() => router.push("/activity")}
             />
           </RevealView>
 

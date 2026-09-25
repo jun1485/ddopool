@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import type { ViewProps } from "react-native";
+import { Platform, type ViewProps } from "react-native";
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -50,7 +50,9 @@ export function RevealView({
     <Animated.View
       {...props}
       entering={
-        reduceMotion ? undefined : createEntering(variant, delay, duration)
+        reduceMotion || Platform.OS === "android"
+          ? undefined
+          : createEntering(variant, delay, duration)
       }
     >
       {children}
