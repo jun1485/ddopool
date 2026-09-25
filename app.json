@@ -47,7 +47,7 @@
             "backgroundColor": "#211D21"
           },
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 180
         }
       ],
       "expo-sqlite",
