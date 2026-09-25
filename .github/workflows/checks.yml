@@ -2,6 +2,9 @@ name: 코드·학습 회귀 검증
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -19,8 +22,9 @@ jobs:
       - run: npm run test:db
       - run: npm run test:operations
       - run: npm run test:release-config
+      - run: npx expo export --platform web
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test e2e/exam-request.spec.ts e2e/readiness.spec.ts
+      - run: npx playwright test e2e/exam-request.spec.ts e2e/readiness.spec.ts e2e/dark-mode.spec.ts e2e/catalog.spec.ts e2e/web-push.spec.ts
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
