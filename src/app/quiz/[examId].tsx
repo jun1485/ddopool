@@ -4,7 +4,11 @@ import {
   ToggleIconButton,
 } from "@/components/quiz/quiz-controls";
 import { quizStyles as styles } from "@/components/quiz/quiz-styles";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  type NavigationAction,
+  usePreventRemove,
+} from "expo-router/react-navigation";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useState } from "react";
 import { Platform, ScrollView, View } from "react-native";
@@ -216,6 +220,33 @@ export default function QuizScreen() {
     dailyGoal: settings.dailyGoal,
     enrolledExamCount: examIds.length,
   });
+
+  const navigation = useNavigation();
+  const [leaveConfirmed, setLeaveConfirmed] = useState(false);
+  const [pendingLeaveAction, setPendingLeaveAction] =
+    useState<NavigationAction | null>(null);
+
+  // 스와이프·하드웨어·브라우저 뒤로가기 이탈 확인
+  usePreventRemove(status === "in-progress" && !leaveConfirmed, ({ data }) => {
+    if (mockReviewOpen) {
+      setMockReviewOpen(false);
+      return;
+    }
+    if (exitConfirming) {
+      setExitConfirming(false);
+      setPendingLeaveAction(null);
+      return;
+    }
+    setPendingLeaveAction(data.action);
+    setExitConfirming(true);
+  });
+
+  // 이탈 확정 후 보류된 이동 실행
+  useEffect(() => {
+    if (!leaveConfirmed) return;
+    if (pendingLeaveAction != null) navigation.dispatch(pendingLeaveAction);
+    else goBack();
+  }, [leaveConfirmed, navigation, pendingLeaveAction]);
 
   // 모의고사 제한 시간 종료
   const handleMockExpire = useCallback(() => {
@@ -1290,7 +1321,10 @@ export default function QuizScreen() {
       {exitConfirming && (
         <ModalOverlay
           closeLabel="종료 확인 닫기"
-          onRequestClose={() => setExitConfirming(false)}
+          onRequestClose={() => {
+            setExitConfirming(false);
+            setPendingLeaveAction(null);
+          }}
         >
           <ThemedView type="backgroundElement" style={styles.exitDialog}>
             <View
@@ -1323,14 +1357,17 @@ export default function QuizScreen() {
                 <CtaButton
                   label="계속 풀기"
                   variant="secondary"
-                  onPress={() => setExitConfirming(false)}
+                  onPress={() => {
+                    setExitConfirming(false);
+                    setPendingLeaveAction(null);
+                  }}
                 />
               </View>
               <View style={styles.exitAction}>
                 <CtaButton
                   label={quizMode === "mock" ? "종료" : "나중에 이어 풀기"}
                   variant="danger"
-                  onPress={() => goBack()}
+                  onPress={() => setLeaveConfirmed(true)}
                 />
               </View>
             </View>
@@ -1375,7 +1412,7 @@ export default function QuizScreen() {
               <CtaButton
                 label="홈에서 나중에 이어 풀기"
                 variant="secondary"
-                onPress={() => goBack()}
+                onPress={() => setLeaveConfirmed(true)}
               />
             </View>
           </ThemedView>
