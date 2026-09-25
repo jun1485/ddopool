@@ -16,6 +16,17 @@ export type LegalDocument = {
 };
 
 const operator = OPERATOR_NAME.length > 0 ? OPERATOR_NAME : "또풀 운영자";
+
+// 앞말 받침 유무에 맞는 조사 선택
+export function pickParticle(
+  word: string,
+  withFinal: string,
+  withoutFinal: string,
+): string {
+  const code = word.trim().slice(-1).charCodeAt(0) - 0xac00;
+  if (code < 0 || code > 11_171) return `${withFinal}(${withoutFinal})`;
+  return code % 28 === 0 ? withoutFinal : withFinal;
+}
 const privacyOfficer =
   PRIVACY_OFFICER_NAME.length > 0 ? PRIVACY_OFFICER_NAME : "또풀 운영자";
 const effectiveDate =
@@ -36,7 +47,7 @@ export const PRIVACY_POLICY_DOCUMENT: LegalDocument = {
   description: "또풀이 수집하는 개인정보 항목과 이용·보관·삭제 기준 안내.",
   writtenAt: "2026-07-25",
   effectiveDate,
-  markdown: `${operator}(이하 "운영자")는 또풀(이하 "서비스")를 제공하면서 이용자의 개인정보를 중요하게 취급하며, 개인정보 보호법 등 관련 법령을 준수합니다.
+  markdown: `${operator}(이하 "운영자")${pickParticle(operator, "은", "는")} 또풀(이하 "서비스")를 제공하면서 이용자의 개인정보를 중요하게 취급하며, 개인정보 보호법 등 관련 법령을 준수합니다.
 
 ## 1. 수집하는 개인정보 항목과 수집 방법
 
@@ -140,7 +151,7 @@ export const TERMS_OF_SERVICE_DOCUMENT: LegalDocument = {
   effectiveDate,
   markdown: `## 제1조 (목적)
 
-이 약관은 ${operator}(이하 "운영자")가 제공하는 학습 애플리케이션 또풀(이하 "서비스")의 이용 조건과 절차, 운영자와 이용자의 권리·의무를 정합니다.
+이 약관은 ${operator}(이하 "운영자")${pickParticle(operator, "이", "가")} 제공하는 학습 애플리케이션 또풀(이하 "서비스")의 이용 조건과 절차, 운영자와 이용자의 권리·의무를 정합니다.
 
 ## 제2조 (서비스의 내용)
 
