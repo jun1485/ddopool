@@ -25,7 +25,7 @@ export function subscribeBookmarks(
 export async function loadBookmarks(): Promise<string[]> {
   try {
     await bookmarkWriteQueue.catch(() => undefined);
-    return readValidated(BOOKMARKS_KEY, idsSchema, []);
+    return await readValidated(BOOKMARKS_KEY, idsSchema, []);
   } catch {
     return [];
   }

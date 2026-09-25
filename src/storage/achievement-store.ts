@@ -10,7 +10,7 @@ let achievementWriteQueue: Promise<AchievementId[]> = Promise.resolve([]);
 // 해제 업적 식별자 목록 로드
 export async function loadUnlockedAchievements(): Promise<AchievementId[]> {
   try {
-    return readValidated(ACHIEVEMENTS_KEY, achievementsSchema, []);
+    return await readValidated(ACHIEVEMENTS_KEY, achievementsSchema, []);
   } catch {
     return [];
   }
