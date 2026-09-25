@@ -231,7 +231,9 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
       </View>
 
       <Animated.ScrollView
-        entering={FadeInDown.duration(320)}
+        entering={
+          Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+        }
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"

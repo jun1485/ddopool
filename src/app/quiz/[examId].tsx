@@ -106,7 +106,7 @@ function startWeakAnswerSession(questionIds: string[]) {
 // 진단 결과 기반 맞춤 세션 구성 화면 진입
 function openSessionBuilder(examId: string) {
   router.replace({
-    pathname: "../../session-builder/[examId]",
+    pathname: "/session-builder/[examId]",
     params: { examId },
   });
 }
@@ -114,7 +114,7 @@ function openSessionBuilder(examId: string) {
 // 복습 보관함 화면 진입
 function openReviewLibrary() {
   router.push({
-    pathname: "../../review-library",
+    pathname: "/review-library",
     params: { filter: "wrong" },
   });
 }
@@ -482,7 +482,13 @@ export default function QuizScreen() {
               </ThemedText>
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.delay(120).duration(300)}>
+            <Animated.View
+              entering={
+                Platform.OS === "android"
+                  ? undefined
+                  : FadeInDown.delay(120).duration(300)
+              }
+            >
               <ThemedView type="backgroundElement" style={styles.scoreCard}>
                 <View
                   style={[
@@ -607,12 +613,16 @@ export default function QuizScreen() {
               earnedXp={earnedXp}
               rewards={rewards}
               isLoading={isRewardsLoading}
-              onOpenProgress={() => router.push("../../progress")}
+              onOpenProgress={() => router.push("/progress")}
             />
 
             {subjectResults.length > 0 && (
               <Animated.View
-                entering={FadeInDown.delay(200).duration(300)}
+                entering={
+                  Platform.OS === "android"
+                    ? undefined
+                    : FadeInDown.delay(200).duration(300)
+                }
                 style={styles.resultSection}
               >
                 <ThemedText style={styles.resultSectionTitle}>
@@ -690,7 +700,11 @@ export default function QuizScreen() {
             )}
 
             <Animated.View
-              entering={FadeInUp.delay(280).duration(300)}
+              entering={
+                Platform.OS === "android"
+                  ? undefined
+                  : FadeInUp.delay(280).duration(300)
+              }
               style={styles.resultActions}
             >
               {wrongCount > 0 && (
@@ -721,7 +735,11 @@ export default function QuizScreen() {
             </Animated.View>
 
             <Animated.View
-              entering={FadeInDown.delay(240).duration(300)}
+              entering={
+                Platform.OS === "android"
+                  ? undefined
+                  : FadeInDown.delay(240).duration(300)
+              }
               style={styles.resultSection}
             >
               <View style={styles.reviewHeader}>
@@ -1006,8 +1024,16 @@ export default function QuizScreen() {
         >
           <Animated.View
             key={currentQuestion.id}
-            entering={reduceMotion ? undefined : FadeInRight.duration(280)}
-            exiting={reduceMotion ? undefined : FadeOutLeft.duration(180)}
+            entering={
+              reduceMotion || Platform.OS === "android"
+                ? undefined
+                : FadeInRight.duration(280)
+            }
+            exiting={
+              reduceMotion || Platform.OS === "android"
+                ? undefined
+                : FadeOutLeft.duration(180)
+            }
             style={styles.questionBlock}
           >
             <View style={styles.questionMeta}>

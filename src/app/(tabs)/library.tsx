@@ -1,7 +1,15 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
+import {
+  FlatList,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  type ListRenderItemInfo,
+} from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,30 +44,10 @@ interface FilterChipProps {
 interface QuestionCardProps {
   question: Question;
   exam: Exam | undefined;
-  index: number;
   expanded: boolean;
   bookmarked: boolean;
   onToggleBookmark: () => void;
   onToggleExpanded: () => void;
-}
-
-// 문제 검색어 일치 여부 판별
-function matchesSearch(
-  question: Question,
-  searchQuery: string,
-  exam: Exam | undefined,
-): boolean {
-  if (searchQuery.length === 0) return true;
-  return [
-    question.prompt,
-    question.subject,
-    question.explanation,
-    question.choices.join(" "),
-    exam?.title ?? "",
-  ]
-    .join(" ")
-    .toLocaleLowerCase("ko-KR")
-    .includes(searchQuery);
 }
 
 // 선택 문제 맞춤 세션 진입
@@ -92,7 +80,6 @@ function FilterChip({ label, selected, onPress }: FilterChipProps) {
 function QuestionCard({
   question,
   exam,
-  index,
   expanded,
   bookmarked,
   onToggleBookmark,
@@ -102,7 +89,9 @@ function QuestionCard({
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(Math.min(index * 35, 280)).duration(260)}
+      entering={
+        Platform.OS === "android" ? undefined : FadeInDown.duration(220)
+      }
     >
       <ThemedView type="backgroundElement" style={styles.questionCard}>
         <View style={styles.questionTop}>
@@ -276,7 +265,7 @@ export default function LibraryScreen() {
     null,
   );
   const { bookmarkedQuestionIds, toggleBookmark } = useBookmarks();
-  const { exams, questions, findExam } = useExamCatalog();
+  const { exams, questions } = useExamCatalog();
   const { settings } = useSettings();
   const theme = useTheme();
 
@@ -293,20 +282,53 @@ export default function LibraryScreen() {
     ],
     [examFilter, questions],
   );
-  const searchQuery = searchText.trim().toLocaleLowerCase("ko-KR");
+  const examById = useMemo(
+    () => new Map(exams.map((exam) => [exam.id, exam])),
+    [exams],
+  );
+  const questionSearchIndex = useMemo(
+    () =>
+      new Map(
+        questions.map((question) => [
+          question.id,
+          [
+            question.prompt,
+            question.subject,
+            question.explanation,
+            question.choices.join(" "),
+            examById.get(question.examId)?.title ?? "",
+          ]
+            .join(" ")
+            .toLocaleLowerCase("ko-KR"),
+        ]),
+      ),
+    [examById, questions],
+  );
+  const searchQuery = useDeferredValue(
+    searchText.trim().toLocaleLowerCase("ko-KR"),
+  );
   const filteredQuestions = useMemo(
     () =>
       questions.filter(
         (question) =>
           (examFilter === "all" || question.examId === examFilter) &&
           (subjectFilter === "all" || question.subject === subjectFilter) &&
-          matchesSearch(question, searchQuery, findExam(question.examId)),
+          (searchQuery.length === 0 ||
+            questionSearchIndex.get(question.id)?.includes(searchQuery)),
       ),
-    [examFilter, findExam, questions, searchQuery, subjectFilter],
+    [examFilter, questionSearchIndex, questions, searchQuery, subjectFilter],
   );
-  const filteredBookmarkCount = filteredQuestions.filter((question) =>
-    bookmarkedQuestionIds.includes(question.id),
-  ).length;
+  const bookmarkedQuestionIdSet = useMemo(
+    () => new Set(bookmarkedQuestionIds),
+    [bookmarkedQuestionIds],
+  );
+  const filteredBookmarkCount = useMemo(
+    () =>
+      filteredQuestions.filter((question) =>
+        bookmarkedQuestionIdSet.has(question.id),
+      ).length,
+    [bookmarkedQuestionIdSet, filteredQuestions],
+  );
   const sessionQuestionCount = Math.min(
     filteredQuestions.length,
     settings.sessionSize,
@@ -329,6 +351,25 @@ export default function LibraryScreen() {
     setExpandedQuestionId(null);
   };
 
+  // 화면에 필요한 문제 카드만 렌더링
+  const renderQuestion = useCallback(
+    ({ item }: ListRenderItemInfo<Question>) => (
+      <QuestionCard
+        question={item}
+        exam={examById.get(item.examId)}
+        expanded={expandedQuestionId === item.id}
+        bookmarked={bookmarkedQuestionIdSet.has(item.id)}
+        onToggleBookmark={() => toggleBookmark(item.id)}
+        onToggleExpanded={() =>
+          setExpandedQuestionId((current) =>
+            current === item.id ? null : item.id,
+          )
+        }
+      />
+    ),
+    [bookmarkedQuestionIdSet, examById, expandedQuestionId, toggleBookmark],
+  );
+
   return (
     <ThemedView style={styles.container}>
       <PageHead
@@ -336,310 +377,325 @@ export default function LibraryScreen() {
         description="북마크한 문제와 시험별 문제집을 모아 보고 바로 풀이 시작."
       />
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView
+        <FlatList
+          data={filteredQuestions}
+          renderItem={renderQuestion}
+          keyExtractor={(question) => question.id}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           bounces={false}
-        >
-          <View style={styles.header}>
-            <ThemedText type="subtitle">문제은행</ThemedText>
-            <ThemedText themeColor="textSecondary">
-              필요한 문제를 찾고 원하는 범위만 골라 학습해 보세요.
-            </ThemedText>
-          </View>
+          initialNumToRender={5}
+          maxToRenderPerBatch={5}
+          updateCellsBatchingPeriod={40}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === "android"}
+          ItemSeparatorComponent={() => (
+            <View style={styles.questionSeparator} />
+          )}
+          ListHeaderComponentStyle={styles.listHeader}
+          ListHeaderComponent={
+            <View style={styles.listHeaderContent}>
+              <View style={styles.header}>
+                <ThemedText type="subtitle">문제은행</ThemedText>
+                <ThemedText themeColor="textSecondary">
+                  필요한 문제를 찾고 원하는 범위만 골라 학습해 보세요.
+                </ThemedText>
+              </View>
 
-          <View
-            style={[
-              styles.searchBox,
-              {
-                backgroundColor: theme.backgroundElement,
-                borderColor: theme.border,
-              },
-            ]}
-          >
-            <SymbolView
-              tintColor={theme.textSecondary}
-              name={{
-                ios: "magnifyingglass",
-                android: "search",
-                web: "search",
-              }}
-              size={20}
-            />
-            <TextInput
-              accessibilityLabel="문제 검색"
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="문제, 과목, 보기, 해설 검색"
-              placeholderTextColor={theme.textSecondary}
-              selectionColor={theme.primary}
-              returnKeyType="search"
-              style={[styles.searchInput, { color: theme.text }]}
-            />
-            {searchText.length > 0 && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="검색어 지우기"
-                onPress={() => setSearchText("")}
-                hitSlop={Spacing.two}
-                style={({ pressed }) => pressed && styles.pressed}
+              <View
+                style={[
+                  styles.searchBox,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.border,
+                  },
+                ]}
               >
                 <SymbolView
                   tintColor={theme.textSecondary}
                   name={{
-                    ios: "xmark.circle.fill",
-                    android: "cancel",
-                    web: "cancel",
+                    ios: "magnifyingglass",
+                    android: "search",
+                    web: "search",
                   }}
                   size={20}
                 />
-              </Pressable>
-            )}
-          </View>
-
-          <Animated.View entering={FadeInDown.duration(320)}>
-            <View
-              style={[styles.sessionCard, { backgroundColor: theme.primary }]}
-            >
-              <View
-                style={[
-                  styles.sessionOrb,
-                  { backgroundColor: theme.onPrimary },
-                ]}
-              />
-              <View style={styles.sessionHeader}>
-                <View style={styles.sessionCopy}>
-                  <ThemedText type="smallBold" style={styles.onPrimaryMuted}>
-                    현재 학습 범위
-                  </ThemedText>
-                  <View style={styles.sessionTitleRow}>
-                    <AnimatedCounter
-                      style={styles.sessionTitle}
-                      value={filteredQuestions.length}
+                <TextInput
+                  accessibilityLabel="문제 검색"
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  placeholder="문제, 과목, 보기, 해설 검색"
+                  placeholderTextColor={theme.textSecondary}
+                  selectionColor={theme.primary}
+                  returnKeyType="search"
+                  style={[styles.searchInput, { color: theme.text }]}
+                />
+                {searchText.length > 0 && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="검색어 지우기"
+                    onPress={() => setSearchText("")}
+                    hitSlop={Spacing.two}
+                    style={({ pressed }) => pressed && styles.pressed}
+                  >
+                    <SymbolView
+                      tintColor={theme.textSecondary}
+                      name={{
+                        ios: "xmark.circle.fill",
+                        android: "cancel",
+                        web: "cancel",
+                      }}
+                      size={20}
                     />
-                    <ThemedText style={styles.sessionTitle}>
-                      문제 발견
-                    </ThemedText>
-                  </View>
-                  <ThemedText type="small" style={styles.onPrimaryMuted}>
-                    {sessionMode === "mock"
-                      ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
-                      : `저장 ${filteredBookmarkCount} · 한 세션 최대 ${settings.sessionSize}문제`}
-                  </ThemedText>
-                </View>
-                <View style={styles.sessionIcon}>
-                  <SymbolView
-                    tintColor={theme.onPrimary}
-                    name={{
-                      ios: "text.book.closed.fill",
-                      android: "menu_book",
-                      web: "menu_book",
-                    }}
-                    size={31}
-                  />
-                </View>
-              </View>
-              <View style={styles.modeGroup}>
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityLabel="바로 학습 모드"
-                  accessibilityState={{ checked: sessionMode === "learn" }}
-                  aria-checked={sessionMode === "learn"}
-                  onPress={() => setSessionMode("learn")}
-                  style={({ pressed }) => [
-                    styles.modeOption,
-                    sessionMode === "learn" && styles.modeOptionSelected,
-                    pressed && styles.modePressed,
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={
-                      sessionMode === "learn"
-                        ? theme.primary
-                        : "rgba(255, 255, 255, 0.78)"
-                    }
-                    name={{
-                      ios: "bolt.fill",
-                      android: "bolt",
-                      web: "bolt",
-                    }}
-                    size={17}
-                  />
-                  <ThemedText
-                    type="smallBold"
-                    style={
-                      sessionMode === "learn"
-                        ? { color: theme.primary }
-                        : styles.onPrimaryMuted
-                    }
-                  >
-                    바로 학습
-                  </ThemedText>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityLabel="모의고사 모드"
-                  accessibilityState={{ checked: sessionMode === "mock" }}
-                  aria-checked={sessionMode === "mock"}
-                  onPress={() => setSessionMode("mock")}
-                  style={({ pressed }) => [
-                    styles.modeOption,
-                    sessionMode === "mock" && styles.modeOptionSelected,
-                    pressed && styles.modePressed,
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={
-                      sessionMode === "mock"
-                        ? theme.primary
-                        : "rgba(255, 255, 255, 0.78)"
-                    }
-                    name={{
-                      ios: "timer",
-                      android: "timer",
-                      web: "timer",
-                    }}
-                    size={17}
-                  />
-                  <ThemedText
-                    type="smallBold"
-                    style={
-                      sessionMode === "mock"
-                        ? { color: theme.primary }
-                        : styles.onPrimaryMuted
-                    }
-                  >
-                    모의고사
-                  </ThemedText>
-                </Pressable>
-              </View>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{
-                  disabled: filteredQuestions.length === 0,
-                }}
-                disabled={filteredQuestions.length === 0}
-                onPress={() =>
-                  startCustomSession(
-                    filteredQuestions.map((question) => question.id),
-                    sessionMode,
-                  )
-                }
-                style={({ pressed }) => [
-                  styles.startButton,
-                  filteredQuestions.length === 0 && styles.disabled,
-                  pressed && styles.startButtonPressed,
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                  {sessionQuestionCount > 0
-                    ? `${sessionQuestionCount}문제 ${
-                        sessionMode === "mock" ? "모의고사 시작" : "맞춤 학습"
-                      }`
-                    : "조건에 맞는 문제 없음"}
-                </ThemedText>
-                {sessionQuestionCount > 0 && (
-                  <SymbolView
-                    tintColor={theme.primary}
-                    name={{
-                      ios: "arrow.right",
-                      android: "arrow_forward",
-                      web: "arrow_forward",
-                    }}
-                    size={18}
-                  />
+                  </Pressable>
                 )}
-              </Pressable>
-            </View>
-          </Animated.View>
+              </View>
 
-          <View style={styles.filterSection}>
-            <ThemedText type="smallBold">시험</ThemedText>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterRow}
-            >
-              <FilterChip
-                label="전체"
-                selected={examFilter === "all"}
-                onPress={() => selectExamFilter("all")}
-              />
-              {exams.map((exam) => (
-                <FilterChip
-                  key={exam.id}
-                  label={exam.shortTitle}
-                  selected={examFilter === exam.id}
-                  onPress={() => selectExamFilter(exam.id)}
-                />
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.filterSection}>
-            <ThemedText type="smallBold">과목</ThemedText>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterRow}
-            >
-              <FilterChip
-                label="전체"
-                selected={subjectFilter === "all"}
-                onPress={() => setSubjectFilter("all")}
-              />
-              {availableSubjects.map((subject) => (
-                <FilterChip
-                  key={subject}
-                  label={subject}
-                  selected={subjectFilter === subject}
-                  onPress={() => setSubjectFilter(subject)}
-                />
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.resultHeader}>
-            <View>
-              <ThemedText style={styles.resultTitle}>문제 목록</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {filteredQuestions.length}개 결과 · 눌러서 정답과 해설 확인
-              </ThemedText>
-            </View>
-            {hasActiveFilter && (
-              <Pressable
-                accessibilityRole="button"
-                onPress={resetFilters}
-                style={({ pressed }) => pressed && styles.pressed}
+              <Animated.View
+                entering={
+                  Platform.OS === "android"
+                    ? undefined
+                    : FadeInDown.duration(320)
+                }
               >
-                <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                  초기화
-                </ThemedText>
-              </Pressable>
-            )}
-          </View>
+                <View
+                  style={[
+                    styles.sessionCard,
+                    { backgroundColor: theme.primary },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.sessionOrb,
+                      { backgroundColor: theme.onPrimary },
+                    ]}
+                  />
+                  <View style={styles.sessionHeader}>
+                    <View style={styles.sessionCopy}>
+                      <ThemedText
+                        type="smallBold"
+                        style={styles.onPrimaryMuted}
+                      >
+                        현재 학습 범위
+                      </ThemedText>
+                      <View style={styles.sessionTitleRow}>
+                        <AnimatedCounter
+                          style={styles.sessionTitle}
+                          value={filteredQuestions.length}
+                        />
+                        <ThemedText style={styles.sessionTitle}>
+                          문제 발견
+                        </ThemedText>
+                      </View>
+                      <ThemedText type="small" style={styles.onPrimaryMuted}>
+                        {sessionMode === "mock"
+                          ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
+                          : `저장 ${filteredBookmarkCount} · 한 세션 최대 ${settings.sessionSize}문제`}
+                      </ThemedText>
+                    </View>
+                    <View style={styles.sessionIcon}>
+                      <SymbolView
+                        tintColor={theme.onPrimary}
+                        name={{
+                          ios: "text.book.closed.fill",
+                          android: "menu_book",
+                          web: "menu_book",
+                        }}
+                        size={31}
+                      />
+                    </View>
+                  </View>
+                  <View style={styles.modeGroup}>
+                    <Pressable
+                      accessibilityRole="radio"
+                      accessibilityLabel="바로 학습 모드"
+                      accessibilityState={{ checked: sessionMode === "learn" }}
+                      aria-checked={sessionMode === "learn"}
+                      onPress={() => setSessionMode("learn")}
+                      style={({ pressed }) => [
+                        styles.modeOption,
+                        sessionMode === "learn" && styles.modeOptionSelected,
+                        pressed && styles.modePressed,
+                      ]}
+                    >
+                      <SymbolView
+                        tintColor={
+                          sessionMode === "learn"
+                            ? theme.primary
+                            : "rgba(255, 255, 255, 0.78)"
+                        }
+                        name={{
+                          ios: "bolt.fill",
+                          android: "bolt",
+                          web: "bolt",
+                        }}
+                        size={17}
+                      />
+                      <ThemedText
+                        type="smallBold"
+                        style={
+                          sessionMode === "learn"
+                            ? { color: theme.primary }
+                            : styles.onPrimaryMuted
+                        }
+                      >
+                        바로 학습
+                      </ThemedText>
+                    </Pressable>
+                    <Pressable
+                      accessibilityRole="radio"
+                      accessibilityLabel="모의고사 모드"
+                      accessibilityState={{ checked: sessionMode === "mock" }}
+                      aria-checked={sessionMode === "mock"}
+                      onPress={() => setSessionMode("mock")}
+                      style={({ pressed }) => [
+                        styles.modeOption,
+                        sessionMode === "mock" && styles.modeOptionSelected,
+                        pressed && styles.modePressed,
+                      ]}
+                    >
+                      <SymbolView
+                        tintColor={
+                          sessionMode === "mock"
+                            ? theme.primary
+                            : "rgba(255, 255, 255, 0.78)"
+                        }
+                        name={{
+                          ios: "timer",
+                          android: "timer",
+                          web: "timer",
+                        }}
+                        size={17}
+                      />
+                      <ThemedText
+                        type="smallBold"
+                        style={
+                          sessionMode === "mock"
+                            ? { color: theme.primary }
+                            : styles.onPrimaryMuted
+                        }
+                      >
+                        모의고사
+                      </ThemedText>
+                    </Pressable>
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{
+                      disabled: filteredQuestions.length === 0,
+                    }}
+                    disabled={filteredQuestions.length === 0}
+                    onPress={() =>
+                      startCustomSession(
+                        filteredQuestions.map((question) => question.id),
+                        sessionMode,
+                      )
+                    }
+                    style={({ pressed }) => [
+                      styles.startButton,
+                      filteredQuestions.length === 0 && styles.disabled,
+                      pressed && styles.startButtonPressed,
+                    ]}
+                  >
+                    <ThemedText
+                      type="smallBold"
+                      style={{ color: theme.primary }}
+                    >
+                      {sessionQuestionCount > 0
+                        ? `${sessionQuestionCount}문제 ${
+                            sessionMode === "mock"
+                              ? "모의고사 시작"
+                              : "맞춤 학습"
+                          }`
+                        : "조건에 맞는 문제 없음"}
+                    </ThemedText>
+                    {sessionQuestionCount > 0 && (
+                      <SymbolView
+                        tintColor={theme.primary}
+                        name={{
+                          ios: "arrow.right",
+                          android: "arrow_forward",
+                          web: "arrow_forward",
+                        }}
+                        size={18}
+                      />
+                    )}
+                  </Pressable>
+                </View>
+              </Animated.View>
 
-          {filteredQuestions.length > 0 ? (
-            <View style={styles.questionList}>
-              {filteredQuestions.map((question, index) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  exam={findExam(question.examId)}
-                  index={index}
-                  expanded={expandedQuestionId === question.id}
-                  bookmarked={bookmarkedQuestionIds.includes(question.id)}
-                  onToggleBookmark={() => toggleBookmark(question.id)}
-                  onToggleExpanded={() =>
-                    setExpandedQuestionId((current) =>
-                      current === question.id ? null : question.id,
-                    )
-                  }
-                />
-              ))}
+              <View style={styles.filterSection}>
+                <ThemedText type="smallBold">시험</ThemedText>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterRow}
+                >
+                  <FilterChip
+                    label="전체"
+                    selected={examFilter === "all"}
+                    onPress={() => selectExamFilter("all")}
+                  />
+                  {exams.map((exam) => (
+                    <FilterChip
+                      key={exam.id}
+                      label={exam.shortTitle}
+                      selected={examFilter === exam.id}
+                      onPress={() => selectExamFilter(exam.id)}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.filterSection}>
+                <ThemedText type="smallBold">과목</ThemedText>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterRow}
+                >
+                  <FilterChip
+                    label="전체"
+                    selected={subjectFilter === "all"}
+                    onPress={() => setSubjectFilter("all")}
+                  />
+                  {availableSubjects.map((subject) => (
+                    <FilterChip
+                      key={subject}
+                      label={subject}
+                      selected={subjectFilter === subject}
+                      onPress={() => setSubjectFilter(subject)}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.resultHeader}>
+                <View>
+                  <ThemedText style={styles.resultTitle}>문제 목록</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {filteredQuestions.length}개 결과 · 눌러서 정답과 해설 확인
+                  </ThemedText>
+                </View>
+                {hasActiveFilter && (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={resetFilters}
+                    style={({ pressed }) => pressed && styles.pressed}
+                  >
+                    <ThemedText
+                      type="smallBold"
+                      style={{ color: theme.primary }}
+                    >
+                      초기화
+                    </ThemedText>
+                  </Pressable>
+                )}
+              </View>
             </View>
-          ) : (
+          }
+          ListEmptyComponent={
             <ThemedView type="backgroundElement" style={styles.emptyCard}>
               <View
                 style={[
@@ -679,8 +735,8 @@ export default function LibraryScreen() {
                 </ThemedText>
               </Pressable>
             </ThemedView>
-          )}
-        </ScrollView>
+          }
+        />
       </SafeAreaView>
     </ThemedView>
   );
@@ -701,10 +757,15 @@ const styles = StyleSheet.create({
   },
   content: {
     minWidth: 0,
-    gap: Spacing.four,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.five,
+  },
+  listHeader: {
+    marginBottom: Spacing.four,
+  },
+  listHeaderContent: {
+    gap: Spacing.four,
   },
   header: {
     gap: Spacing.two,
@@ -836,8 +897,8 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     fontWeight: 800,
   },
-  questionList: {
-    gap: Spacing.three,
+  questionSeparator: {
+    height: Spacing.three,
   },
   questionCard: {
     overflow: "hidden",

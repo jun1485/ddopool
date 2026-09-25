@@ -12,9 +12,28 @@ const catalogSource = process.env.EXPO_PUBLIC_SUPABASE_URL ?? "demo-ten-exams";
 const EXAM_CATALOG_CACHE_KEY = `exam-loop:exam-catalog-cache:v2:${catalogSource}`;
 const CACHE_TIME_KEY = `${EXAM_CATALOG_CACHE_KEY}:time`;
 const CACHE_TTL_MS = 15 * 60 * 1000;
+const CATALOG_REQUEST_TIMEOUT_MS = 12_000;
 const EXAM_TIMES_KEY = `${EXAM_CATALOG_CACHE_KEY}:exams`;
 let pendingKey = "";
 let pendingCatalog: Promise<ExamCatalogSnapshot> | null = null;
+
+// 카탈로그 원격 요청 최대 대기 제한
+async function withCatalogTimeout<T>(request: Promise<T>): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      request,
+      new Promise<T>((_resolve, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error("시험 카탈로그 요청 시간이 초과됐습니다.")),
+          CATALOG_REQUEST_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout != null) clearTimeout(timeout);
+  }
+}
 
 // 시험 카탈로그 캐시 로드
 async function loadCachedCatalog(): Promise<ExamCatalogSnapshot | null> {
@@ -62,7 +81,9 @@ async function refreshCatalog(examIds: string[]): Promise<ExamCatalogSnapshot> {
     cached != null && cachedAt <= now && now - cachedAt < CACHE_TTL_MS;
   let exams: ExamCatalogSnapshot["exams"];
   try {
-    exams = fresh ? cached.exams : await examPlatformApi.listActiveExams();
+    exams = fresh
+      ? cached.exams
+      : await withCatalogTimeout(examPlatformApi.listActiveExams());
   } catch (error) {
     if (cached != null)
       return { ...cached, unavailableExamIds: examIds, isOffline: true };
@@ -92,7 +113,9 @@ async function refreshCatalog(examIds: string[]): Promise<ExamCatalogSnapshot> {
   for (let index = 0; index < required.length; index += 3) {
     const batch = required.slice(index, index + 3);
     const results = await Promise.allSettled(
-      batch.map((exam) => examPlatformApi.listPublishedQuestions(exam.id)),
+      batch.map((exam) =>
+        withCatalogTimeout(examPlatformApi.listPublishedQuestions(exam.id)),
+      ),
     );
     results.forEach((result, offset) => {
       const id = batch[offset].id;

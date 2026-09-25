@@ -165,8 +165,7 @@ export default function ExamRequestScreen() {
     ],
     [discoveredRequestSearch, examName, localSimilarRequests],
   );
-  const canSubmit =
-    (!isConfigured || user != null) && !isSubmitting;
+  const canSubmit = (!isConfigured || user != null) && !isSubmitting;
   const requiresLogin = isConfigured && user == null;
 
   // 유사 시험 요청 공감 인증·처리
@@ -260,7 +259,9 @@ export default function ExamRequestScreen() {
           </View>
 
           <Animated.ScrollView
-            entering={FadeInDown.duration(320)}
+            entering={
+              Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+            }
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -439,7 +440,7 @@ export default function ExamRequestScreen() {
                 />
               </View>
               <AnimatedProgressBar
-                progress={(detailCount / 4)}
+                progress={detailCount / 4}
                 height={7}
                 color={theme.primary}
                 trackColor={theme.backgroundElement}

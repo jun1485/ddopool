@@ -1,76 +1,23 @@
 import { Image } from "expo-image";
 import * as SplashScreen from "expo-splash-screen";
-import { useState } from "react";
+import { useEffect } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   Keyframe,
   useReducedMotion,
 } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
 
 const INITIAL_SCALE_FACTOR = Dimensions.get("screen").height / 90;
 const DURATION = 600;
 
-// 시작 화면 모션 표시
+// 네이티브 시작 화면 종료
 export function AnimatedSplashOverlay() {
-  const reduceMotion = useReducedMotion();
-  const [animate, setAnimate] = useState(false);
-  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    void SplashScreen.hideAsync();
+  }, []);
 
-  if (!visible) return null;
-
-  const splashKeyframe = new Keyframe({
-    0: {
-      transform: [{ scale: 1 }],
-      opacity: 1,
-    },
-    20: {
-      opacity: 1,
-    },
-    70: {
-      opacity: 0,
-      easing: Easing.elastic(0.7),
-    },
-    100: {
-      opacity: 0,
-      transform: [{ scale: 1 }],
-      easing: Easing.elastic(0.7),
-    },
-  });
-
-  const image = (
-    <Image
-      style={styles.splashImage}
-      source={require("@/assets/images/icon.png")}
-    />
-  );
-
-  return animate ? (
-    <Animated.View
-      entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
-        "worklet";
-        if (finished) {
-          scheduleOnRN(setVisible, false);
-        }
-      })}
-      style={styles.splashOverlay}
-    >
-      {image}
-    </Animated.View>
-  ) : (
-    <View
-      onLayout={() => {
-        SplashScreen.hideAsync().finally(() => {
-          if (reduceMotion) setVisible(false);
-          else setAnimate(true);
-        });
-      }}
-      style={styles.splashOverlay}
-    >
-      {image}
-    </View>
-  );
+  return null;
 }
 
 const keyframe = new Keyframe({
@@ -136,7 +83,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.image}
-          source={require("@/assets/images/icon.png")}
+          source={require("@/assets/images/splash-icon.png")}
         />
       </Animated.View>
     </View>
@@ -164,23 +111,11 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
   },
-  // 네이티브 스플래시 imageWidth와 동일 크기 유지
-  splashImage: {
-    width: 220,
-    height: 220,
-  },
   background: {
     borderRadius: 40,
     experimental_backgroundImage: `linear-gradient(180deg, #A594F5, #6A52DE)`,
     width: 128,
     height: 128,
     position: "absolute",
-  },
-  splashOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: "#F3ECEC",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
   },
 });

@@ -104,7 +104,11 @@ export default function SettingsScreen() {
         </View>
 
         <Animated.ScrollView
-          entering={reduceMotion ? undefined : FadeInDown.duration(320)}
+          entering={
+            reduceMotion || Platform.OS === "android"
+              ? undefined
+              : FadeInDown.duration(320)
+          }
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -528,7 +532,7 @@ export default function SettingsScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="시험일 학습 계획 설정"
-                onPress={() => router.push("./study-plan-settings")}
+                onPress={() => router.push("/study-plan-settings")}
                 style={({ pressed }) => pressed && styles.pressed}
               >
                 <View style={styles.row}>

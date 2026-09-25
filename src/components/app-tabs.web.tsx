@@ -53,7 +53,7 @@ export default function AppTabs() {
                 : "문제집"}
             </TabButton>
           </TabTrigger>
-          <TabTrigger name="discover" href="./discover" asChild>
+          <TabTrigger name="discover" href="/discover" asChild>
             <TabButton>시험찾기</TabButton>
           </TabTrigger>
           <TabTrigger name="review" href="/review" asChild>

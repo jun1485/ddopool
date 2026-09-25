@@ -48,7 +48,7 @@ function getAccuracy(stat: AccuracyStat): number {
 // 복습 보관함 필터 화면 진입
 function openReviewLibrary(filter: "wrong" | "bookmarked") {
   router.push({
-    pathname: "./review-library",
+    pathname: "/review-library",
     params: { filter },
   });
 }
@@ -79,7 +79,7 @@ function startMockExamSession(examId: string) {
 
 // 전체 학습 활동 화면 진입
 function openLearningActivity() {
-  router.push("./activity");
+  router.push("/activity");
 }
 
 // 누적 학습 리포트 화면

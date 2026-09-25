@@ -1,4 +1,3 @@
-import { useGlobalSearchParams } from "expo-router";
 import {
   loadExamEnrollment,
   subscribeExamEnrollment,
@@ -10,11 +9,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { AppState } from "react-native";
 
 import { examCatalogRepository } from "@/repositories/local-exam-catalog-repository";
+import type { ExamCatalogSnapshot } from "@/repositories/exam-catalog-repository";
 import { Exam, Question } from "@/types/exam";
 
 interface ExamCatalogContextValue {
@@ -29,27 +30,56 @@ interface ExamCatalogContextValue {
 }
 
 const ExamCatalogContext = createContext<ExamCatalogContextValue | null>(null);
+const BACKGROUND_REFRESH_INTERVAL_MS = 60_000;
+
+// 카탈로그 화면 데이터 변경 식별값 생성
+function createCatalogRevision(catalog: ExamCatalogSnapshot): string {
+  const exams = catalog.exams
+    .map((exam) =>
+      [
+        exam.id,
+        exam.title,
+        exam.shortTitle,
+        exam.description,
+        exam.icon,
+        exam.subjects.join(","),
+      ].join(":"),
+    )
+    .join("|");
+  const questions = catalog.questions
+    .map((question) => `${question.id}:${question.version}`)
+    .join("|");
+  return `${exams}::${questions}`;
+}
 
 // 시험 카탈로그 상태 제공
 export function ExamCatalogProvider({ children }: PropsWithChildren) {
-  const { examId: routeExamId } = useGlobalSearchParams<{ examId?: string }>();
   const [exams, setExams] = useState<Exam[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const revisionRef = useRef("");
+  const lastRefreshAtRef = useRef(0);
+
+  // 변경된 카탈로그 화면 데이터만 반영
+  const applyCatalog = useCallback((catalog: ExamCatalogSnapshot) => {
+    const revision = createCatalogRevision(catalog);
+    if (revisionRef.current === revision) return;
+    revisionRef.current = revision;
+    setExams(catalog.exams);
+    setQuestions(catalog.questions);
+  }, []);
 
   // 시험 카탈로그 갱신
   const reload = useCallback(async () => {
-    setIsLoading(true);
+    lastRefreshAtRef.current = Date.now();
     setErrorMessage(null);
     try {
       const enrollment = await loadExamEnrollment();
-      const catalog = await examCatalogRepository.loadCatalog([
-        ...(enrollment?.examIds ?? []),
-        ...(routeExamId ? [routeExamId] : []),
-      ]);
-      setExams(catalog.exams);
-      setQuestions(catalog.questions);
+      const catalog = await examCatalogRepository.loadCatalog(
+        enrollment?.examIds ?? [],
+      );
+      applyCatalog(catalog);
       if (catalog.isOffline || catalog.unavailableExamIds?.length)
         setErrorMessage(
           "일부 시험은 이전 저장 문제를 표시합니다. 연결 후 다시 시도해 주세요.",
@@ -59,7 +89,7 @@ export function ExamCatalogProvider({ children }: PropsWithChildren) {
     } finally {
       setIsLoading(false);
     }
-  }, [routeExamId]);
+  }, [applyCatalog]);
 
   // 시험 카탈로그 초기 로드
   useEffect(() => {
@@ -71,13 +101,11 @@ export function ExamCatalogProvider({ children }: PropsWithChildren) {
       setErrorMessage(null);
       try {
         const enrollment = await loadExamEnrollment();
-        const catalog = await examCatalogRepository.loadCatalog([
-          ...(enrollment?.examIds ?? []),
-          ...(routeExamId ? [routeExamId] : []),
-        ]);
+        const catalog = await examCatalogRepository.loadCatalog(
+          enrollment?.examIds ?? [],
+        );
         if (!active) return;
-        setExams(catalog.exams);
-        setQuestions(catalog.questions);
+        applyCatalog(catalog);
         if (catalog.isOffline || catalog.unavailableExamIds?.length)
           setErrorMessage(
             "일부 시험을 갱신하지 못했어요. 연결 후 다시 시도해 주세요.",
@@ -86,7 +114,10 @@ export function ExamCatalogProvider({ children }: PropsWithChildren) {
         if (active)
           setErrorMessage("시험 목록을 불러오지 못했어요. 다시 시도해 주세요.");
       } finally {
-        if (active) setIsLoading(false);
+        if (active) {
+          lastRefreshAtRef.current = Date.now();
+          setIsLoading(false);
+        }
       }
     };
 
@@ -94,12 +125,13 @@ export function ExamCatalogProvider({ children }: PropsWithChildren) {
     return () => {
       active = false;
     };
-  }, [routeExamId]);
+  }, [applyCatalog]);
 
   // 시험 등록 변경에 따른 문제 다운로드
   useEffect(
     () =>
       subscribeExamEnrollment(() => {
+        setIsLoading(true);
         void Promise.resolve().then(reload);
       }),
     [reload],
@@ -108,7 +140,11 @@ export function ExamCatalogProvider({ children }: PropsWithChildren) {
   // 앱 복귀 시 공개 시험 목록 갱신
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state === "active") void reload();
+      if (
+        state === "active" &&
+        Date.now() - lastRefreshAtRef.current >= BACKGROUND_REFRESH_INTERVAL_MS
+      )
+        void reload();
     });
     return () => subscription.remove();
   }, [reload]);

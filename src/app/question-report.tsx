@@ -102,10 +102,7 @@ export default function QuestionReportScreen() {
   if (isSubmitted) {
     return (
       <ThemedView style={styles.container}>
-        <PageHead
-          title="문제 신고"
-          noIndex
-        />
+        <PageHead title="문제 신고" noIndex />
         <SafeAreaView style={styles.successSafeArea}>
           <View
             style={[styles.successIcon, { backgroundColor: theme.successSoft }]}
@@ -152,10 +149,7 @@ export default function QuestionReportScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="문제 신고"
-        noIndex
-      />
+      <PageHead title="문제 신고" noIndex />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -189,7 +183,9 @@ export default function QuestionReportScreen() {
           </View>
 
           <Animated.ScrollView
-            entering={FadeInDown.duration(320)}
+            entering={
+              Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+            }
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"

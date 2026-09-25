@@ -107,7 +107,9 @@ export default function ActivityScreen() {
         </View>
 
         <Animated.ScrollView
-          entering={FadeInDown.duration(320)}
+          entering={
+            Platform.OS === "android" ? undefined : FadeInDown.duration(320)
+          }
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           bounces={false}

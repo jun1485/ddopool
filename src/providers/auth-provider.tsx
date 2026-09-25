@@ -83,6 +83,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const ACTIVE_SYNC_INTERVAL_MS = 5 * 60_000;
 
 // Supabase 사용자 앱 정보 변환
 function toAuthUser(user: User): AuthUser {
@@ -121,6 +122,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const transitionRef = useRef(Promise.resolve());
   const deletingRef = useRef(false);
   const deletedUserRef = useRef<string | null>(null);
+  const lastActiveSyncAtRef = useRef(0);
   const [message, setMessage] = useState<string | null>(null);
 
   // 계정 보관함 준비 후 인증 상태 공개
@@ -216,21 +218,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
   // 앱 복귀 시 계정 학습 기록 동기화
   useEffect(() => {
     if (user == null || learningSyncApi == null) return;
+    lastActiveSyncAtRef.current = Date.now();
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "background")
         void synchronizeLearningExtras(user.id).catch((error) =>
           captureHandledError(error, "extras-background"),
         );
-      if (state === "active") {
+      if (
+        state === "active" &&
+        Date.now() - lastActiveSyncAtRef.current >= ACTIVE_SYNC_INTERVAL_MS
+      ) {
+        lastActiveSyncAtRef.current = Date.now();
         void synchronizeLearningData(user.id).catch(() => undefined);
-        void registerDevicePushToken();
       }
     });
     const timer = setInterval(() => {
       void synchronizeLearningExtras(user.id).catch((error) =>
         captureHandledError(error, "extras-periodic"),
       );
-    }, 60_000);
+    }, ACTIVE_SYNC_INTERVAL_MS);
     return () => {
       subscription.remove();
       clearInterval(timer);

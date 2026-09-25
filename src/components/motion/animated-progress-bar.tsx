@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import Animated, {
   Easing,
   cancelAnimation,
@@ -39,18 +45,21 @@ export function AnimatedProgressBar({
   const glow = useSharedValue(0);
   const ratio = Math.min(Math.max(progress, 0), 1);
   const fillWidth = trackWidth * ratio;
+  const animationsEnabled = !reduceMotion && Platform.OS !== "android";
 
   // progress 변경 시 채움 폭 전환
   const fillStyle = useAnimatedStyle(
     () => ({
-      width: reduceMotion ? fillWidth : withSpring(fillWidth, Springs.gentle),
+      width: animationsEnabled
+        ? withSpring(fillWidth, Springs.gentle)
+        : fillWidth,
     }),
-    [fillWidth, reduceMotion],
+    [animationsEnabled, fillWidth],
   );
 
   // 진행 중 채움 구간 반복 하이라이트 시작·중단
   useEffect(() => {
-    if (!shimmer || reduceMotion || ratio === 0) {
+    if (!shimmer || !animationsEnabled || ratio === 0) {
       cancelAnimation(glow);
       glow.value = 0;
       return;
@@ -61,7 +70,7 @@ export function AnimatedProgressBar({
       true,
     );
     return () => cancelAnimation(glow);
-  }, [glow, ratio, reduceMotion, shimmer]);
+  }, [animationsEnabled, glow, ratio, shimmer]);
 
   const shimmerStyle = useAnimatedStyle(() => ({
     opacity: glow.value * 0.28,
