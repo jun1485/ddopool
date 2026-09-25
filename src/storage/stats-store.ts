@@ -1,24 +1,32 @@
 import { retryableWrite } from "./retry-write";
 import {
-  dailyStatsSchema,
-  idsSchema,
-  performanceSchema,
-} from "@/storage/data-schemas";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { z } from "zod";
+  clearStatsData,
+  commitAnswerStats,
+  commitRemoteMerge,
+  readMergeWatermark,
+  readStatsSnapshot,
+} from "@/storage/stats-persistence";
+import {
+  ATTEMPT_HISTORY_LIMIT,
+  type DailyStatMap,
+  EMPTY_PERFORMANCE_STATS,
+  type PerformanceStats,
+  type StatsSnapshot,
+} from "@/storage/stats-types";
 
 import type { QuestionAttemptRow } from "../../packages/contracts/src";
 
 import { ExamId } from "@/types/exam";
 
-const DAILY_STATS_KEY = "exam-loop:daily-stats";
-const PERFORMANCE_STATS_KEY = "exam-loop:performance-stats";
-const ATTEMPT_FINGERPRINTS_KEY = "exam-loop:attempt-fingerprints:v1";
-const MERGED_REMOTE_ATTEMPTS_KEY = "exam-loop:merged-remote-attempts:v1";
-const LAST_MERGED_ATTEMPT_AT_KEY =
-  "exam-loop:last-merged-attempt-answered-at:v1";
+export type {
+  AccuracyStat,
+  DailyStat,
+  DailyStatMap,
+  PerformanceStats,
+  SubjectAccuracyStat,
+} from "@/storage/stats-types";
+
 const DAY_MS = 24 * 60 * 60 * 1000;
-const ATTEMPT_HISTORY_LIMIT = 10_000;
 let statsWriteQueue: Promise<void> = Promise.resolve();
 const studyListeners = new Set<() => void>();
 
@@ -30,50 +38,11 @@ export function subscribeStudyActivity(listener: () => void): () => void {
   };
 }
 
-// 일일 학습 집계
-export interface DailyStat {
-  answered: number;
-  correct: number;
-}
-
-// 날짜 키(YYYY-MM-DD) 기준 일일 학습 집계 맵
-export type DailyStatMap = Record<string, DailyStat>;
-
-// 정답률 집계
-export interface AccuracyStat {
-  answered: number;
-  correct: number;
-}
-
-// 과목별 정답률 집계
-export interface SubjectAccuracyStat extends AccuracyStat {
-  examId: ExamId;
-  subject: string;
-}
-
-// 시험·과목별 누적 학습 성과
-export interface PerformanceStats {
-  overall: AccuracyStat;
-  byExam: Partial<Record<ExamId, AccuracyStat>>;
-  bySubject: Record<string, SubjectAccuracyStat>;
-}
-
-const EMPTY_PERFORMANCE_STATS: PerformanceStats = {
-  overall: { answered: 0, correct: 0 },
-  byExam: {},
-  bySubject: {},
-};
-
 interface AnswerAggregateInput {
   examId: ExamId;
   subject: string;
   isCorrect: boolean;
   answeredAt: number;
-}
-
-interface UpdatedStats {
-  daily: DailyStatMap;
-  performance: PerformanceStats;
 }
 
 // 로컬 타임존 기준 날짜 키 생성
@@ -92,45 +61,12 @@ function createAttemptFingerprint(
   return `${questionId}:${answeredAt}`;
 }
 
-// 동기화된 풀이 기록 식별자 로드
-async function loadAttemptIdentityState(): Promise<{
-  fingerprints: string[];
-  remoteIds: number[];
-  lastMergedAttemptAt: string | null;
-}> {
-  try {
-    const [fingerprintsRaw, remoteIdsRaw, lastMergedAttemptAtRaw] =
-      await AsyncStorage.multiGet([
-        ATTEMPT_FINGERPRINTS_KEY,
-        MERGED_REMOTE_ATTEMPTS_KEY,
-        LAST_MERGED_ATTEMPT_AT_KEY,
-      ]);
-    return {
-      fingerprints:
-        fingerprintsRaw[1] == null
-          ? []
-          : idsSchema.parse(JSON.parse(fingerprintsRaw[1])),
-      remoteIds:
-        remoteIdsRaw[1] == null
-          ? []
-          : z.array(z.number().int()).parse(JSON.parse(remoteIdsRaw[1])),
-      lastMergedAttemptAt: lastMergedAttemptAtRaw[1],
-    };
-  } catch {
-    return {
-      fingerprints: [],
-      remoteIds: [],
-      lastMergedAttemptAt: null,
-    };
-  }
-}
-
 // 풀이 1건 통계 집계
 function aggregateAnswer(
-  dailyStats: DailyStatMap,
-  performance: PerformanceStats,
+  snapshot: StatsSnapshot,
   input: AnswerAggregateInput,
-): UpdatedStats {
+): StatsSnapshot {
+  const { daily: dailyStats, performance } = snapshot;
   const dateKey = toDateKey(input.answeredAt);
   const current = dailyStats[dateKey] ?? { answered: 0, correct: 0 };
   const subjectKey = `${input.examId}:${input.subject}`;
@@ -181,8 +117,7 @@ function aggregateAnswer(
 // 저장된 일일 학습 집계 전체 로드
 export async function loadDailyStats(): Promise<DailyStatMap> {
   try {
-    const raw = await AsyncStorage.getItem(DAILY_STATS_KEY);
-    return raw != null ? dailyStatsSchema.parse(JSON.parse(raw)) : {};
+    return (await readStatsSnapshot()).daily;
   } catch {
     return {};
   }
@@ -191,10 +126,7 @@ export async function loadDailyStats(): Promise<DailyStatMap> {
 // 저장된 누적 학습 성과 로드
 export async function loadPerformanceStats(): Promise<PerformanceStats> {
   try {
-    const raw = await AsyncStorage.getItem(PERFORMANCE_STATS_KEY);
-    return raw != null
-      ? performanceSchema.parse(JSON.parse(raw))
-      : EMPTY_PERFORMANCE_STATS;
+    return (await readStatsSnapshot()).performance;
   } catch {
     return EMPTY_PERFORMANCE_STATS;
   }
@@ -208,35 +140,21 @@ async function persistAnswer(
   now: number,
   questionId: string,
 ): Promise<void> {
-  const [stats, performance, identityState] = await Promise.all([
-    loadDailyStats(),
-    loadPerformanceStats(),
-    loadAttemptIdentityState(),
-  ]);
-  if (
-    identityState.fingerprints.includes(
+  const outcome = { recorded: false };
+  await retryableWrite(async () => {
+    outcome.recorded = await commitAnswerStats(
       createAttemptFingerprint(questionId, now),
-    )
-  )
-    return;
-  const nextStats = aggregateAnswer(stats, performance, {
-    examId,
-    subject,
-    isCorrect,
-    answeredAt: now,
+      (snapshot) =>
+        aggregateAnswer(snapshot, {
+          examId,
+          subject,
+          isCorrect,
+          answeredAt: now,
+        }),
+      ATTEMPT_HISTORY_LIMIT,
+    );
   });
-  const fingerprints = [
-    ...identityState.fingerprints,
-    createAttemptFingerprint(questionId, now),
-  ].slice(-ATTEMPT_HISTORY_LIMIT);
-
-  const entries: [string, string][] = [
-    [DAILY_STATS_KEY, JSON.stringify(nextStats.daily)],
-    [PERFORMANCE_STATS_KEY, JSON.stringify(nextStats.performance)],
-    [ATTEMPT_FINGERPRINTS_KEY, JSON.stringify(fingerprints)],
-  ];
-  await retryableWrite(() => AsyncStorage.multiSet(entries));
-  studyListeners.forEach((listener) => listener());
+  if (outcome.recorded) studyListeners.forEach((listener) => listener());
 }
 
 // 풀이 1건 학습 성과 순차 반영
@@ -258,10 +176,14 @@ export async function waitForStatsWrites(): Promise<void> {
   await statsWriteQueue.catch(() => undefined);
 }
 
-// 마지막 서버 풀이 병합 시각 로드
-export async function loadLastMergedAttemptAt(): Promise<string | undefined> {
+// 마지막으로 병합한 서버 풀이 id 로드
+export async function loadLastMergedAttemptId(): Promise<number | undefined> {
   await waitForStatsWrites();
-  return (await loadAttemptIdentityState()).lastMergedAttemptAt ?? undefined;
+  try {
+    return (await readMergeWatermark()) ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 // 서버 풀이 기록 로컬 통계 병합
@@ -271,57 +193,52 @@ export async function mergeRemoteAttempts(
   statsWriteQueue = statsWriteQueue
     .catch(() => undefined)
     .then(async () => {
-      const [dailyStats, performance, identityState] = await Promise.all([
-        loadDailyStats(),
-        loadPerformanceStats(),
-        loadAttemptIdentityState(),
-      ]);
-      const knownFingerprints = new Set(identityState.fingerprints);
-      const mergedRemoteIds = new Set(identityState.remoteIds);
-      let lastMergedAttemptAt = identityState.lastMergedAttemptAt;
-      let nextStats: UpdatedStats = {
-        daily: dailyStats,
-        performance,
-      };
+      await commitRemoteMerge((state) => {
+        const knownFingerprints = new Set(state.knownFingerprints);
+        const mergedIds = new Set(state.mergedIds);
+        const addedFingerprints: string[] = [];
+        const addedIds: number[] = [];
+        let lastMergedAttemptId = state.lastMergedAttemptId;
+        let snapshot: StatsSnapshot = {
+          daily: state.daily,
+          performance: state.performance,
+        };
 
-      attempts.forEach((attempt) => {
-        const answeredAt = new Date(attempt.answered_at).getTime();
-        if (
-          lastMergedAttemptAt == null ||
-          answeredAt > new Date(lastMergedAttemptAt).getTime()
-        )
-          lastMergedAttemptAt = new Date(answeredAt).toISOString();
-        if (mergedRemoteIds.has(attempt.id)) return;
-        const fingerprint = createAttemptFingerprint(
-          attempt.question_id,
-          answeredAt,
-        );
-        mergedRemoteIds.add(attempt.id);
-        if (knownFingerprints.has(fingerprint)) return;
-        knownFingerprints.add(fingerprint);
-        nextStats = aggregateAnswer(nextStats.daily, nextStats.performance, {
-          examId: attempt.exam_id,
-          subject: attempt.subject,
-          isCorrect: attempt.is_correct,
-          answeredAt,
+        attempts.forEach((attempt) => {
+          const answeredAt = new Date(attempt.answered_at).getTime();
+          if (lastMergedAttemptId == null || attempt.id > lastMergedAttemptId)
+            lastMergedAttemptId = attempt.id;
+          if (mergedIds.has(attempt.id)) return;
+          mergedIds.add(attempt.id);
+          addedIds.push(attempt.id);
+          // 백업 복원 이전 서버 이력의 중복 합산 방지
+          if (
+            state.mergeSkipBefore != null &&
+            answeredAt < state.mergeSkipBefore
+          )
+            return;
+          const fingerprint = createAttemptFingerprint(
+            attempt.question_id,
+            answeredAt,
+          );
+          if (knownFingerprints.has(fingerprint)) return;
+          knownFingerprints.add(fingerprint);
+          addedFingerprints.push(fingerprint);
+          snapshot = aggregateAnswer(snapshot, {
+            examId: attempt.exam_id,
+            subject: attempt.subject,
+            isCorrect: attempt.is_correct,
+            answeredAt,
+          });
         });
-      });
 
-      const statsEntries: [string, string][] = [
-        [DAILY_STATS_KEY, JSON.stringify(nextStats.daily)],
-        [PERFORMANCE_STATS_KEY, JSON.stringify(nextStats.performance)],
-        [
-          ATTEMPT_FINGERPRINTS_KEY,
-          JSON.stringify([...knownFingerprints].slice(-ATTEMPT_HISTORY_LIMIT)),
-        ],
-        [
-          MERGED_REMOTE_ATTEMPTS_KEY,
-          JSON.stringify([...mergedRemoteIds].slice(-ATTEMPT_HISTORY_LIMIT)),
-        ],
-      ];
-      if (lastMergedAttemptAt != null)
-        statsEntries.push([LAST_MERGED_ATTEMPT_AT_KEY, lastMergedAttemptAt]);
-      await AsyncStorage.multiSet(statsEntries);
+        return {
+          ...snapshot,
+          addedFingerprints,
+          addedIds,
+          lastMergedAttemptId,
+        };
+      }, ATTEMPT_HISTORY_LIMIT);
       studyListeners.forEach((listener) => listener());
     });
   return statsWriteQueue;
@@ -329,17 +246,7 @@ export async function mergeRemoteAttempts(
 
 // 학습 통계 전체 삭제
 export function clearDailyStats(): Promise<void> {
-  statsWriteQueue = statsWriteQueue
-    .catch(() => undefined)
-    .then(() =>
-      AsyncStorage.multiRemove([
-        DAILY_STATS_KEY,
-        PERFORMANCE_STATS_KEY,
-        ATTEMPT_FINGERPRINTS_KEY,
-        MERGED_REMOTE_ATTEMPTS_KEY,
-        LAST_MERGED_ATTEMPT_AT_KEY,
-      ]),
-    );
+  statsWriteQueue = statsWriteQueue.catch(() => undefined).then(clearStatsData);
   return statsWriteQueue;
 }
 

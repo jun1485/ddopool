@@ -129,27 +129,28 @@ export class SupabaseLearningSyncApi implements LearningSyncApi {
     }
   }
 
-  // 풀이 이력 조회
-  async listMyAttempts(sinceIso?: string): Promise<QuestionAttemptRow[]> {
+  // 서버 적재 순서 기준 풀이 이력 이어받기
+  async listMyAttempts(afterId?: number): Promise<QuestionAttemptRow[]> {
     const client = getSyncClient();
     const userId = await getSyncUserId();
     const rows: QuestionAttemptRow[] = [];
 
-    for (let from = 0; ; from += PAGE_SIZE) {
-      let query = client
+    for (let cursor = afterId ?? 0; ;) {
+      const { data, error } = await client
         .from(TABLES.questionAttempts)
         .select(
           "id,user_id,question_id,exam_id,subject,selected_index,is_correct,mode,answered_at,client_attempt_id",
         )
         .eq("user_id", userId)
+        .gt("id", cursor)
         .order("id", { ascending: true })
-        .range(from, from + PAGE_SIZE - 1);
-      if (sinceIso != null) query = query.gte("answered_at", sinceIso);
-      const { data, error } = await query.returns<QuestionAttemptRow[]>();
+        .limit(PAGE_SIZE)
+        .returns<QuestionAttemptRow[]>();
       if (error != null) throw error;
       const page = data ?? [];
       rows.push(...page);
-      if (page.length < PAGE_SIZE) return rows;
+      if (page.length === 0) return rows;
+      cursor = page[page.length - 1].id;
     }
   }
 

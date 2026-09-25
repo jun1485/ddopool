@@ -1,9 +1,12 @@
-import { pendingAttemptsSchema } from "@/storage/data-schemas";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  appendPendingAttempt,
+  clearPendingAttempts,
+  readPendingAttempts,
+  removePendingAttempts,
+} from "@/storage/pending-attempt-persistence";
 
 import type { RecordAttemptInput } from "../../packages/contracts/src";
 
-const PENDING_LEARNING_ATTEMPTS_KEY = "exam-loop:pending-learning-attempts:v1";
 const PENDING_LEARNING_ATTEMPT_LIMIT = 1_000;
 let pendingAttemptWriteQueue: Promise<void> = Promise.resolve();
 
@@ -14,43 +17,12 @@ export interface PendingLearningAttempt extends RecordAttemptInput {
   userId: string | null;
 }
 
-// 서버 이관 대기 풀이 이력 원본 로드
-async function readPendingLearningAttempts(): Promise<
-  PendingLearningAttempt[]
-> {
-  const raw = await AsyncStorage.getItem(PENDING_LEARNING_ATTEMPTS_KEY);
-  if (raw == null) return [];
-  const attempts = pendingAttemptsSchema.parse(JSON.parse(raw));
-  if (!Array.isArray(attempts))
-    throw new Error("서버 이관 대기 풀이 이력 형식이 올바르지 않습니다.");
-  return attempts;
-}
-
 // 서버 이관 대기 풀이 이력 로드
 export async function loadPendingLearningAttempts(): Promise<
   PendingLearningAttempt[]
 > {
   await pendingAttemptWriteQueue.catch(() => undefined);
-  return readPendingLearningAttempts();
-}
-
-// 서버 이관 대기 풀이 이력 저장
-async function persistPendingLearningAttempt(
-  attempt: PendingLearningAttempt,
-): Promise<void> {
-  const attempts = await readPendingLearningAttempts();
-  const nextAttempts = [
-    ...attempts.filter(
-      (current) => current.clientAttemptId !== attempt.clientAttemptId,
-    ),
-    attempt,
-  ];
-  if (nextAttempts.length > PENDING_LEARNING_ATTEMPT_LIMIT)
-    throw new Error("서버 이관 대기 풀이 이력 저장 한도를 초과했습니다.");
-  await AsyncStorage.setItem(
-    PENDING_LEARNING_ATTEMPTS_KEY,
-    JSON.stringify(nextAttempts),
-  );
+  return readPendingAttempts();
 }
 
 // 서버 이관 대기 풀이 이력 추가
@@ -61,9 +33,9 @@ export function addPendingLearningAttempt(
     .catch(() => undefined)
     .then(async () => {
       try {
-        await persistPendingLearningAttempt(attempt);
+        await appendPendingAttempt(attempt, PENDING_LEARNING_ATTEMPT_LIMIT);
       } catch {
-        await persistPendingLearningAttempt(attempt);
+        await appendPendingAttempt(attempt, PENDING_LEARNING_ATTEMPT_LIMIT);
       }
     });
   return pendingAttemptWriteQueue;
@@ -74,20 +46,9 @@ export function removePendingLearningAttempts(
   clientAttemptIds: string[],
 ): Promise<void> {
   if (clientAttemptIds.length === 0) return Promise.resolve();
-  const completedIds = new Set(clientAttemptIds);
   pendingAttemptWriteQueue = pendingAttemptWriteQueue
     .catch(() => undefined)
-    .then(async () => {
-      const attempts = await readPendingLearningAttempts();
-      await AsyncStorage.setItem(
-        PENDING_LEARNING_ATTEMPTS_KEY,
-        JSON.stringify(
-          attempts.filter(
-            (attempt) => !completedIds.has(attempt.clientAttemptId),
-          ),
-        ),
-      );
-    });
+    .then(() => removePendingAttempts(clientAttemptIds));
   return pendingAttemptWriteQueue;
 }
 
@@ -95,7 +56,7 @@ export function removePendingLearningAttempts(
 export function clearPendingLearningAttempts(): Promise<void> {
   pendingAttemptWriteQueue = pendingAttemptWriteQueue
     .catch(() => undefined)
-    .then(() => AsyncStorage.removeItem(PENDING_LEARNING_ATTEMPTS_KEY));
+    .then(clearPendingAttempts);
   return pendingAttemptWriteQueue;
 }
 
