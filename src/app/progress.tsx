@@ -354,7 +354,7 @@ export default function ProgressScreen() {
                     >
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityState={{ selected }}
+                        aria-selected={selected}
                         accessibilityLabel={`${achievement.title}, ${
                           achievement.unlocked ? "해제됨" : "진행 중"
                         }`}

@@ -71,7 +71,7 @@ export function ExamReadinessCard({
               <Pressable
                 key={item.exam.id}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={`${item.exam.shortTitle} 준비도 선택`}
                 onPress={() => setSelectedExamId(item.exam.id)}
                 style={({ pressed }) => [

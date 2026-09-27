@@ -424,9 +424,7 @@ export default function ReportScreen() {
 
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{
-              disabled: bookmarkedQuestionIds.length === 0,
-            }}
+            aria-disabled={bookmarkedQuestionIds.length === 0}
             disabled={bookmarkedQuestionIds.length === 0}
             onPress={() => openReviewLibrary("bookmarked")}
             style={({ pressed }) => pressed && styles.cardPressed}
@@ -496,7 +494,7 @@ export default function ReportScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`${focusSubject.subject} 집중 학습 시작`}
-              accessibilityState={{ disabled: focusQuestionIds.length === 0 }}
+              aria-disabled={focusQuestionIds.length === 0}
               disabled={focusQuestionIds.length === 0}
               onPress={() => startFocusedSubjectSession(focusQuestionIds)}
               style={({ pressed }) => pressed && styles.cardPressed}

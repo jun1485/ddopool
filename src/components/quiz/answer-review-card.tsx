@@ -214,7 +214,7 @@ export function AnswerReviewCard({
       <View style={[styles.actions, { borderTopColor: theme.border }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
           onPress={onToggleExpanded}
           style={({ pressed }) => [
             styles.actionButton,
@@ -266,7 +266,7 @@ export function AnswerReviewCard({
           accessibilityLabel={
             bookmarked ? "저장 문제에서 제거" : "다시 볼 문제로 저장"
           }
-          accessibilityState={{ selected: bookmarked }}
+          aria-selected={bookmarked}
           onPress={onToggleBookmark}
           style={({ pressed }) => [
             styles.saveButton,

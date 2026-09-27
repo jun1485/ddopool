@@ -49,7 +49,7 @@ function SelectionCard({
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       accessibilityLabel={`${title}, ${description}`}
       onPress={onPress}
       style={({ pressed }) => [
@@ -418,10 +418,9 @@ export default function SessionBuilderScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`${exam.shortTitle} 빠른 진단 시작`}
-                accessibilityState={{
-                  disabled:
-                    diagnosticQuestionCount === 0 || isStartingDiagnostic,
-                }}
+                aria-disabled={
+                  diagnosticQuestionCount === 0 || isStartingDiagnostic
+                }
                 disabled={diagnosticQuestionCount === 0 || isStartingDiagnostic}
                 onPress={startDiagnostic}
                 style={({ pressed }) => [
@@ -514,7 +513,7 @@ export default function SessionBuilderScreen() {
                   <Pressable
                     key={subject}
                     accessibilityRole="checkbox"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     accessibilityLabel={`${subject}${accuracy == null ? "" : `, 누적 정답률 ${accuracy}%`}`}
                     onPress={() => toggleSubject(subject)}
                     style={({ pressed }) => [
@@ -569,7 +568,7 @@ export default function SessionBuilderScreen() {
                   <Pressable
                     key={count}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     onPress={() => setRequestedCount(count)}
                     style={({ pressed }) => [
                       styles.countOption,
@@ -696,7 +695,7 @@ export default function SessionBuilderScreen() {
                 ? "현재 구성이 학습 루틴으로 저장됨"
                 : "현재 구성을 학습 루틴으로 저장"
             }
-            accessibilityState={{ disabled: !canStart }}
+            aria-disabled={!canStart}
             disabled={!canStart}
             onPress={saveCurrentRoutine}
             style={({ pressed }) => [
@@ -728,7 +727,7 @@ export default function SessionBuilderScreen() {
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ disabled: !canStart }}
+            aria-disabled={!canStart}
             disabled={!canStart}
             onPress={startSession}
             style={({ pressed }) => [

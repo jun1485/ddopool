@@ -194,7 +194,7 @@ export default function SettingsScreen() {
                     accessibilityLabel={
                       deleteArmed ? "계정 삭제 최종 확인" : "계정 삭제"
                     }
-                    accessibilityState={{ disabled: deletingAccount }}
+                    aria-disabled={deletingAccount}
                     disabled={deletingAccount}
                     onPress={() => void handleDeleteAccountPress()}
                     style={({ pressed }) => pressed && styles.pressed}
@@ -275,9 +275,7 @@ export default function SettingsScreen() {
                 {Platform.OS !== "web" && (
                   <Switch
                     accessibilityLabel="매일 학습 알림"
-                    accessibilityState={{
-                      disabled: reminderUpdating,
-                    }}
+                    aria-disabled={reminderUpdating}
                     disabled={reminderUpdating}
                     value={settings.studyReminderEnabled}
                     onValueChange={(value) => void handleReminderToggle(value)}
@@ -307,10 +305,8 @@ export default function SettingsScreen() {
                       <Pressable
                         key={hour}
                         accessibilityRole="radio"
-                        accessibilityState={{
-                          checked: isSelected,
-                          disabled: reminderUpdating,
-                        }}
+                        aria-checked={isSelected}
+                        aria-disabled={reminderUpdating}
                         disabled={reminderUpdating}
                         onPress={() => void selectReminderHour(hour)}
                         style={({ pressed }) => pressed && styles.pressed}
@@ -349,9 +345,7 @@ export default function SettingsScreen() {
                     <Pressable
                       key={limit}
                       accessibilityRole="radio"
-                      accessibilityState={{
-                        checked: settings.reminderDailyLimit === limit,
-                      }}
+                      aria-checked={settings.reminderDailyLimit === limit}
                       onPress={() =>
                         updateSettings({ reminderDailyLimit: limit })
                       }
@@ -370,9 +364,7 @@ export default function SettingsScreen() {
                     <Pressable
                       key={hour}
                       accessibilityRole="radio"
-                      accessibilityState={{
-                        checked: settings.reminderQuietHour === hour,
-                      }}
+                      aria-checked={settings.reminderQuietHour === hour}
                       onPress={() =>
                         updateSettings({ reminderQuietHour: hour })
                       }
@@ -477,7 +469,7 @@ export default function SettingsScreen() {
                       <Pressable
                         key={option.value}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
+
                         aria-checked={isSelected}
                         onPress={() =>
                           updateSettings({ themePreference: option.value })
@@ -572,7 +564,7 @@ export default function SettingsScreen() {
                       <Pressable
                         key={goal}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
+
                         aria-checked={isSelected}
                         onPress={() => updateSettings({ dailyGoal: goal })}
                         style={({ pressed }) => pressed && styles.pressed}
@@ -622,7 +614,7 @@ export default function SettingsScreen() {
                       <Pressable
                         key={goal}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
+
                         aria-checked={isSelected}
                         onPress={() => updateSettings({ weeklyGoal: goal })}
                         style={({ pressed }) => pressed && styles.pressed}
@@ -672,7 +664,7 @@ export default function SettingsScreen() {
                       <Pressable
                         key={size}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
+
                         aria-checked={isSelected}
                         onPress={() => updateSettings({ sessionSize: size })}
                         style={({ pressed }) => pressed && styles.pressed}
@@ -722,7 +714,7 @@ export default function SettingsScreen() {
                       <Pressable
                         key={minutes}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
+
                         aria-checked={isSelected}
                         onPress={() =>
                           updateSettings({ mockDurationMinutes: minutes })
@@ -965,7 +957,7 @@ export default function SettingsScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="학습 기록 지금 동기화"
-                accessibilityState={{ disabled: !canSynchronize }}
+                aria-disabled={!canSynchronize}
                 disabled={!canSynchronize}
                 onPress={() => void handleSyncPress()}
                 style={({ pressed }) => pressed && styles.pressed}
@@ -1055,7 +1047,7 @@ export default function SettingsScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="개인 학습 데이터 JSON 내보내기"
-                accessibilityState={{ disabled: exportingData }}
+                aria-disabled={exportingData}
                 disabled={exportingData}
                 onPress={() => void handleDataExport()}
                 style={({ pressed }) => pressed && styles.pressed}

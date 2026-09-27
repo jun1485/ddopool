@@ -234,7 +234,7 @@ export default function StudyPlanSettingsScreen() {
                   <Pressable
                     key={exam.id}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     accessibilityLabel={`${exam.title} 목표 선택`}
                     onPress={() => selectExam(exam.id)}
                     style={({ pressed }) => [
@@ -302,7 +302,7 @@ export default function StudyPlanSettingsScreen() {
                   <Pressable
                     key={option.days}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     disabled={isLoading}
                     onPress={() => selectTargetPeriod(option.days)}
                     style={({ pressed }) => [
@@ -349,7 +349,7 @@ export default function StudyPlanSettingsScreen() {
                   <Pressable
                     key={score}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     accessibilityLabel={`목표 ${score}점`}
                     onPress={() => selectTargetScore(score)}
                     style={({ pressed }) => [
@@ -414,7 +414,7 @@ export default function StudyPlanSettingsScreen() {
                   <Pressable
                     key={days}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     accessibilityLabel={`주 ${days}일 학습`}
                     onPress={() => selectStudyDays(days)}
                     style={({ pressed }) => [
@@ -520,7 +520,7 @@ export default function StudyPlanSettingsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="시험일 학습 계획 저장"
-            accessibilityState={{ disabled: preview == null }}
+            aria-disabled={preview == null}
             disabled={preview == null}
             onPress={() => void saveTarget()}
             style={({ pressed }) => [

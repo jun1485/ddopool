@@ -183,7 +183,7 @@ export default function OnboardingScreen() {
                     <RevealView key={exam.id} delay={stagger(index, 55)}>
                       <Pressable
                         accessibilityRole="checkbox"
-                        accessibilityState={{ checked: selected }}
+                        aria-checked={selected}
                         accessibilityLabel={`${exam.title} 선택`}
                         onPress={() => toggleExam(exam.id)}
                         style={({ pressed }) => [
@@ -336,7 +336,7 @@ export default function OnboardingScreen() {
                   <Pressable
                     key={goal}
                     accessibilityRole="radio"
-                    accessibilityState={{ selected }}
+                    aria-selected={selected}
                     onPress={() => setDailyGoal(goal)}
                     style={({ pressed }) => [
                       styles.goalButton,
@@ -377,7 +377,7 @@ export default function OnboardingScreen() {
 
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ disabled: selectedExamIds.length === 0 }}
+            aria-disabled={selectedExamIds.length === 0}
             disabled={selectedExamIds.length === 0}
             onPress={finishOnboarding}
             style={({ pressed }) => [

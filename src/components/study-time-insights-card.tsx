@@ -88,7 +88,7 @@ export function StudyTimeInsightsCard({
               <Pressable
                 key={option}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 onPress={() => selectRange(option)}
                 style={({ pressed }) => [
                   styles.rangeButton,
@@ -217,7 +217,7 @@ export function StudyTimeInsightsCard({
                   <Pressable
                     key={day.dateKey}
                     accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    aria-selected={selected}
                     accessibilityLabel={`${day.displayLabel}, ${formatStudyTime(day.durationSeconds)}, ${day.sessionCount}세션`}
                     onPress={() => setSelectedDateKey(day.dateKey)}
                     style={[

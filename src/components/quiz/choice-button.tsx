@@ -124,7 +124,7 @@ export function ChoiceButton({
     <Animated.View style={[styles.card, cardStyle]}>
       <Pressable
         accessibilityRole="radio"
-        accessibilityState={{ checked: state === "selected", disabled }}
+        aria-disabled={disabled}
         aria-checked={state === "selected"}
         accessibilityLabel={`${String.fromCharCode(65 + index)}. ${label}`}
         disabled={disabled}

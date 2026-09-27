@@ -112,7 +112,7 @@ function QuestionCard({
             accessibilityLabel={
               bookmarked ? "저장 문제에서 제거" : "다시 볼 문제로 저장"
             }
-            accessibilityState={{ selected: bookmarked }}
+            aria-selected={bookmarked}
             onPress={onToggleBookmark}
             hitSlop={Spacing.two}
             style={({ pressed }) => [
@@ -231,7 +231,7 @@ function QuestionCard({
 
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
           onPress={onToggleExpanded}
           style={({ pressed }) => [
             styles.expandButton,
@@ -523,7 +523,6 @@ export default function LibraryScreen() {
                     <Pressable
                       accessibilityRole="radio"
                       accessibilityLabel="바로 학습 모드"
-                      accessibilityState={{ checked: sessionMode === "learn" }}
                       aria-checked={sessionMode === "learn"}
                       onPress={() => setSessionMode("learn")}
                       style={({ pressed }) => [
@@ -560,7 +559,6 @@ export default function LibraryScreen() {
                     <Pressable
                       accessibilityRole="radio"
                       accessibilityLabel="모의고사 모드"
-                      accessibilityState={{ checked: sessionMode === "mock" }}
                       aria-checked={sessionMode === "mock"}
                       onPress={() => setSessionMode("mock")}
                       style={({ pressed }) => [
@@ -599,9 +597,7 @@ export default function LibraryScreen() {
                   </View>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityState={{
-                      disabled: filteredQuestions.length === 0,
-                    }}
+                    aria-disabled={filteredQuestions.length === 0}
                     disabled={filteredQuestions.length === 0}
                     onPress={() =>
                       startCustomSession(

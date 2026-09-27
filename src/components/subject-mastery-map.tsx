@@ -184,7 +184,7 @@ export function SubjectMasteryMap({
               <Pressable
                 key={item.exam.id}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 onPress={() => {
                   setSelectedExamId(item.exam.id);
                   setSelectedSubject(null);
@@ -242,7 +242,8 @@ export function SubjectMasteryMap({
             <Pressable
               key={`${mastery.examId}:${mastery.subject}`}
               accessibilityRole="button"
-              accessibilityState={{ selected, expanded: selected }}
+              aria-selected={selected}
+              aria-expanded={selected}
               accessibilityLabel={`${mastery.subject} 숙련도 ${mastery.score}점`}
               onPress={() => setSelectedSubject(mastery.subject)}
               style={({ pressed }) => [
@@ -329,9 +330,7 @@ export function SubjectMasteryMap({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${selectedMastery.subject} 추천 학습 시작`}
-          accessibilityState={{
-            disabled: selectedMastery.recommendedQuestionIds.length === 0,
-          }}
+          aria-disabled={selectedMastery.recommendedQuestionIds.length === 0}
           disabled={selectedMastery.recommendedQuestionIds.length === 0}
           onPress={() => onStart(selectedMastery)}
           style={({ pressed }) => [

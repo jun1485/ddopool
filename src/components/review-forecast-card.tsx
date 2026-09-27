@@ -71,7 +71,7 @@ export function ReviewForecastCard({
                 key={day.dateKey}
                 accessibilityRole="radio"
                 accessibilityLabel={`${day.dayLabel} ${day.dateLabel}, 복습 ${day.count}문제`}
-                accessibilityState={{ checked: isSelected }}
+                aria-checked={isSelected}
                 onPress={() => setSelectedIndex(index)}
                 style={({ pressed }) => [
                   styles.dayButton,
@@ -117,9 +117,7 @@ export function ReviewForecastCard({
                     style={[
                       styles.dayLabel,
                       {
-                        color: isSelected
-                          ? theme.primary
-                          : theme.textSecondary,
+                        color: isSelected ? theme.primary : theme.textSecondary,
                       },
                     ]}
                   >

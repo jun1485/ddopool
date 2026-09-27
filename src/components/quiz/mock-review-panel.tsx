@@ -148,7 +148,7 @@ export function MockReviewPanel({
                 accessibilityLabel={`${index + 1}번 문항, ${
                   answered ? "응답 완료" : "미응답"
                 }${flagged ? ", 다시 보기 표시" : ""}`}
-                accessibilityState={{ selected: current }}
+                aria-selected={current}
                 onPress={() => onSelectQuestion(index)}
                 style={({ pressed }) => [
                   styles.questionButton,

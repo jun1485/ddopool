@@ -38,7 +38,7 @@ export function CtaButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      aria-disabled={disabled}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -87,7 +87,7 @@ export function ToggleIconButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ selected: active }}
+      aria-selected={active}
       hitSlop={Spacing.two}
       onPress={onPress}
     >
@@ -124,7 +124,7 @@ export function ReviewFilterChip({
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       onPress={onPress}
       style={styles.reviewFilterSlot}
     >

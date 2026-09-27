@@ -238,7 +238,7 @@ export default function QuestionReportScreen() {
                     <Pressable
                       key={option.category}
                       accessibilityRole="radio"
-                      accessibilityState={{ selected }}
+                      aria-selected={selected}
                       onPress={() => setCategory(option.category)}
                       style={({ pressed }) => [
                         styles.option,
@@ -367,9 +367,7 @@ export default function QuestionReportScreen() {
           >
             <Pressable
               accessibilityRole="button"
-              accessibilityState={{
-                disabled: !canSubmit,
-              }}
+              aria-disabled={!canSubmit}
               disabled={!canSubmit}
               onPress={() =>
                 requiresLogin ? router.push("/login") : void submitReport()

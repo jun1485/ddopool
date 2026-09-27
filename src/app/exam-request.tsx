@@ -533,7 +533,7 @@ export default function ExamRequestScreen() {
           >
             <Pressable
               accessibilityRole="button"
-              accessibilityState={{ disabled: !canSubmit }}
+              aria-disabled={!canSubmit}
               disabled={!canSubmit}
               onPress={() => void submitRequest()}
               style={({ pressed }) => [

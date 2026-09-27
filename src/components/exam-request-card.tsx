@@ -233,7 +233,7 @@ export function ExamRequestCard({
             accessibilityLabel={
               request.hasVoted ? "시험 요청 공감 취소" : "시험 요청에 공감"
             }
-            accessibilityState={{ selected: request.hasVoted }}
+            aria-selected={request.hasVoted}
             disabled={request.status === "cancelled"}
             onPress={onToggleVote}
             style={({ pressed }) => [
