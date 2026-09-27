@@ -795,6 +795,28 @@ export default function SettingsScreen() {
               />
               <View style={styles.row}>
                 <View style={styles.rowTexts}>
+                  <ThemedText>확신도 평가</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    채점 후 확신 정도로 다음 복습 시점 조정
+                  </ThemedText>
+                </View>
+                <Switch
+                  accessibilityLabel="확신도 평가"
+                  value={settings.confidenceRatingEnabled}
+                  onValueChange={(value) =>
+                    updateSettings({ confidenceRatingEnabled: value })
+                  }
+                  trackColor={{
+                    false: theme.backgroundSelected,
+                    true: theme.primary,
+                  }}
+                />
+              </View>
+              <View
+                style={[styles.separator, { backgroundColor: theme.border }]}
+              />
+              <View style={styles.row}>
+                <View style={styles.rowTexts}>
                   <ThemedText>문제 순서 섞기</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
                     매 세션 새로운 순서로 출제

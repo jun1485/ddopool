@@ -1,55 +1,44 @@
-import {
-  CtaButton,
-  ReviewFilterChip,
-  ToggleIconButton,
-} from "@/components/quiz/quiz-controls";
+import { CtaButton, ToggleIconButton } from "@/components/quiz/quiz-controls";
 import { quizStyles as styles } from "@/components/quiz/quiz-styles";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import {
   type NavigationAction,
   usePreventRemove,
 } from "expo-router/react-navigation";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useState } from "react";
-import { Platform, ScrollView, View } from "react-native";
+import { AccessibilityInfo, Platform, ScrollView, View } from "react-native";
 import Animated, {
-  FadeInDown,
   FadeInRight,
-  FadeInUp,
   FadeOutLeft,
-  ZoomIn,
   useReducedMotion,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { DiagnosticResultCard } from "@/components/diagnostic-result-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
-import { AnimatedCounter } from "@/components/motion/animated-counter";
-import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
-import { CelebrationBurst } from "@/components/motion/celebration-burst";
-import { ModalOverlay } from "@/components/motion/modal-overlay";
-import { PulseView } from "@/components/motion/pulse-view";
 import { SkeletonBlock } from "@/components/motion/skeleton-block";
 import { PageHead } from "@/components/page-head";
-import { AnswerReviewCard } from "@/components/quiz/answer-review-card";
+import { AnswerFeedbackSheet } from "@/components/quiz/answer-feedback-sheet";
 import { ChoiceButton, ChoiceState } from "@/components/quiz/choice-button";
 import { MockReviewPanel } from "@/components/quiz/mock-review-panel";
+import { MockTimerBadge } from "@/components/quiz/mock-timer-badge";
+import { QuizResultView } from "@/components/quiz/quiz-result-view";
+import {
+  QuizExitDialog,
+  QuizPauseDialog,
+} from "@/components/quiz/quiz-session-dialogs";
 import { QuizProgressBar } from "@/components/quiz/quiz-progress-bar";
-import { SessionRewardCard } from "@/components/session-reward-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { WrongAnswerNoteEditor } from "@/components/wrong-answer-note-editor";
 import { Radius, Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
-import { useCountdown } from "@/hooks/use-countdown";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
-import { QuizAnswer, useQuizSession } from "@/hooks/use-quiz-session";
+import { useQuizSession } from "@/hooks/use-quiz-session";
 import { useSessionRewards } from "@/hooks/use-session-rewards";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
-import { createDiagnosticAssessment } from "@/learning/diagnostic-assessment";
 import { calculateSessionXp } from "@/learning/progression";
 import { goBack } from "@/lib/navigation";
 import type { QuizMode } from "@/types/exam";
@@ -66,22 +55,6 @@ function getChoiceState(
   return choiceIndex === selectedIndex ? "wrong" : "idle";
 }
 
-// 정답률 구간별 결과 메시지 산출
-function getResultMessage(correctCount: number, total: number): string {
-  const ratio = correctCount / total;
-  if (ratio === 1) return "완벽해요! 전부 맞혔어요.";
-  if (ratio >= 0.8) return "훌륭해요! 만점까지 얼마 안 남았어요.";
-  if (ratio >= 0.5) return "좋아요! 틀린 문제만 복습하면 금방 올라요.";
-  return "괜찮아요, 복습이 실력을 만들어요.";
-}
-
-// 남은 시간 분·초 표시
-function formatRemainingTime(remainingSeconds: number): string {
-  const minutes = Math.floor(remainingSeconds / 60);
-  const seconds = remainingSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
 // 키보드 입력 대상 편집 상태 판별
 function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   if (typeof HTMLElement === "undefined" || !(target instanceof HTMLElement))
@@ -89,58 +62,6 @@ function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   return (
     target.closest("input, textarea, select, [contenteditable='true']") != null
   );
-}
-
-interface SubjectResult {
-  subject: string;
-  correct: number;
-  total: number;
-}
-
-type ReviewFilter = "all" | "wrong" | "empty";
-
-// 취약 문제 재학습 세션 진입
-function startWeakAnswerSession(questionIds: string[]) {
-  router.replace({
-    pathname: "/quiz/[examId]",
-    params: { examId: "all", questionIds: questionIds.join(",") },
-  });
-}
-
-// 진단 결과 기반 맞춤 세션 구성 화면 진입
-function openSessionBuilder(examId: string) {
-  router.replace({
-    pathname: "/session-builder/[examId]",
-    params: { examId },
-  });
-}
-
-// 복습 보관함 화면 진입
-function openReviewLibrary() {
-  router.push({
-    pathname: "/review-library",
-    params: { filter: "wrong" },
-  });
-}
-
-// 과목별 세션 결과 집계
-function summarizeBySubject(answers: QuizAnswer[]): SubjectResult[] {
-  const summary: Record<string, SubjectResult> = {};
-
-  for (const answer of answers) {
-    const current = summary[answer.subject] ?? {
-      subject: answer.subject,
-      correct: 0,
-      total: 0,
-    };
-    summary[answer.subject] = {
-      ...current,
-      correct: current.correct + (answer.isCorrect ? 1 : 0),
-      total: current.total + 1,
-    };
-  }
-
-  return Object.values(summary);
 }
 
 // 문제 풀이 화면
@@ -179,8 +100,6 @@ export default function QuizScreen() {
   const [sessionPaused, setSessionPaused] = useState(false);
   const [mockExpired, setMockExpired] = useState(false);
   const [mockReviewOpen, setMockReviewOpen] = useState(false);
-  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
-  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 
   const {
     status,
@@ -195,6 +114,9 @@ export default function QuizScreen() {
     answers,
     flaggedQuestionIds,
     mockDeadline,
+    canRateConfidence,
+    currentConfidence,
+    rateConfidence,
     selectChoice,
     submitAnswer,
     goToQuestion,
@@ -253,12 +175,6 @@ export default function QuizScreen() {
     setMockExpired(true);
     finishMockSession();
   }, [finishMockSession]);
-  const remainingSeconds = useCountdown(
-    settings.mockDurationMinutes * 60,
-    quizMode === "mock" && status === "in-progress",
-    handleMockExpire,
-    mockDeadline,
-  );
 
   // 현재 답안 저장 후 모의고사 검토 열기
   const openMockReview = useCallback(() => {
@@ -276,12 +192,6 @@ export default function QuizScreen() {
   const submitMockReview = () => {
     setMockReviewOpen(false);
     finishMockSession();
-  };
-
-  // 답안 리뷰 필터 전환
-  const selectReviewFilter = (filter: ReviewFilter) => {
-    setReviewFilter(filter);
-    setExpandedReviewId(null);
   };
 
   // 웹 문제 풀이 키보드 단축키 처리
@@ -374,6 +284,16 @@ export default function QuizScreen() {
     toggleQuestionFlag,
   ]);
 
+  // 채점 결과 네이티브 스크린리더 안내
+  useEffect(() => {
+    if (!isSubmitted || quizMode === "mock" || currentQuestion == null) return;
+    AccessibilityInfo.announceForAccessibility(
+      selectedIndex === currentQuestion.answerIndex
+        ? "정답입니다"
+        : `오답입니다. 정답은 ${String.fromCharCode(65 + currentQuestion.answerIndex)}번이에요`,
+    );
+  }, [currentQuestion, isSubmitted, quizMode, selectedIndex]);
+
   if (status === "loading") {
     return (
       <ThemedView style={styles.container}>
@@ -427,500 +347,29 @@ export default function QuizScreen() {
     );
   }
 
-  if (status === "finished") {
-    const unansweredCount = answers.filter(
-      (answer) => answer.selectedIndex == null,
-    ).length;
-    const answeredWrongCount = answers.filter(
-      (answer) => answer.selectedIndex != null && !answer.isCorrect,
-    ).length;
-    const wrongCount = answeredWrongCount + unansweredCount;
-    const weakQuestionIds = answers
-      .filter((answer) => !answer.isCorrect)
-      .map((answer) => answer.questionId);
-    const allWeakQuestionsBookmarked =
-      weakQuestionIds.length > 0 &&
-      weakQuestionIds.every((questionId) =>
-        bookmarkedQuestionIds.includes(questionId),
-      );
-    const filteredReviewAnswers = answers.filter((answer) => {
-      if (reviewFilter === "wrong")
-        return answer.selectedIndex != null && !answer.isCorrect;
-      if (reviewFilter === "empty") return answer.selectedIndex == null;
-      return true;
-    });
-    const accuracy = Math.round((correctCount / questions.length) * 100);
-    const subjectResults = summarizeBySubject(answers);
-    const diagnosticAssessment = createDiagnosticAssessment(
-      correctCount,
-      questions.length,
-      subjectResults,
-    );
-
+  if (status === "finished")
     return (
-      <ThemedView style={styles.container}>
-        <PageHead title="문제 풀이" noIndex />
-        <SafeAreaView style={styles.resultSafeArea}>
-          <ScrollView
-            contentContainerStyle={styles.resultContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <Animated.View
-              entering={ZoomIn.duration(400)}
-              style={styles.resultHero}
-            >
-              <PulseView active={wrongCount === 0} scaleTo={1.05}>
-                <View
-                  style={[
-                    styles.trophyCircle,
-                    { backgroundColor: theme.warningSoft },
-                  ]}
-                >
-                  <ThemedText style={styles.trophyEmoji}>
-                    {wrongCount === 0 ? "🏆" : "✨"}
-                  </ThemedText>
-                </View>
-              </PulseView>
-              <CelebrationBurst
-                trigger={1}
-                distance={wrongCount === 0 ? 120 : 92}
-              />
-              <ThemedText type="subtitle">
-                {isDiagnostic
-                  ? "빠른 진단 완료!"
-                  : quizMode === "mock"
-                    ? mockExpired
-                      ? "시간 종료!"
-                      : "모의고사 완료!"
-                    : quizMode === "review"
-                      ? "복습 완료!"
-                      : quizMode === "bookmarks"
-                        ? "저장 문제 학습 완료!"
-                        : isCustomSession
-                          ? "맞춤 학습 완료!"
-                          : "학습 완료!"}
-              </ThemedText>
-              <ThemedText
-                type="small"
-                themeColor="textSecondary"
-                style={styles.centerText}
-              >
-                {isDiagnostic
-                  ? "현재 수준과 먼저 학습할 과목을 찾았어요."
-                  : quizMode === "mock" && mockExpired
-                    ? "제한 시간이 끝나 답안을 자동으로 제출했어요."
-                    : getResultMessage(correctCount, questions.length)}
-              </ThemedText>
-            </Animated.View>
-
-            <Animated.View
-              entering={
-                Platform.OS === "android"
-                  ? undefined
-                  : FadeInDown.delay(120).duration(300)
-              }
-            >
-              <ThemedView type="backgroundElement" style={styles.scoreCard}>
-                <View
-                  style={[
-                    styles.scoreCircle,
-                    { borderColor: theme.primarySoft },
-                  ]}
-                >
-                  <AnimatedCounter
-                    style={[styles.accuracyText, { color: theme.primary }]}
-                    value={accuracy}
-                    suffix="%"
-                  />
-                  <ThemedText type="small" themeColor="textSecondary">
-                    정답률
-                  </ThemedText>
-                </View>
-                <View style={styles.scoreDetails}>
-                  <View style={styles.scoreRow}>
-                    <View
-                      style={[
-                        styles.scoreDot,
-                        { backgroundColor: theme.success },
-                      ]}
-                    />
-                    <ThemedText
-                      type="small"
-                      themeColor="textSecondary"
-                      style={styles.scoreLabel}
-                    >
-                      맞힌 문제
-                    </ThemedText>
-                    <ThemedText type="smallBold">{correctCount}</ThemedText>
-                  </View>
-                  <View style={styles.scoreRow}>
-                    <View
-                      style={[
-                        styles.scoreDot,
-                        { backgroundColor: theme.danger },
-                      ]}
-                    />
-                    <ThemedText
-                      type="small"
-                      themeColor="textSecondary"
-                      style={styles.scoreLabel}
-                    >
-                      {quizMode === "mock" ? "오답" : "다시 볼 문제"}
-                    </ThemedText>
-                    <ThemedText type="smallBold">
-                      {answeredWrongCount}
-                    </ThemedText>
-                  </View>
-                  {quizMode === "mock" && (
-                    <View style={styles.scoreRow}>
-                      <View
-                        style={[
-                          styles.scoreDot,
-                          { backgroundColor: theme.warning },
-                        ]}
-                      />
-                      <ThemedText
-                        type="small"
-                        themeColor="textSecondary"
-                        style={styles.scoreLabel}
-                      >
-                        미응답
-                      </ThemedText>
-                      <ThemedText type="smallBold">
-                        {unansweredCount}
-                      </ThemedText>
-                    </View>
-                  )}
-                  <View style={styles.scoreRow}>
-                    <View
-                      style={[
-                        styles.scoreDot,
-                        { backgroundColor: theme.primary },
-                      ]}
-                    />
-                    <ThemedText
-                      type="small"
-                      themeColor="textSecondary"
-                      style={styles.scoreLabel}
-                    >
-                      전체 문제
-                    </ThemedText>
-                    <ThemedText type="smallBold">{questions.length}</ThemedText>
-                  </View>
-                  <View style={styles.scoreRow}>
-                    <View
-                      style={[
-                        styles.scoreDot,
-                        { backgroundColor: theme.warning },
-                      ]}
-                    />
-                    <ThemedText
-                      type="small"
-                      themeColor="textSecondary"
-                      style={styles.scoreLabel}
-                    >
-                      획득 경험치
-                    </ThemedText>
-                    <AnimatedCounter
-                      type="smallBold"
-                      style={{ color: theme.warning }}
-                      value={earnedXp}
-                      prefix="+"
-                      suffix=" XP"
-                    />
-                  </View>
-                </View>
-              </ThemedView>
-            </Animated.View>
-
-            {isDiagnostic && (
-              <DiagnosticResultCard
-                assessment={diagnosticAssessment}
-                onStartPlan={() => openSessionBuilder(params.examId)}
-              />
-            )}
-
-            <SessionRewardCard
-              earnedXp={earnedXp}
-              rewards={rewards}
-              isLoading={isRewardsLoading}
-              onOpenProgress={() => router.push("/progress")}
-            />
-
-            {subjectResults.length > 0 && (
-              <Animated.View
-                entering={
-                  Platform.OS === "android"
-                    ? undefined
-                    : FadeInDown.delay(200).duration(300)
-                }
-                style={styles.resultSection}
-              >
-                <ThemedText style={styles.resultSectionTitle}>
-                  과목별 결과
-                </ThemedText>
-                <ThemedView type="backgroundElement" style={styles.subjectCard}>
-                  {subjectResults.map((result, index) => {
-                    const subjectAccuracy = Math.round(
-                      (result.correct / result.total) * 100,
-                    );
-                    return (
-                      <View
-                        key={result.subject}
-                        style={[
-                          styles.subjectRow,
-                          index < subjectResults.length - 1 && {
-                            borderBottomColor: theme.border,
-                            borderBottomWidth: 1,
-                          },
-                        ]}
-                      >
-                        <View style={styles.subjectText}>
-                          <ThemedText type="smallBold">
-                            {result.subject}
-                          </ThemedText>
-                          <ThemedText type="small" themeColor="textSecondary">
-                            {result.correct}/{result.total} 정답
-                          </ThemedText>
-                        </View>
-                        <View style={styles.subjectTrack}>
-                          <AnimatedProgressBar
-                            progress={subjectAccuracy / 100}
-                            height={7}
-                            color={theme.primary}
-                            trackColor={theme.primarySoft}
-                          />
-                        </View>
-                        <ThemedText
-                          type="smallBold"
-                          style={{ color: theme.primary }}
-                        >
-                          {subjectAccuracy}%
-                        </ThemedText>
-                      </View>
-                    );
-                  })}
-                </ThemedView>
-              </Animated.View>
-            )}
-
-            {answeredWrongCount > 0 && (
-              <ThemedView
-                style={[
-                  styles.reviewNotice,
-                  { backgroundColor: theme.dangerSoft },
-                ]}
-              >
-                <SymbolView
-                  tintColor={theme.danger}
-                  name={{
-                    ios: "arrow.triangle.2.circlepath",
-                    android: "replay",
-                    web: "replay",
-                  }}
-                  size={21}
-                />
-                <ThemedText
-                  type="small"
-                  style={[styles.noticeText, { color: theme.danger }]}
-                >
-                  선택한 오답 {answeredWrongCount}문제는 복습 일정에도 바로
-                  반영됐어요.
-                </ThemedText>
-              </ThemedView>
-            )}
-
-            <Animated.View
-              entering={
-                Platform.OS === "android"
-                  ? undefined
-                  : FadeInUp.delay(280).duration(300)
-              }
-              style={styles.resultActions}
-            >
-              {wrongCount > 0 && (
-                <CtaButton
-                  label={
-                    isDiagnostic
-                      ? `진단 오답 ${wrongCount}문제 학습`
-                      : quizMode === "mock"
-                        ? `취약 ${wrongCount}문제 바로 복습`
-                        : `오답 ${wrongCount}문제 다시 풀기`
-                  }
-                  variant="secondary"
-                  onPress={
-                    quizMode === "mock"
-                      ? () => startWeakAnswerSession(weakQuestionIds)
-                      : restartWrongAnswers
-                  }
-                />
-              )}
-              {weakQuestionIds.length > 0 && (
-                <CtaButton
-                  label="복습 보관함에서 정리"
-                  variant="secondary"
-                  onPress={openReviewLibrary}
-                />
-              )}
-              <CtaButton label="돌아가기" onPress={() => goBack()} />
-            </Animated.View>
-
-            <Animated.View
-              entering={
-                Platform.OS === "android"
-                  ? undefined
-                  : FadeInDown.delay(240).duration(300)
-              }
-              style={styles.resultSection}
-            >
-              <View style={styles.reviewHeader}>
-                <View style={styles.reviewHeaderText}>
-                  <ThemedText style={styles.resultSectionTitle}>
-                    답안 리뷰
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    선택 답·정답·핵심 해설 비교
-                  </ThemedText>
-                </View>
-                {weakQuestionIds.length > 0 && (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityState={{
-                      disabled: allWeakQuestionsBookmarked,
-                    }}
-                    disabled={allWeakQuestionsBookmarked}
-                    onPress={() => addBookmarks(weakQuestionIds)}
-                    style={({ pressed }) => [
-                      styles.bulkSaveButton,
-                      {
-                        backgroundColor: allWeakQuestionsBookmarked
-                          ? theme.successSoft
-                          : theme.warningSoft,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <SymbolView
-                      tintColor={
-                        allWeakQuestionsBookmarked
-                          ? theme.success
-                          : theme.warning
-                      }
-                      name={{
-                        ios: allWeakQuestionsBookmarked
-                          ? "checkmark.circle.fill"
-                          : "bookmark.fill",
-                        android: allWeakQuestionsBookmarked
-                          ? "check_circle"
-                          : "bookmark",
-                        web: allWeakQuestionsBookmarked
-                          ? "check_circle"
-                          : "bookmark",
-                      }}
-                      size={16}
-                    />
-                    <ThemedText
-                      type="smallBold"
-                      style={{
-                        color: allWeakQuestionsBookmarked
-                          ? theme.success
-                          : theme.warning,
-                      }}
-                    >
-                      {allWeakQuestionsBookmarked ? "모두 저장됨" : "취약 저장"}
-                    </ThemedText>
-                  </Pressable>
-                )}
-              </View>
-
-              <View
-                style={[
-                  styles.reviewFilterRow,
-                  { backgroundColor: theme.backgroundSelected },
-                ]}
-              >
-                <ReviewFilterChip
-                  label={`전체 ${answers.length}`}
-                  selected={reviewFilter === "all"}
-                  activeTextColor={theme.primary}
-                  onPress={() => selectReviewFilter("all")}
-                />
-                {answeredWrongCount > 0 && (
-                  <ReviewFilterChip
-                    label={`오답 ${answeredWrongCount}`}
-                    selected={reviewFilter === "wrong"}
-                    activeTextColor={theme.danger}
-                    onPress={() => selectReviewFilter("wrong")}
-                  />
-                )}
-                {unansweredCount > 0 && (
-                  <ReviewFilterChip
-                    label={`미응답 ${unansweredCount}`}
-                    selected={reviewFilter === "empty"}
-                    activeTextColor={theme.warning}
-                    onPress={() => selectReviewFilter("empty")}
-                  />
-                )}
-              </View>
-
-              <View style={styles.reviewList}>
-                {filteredReviewAnswers.map((answer) => {
-                  const question = questions.find(
-                    (item) => item.id === answer.questionId,
-                  );
-                  if (question == null) return null;
-                  const wrongAnswerNote = wrongAnswerNotes[answer.questionId];
-                  return (
-                    <AnswerReviewCard
-                      key={answer.questionId}
-                      answer={answer}
-                      question={question}
-                      index={questions.findIndex(
-                        (item) => item.id === answer.questionId,
-                      )}
-                      expanded={expandedReviewId === answer.questionId}
-                      bookmarked={bookmarkedQuestionIds.includes(
-                        answer.questionId,
-                      )}
-                      noteEditor={
-                        wrongAnswerNote == null ? undefined : (
-                          <WrongAnswerNoteEditor
-                            note={wrongAnswerNote}
-                            onToggleTag={(tag) =>
-                              void toggleTag(answer.questionId, tag)
-                            }
-                            onSaveMemo={(memo) =>
-                              void updateNote(answer.questionId, {
-                                memo,
-                              })
-                            }
-                          />
-                        )
-                      }
-                      onToggleExpanded={() =>
-                        setExpandedReviewId((current) =>
-                          current === answer.questionId
-                            ? null
-                            : answer.questionId,
-                        )
-                      }
-                      onToggleBookmark={() => toggleBookmark(answer.questionId)}
-                      onReport={() =>
-                        router.push({
-                          pathname: "/question-report",
-                          params: { questionId: answer.questionId },
-                        })
-                      }
-                    />
-                  );
-                })}
-              </View>
-            </Animated.View>
-          </ScrollView>
-        </SafeAreaView>
-      </ThemedView>
+      <QuizResultView
+        examId={params.examId}
+        quizMode={quizMode}
+        isDiagnostic={isDiagnostic}
+        isCustomSession={isCustomSession}
+        mockExpired={mockExpired}
+        questions={questions}
+        answers={answers}
+        correctCount={correctCount}
+        earnedXp={earnedXp}
+        rewards={rewards}
+        isRewardsLoading={isRewardsLoading}
+        bookmarkedQuestionIds={bookmarkedQuestionIds}
+        wrongAnswerNotes={wrongAnswerNotes}
+        restartWrongAnswers={restartWrongAnswers}
+        toggleBookmark={toggleBookmark}
+        addBookmarks={addBookmarks}
+        toggleTag={toggleTag}
+        updateNote={updateNote}
+      />
     );
-  }
 
   if (currentQuestion == null) return null;
 
@@ -983,36 +432,12 @@ export default function QuizScreen() {
           )}
           {quizMode === "mock" && (
             <>
-              <View
-                style={[
-                  styles.timerBadge,
-                  {
-                    backgroundColor:
-                      remainingSeconds <= 60
-                        ? theme.dangerSoft
-                        : theme.backgroundElement,
-                  },
-                ]}
-              >
-                <SymbolView
-                  tintColor={
-                    remainingSeconds <= 60 ? theme.danger : theme.textSecondary
-                  }
-                  name={{ ios: "timer", android: "timer", web: "timer" }}
-                  size={15}
-                />
-                <ThemedText
-                  type="smallBold"
-                  style={{
-                    color:
-                      remainingSeconds <= 60
-                        ? theme.danger
-                        : theme.textSecondary,
-                  }}
-                >
-                  {formatRemainingTime(remainingSeconds)}
-                </ThemedText>
-              </View>
+              <MockTimerBadge
+                durationSeconds={settings.mockDurationMinutes * 60}
+                active={status === "in-progress"}
+                deadline={mockDeadline}
+                onExpire={handleMockExpire}
+              />
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`답안 검토 열기, ${answeredCount}문제 응답, 다시 보기 ${flaggedQuestionIds.length}문제`}
@@ -1093,7 +518,7 @@ export default function QuizScreen() {
                           ? "현재 문항 다시 보기 표시 해제"
                           : "현재 문항 다시 보기 표시"
                       }
-                      accessibilityState={{ selected: isQuestionFlagged }}
+                      aria-selected={isQuestionFlagged}
                       onPress={toggleQuestionFlag}
                       hitSlop={Spacing.two}
                       style={({ pressed }) => [
@@ -1236,187 +661,37 @@ export default function QuizScreen() {
       </SafeAreaView>
 
       {isSubmitted && quizMode !== "mock" && (
-        <ModalOverlay variant="sheet">
-          <ThemedView
-            type="backgroundElement"
-            style={[
-              styles.feedbackSheet,
-              {
-                borderColor: isCorrectAnswer ? theme.success : theme.danger,
-              },
-            ]}
-          >
-            <View style={styles.feedbackHeader}>
-              <View
-                style={[
-                  styles.feedbackIcon,
-                  {
-                    backgroundColor: isCorrectAnswer
-                      ? theme.successSoft
-                      : theme.dangerSoft,
-                  },
-                ]}
-              >
-                <ThemedText style={styles.feedbackEmoji}>
-                  {isCorrectAnswer ? "🙆" : "🙅"}
-                </ThemedText>
-              </View>
-              <View style={styles.feedbackHeaderText}>
-                <ThemedText
-                  style={[
-                    styles.feedbackTitle,
-                    {
-                      color: isCorrectAnswer ? theme.success : theme.danger,
-                    },
-                  ]}
-                >
-                  {isCorrectAnswer ? "정답입니다!" : "오답입니다"}
-                </ThemedText>
-                {!isCorrectAnswer && (
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {willRequeueCurrent
-                      ? "이 문제는 오늘 세션 끝에 다시 나와요"
-                      : `정답은 ${String.fromCharCode(65 + currentQuestion.answerIndex)}번이에요`}
-                  </ThemedText>
-                )}
-              </View>
-            </View>
-
-            {settings.explanationEnabled && (
-              <ScrollView
-                style={styles.feedbackExplanationArea}
-                contentContainerStyle={styles.feedbackExplanation}
-                showsVerticalScrollIndicator={false}
-              >
-                <ThemedText type="small" themeColor="textSecondary">
-                  {currentQuestion.explanation}
-                </ThemedText>
-              </ScrollView>
-            )}
-
-            <CtaButton
-              label={isLastQuestion ? "결과 보기" : "다음 문제"}
-              onPress={goNext}
-            />
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="현재 문제 오류 신고"
-              onPress={() =>
-                router.push({
-                  pathname: "/question-report",
-                  params: { questionId: currentQuestion.id },
-                })
-              }
-              style={styles.feedbackReport}
-            >
-              <ThemedText type="small" themeColor="textSecondary">
-                문제에 이상이 있나요?
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ModalOverlay>
+        <AnswerFeedbackSheet
+          question={currentQuestion}
+          isCorrect={isCorrectAnswer}
+          willRequeue={willRequeueCurrent}
+          isLastQuestion={isLastQuestion}
+          showExplanation={settings.explanationEnabled}
+          showConfidenceRating={
+            settings.confidenceRatingEnabled && canRateConfidence
+          }
+          confidence={currentConfidence}
+          onRateConfidence={rateConfidence}
+          onNext={goNext}
+        />
       )}
 
       {exitConfirming && (
-        <ModalOverlay
-          closeLabel="종료 확인 닫기"
-          onRequestClose={() => {
+        <QuizExitDialog
+          isMock={quizMode === "mock"}
+          onContinue={() => {
             setExitConfirming(false);
             setPendingLeaveAction(null);
           }}
-        >
-          <ThemedView type="backgroundElement" style={styles.exitDialog}>
-            <View
-              style={[styles.exitIcon, { backgroundColor: theme.warningSoft }]}
-            >
-              <SymbolView
-                tintColor={theme.warning}
-                name={{ ios: "pause.fill", android: "pause", web: "pause" }}
-                size={22}
-              />
-            </View>
-            <View style={styles.exitText}>
-              <ThemedText style={styles.exitTitle}>
-                {quizMode === "mock"
-                  ? "모의고사를 그만둘까요?"
-                  : "학습을 그만둘까요?"}
-              </ThemedText>
-              <ThemedText
-                type="small"
-                themeColor="textSecondary"
-                style={styles.centerText}
-              >
-                {quizMode === "mock"
-                  ? "제출 전 답안은 저장되지 않으며 결과 화면도 볼 수 없어요."
-                  : "현재 문제 위치를 저장하고 홈에서 그대로 이어 풀 수 있어요."}
-              </ThemedText>
-            </View>
-            <View style={styles.exitActions}>
-              <View style={styles.exitAction}>
-                <CtaButton
-                  label="계속 풀기"
-                  variant="secondary"
-                  onPress={() => {
-                    setExitConfirming(false);
-                    setPendingLeaveAction(null);
-                  }}
-                />
-              </View>
-              <View style={styles.exitAction}>
-                <CtaButton
-                  label={quizMode === "mock" ? "종료" : "나중에 이어 풀기"}
-                  variant="danger"
-                  onPress={() => setLeaveConfirmed(true)}
-                />
-              </View>
-            </View>
-          </ThemedView>
-        </ModalOverlay>
+          onLeave={() => setLeaveConfirmed(true)}
+        />
       )}
 
       {sessionPaused && !exitConfirming && (
-        <ModalOverlay>
-          <ThemedView type="backgroundElement" style={styles.exitDialog}>
-            <View
-              style={[styles.exitIcon, { backgroundColor: theme.primarySoft }]}
-            >
-              <SymbolView
-                tintColor={theme.primary}
-                name={{
-                  ios: "cup.and.saucer.fill",
-                  android: "free_breakfast",
-                  web: "free_breakfast",
-                }}
-                size={22}
-              />
-            </View>
-            <View style={styles.exitText}>
-              <ThemedText style={styles.exitTitle}>
-                잠시 쉬어가도 좋아요
-              </ThemedText>
-              <ThemedText
-                type="small"
-                themeColor="textSecondary"
-                style={styles.centerText}
-              >
-                학습 시간은 멈춰 있어요. 준비되면 같은 문제부터 이어서 풀어
-                보세요.
-              </ThemedText>
-            </View>
-            <View style={styles.pauseActions}>
-              <CtaButton
-                label="계속 학습하기"
-                onPress={() => setSessionPaused(false)}
-              />
-              <CtaButton
-                label="홈에서 나중에 이어 풀기"
-                variant="secondary"
-                onPress={() => setLeaveConfirmed(true)}
-              />
-            </View>
-          </ThemedView>
-        </ModalOverlay>
+        <QuizPauseDialog
+          onResume={() => setSessionPaused(false)}
+          onLeave={() => setLeaveConfirmed(true)}
+        />
       )}
 
       {mockReviewOpen && (
