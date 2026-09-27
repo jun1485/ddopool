@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// 문자열 코드 실행 없이 검증해 웹 CSP 위반 방지
+z.config({ jitless: true });
+
 const count = z.number().int().nonnegative();
 const timestamp = z.number().nonnegative();
 export const idsSchema = z.array(z.string());

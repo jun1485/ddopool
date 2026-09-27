@@ -71,7 +71,8 @@
     "typecheck": "tsc --noEmit",
     "test:db": "node scripts/test-database.mjs",
     "test:operations": "node --test scripts/web-push-delivery.test.mjs scripts/operations-worker.test.mjs",
-    "test:release-config": "node scripts/test-release-config.cjs"
+    "test:release-config": "node scripts/test-release-config.cjs",
+    "test:csp": "node scripts/check-csp.mjs dist"
   },
   "jest": {
     "preset": "jest-expo",
