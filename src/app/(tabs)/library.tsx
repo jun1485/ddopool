@@ -320,6 +320,7 @@ export default function LibraryScreen() {
       ),
     [examFilter, questionSearchIndex, questions, searchQuery, subjectFilter],
   );
+  const hasNoQuestions = questions.length === 0;
   const bookmarkedQuestionIdSet = useMemo(
     () => new Set(bookmarkedQuestionIds),
     [bookmarkedQuestionIds],
@@ -719,25 +720,41 @@ export default function LibraryScreen() {
               >
                 <SymbolView
                   tintColor={theme.primary}
-                  name={{
-                    ios: "magnifyingglass",
-                    android: "search_off",
-                    web: "search_off",
-                  }}
+                  name={
+                    hasNoQuestions
+                      ? {
+                          ios: "books.vertical",
+                          android: "menu_book",
+                          web: "menu_book",
+                        }
+                      : {
+                          ios: "magnifyingglass",
+                          android: "search_off",
+                          web: "search_off",
+                        }
+                  }
                   size={27}
                 />
               </View>
-              <ThemedText type="smallBold">검색 결과가 없어요</ThemedText>
+              <ThemedText type="smallBold">
+                {hasNoQuestions
+                  ? "아직 볼 수 있는 문제가 없어요"
+                  : "검색 결과가 없어요"}
+              </ThemedText>
               <ThemedText
                 type="small"
                 themeColor="textSecondary"
                 style={styles.emptyText}
               >
-                검색어를 줄이거나 시험·과목 필터를 바꿔 보세요.
+                {hasNoQuestions
+                  ? "시험을 등록하면 문제가 여기에 모여요."
+                  : "검색어를 줄이거나 시험·과목 필터를 바꿔 보세요."}
               </ThemedText>
               <Pressable
                 accessibilityRole="button"
-                onPress={resetFilters}
+                onPress={
+                  hasNoQuestions ? () => router.push("/catalog") : resetFilters
+                }
                 style={({ pressed }) => [
                   styles.emptyButton,
                   { backgroundColor: theme.primarySoft },
@@ -745,7 +762,7 @@ export default function LibraryScreen() {
                 ]}
               >
                 <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                  전체 문제 보기
+                  {hasNoQuestions ? "시험 둘러보기" : "전체 문제 보기"}
                 </ThemedText>
               </Pressable>
             </ThemedView>

@@ -29,7 +29,7 @@ const DAILY_GOALS = [10, 20, 30] as const;
 
 // 첫 학습 시험·목표 선택 화면
 export default function OnboardingScreen() {
-  const { exams, isLoading } = useExamCatalog();
+  const { exams, isLoading, errorMessage, reload } = useExamCatalog();
   const { examIds, completeOnboarding } = useExamEnrollment();
   const { settings, updateSettings } = useSettings();
   const [selectedExamIds, setSelectedExamIds] = useState<string[]>(examIds);
@@ -257,6 +257,54 @@ export default function OnboardingScreen() {
                     </RevealView>
                   );
                 })}
+              </View>
+            ) : searchQuery.length === 0 ? (
+              <View
+                style={[
+                  styles.requestCard,
+                  {
+                    backgroundColor: theme.dangerSoft,
+                    borderColor: theme.danger,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.requestIcon,
+                    { backgroundColor: theme.backgroundElement },
+                  ]}
+                >
+                  <SymbolView
+                    tintColor={theme.danger}
+                    name={{
+                      ios: "wifi.exclamationmark",
+                      android: "wifi_off",
+                      web: "wifi_off",
+                    }}
+                    size={22}
+                  />
+                </View>
+                <View style={styles.requestCopy}>
+                  <ThemedText type="smallBold">
+                    {errorMessage ?? "시험 목록을 불러오지 못했어요."}
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    연결을 확인한 뒤 다시 불러와 주세요.
+                  </ThemedText>
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => void reload()}
+                  style={({ pressed }) => [
+                    styles.requestButton,
+                    { backgroundColor: theme.backgroundElement },
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                    다시 불러오기
+                  </ThemedText>
+                </Pressable>
               </View>
             ) : (
               <View
