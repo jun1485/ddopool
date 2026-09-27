@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -7,7 +6,7 @@ import { AnimatedCounter } from "@/components/motion/animated-counter";
 import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
-import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { SectionHeader } from "@/components/section-header";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -15,7 +14,6 @@ import { ExamReadinessCard } from "@/components/exam-readiness-card";
 import type { ExamReadinessItem } from "@/components/exam-readiness-card";
 import { MockExamTrendCard } from "@/components/mock-exam-trend-card";
 import { StudyTimeInsightsCard } from "@/components/study-time-insights-card";
-import { WrongAnswerSummaryCard } from "@/components/wrong-answer-summary-card";
 import {
   BottomTabInset,
   MaxContentWidth,
@@ -23,7 +21,6 @@ import {
   Shadows,
   Spacing,
 } from "@/constants/theme";
-import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useDailyStats } from "@/hooks/use-daily-stats";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
@@ -42,14 +39,6 @@ function getAccuracy(stat: AccuracyStat): number {
   return stat.answered === 0
     ? 0
     : Math.round((stat.correct / stat.answered) * 100);
-}
-
-// 복습 보관함 필터 화면 진입
-function openReviewLibrary(filter: "wrong" | "bookmarked") {
-  router.push({
-    pathname: "/review-library",
-    params: { filter },
-  });
 }
 
 // 취약 과목 맞춤 세션 진입
@@ -87,9 +76,8 @@ export default function ReportScreen() {
   const { weeklyActivity, streak } = useDailyStats();
   const { totalStudied, totalDue, studiedCounts, matureCounts, dueCounts } =
     useSrsSummary();
-  const { bookmarkedQuestionIds } = useBookmarks();
-  const { unresolvedNotes, resolvedNotes } = useWrongAnswerNotes();
-  const { exams, questions, findExam } = useExamCatalog();
+  const { unresolvedNotes } = useWrongAnswerNotes();
+  const { exams, questions } = useExamCatalog();
   const { examIds } = useExamEnrollment();
   const { target: studyTarget } = useStudyTarget();
   const { results: mockExamResults, isLoading: isMockExamHistoryLoading } =
@@ -117,25 +105,6 @@ export default function ReportScreen() {
   const maxDailyAnswered = Math.max(
     ...weeklyActivity.map((activity) => activity.answered),
     1,
-  );
-  const subjectPerformance = Object.values(performance.bySubject).sort(
-    (left, right) => getAccuracy(left) - getAccuracy(right),
-  );
-  const focusSubject =
-    subjectPerformance.find((subject) => subject.answered >= 3) ??
-    subjectPerformance[0];
-  const focusQuestionIds =
-    focusSubject == null
-      ? []
-      : questions
-          .filter(
-            (question) =>
-              question.examId === focusSubject.examId &&
-              question.subject === focusSubject.subject,
-          )
-          .map((question) => question.id);
-  const availableUnresolvedNotes = unresolvedNotes.filter((note) =>
-    questions.some((question) => question.id === note.questionId),
   );
   const myExams = exams.filter((exam) => examIds.includes(exam.id));
   const mockExams = myExams.filter((exam) =>
@@ -327,33 +296,11 @@ export default function ReportScreen() {
             onStartRecommendation={startReadinessRecommendation}
           />
 
-          <MockExamTrendCard
-            exams={mockExams}
-            results={mockExamResults}
-            target={studyTarget}
-            isLoading={isMockExamHistoryLoading}
-            onStart={startMockExamSession}
-          />
-
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <ThemedText style={styles.sectionTitle}>최근 7일</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {weeklyAnswered}문제 · 정답률 {weeklyAccuracy}%
-                </ThemedText>
-              </View>
-              <View
-                style={[
-                  styles.summaryBadge,
-                  { backgroundColor: theme.successSoft },
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.success }}>
-                  {weeklyAnswered > 0 ? "학습 중" : "시작 전"}
-                </ThemedText>
-              </View>
-            </View>
+            <SectionHeader
+              title="최근 7일"
+              subtitle={`${weeklyAnswered}문제 · 정답률 ${weeklyAccuracy}%`}
+            />
 
             <ThemedView type="backgroundElement" style={styles.weekCard}>
               {weeklyActivity.map((activity) => {
@@ -415,145 +362,10 @@ export default function ReportScreen() {
             </ThemedView>
           </View>
 
-          <StudyTimeInsightsCard
-            results={learningSessionResults}
-            evaluatedAt={sessionHistoryEvaluatedAt}
-            isLoading={isLearningSessionHistoryLoading}
-            onOpenActivity={openLearningActivity}
-          />
-
-          <Pressable
-            accessibilityRole="button"
-            aria-disabled={bookmarkedQuestionIds.length === 0}
-            disabled={bookmarkedQuestionIds.length === 0}
-            onPress={() => openReviewLibrary("bookmarked")}
-            style={({ pressed }) => pressed && styles.cardPressed}
-          >
-            <ThemedView
-              type="backgroundElement"
-              style={[
-                styles.bookmarkCard,
-                bookmarkedQuestionIds.length === 0 && styles.disabledCard,
-              ]}
-            >
-              <View
-                style={[
-                  styles.bookmarkIcon,
-                  { backgroundColor: theme.warningSoft },
-                ]}
-              >
-                <SymbolView
-                  tintColor={theme.warning}
-                  name={{
-                    ios: "bookmark.fill",
-                    android: "bookmark",
-                    web: "bookmark",
-                  }}
-                  size={24}
-                />
-              </View>
-              <View style={styles.bookmarkText}>
-                <ThemedText type="smallBold">저장한 문제</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {bookmarkedQuestionIds.length > 0
-                    ? `${bookmarkedQuestionIds.length}문제를 골라서 다시 풀 수 있어요`
-                    : "퀴즈에서 북마크를 눌러 문제를 저장해 보세요"}
-                </ThemedText>
-              </View>
-              <View
-                style={[
-                  styles.bookmarkCount,
-                  { backgroundColor: theme.warningSoft },
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.warning }}>
-                  {bookmarkedQuestionIds.length}
-                </ThemedText>
-              </View>
-              {bookmarkedQuestionIds.length > 0 && (
-                <SymbolView
-                  tintColor={theme.textSecondary}
-                  name={{
-                    ios: "chevron.right",
-                    android: "chevron_right",
-                    web: "chevron_right",
-                  }}
-                  size={18}
-                />
-              )}
-            </ThemedView>
-          </Pressable>
-
-          <WrongAnswerSummaryCard
-            unresolvedNotes={availableUnresolvedNotes}
-            resolvedCount={resolvedNotes.length}
-            onOpen={() => openReviewLibrary("wrong")}
-          />
-
-          {focusSubject != null && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${focusSubject.subject} 집중 학습 시작`}
-              aria-disabled={focusQuestionIds.length === 0}
-              disabled={focusQuestionIds.length === 0}
-              onPress={() => startFocusedSubjectSession(focusQuestionIds)}
-              style={({ pressed }) => pressed && styles.cardPressed}
-            >
-              <ThemedView
-                style={[
-                  styles.focusCard,
-                  { backgroundColor: theme.warningSoft },
-                ]}
-              >
-                <View style={styles.focusHeader}>
-                  <SymbolView
-                    tintColor={theme.warning}
-                    name={{
-                      ios: "scope",
-                      android: "center_focus_strong",
-                      web: "center_focus_strong",
-                    }}
-                    size={22}
-                  />
-                  <ThemedText type="smallBold" style={{ color: theme.warning }}>
-                    다음 집중 추천
-                  </ThemedText>
-                </View>
-                <ThemedText style={styles.focusTitle}>
-                  {focusSubject.subject}
-                </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {findExam(focusSubject.examId)?.shortTitle ?? "시험"} ·{" "}
-                  {focusSubject.answered}문제 기준 정답률{" "}
-                  {getAccuracy(focusSubject)}%
-                </ThemedText>
-                <View style={styles.focusAction}>
-                  <ThemedText type="smallBold" style={{ color: theme.warning }}>
-                    {focusQuestionIds.length}문제 집중 학습
-                  </ThemedText>
-                  <SymbolView
-                    tintColor={theme.warning}
-                    name={{
-                      ios: "arrow.right",
-                      android: "arrow_forward",
-                      web: "arrow_forward",
-                    }}
-                    size={17}
-                  />
-                </View>
-              </ThemedView>
-            </Pressable>
-          )}
-
           <View style={styles.section}>
-            <View>
-              <ThemedText style={styles.sectionTitle}>시험별 성과</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                새로 푼 문제부터 시험·과목별로 분석
-              </ThemedText>
-            </View>
+            <SectionHeader title="시험별 성과" subtitle="시험별 누적 정답률" />
 
-            <View style={styles.examList}>
+            <ThemedView type="backgroundElement" style={styles.examList}>
               {myExams.map((exam, index) => {
                 const stat = performance.byExam[exam.id] ?? {
                   answered: 0,
@@ -570,10 +382,15 @@ export default function ReportScreen() {
                 ][index % 3];
 
                 return (
-                  <ThemedView
+                  <View
                     key={exam.id}
-                    type="backgroundElement"
-                    style={styles.examCard}
+                    style={[
+                      styles.examCard,
+                      index > 0 && {
+                        borderTopWidth: 1,
+                        borderTopColor: theme.border,
+                      },
+                    ]}
                   >
                     <View
                       style={[styles.examIcon, { backgroundColor: softAccent }]}
@@ -603,11 +420,26 @@ export default function ReportScreen() {
                           : "첫 학습을 기다리고 있어요"}
                       </ThemedText>
                     </View>
-                  </ThemedView>
+                  </View>
                 );
               })}
-            </View>
+            </ThemedView>
           </View>
+
+          <MockExamTrendCard
+            exams={mockExams}
+            results={mockExamResults}
+            target={studyTarget}
+            isLoading={isMockExamHistoryLoading}
+            onStart={startMockExamSession}
+          />
+
+          <StudyTimeInsightsCard
+            results={learningSessionResults}
+            evaluatedAt={sessionHistoryEvaluatedAt}
+            isLoading={isLearningSessionHistoryLoading}
+            onOpenActivity={openLearningActivity}
+          />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -713,21 +545,6 @@ const styles = StyleSheet.create({
   section: {
     gap: Spacing.three,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    fontSize: 19,
-    lineHeight: 28,
-    fontWeight: 800,
-  },
-  summaryBadge: {
-    paddingHorizontal: Spacing.twoHalf,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-  },
   weekCard: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -759,72 +576,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 14,
   },
-  bookmarkCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-    borderWidth: 1,
-    borderColor: "rgba(127, 127, 127, 0.12)",
-    ...Shadows.card,
-  },
-  bookmarkIcon: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.medium,
-  },
-  bookmarkText: {
-    flex: 1,
-    gap: Spacing.half,
-  },
-  bookmarkCount: {
-    minWidth: 30,
-    alignItems: "center",
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
-  },
-  disabledCard: {
-    opacity: 0.66,
-  },
-  cardPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.985 }],
-  },
-  focusCard: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-  },
-  focusHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.two,
-  },
-  focusTitle: {
-    fontSize: 19,
-    lineHeight: 28,
-    fontWeight: 800,
-  },
-  focusAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: Spacing.one,
-  },
   examList: {
-    gap: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.large,
+    ...Shadows.card,
   },
   examCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
+    paddingVertical: Spacing.three,
   },
   examIcon: {
     width: 46,

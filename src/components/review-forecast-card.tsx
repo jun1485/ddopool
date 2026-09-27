@@ -38,7 +38,7 @@ export function ReviewForecastCard({
         <View style={styles.headerCopy}>
           <ThemedText style={styles.sectionTitle}>7일 복습 예보</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            복습이 몰리는 날을 확인하고 미리 나눠 학습
+            날짜를 눌러 몰리는 날의 복습을 미리 나눠 풀어요
           </ThemedText>
         </View>
         <View
@@ -135,86 +135,88 @@ export function ReviewForecastCard({
           })}
         </View>
 
-        <View
-          style={[styles.detailPanel, { backgroundColor: theme.primarySoft }]}
-        >
-          <View style={styles.detailTop}>
-            <View style={styles.detailCopy}>
-              <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                {selectedDay.dayLabel} 복습 일정
-              </ThemedText>
-              <ThemedText style={styles.detailCount}>
-                {selectedDay.count}문제
-              </ThemedText>
+        {/* 오늘 외 선택 날짜 복습 상세 */}
+        {!selectedDay.isToday && (
+          <View
+            style={[styles.detailPanel, { backgroundColor: theme.background }]}
+          >
+            <View style={styles.detailTop}>
+              <View style={styles.detailCopy}>
+                <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                  {selectedDay.dayLabel} 복습 일정
+                </ThemedText>
+                <ThemedText style={styles.detailCount}>
+                  {selectedDay.count}문제
+                </ThemedText>
+              </View>
+              <View
+                style={[
+                  styles.calendarIcon,
+                  { backgroundColor: theme.backgroundElement },
+                ]}
+              >
+                <SymbolView
+                  tintColor={theme.primary}
+                  name={{
+                    ios: "calendar.badge.clock",
+                    android: "event_upcoming",
+                    web: "event_upcoming",
+                  }}
+                  size={22}
+                />
+              </View>
             </View>
-            <View
-              style={[
-                styles.calendarIcon,
-                { backgroundColor: theme.backgroundElement },
-              ]}
-            >
-              <SymbolView
-                tintColor={theme.primary}
-                name={{
-                  ios: "calendar.badge.clock",
-                  android: "event_upcoming",
-                  web: "event_upcoming",
-                }}
-                size={22}
-              />
-            </View>
+
+            {selectedExamCounts.length > 0 ? (
+              <View style={styles.examChips}>
+                {selectedExamCounts.slice(0, 3).map(([examId, count]) => (
+                  <View
+                    key={examId}
+                    style={[
+                      styles.examChip,
+                      { backgroundColor: theme.backgroundElement },
+                    ]}
+                  >
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {examLabels[examId] ?? examId}
+                    </ThemedText>
+                    <ThemedText type="smallBold">{count}</ThemedText>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <ThemedText type="small" themeColor="textSecondary">
+                예정된 복습이 없어 새로운 문제를 학습하기 좋은 날이에요.
+              </ThemedText>
+            )}
+
+            {selectedDay.count > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${selectedDay.dayLabel} 복습 일정 ${startCount}문제 미리 학습`}
+                onPress={() => onStart(selectedDay.questionIds)}
+                style={({ pressed }) => [
+                  styles.startButton,
+                  { backgroundColor: theme.primarySoft },
+                  pressed && styles.startPressed,
+                ]}
+              >
+                <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                  미리 학습 · {startCount}문제
+                </ThemedText>
+                <SymbolView
+                  tintColor={theme.primary}
+                  name={{
+                    ios: "arrow.right",
+                    android: "arrow_forward",
+                    web: "arrow_forward",
+                  }}
+                  size={17}
+                />
+              </Pressable>
+            )}
           </View>
-
-          {selectedExamCounts.length > 0 ? (
-            <View style={styles.examChips}>
-              {selectedExamCounts.slice(0, 3).map(([examId, count]) => (
-                <View
-                  key={examId}
-                  style={[
-                    styles.examChip,
-                    { backgroundColor: theme.backgroundElement },
-                  ]}
-                >
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {examLabels[examId] ?? examId}
-                  </ThemedText>
-                  <ThemedText type="smallBold">{count}</ThemedText>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <ThemedText type="small" themeColor="textSecondary">
-              예정된 복습이 없어 새로운 문제를 학습하기 좋은 날이에요.
-            </ThemedText>
-          )}
-
-          {selectedDay.count > 0 && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${selectedDay.dayLabel} 복습 일정 ${startCount}문제 미리 학습`}
-              onPress={() => onStart(selectedDay.questionIds)}
-              style={({ pressed }) => [
-                styles.startButton,
-                { backgroundColor: theme.primary },
-                pressed && styles.startPressed,
-              ]}
-            >
-              <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
-                {selectedDay.isToday ? "오늘 일정 학습" : "미리 학습"} ·{" "}
-                {startCount}문제
-              </ThemedText>
-              <SymbolView
-                tintColor={theme.onPrimary}
-                name={{
-                  ios: "arrow.right",
-                  android: "arrow_forward",
-                  web: "arrow_forward",
-                }}
-                size={17}
-              />
-            </Pressable>
-          )}
-        </View>
+        )}
       </ThemedView>
     </View>
   );
@@ -236,8 +238,8 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   sectionTitle: {
-    fontSize: 19,
-    lineHeight: 28,
+    fontSize: 18,
+    lineHeight: 26,
     fontWeight: 800,
   },
   peakBadge: {
