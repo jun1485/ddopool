@@ -131,6 +131,12 @@ node scripts/admin-questions.mjs review <questionId> approved
 node scripts/admin-questions.mjs publish --exam <examId>
 ```
 
+문항을 공개하려면 문항과 `source_type`이 같고 이용 권한 확인(`rights_verified_at`·`rights_evidence`·`license`)을 마친 `content_sources` 행이 `source_id`로 연결돼 있어야 한다. 시험 단위로 출처 1건을 등록한 뒤 업로드할 때 `--source-id <id>`를 주면 번들 전체 문항에 연결된다. 업로드 전에 출처 존재 여부와 유형 일치를 검사한다.
+
+```sh
+node scripts/import-content.mjs seed/bundles/aws-cloud-practitioner.json --status needs_review --source-id <content_sources.id>
+```
+
 ## 운영 CLI
 
 | 명령                      | 용도                                                                            |

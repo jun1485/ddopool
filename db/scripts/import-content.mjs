@@ -1,5 +1,5 @@
 // 시드/검수 통과 콘텐츠 JSON을 Supabase에 업서트 (service role 전용)
-// 사용법: SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/import-content.mjs [JSON경로] [--status needs_review] [--dry-run]
+// 사용법: SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/import-content.mjs [JSON경로] [--status needs_review] [--source-id <content_sources.id>] [--dry-run]
 // 파일 포맷: packages/contracts ContentBundle 타입 (exams + questions)
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -12,11 +12,15 @@ function parseArgs(argv) {
   const args = {
     file: resolve(scriptDir, "..", "seed", "initial-content.json"),
     status: "needs_review",
+    sourceId: null,
     dryRun: false,
   };
   for (let i = 2; i < argv.length; i += 1) {
     if (argv[i] === "--status") {
       args.status = argv[i + 1];
+      i += 1;
+    } else if (argv[i] === "--source-id") {
+      args.sourceId = Number(argv[i + 1]);
       i += 1;
     } else if (argv[i] === "--dry-run") {
       args.dryRun = true;
@@ -136,9 +140,13 @@ async function findDbDuplicates(supabase, questions) {
   return duplicates;
 }
 
-const { file, status, dryRun } = parseArgs(process.argv);
+const { file, status, sourceId, dryRun } = parseArgs(process.argv);
 if (!["imported", "needs_review"].includes(status)) {
   console.error("새 콘텐츠는 검수 대기로만 업로드할 수 있습니다");
+  process.exit(1);
+}
+if (sourceId != null && !(Number.isInteger(sourceId) && sourceId > 0)) {
+  console.error("--source-id 는 content_sources 의 양의 정수 id 여야 합니다");
   process.exit(1);
 }
 const content = JSON.parse(readFileSync(file, "utf8"));
@@ -179,6 +187,30 @@ try {
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false },
 });
+
+// 일괄 연결할 출처의 존재·유형 일치 확인
+if (sourceId != null) {
+  const { data: source, error: sourceError } = await supabase
+    .from("content_sources")
+    .select("id, source_type")
+    .eq("id", sourceId)
+    .maybeSingle();
+  if (sourceError || source == null) {
+    console.error(`출처 조회 실패: content_sources.id=${sourceId}`);
+    process.exit(1);
+  }
+  const mismatched = content.questions.filter(
+    (question) =>
+      question.sourceId == null &&
+      (question.sourceType ?? "manual") !== source.source_type,
+  );
+  if (mismatched.length > 0) {
+    console.error(
+      `출처 유형 불일치 ${mismatched.length}건: 출처 ${source.source_type}, 예) ${mismatched[0].id}`,
+    );
+    process.exit(1);
+  }
+}
 
 const duplicateErrors = await findDbDuplicates(supabase, content.questions);
 if (duplicateErrors.length > 0) {
@@ -238,7 +270,7 @@ const questionRows = content.questions.map((question) => ({
   difficulty: question.difficulty ?? null,
   status,
   source_type: question.sourceType ?? "manual",
-  source_id: question.sourceId ?? null,
+  source_id: question.sourceId ?? sourceId,
 }));
 const { error: questionError } = await supabase
   .from("questions")
