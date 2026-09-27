@@ -6,6 +6,10 @@ import {
   presetsSchema,
   targetSchema,
 } from "@/storage/data-schemas";
+import {
+  applySyncedWrongAnswerNotes,
+  loadWrongAnswerNotesForSync,
+} from "@/storage/wrong-answer-note-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { z } from "zod";
 
@@ -18,7 +22,6 @@ const extrasSchema = z.object({
 });
 type Extras = z.infer<typeof extrasSchema>;
 const keys = [
-  "wrong-answer-notes:v1",
   "custom-session-presets:v1",
   "learning-session-history:v1",
   "mock-exam-history:v1",
@@ -86,13 +89,14 @@ export function synchronizeLearningExtras(userId: string): Promise<void> {
       const { data: session } = await client.auth.getSession();
       if (session.session?.user.id !== userId) return;
       for (let attempt = 0; attempt < 3; attempt += 1) {
+        const localNotes = await loadWrongAnswerNotesForSync();
         const localRows = await AsyncStorage.multiGet(keys);
         const local = extrasSchema.parse({
-          notes: JSON.parse(localRows[0][1] ?? "{}"),
-          presets: JSON.parse(localRows[1][1] ?? "{}"),
-          history: JSON.parse(localRows[2][1] ?? "[]"),
-          mocks: JSON.parse(localRows[3][1] ?? "[]"),
-          target: JSON.parse(localRows[4][1] ?? "null"),
+          notes: localNotes,
+          presets: JSON.parse(localRows[0][1] ?? "{}"),
+          history: JSON.parse(localRows[1][1] ?? "[]"),
+          mocks: JSON.parse(localRows[2][1] ?? "[]"),
+          target: JSON.parse(localRows[3][1] ?? "null"),
         });
         const baseline = extrasSchema.parse(
           JSON.parse(
@@ -128,9 +132,9 @@ export function synchronizeLearningExtras(userId: string): Promise<void> {
         if (saveError) throw saveError;
         if (version !== generation) return;
         // 전송 중 새로 편집된 기록 보호
+        await applySyncedWrongAnswerNotes(localNotes, merged.notes);
         const latest = await AsyncStorage.multiGet(keys);
         const mergedValues = [
-          merged.notes,
           merged.presets,
           merged.history,
           merged.mocks,
