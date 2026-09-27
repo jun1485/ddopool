@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,3 +32,25 @@ jobs:
           WEB_PUSH_SUBJECT: ${{ secrets.WEB_PUSH_SUBJECT }}
           WEB_PUSH_PUBLIC_KEY: ${{ secrets.WEB_PUSH_PUBLIC_KEY }}
           WEB_PUSH_PRIVATE_KEY: ${{ secrets.WEB_PUSH_PRIVATE_KEY }}
+      # 첫 실패 시 알림 이슈 등록, 이미 열려 있으면 중복 등록 생략
+      - name: 실패 알림 이슈 등록
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create ops-failure --color B60205 --description "운영 정기 작업 실패" >/dev/null 2>&1 || true
+          open=$(gh issue list --label ops-failure --state open --json number --jq '.[0].number // empty')
+          if [ -z "$open" ]; then
+            gh issue create --title "운영 정기 작업 실패" --label ops-failure --body "운영 정기 작업이 실패했습니다. 실행 기록: $RUN_URL"
+          fi
+      # 정상 실행으로 복구되면 열린 알림 이슈 종료
+      - name: 복구 시 알림 이슈 종료
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          for number in $(gh issue list --label ops-failure --state open --json number --jq '.[].number'); do
+            gh issue close "$number" --comment "정상 실행으로 복구됐습니다: $RUN_URL"
+          done
