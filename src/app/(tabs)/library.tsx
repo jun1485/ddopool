@@ -15,7 +15,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedChip } from "@/components/motion/animated-chip";
-import { AnimatedCounter } from "@/components/motion/animated-counter";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -28,6 +27,7 @@ import {
 } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
+import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { Exam, ExamId, Question } from "@/types/exam";
@@ -95,18 +95,14 @@ function QuestionCard({
     >
       <ThemedView type="backgroundElement" style={styles.questionCard}>
         <View style={styles.questionTop}>
-          <View style={styles.questionMeta}>
-            <View
-              style={[styles.examBadge, { backgroundColor: theme.primarySoft }]}
-            >
-              <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                {exam?.icon} {exam?.shortTitle}
-              </ThemedText>
-            </View>
-            <ThemedText type="small" themeColor="textSecondary">
-              {question.subject}
-            </ThemedText>
-          </View>
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            numberOfLines={1}
+            style={styles.questionMeta}
+          >
+            {exam?.icon} {exam?.shortTitle} · {question.subject}
+          </ThemedText>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={
@@ -117,11 +113,6 @@ function QuestionCard({
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.bookmarkButton,
-              {
-                backgroundColor: bookmarked
-                  ? theme.warningSoft
-                  : theme.backgroundSelected,
-              },
               pressed && styles.pressed,
             ]}
           >
@@ -263,11 +254,20 @@ export default function LibraryScreen() {
   const [examFilter, setExamFilter] = useState<ExamFilter>("all");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [sessionMode, setSessionMode] = useState<SessionMode>("learn");
+  const [bookmarkOnly, setBookmarkOnly] = useState(false);
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(
     null,
   );
   const { bookmarkedQuestionIds, toggleBookmark } = useBookmarks();
   const { exams, questions } = useExamCatalog();
+  const { examIds } = useExamEnrollment();
+  const sortedExams = useMemo(
+    () => [
+      ...exams.filter((exam) => examIds.includes(exam.id)),
+      ...exams.filter((exam) => !examIds.includes(exam.id)),
+    ],
+    [examIds, exams],
+  );
   const { settings } = useSettings();
   const theme = useTheme();
 
@@ -306,6 +306,10 @@ export default function LibraryScreen() {
       ),
     [examById, questions],
   );
+  const bookmarkedQuestionIdSet = useMemo(
+    () => new Set(bookmarkedQuestionIds),
+    [bookmarkedQuestionIds],
+  );
   const searchQuery = useDeferredValue(
     searchText.trim().toLocaleLowerCase("ko-KR"),
   );
@@ -315,29 +319,30 @@ export default function LibraryScreen() {
         (question) =>
           (examFilter === "all" || question.examId === examFilter) &&
           (subjectFilter === "all" || question.subject === subjectFilter) &&
+          (!bookmarkOnly || bookmarkedQuestionIdSet.has(question.id)) &&
           (searchQuery.length === 0 ||
             questionSearchIndex.get(question.id)?.includes(searchQuery)),
       ),
-    [examFilter, questionSearchIndex, questions, searchQuery, subjectFilter],
+    [
+      bookmarkOnly,
+      bookmarkedQuestionIdSet,
+      examFilter,
+      questionSearchIndex,
+      questions,
+      searchQuery,
+      subjectFilter,
+    ],
   );
   const hasNoQuestions = questions.length === 0;
-  const bookmarkedQuestionIdSet = useMemo(
-    () => new Set(bookmarkedQuestionIds),
-    [bookmarkedQuestionIds],
-  );
-  const filteredBookmarkCount = useMemo(
-    () =>
-      filteredQuestions.filter((question) =>
-        bookmarkedQuestionIdSet.has(question.id),
-      ).length,
-    [bookmarkedQuestionIdSet, filteredQuestions],
-  );
   const sessionQuestionCount = Math.min(
     filteredQuestions.length,
     settings.sessionSize,
   );
   const hasActiveFilter =
-    searchText.length > 0 || examFilter !== "all" || subjectFilter !== "all";
+    searchText.length > 0 ||
+    examFilter !== "all" ||
+    subjectFilter !== "all" ||
+    bookmarkOnly;
 
   // 시험 필터 변경
   const selectExamFilter = (nextExamFilter: ExamFilter) => {
@@ -351,6 +356,7 @@ export default function LibraryScreen() {
     setSearchText("");
     setExamFilter("all");
     setSubjectFilter("all");
+    setBookmarkOnly(false);
     setExpandedQuestionId(null);
   };
 
@@ -400,9 +406,9 @@ export default function LibraryScreen() {
           ListHeaderComponent={
             <View style={styles.listHeaderContent}>
               <View style={styles.header}>
-                <ThemedText type="subtitle">문제은행</ThemedText>
+                <ThemedText type="subtitle">문제집</ThemedText>
                 <ThemedText themeColor="textSecondary">
-                  필요한 문제를 찾고 원하는 범위만 골라 학습해 보세요.
+                  문제를 찾아보고 원하는 범위만 골라 풀어요.
                 </ThemedText>
               </View>
 
@@ -455,204 +461,18 @@ export default function LibraryScreen() {
                 )}
               </View>
 
-              <Animated.View
-                entering={
-                  Platform.OS === "android"
-                    ? undefined
-                    : FadeInDown.duration(320)
-                }
-              >
-                <View
-                  style={[
-                    styles.sessionCard,
-                    { backgroundColor: theme.primary },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.sessionOrb,
-                      { backgroundColor: theme.onPrimary },
-                    ]}
-                  />
-                  <View style={styles.sessionHeader}>
-                    <View style={styles.sessionCopy}>
-                      <ThemedText themeColor="onPrimaryMuted" type="smallBold">
-                        현재 학습 범위
-                      </ThemedText>
-                      <View style={styles.sessionTitleRow}>
-                        <AnimatedCounter
-                          themeColor="onPrimary"
-                          style={styles.sessionTitle}
-                          value={filteredQuestions.length}
-                        />
-                        <ThemedText
-                          themeColor="onPrimary"
-                          style={styles.sessionTitle}
-                        >
-                          문제 발견
-                        </ThemedText>
-                      </View>
-                      <ThemedText themeColor="onPrimaryMuted" type="small">
-                        {sessionMode === "mock"
-                          ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
-                          : `저장 ${filteredBookmarkCount} · 한 세션 최대 ${settings.sessionSize}문제`}
-                      </ThemedText>
-                    </View>
-                    <View
-                      style={[
-                        styles.sessionIcon,
-                        { backgroundColor: theme.onPrimarySurface },
-                      ]}
-                    >
-                      <SymbolView
-                        tintColor={theme.onPrimary}
-                        name={{
-                          ios: "text.book.closed.fill",
-                          android: "menu_book",
-                          web: "menu_book",
-                        }}
-                        size={31}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={[
-                      styles.modeGroup,
-                      { backgroundColor: theme.onPrimarySurface },
-                    ]}
-                  >
-                    <Pressable
-                      accessibilityRole="radio"
-                      accessibilityLabel="바로 학습 모드"
-                      aria-checked={sessionMode === "learn"}
-                      onPress={() => setSessionMode("learn")}
-                      style={({ pressed }) => [
-                        styles.modeOption,
-                        sessionMode === "learn" && {
-                          backgroundColor: theme.onPrimary,
-                        },
-                        pressed && styles.modePressed,
-                      ]}
-                    >
-                      <SymbolView
-                        tintColor={
-                          sessionMode === "learn"
-                            ? theme.primary
-                            : theme.onPrimaryMuted
-                        }
-                        name={{
-                          ios: "bolt.fill",
-                          android: "bolt",
-                          web: "bolt",
-                        }}
-                        size={17}
-                      />
-                      <ThemedText
-                        themeColor="onPrimaryMuted"
-                        type="smallBold"
-                        style={
-                          sessionMode === "learn" && { color: theme.primary }
-                        }
-                      >
-                        바로 학습
-                      </ThemedText>
-                    </Pressable>
-                    <Pressable
-                      accessibilityRole="radio"
-                      accessibilityLabel="모의고사 모드"
-                      aria-checked={sessionMode === "mock"}
-                      onPress={() => setSessionMode("mock")}
-                      style={({ pressed }) => [
-                        styles.modeOption,
-                        sessionMode === "mock" && {
-                          backgroundColor: theme.onPrimary,
-                        },
-                        pressed && styles.modePressed,
-                      ]}
-                    >
-                      <SymbolView
-                        tintColor={
-                          sessionMode === "mock"
-                            ? theme.primary
-                            : theme.onPrimaryMuted
-                        }
-                        name={{
-                          ios: "timer",
-                          android: "timer",
-                          web: "timer",
-                        }}
-                        size={17}
-                      />
-                      <ThemedText
-                        themeColor="onPrimaryMuted"
-                        type="smallBold"
-                        style={
-                          sessionMode === "mock"
-                            ? { color: theme.primary }
-                            : undefined
-                        }
-                      >
-                        모의고사
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    aria-disabled={filteredQuestions.length === 0}
-                    disabled={filteredQuestions.length === 0}
-                    onPress={() =>
-                      startCustomSession(
-                        filteredQuestions.map((question) => question.id),
-                        sessionMode,
-                      )
-                    }
-                    style={({ pressed }) => [
-                      styles.startButton,
-                      { backgroundColor: theme.onPrimary },
-                      filteredQuestions.length === 0 && styles.disabled,
-                      pressed && styles.startButtonPressed,
-                    ]}
-                  >
-                    <ThemedText
-                      type="smallBold"
-                      style={{ color: theme.primary }}
-                    >
-                      {sessionQuestionCount > 0
-                        ? `${sessionQuestionCount}문제 ${
-                            sessionMode === "mock"
-                              ? "모의고사 시작"
-                              : "맞춤 학습"
-                          }`
-                        : "조건에 맞는 문제 없음"}
-                    </ThemedText>
-                    {sessionQuestionCount > 0 && (
-                      <SymbolView
-                        tintColor={theme.primary}
-                        name={{
-                          ios: "arrow.right",
-                          android: "arrow_forward",
-                          web: "arrow_forward",
-                        }}
-                        size={18}
-                      />
-                    )}
-                  </Pressable>
-                </View>
-              </Animated.View>
-
-              <View style={styles.filterSection}>
-                <ThemedText type="smallBold">시험</ThemedText>
+              <View style={styles.filterGroup}>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.filterRow}
                 >
                   <FilterChip
-                    label="전체"
+                    label="전체 시험"
                     selected={examFilter === "all"}
                     onPress={() => selectExamFilter("all")}
                   />
-                  {exams.map((exam) => (
+                  {sortedExams.map((exam) => (
                     <FilterChip
                       key={exam.id}
                       label={exam.shortTitle}
@@ -661,17 +481,24 @@ export default function LibraryScreen() {
                     />
                   ))}
                 </ScrollView>
-              </View>
-
-              <View style={styles.filterSection}>
-                <ThemedText type="smallBold">과목</ThemedText>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.filterRow}
                 >
                   <FilterChip
-                    label="전체"
+                    label={`저장한 문제 ${bookmarkedQuestionIds.length}`}
+                    selected={bookmarkOnly}
+                    onPress={() => setBookmarkOnly((current) => !current)}
+                  />
+                  <View
+                    style={[
+                      styles.filterDivider,
+                      { backgroundColor: theme.border },
+                    ]}
+                  />
+                  <FilterChip
+                    label="전체 과목"
                     selected={subjectFilter === "all"}
                     onPress={() => setSubjectFilter("all")}
                   />
@@ -686,11 +513,120 @@ export default function LibraryScreen() {
                 </ScrollView>
               </View>
 
+              <ThemedView type="backgroundElement" style={styles.sessionCard}>
+                <View style={styles.sessionHeader}>
+                  <ThemedText type="smallBold">
+                    선택한 범위 {filteredQuestions.length}문제
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {sessionMode === "mock"
+                      ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
+                      : `한 번에 최대 ${settings.sessionSize}문제`}
+                  </ThemedText>
+                </View>
+                <View
+                  style={[
+                    styles.modeGroup,
+                    { backgroundColor: theme.backgroundSelected },
+                  ]}
+                >
+                  {(
+                    [
+                      { mode: "learn", label: "바로 학습" },
+                      { mode: "mock", label: "모의고사" },
+                    ] as const
+                  ).map((option) => {
+                    const isSelected = sessionMode === option.mode;
+                    return (
+                      <Pressable
+                        key={option.mode}
+                        accessibilityRole="radio"
+                        accessibilityLabel={`${option.label} 모드`}
+                        aria-checked={isSelected}
+                        onPress={() => setSessionMode(option.mode)}
+                        style={({ pressed }) => [
+                          styles.modeOption,
+                          isSelected && {
+                            backgroundColor: theme.backgroundElement,
+                          },
+                          pressed && styles.pressed,
+                        ]}
+                      >
+                        <SymbolView
+                          tintColor={
+                            isSelected ? theme.primary : theme.textSecondary
+                          }
+                          name={
+                            option.mode === "learn"
+                              ? {
+                                  ios: "bolt.fill",
+                                  android: "bolt",
+                                  web: "bolt",
+                                }
+                              : { ios: "timer", android: "timer", web: "timer" }
+                          }
+                          size={16}
+                        />
+                        <ThemedText
+                          type="smallBold"
+                          style={{
+                            color: isSelected
+                              ? theme.primary
+                              : theme.textSecondary,
+                          }}
+                        >
+                          {option.label}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  aria-disabled={filteredQuestions.length === 0}
+                  disabled={filteredQuestions.length === 0}
+                  onPress={() =>
+                    startCustomSession(
+                      filteredQuestions.map((question) => question.id),
+                      sessionMode,
+                    )
+                  }
+                  style={({ pressed }) => [
+                    styles.startButton,
+                    { backgroundColor: theme.primary },
+                    filteredQuestions.length === 0 && styles.disabled,
+                    pressed && styles.startButtonPressed,
+                  ]}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    style={{ color: theme.onPrimary }}
+                  >
+                    {sessionQuestionCount > 0
+                      ? `${sessionQuestionCount}문제 ${
+                          sessionMode === "mock" ? "모의고사 시작" : "맞춤 학습"
+                        }`
+                      : "조건에 맞는 문제 없음"}
+                  </ThemedText>
+                  {sessionQuestionCount > 0 && (
+                    <SymbolView
+                      tintColor={theme.onPrimary}
+                      name={{
+                        ios: "arrow.right",
+                        android: "arrow_forward",
+                        web: "arrow_forward",
+                      }}
+                      size={18}
+                    />
+                  )}
+                </Pressable>
+              </ThemedView>
+
               <View style={styles.resultHeader}>
                 <View>
                   <ThemedText style={styles.resultTitle}>문제 목록</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    {filteredQuestions.length}개 결과 · 눌러서 정답과 해설 확인
+                    {filteredQuestions.length}개 · 펼쳐서 정답과 해설 확인
                   </ThemedText>
                 </View>
                 {hasActiveFilter && (
@@ -820,53 +756,20 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   sessionCard: {
-    position: "relative",
-    overflow: "hidden",
     gap: Spacing.three,
-    padding: Spacing.four,
+    padding: Spacing.three,
     borderRadius: Radius.large,
     ...Shadows.card,
   },
-  sessionOrb: {
-    position: "absolute",
-    width: 160,
-    height: 160,
-    top: -82,
-    right: -42,
-    opacity: 0.09,
-    borderRadius: Radius.pill,
-  },
   sessionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.three,
-  },
-  sessionCopy: {
-    flex: 1,
-    gap: Spacing.one,
-  },
-  sessionTitleRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
-  sessionTitle: {
-    fontSize: 27,
-    lineHeight: 36,
-    fontWeight: 800,
-  },
-  sessionIcon: {
-    width: 58,
-    height: 58,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.large,
+    gap: Spacing.half,
   },
   startButton: {
+    minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.two,
-    paddingVertical: Spacing.twoHalf,
     borderRadius: Radius.medium,
   },
   modeGroup: {
@@ -877,15 +780,12 @@ const styles = StyleSheet.create({
   },
   modeOption: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 38,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.small,
-  },
-  modePressed: {
-    opacity: 0.76,
   },
   startButtonPressed: {
     opacity: 0.88,
@@ -894,12 +794,17 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.62,
   },
-  filterSection: {
+  filterGroup: {
     gap: Spacing.two,
   },
   filterRow: {
+    alignItems: "center",
     gap: Spacing.two,
     paddingRight: Spacing.four,
+  },
+  filterDivider: {
+    width: 1,
+    height: 20,
   },
   filterChip: {
     paddingVertical: Spacing.two,
@@ -914,47 +819,40 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   resultTitle: {
-    fontSize: 19,
-    lineHeight: 28,
+    fontSize: 18,
+    lineHeight: 26,
     fontWeight: 800,
   },
   questionSeparator: {
-    height: Spacing.three,
+    height: Spacing.twoHalf,
   },
   questionCard: {
     overflow: "hidden",
-    gap: Spacing.three,
+    gap: Spacing.two,
     paddingTop: Spacing.three,
     paddingHorizontal: Spacing.three,
-    borderRadius: Radius.medium,
+    borderRadius: Radius.large,
     ...Shadows.card,
   },
   questionTop: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.three,
   },
   questionMeta: {
     flex: 1,
-    alignItems: "flex-start",
-    gap: Spacing.one,
-  },
-  examBadge: {
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.two,
-    borderRadius: Radius.pill,
   },
   bookmarkButton: {
-    width: 38,
-    height: 38,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
   questionPrompt: {
-    fontSize: 16,
-    lineHeight: 25,
+    fontSize: 15,
+    lineHeight: 23,
     fontWeight: 700,
   },
   answerBlock: {
@@ -992,7 +890,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   expandButton: {
-    minHeight: 48,
+    minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
