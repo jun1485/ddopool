@@ -50,13 +50,24 @@ describe("이어 풀기 세션 유효기간", () => {
     ).toBe(true);
   });
 
-  // 날짜 변경 세션 만료 검증
-  test("다음 날에는 이전 세션을 만료한다", () => {
+  // 자정 직전 풀던 세션 유지 검증
+  test("자정을 넘겨도 최근 6시간 안에 풀던 세션은 유지한다", () => {
+    const startedAt = new Date(2026, 8, 10, 23, 50).getTime();
+    expect(
+      isActiveQuizSessionValid(
+        createSession(startedAt),
+        new Date(2026, 8, 11, 0, 10).getTime(),
+      ),
+    ).toBe(true);
+  });
+
+  // 날짜 변경 뒤 오래 멈춘 세션 만료 검증
+  test("다음 날 6시간 넘게 멈춘 이전 세션은 만료한다", () => {
     const startedAt = new Date(2026, 8, 10, 23, 59).getTime();
     expect(
       isActiveQuizSessionValid(
         createSession(startedAt),
-        new Date(2026, 8, 11).getTime(),
+        new Date(2026, 8, 11, 6).getTime(),
       ),
     ).toBe(false);
   });
