@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 
-test("시험 10종을 표시하고 새 시험 학습을 시작한다", async ({ page }) => {
+test("시험 12종을 표시하고 새 시험 학습을 시작한다", async ({ page }) => {
   await page.goto("/onboarding");
-  await expect(page.getByRole("checkbox")).toHaveCount(10);
+  await expect(page.getByRole("checkbox")).toHaveCount(12);
   await mkdir("docs/handoff/출시/screenshots", { recursive: true });
   await page.screenshot({
     path: "docs/handoff/출시/screenshots/catalog-ten-mobile.png",
     fullPage: true,
   });
   await page.setViewportSize({ width: 1280, height: 900 });
-  await expect(page.getByRole("checkbox")).toHaveCount(10);
+  await expect(page.getByRole("checkbox")).toHaveCount(12);
   await page.screenshot({
     path: "docs/handoff/출시/screenshots/catalog-ten-desktop.png",
     fullPage: true,

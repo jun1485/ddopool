@@ -1,0 +1,1519 @@
+{
+  "exams": [
+    {
+      "id": "aws-solutions-architect-associate",
+      "title": "AWS Certified Solutions Architect – Associate (SAA-C03)",
+      "shortTitle": "AWS SAA",
+      "description": "보안 아키텍처 · 복원력 있는 아키텍처 · 고성능 아키텍처 · 비용 최적화 아키텍처",
+      "icon": "🏗️",
+      "subjects": [
+        "보안 아키텍처 설계",
+        "복원력 있는 아키텍처 설계",
+        "고성능 아키텍처 설계",
+        "비용 최적화 아키텍처 설계"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "aws-saa-001",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "EC2 인스턴스의 애플리케이션이 S3 버킷에 파일을 업로드해야 한다. 자격 증명을 가장 안전하게 관리하는 방법은?",
+      "choices": [
+        "S3 버킷 정책으로 모든 주체의 PutObject를 허용한다",
+        "루트 사용자 액세스 키를 AWS Secrets Manager에 저장해 사용한다",
+        "IAM 사용자 액세스 키를 애플리케이션 설정 파일에 저장한다",
+        "필요한 S3 권한만 가진 IAM 역할을 인스턴스 프로파일로 연결한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "인스턴스 프로파일로 IAM 역할을 연결하면 자동 교체되는 임시 자격 증명을 사용하므로 장기 키 유출 위험이 없고 최소 권한을 적용하기 쉽다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-002",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "계정 A의 Lambda 함수가 계정 B의 DynamoDB 테이블을 읽어야 한다. 가장 적절한 구성은?",
+      "choices": [
+        "계정 B의 IAM 사용자 액세스 키를 Lambda 환경 변수에 저장한다",
+        "두 계정을 VPC 피어링으로 연결한다",
+        "계정 B에 테이블 읽기 권한과 계정 A를 신뢰하는 IAM 역할을 만들고 Lambda가 이 역할을 AssumeRole 한다",
+        "DynamoDB 테이블을 퍼블릭으로 공개한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "교차 계정 접근은 대상 계정에 신뢰 정책을 가진 역할을 만들고 STS AssumeRole로 임시 자격 증명을 받는 방식이 표준이다. VPC 피어링은 IAM 권한을 부여하지 않는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-003",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "정적 웹사이트 파일을 S3에 두고 CloudFront로 배포한다. 사용자가 S3 URL로 직접 접근하지 못하고 CloudFront를 통해서만 접근하게 하려면?",
+      "choices": [
+        "CloudFront 오리진 액세스 제어(OAC)를 구성하고 버킷 정책에서 해당 배포만 허용한다",
+        "S3 버킷을 퍼블릭으로 열고 URL을 숨긴다",
+        "CloudFront에 AWS Shield Advanced를 활성화한다",
+        "S3 정적 웹사이트 호스팅 엔드포인트에 보안 그룹을 연결한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "OAC를 사용하면 CloudFront가 서명된 요청으로 S3에 접근하고, 버킷 정책으로 해당 배포의 요청만 허용해 직접 접근을 차단할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-004",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "조직의 어떤 S3 버킷도 실수로 퍼블릭 공개되지 않도록 계정 전체에서 막는 가장 간단한 방법은?",
+      "choices": [
+        "버킷마다 ACL을 주기적으로 확인한다",
+        "CloudTrail 데이터 이벤트를 활성화한다",
+        "계정 수준 S3 퍼블릭 액세스 차단을 활성화한다",
+        "모든 버킷에 SSE-KMS 암호화를 적용한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "S3 퍼블릭 액세스 차단을 계정 수준에서 켜면 기존·신규 버킷의 퍼블릭 ACL과 정책이 무시되거나 거부된다. 암호화와 로깅은 퍼블릭 공개를 막지 못한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-005",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "규정상 금융 거래 기록을 7년 동안 누구도(루트 사용자 포함) 삭제·수정할 수 없게 보관해야 한다. 적합한 방법은?",
+      "choices": [
+        "버킷 정책으로 DeleteObject를 거부한다",
+        "S3 버전 관리만 활성화한다",
+        "S3 객체 잠금을 규정 준수(Compliance) 모드와 7년 보존 기간으로 설정한다",
+        "S3 객체 잠금을 거버넌스(Governance) 모드로 설정한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "규정 준수 모드의 객체 잠금은 보존 기간 동안 루트 사용자를 포함한 누구도 객체를 덮어쓰거나 삭제할 수 없다. 거버넌스 모드는 특별 권한이 있으면 우회할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-006",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "프라이빗 서브넷의 EC2 인스턴스가 인터넷이나 NAT 게이트웨이를 거치지 않고 같은 리전의 S3에 접근해야 한다. 가장 비용 효율적인 방법은?",
+      "choices": [
+        "NAT 게이트웨이를 추가한다",
+        "S3 게이트웨이 VPC 엔드포인트를 만들고 라우팅 테이블에 연결한다",
+        "AWS Direct Connect를 구성한다",
+        "인터넷 게이트웨이를 연결하고 퍼블릭 IP를 할당한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "S3 게이트웨이 엔드포인트는 추가 요금 없이 VPC에서 AWS 네트워크 내부 경로로 S3에 접근하게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-007",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "SaaS 공급자가 자사 VPC의 서비스를 수백 개 고객 VPC에 인터넷 노출이나 VPC 피어링 없이 사설로 제공하려고 한다. 적합한 방법은?",
+      "choices": [
+        "Network Load Balancer 앞단에 엔드포인트 서비스를 만들고 AWS PrivateLink로 제공한다",
+        "퍼블릭 ALB를 만들고 IP 허용 목록으로 제한한다",
+        "Transit Gateway를 고객 계정과 공유한다",
+        "모든 고객 VPC와 VPC 피어링을 맺는다"
+      ],
+      "answerIndex": 0,
+      "explanation": "PrivateLink는 NLB 기반 엔드포인트 서비스를 고객 VPC의 인터페이스 엔드포인트로 노출해 CIDR 중복 걱정 없이 단방향 사설 연결을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-008",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "RDS for MySQL 데이터베이스 암호를 30일마다 애플리케이션 변경 없이 자동 교체해야 한다. 적합한 서비스는?",
+      "choices": [
+        "AWS Systems Manager Parameter Store 표준 파라미터",
+        "AWS KMS 자동 키 교체",
+        "AWS Secrets Manager 자동 교체",
+        "IAM 액세스 키 교체"
+      ],
+      "answerIndex": 2,
+      "explanation": "Secrets Manager는 RDS와 통합된 교체 기능으로 DB 암호를 주기적으로 자동 변경하고, 애플리케이션은 비밀 이름으로 최신 값을 조회한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-009",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "암호가 아닌 애플리케이션 설정값(기능 플래그, 엔드포인트 주소)을 계층 구조로 저장하고 추가 비용 없이 조회하려면?",
+      "choices": [
+        "Amazon DynamoDB 글로벌 테이블",
+        "AWS Secrets Manager",
+        "AWS CloudHSM",
+        "AWS Systems Manager Parameter Store 표준 파라미터"
+      ],
+      "answerIndex": 3,
+      "explanation": "Parameter Store 표준 파라미터는 설정값을 계층형으로 무료 저장한다. 자동 교체가 필요한 비밀은 Secrets Manager가 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-010",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "보안팀이 S3 데이터 암호화 키의 사용 권한을 키 정책으로 직접 통제하고 사용 내역을 CloudTrail로 감사하려고 한다. 적합한 암호화 방식은?",
+      "choices": [
+        "클라이언트가 암호화 없이 업로드",
+        "고객 관리형 KMS 키를 사용하는 SSE-KMS",
+        "S3 버전 관리 활성화",
+        "S3 관리형 키를 사용하는 SSE-S3"
+      ],
+      "answerIndex": 1,
+      "explanation": "SSE-KMS와 고객 관리형 키를 쓰면 키 정책으로 사용 주체를 제어하고 키 사용이 CloudTrail에 기록된다. SSE-S3는 키 정책 제어가 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-011",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "암호화되지 않은 기존 RDS DB 인스턴스를 암호화해야 한다. 올바른 절차는?",
+      "choices": [
+        "파라미터 그룹에서 암호화 파라미터를 변경한다",
+        "읽기 전용 복제본을 만들고 복제본만 암호화한다",
+        "실행 중인 인스턴스의 설정에서 암호화를 켠다",
+        "스냅샷을 생성하고 암호화 옵션으로 스냅샷을 복사한 뒤 그 스냅샷에서 복원한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "기존 RDS 인스턴스는 암호화를 직접 켤 수 없다. 스냅샷을 암호화해 복사한 뒤 복원해 새 암호화 인스턴스를 만든다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-012",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "3계층 애플리케이션에서 데이터베이스 인스턴스는 애플리케이션 서버에서 오는 트래픽만 받아야 한다. 가장 관리하기 쉬운 구성은?",
+      "choices": [
+        "DB 서브넷 NACL에서 모든 트래픽을 허용한다",
+        "DB 보안 그룹에 애플리케이션 서버의 사설 IP를 하나씩 등록한다",
+        "DB 보안 그룹 인바운드 규칙의 소스로 애플리케이션 서버 보안 그룹을 지정한다",
+        "DB 인스턴스를 퍼블릭 서브넷에 둔다"
+      ],
+      "answerIndex": 2,
+      "explanation": "보안 그룹을 소스로 참조하면 오토 스케일링으로 IP가 바뀌어도 해당 보안 그룹의 인스턴스만 자동으로 허용된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-013",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "공격이 의심되는 특정 IP 주소 대역의 트래픽을 서브넷 단위에서 명시적으로 차단해야 한다. 적합한 방법은?",
+      "choices": [
+        "IAM 정책으로 해당 IP를 거부한다",
+        "네트워크 ACL에 해당 대역에 대한 거부 규칙을 추가한다",
+        "라우팅 테이블에서 인터넷 게이트웨이 경로를 삭제한다",
+        "보안 그룹에 거부 규칙을 추가한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "보안 그룹은 허용 규칙만 지원하므로 명시적 거부는 네트워크 ACL로 한다. NACL 규칙은 번호가 낮은 순서로 평가된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-014",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "ALB 뒤의 로그인 페이지에 특정 IP가 5분 동안 수천 건씩 요청을 보낸다. 이를 자동으로 차단하는 방법은?",
+      "choices": [
+        "ALB에 AWS WAF를 연결하고 속도 기반 규칙을 추가한다",
+        "Auto Scaling 최대 용량을 늘린다",
+        "보안 그룹 인바운드를 모두 닫는다",
+        "Route 53 가중치 라우팅을 사용한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "WAF 속도 기반 규칙은 지정 기간 동안 요청 수가 임계값을 넘는 IP를 자동 차단해 무차별 대입과 스크래핑을 막는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-015",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "미션 크리티컬 웹 서비스가 대규모 DDoS 공격에 대비해 전문 대응팀 지원과 공격으로 인한 확장 비용 보호가 필요하다. 적합한 서비스는?",
+      "choices": [
+        "AWS Shield Standard",
+        "AWS Shield Advanced",
+        "Amazon GuardDuty",
+        "AWS Firewall Manager 단독 사용"
+      ],
+      "answerIndex": 1,
+      "explanation": "Shield Advanced는 고급 DDoS 탐지·완화, Shield 대응팀(SRT) 지원, DDoS로 인한 확장 비용 보호를 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-016",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "조직 내 모든 멤버 계정이 승인된 두 리전 외에는 리소스를 만들지 못하게 해야 한다. 가장 효과적인 방법은?",
+      "choices": [
+        "AWS Organizations SCP에서 aws:RequestedRegion 조건으로 다른 리전 작업을 거부한다",
+        "각 계정의 IAM 사용자 정책을 수정한다",
+        "다른 리전의 VPC를 삭제한다",
+        "AWS Config 규칙으로 위반을 탐지만 한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "SCP는 계정 관리자도 우회할 수 없는 권한 상한을 두므로 조직 전체에 리전 제한을 강제할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-017",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "모바일 앱 사용자가 회원 가입·로그인한 뒤 자신의 S3 폴더에만 접근하는 임시 AWS 자격 증명을 받아야 한다. 적합한 구성은?",
+      "choices": [
+        "앱에 IAM 사용자 액세스 키를 내장한다",
+        "IAM Identity Center에 모든 고객을 등록한다",
+        "S3 버킷을 퍼블릭으로 열고 파일 이름을 난수화한다",
+        "Amazon Cognito 사용자 풀로 인증하고 자격 증명 풀로 임시 AWS 자격 증명을 발급한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "Cognito 사용자 풀은 가입·로그인을, 자격 증명 풀은 인증된 사용자에게 범위가 제한된 임시 AWS 자격 증명을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-018",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "개발팀 리더가 IAM 역할을 직접 만들 수 있게 하되, 그 역할이 관리자 권한을 넘지 못하도록 제한하려면?",
+      "choices": [
+        "IAM 그룹을 삭제한다",
+        "IAM 권한 경계(permissions boundary)를 설정하도록 강제한다",
+        "SCP를 모든 계정에서 제거한다",
+        "개발팀 리더에게 AdministratorAccess를 부여한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "권한 경계는 IAM 주체가 가질 수 있는 최대 권한을 정의한다. 역할 생성 시 경계 지정을 조건으로 걸면 위임된 관리자의 권한 상승을 막을 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-019",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "규정상 S3에 업로드하는 데이터를 고객이 직접 관리하는 키로 암호화하되, 키를 AWS에 저장하지 않아야 한다. 적합한 방식은?",
+      "choices": [
+        "S3 버킷 키",
+        "SSE-S3",
+        "AWS 관리형 키를 사용하는 SSE-KMS",
+        "고객 제공 키를 사용하는 SSE-C"
+      ],
+      "answerIndex": 3,
+      "explanation": "SSE-C는 요청마다 고객이 키를 제공하고 S3는 암호화·복호화에만 사용한 뒤 키를 저장하지 않는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-020",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "S3 버킷에 대한 모든 요청이 HTTPS로만 이뤄지도록 강제하려면 어떻게 해야 하는가?",
+      "choices": [
+        "버킷 정책에서 aws:SecureTransport가 false인 요청을 거부한다",
+        "버킷에 퍼블릭 액세스 차단을 켠다",
+        "S3 기본 암호화를 SSE-S3로 설정한다",
+        "CloudTrail 로그를 활성화한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "aws:SecureTransport 조건 키로 암호화되지 않은 HTTP 요청을 거부하면 전송 중 암호화를 강제할 수 있다. 기본 암호화는 저장 시 암호화다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-021",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "감사팀이 CloudTrail 로그 파일이 전달된 뒤 수정·삭제되지 않았음을 증명할 수 있어야 한다. 적합한 기능은?",
+      "choices": [
+        "AWS Config 적합성 팩",
+        "CloudWatch Logs 보존 기간 설정",
+        "CloudTrail 로그 파일 무결성 검증",
+        "S3 Intelligent-Tiering"
+      ],
+      "answerIndex": 2,
+      "explanation": "로그 파일 무결성 검증을 켜면 다이제스트 파일과 해시·서명으로 로그가 변경되지 않았는지 검증할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-022",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "AWS Organizations의 모든 계정에서 발생하는 API 활동을 하나의 중앙 S3 버킷에 기록하려면?",
+      "choices": [
+        "각 계정에 CloudWatch 대시보드를 만든다",
+        "관리 계정에서 조직 트레일(organization trail)을 생성한다",
+        "AWS Artifact에서 보고서를 요청한다",
+        "각 계정 콘솔에서 이벤트 기록을 매일 내려받는다"
+      ],
+      "answerIndex": 1,
+      "explanation": "조직 트레일은 조직의 모든 계정 이벤트를 한 번의 설정으로 중앙 버킷에 기록하며 멤버 계정이 끌 수 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-023",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "보안 정책상 EC2 인스턴스에 SSH 포트(22)를 열지 않고 Bastion 호스트도 두지 않은 채 셸 접속과 접속 기록 감사가 필요하다. 적합한 방법은?",
+      "choices": [
+        "AWS Systems Manager Session Manager를 사용한다",
+        "모든 인스턴스를 퍼블릭 서브넷으로 옮긴다",
+        "EC2 Instance Connect 엔드포인트 없이 퍼블릭 IP로 접속한다",
+        "보안 그룹에서 22번 포트를 0.0.0.0/0으로 연다"
+      ],
+      "answerIndex": 0,
+      "explanation": "Session Manager는 인바운드 포트 없이 SSM 에이전트를 통해 접속하며 IAM으로 접근을 제어하고 세션 로그를 S3나 CloudWatch에 남길 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-024",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "ALB 뒤의 웹 애플리케이션에 HTTPS를 적용하면서 인증서 갱신 부담을 없애려면?",
+      "choices": [
+        "인증서 파일을 모든 EC2 인스턴스에 수동 설치한다",
+        "ACM에서 인증서를 발급해 ALB HTTPS 리스너에 연결한다",
+        "CloudFront 없이 S3에 인증서를 저장한다",
+        "KMS 키로 HTTP 트래픽을 암호화한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "ACM 인증서를 ALB 리스너에 연결하면 TLS가 로드 밸런서에서 종료되고 인증서 갱신도 자동으로 처리된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-025",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "GuardDuty가 인스턴스 침해 징후를 탐지하면 자동으로 해당 인스턴스를 격리하는 보안 그룹으로 교체하려고 한다. 적합한 구성은?",
+      "choices": [
+        "GuardDuty 결과를 EventBridge 규칙으로 받아 Lambda 함수가 보안 그룹을 변경한다",
+        "Trusted Advisor 권장 사항을 적용한다",
+        "CloudWatch 대시보드를 매일 확인한다",
+        "AWS Artifact 보고서를 다운로드한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "GuardDuty 결과는 EventBridge 이벤트로 전달되므로 규칙과 Lambda를 연결해 격리 같은 자동 대응을 구현할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-026",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "수백 개 S3 버킷에 흩어진 파일 중 주민등록번호·신용카드 번호가 포함된 객체를 찾아내야 한다. 적합한 서비스는?",
+      "choices": [
+        "AWS Shield",
+        "Amazon Inspector",
+        "Amazon Macie",
+        "Amazon GuardDuty"
+      ],
+      "answerIndex": 2,
+      "explanation": "Macie는 S3 객체를 스캔해 관리형·사용자 지정 데이터 식별자로 개인 정보 같은 민감 데이터를 찾아낸다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-027",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "VPC에서 특정 EC2 인스턴스로 향하는 트래픽이 거부되고 있는지 IP 수준에서 확인하려면 무엇을 활성화해야 하는가?",
+      "choices": [
+        "VPC 흐름 로그",
+        "S3 서버 액세스 로그",
+        "AWS CloudTrail 관리 이벤트",
+        "AWS X-Ray"
+      ],
+      "answerIndex": 0,
+      "explanation": "VPC 흐름 로그는 네트워크 인터페이스의 IP 트래픽 수락·거부 정보를 기록해 보안 그룹·NACL 문제를 진단하는 데 쓴다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-028",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "VPC에서 나가는 트래픽을 도메인 이름 기준으로 필터링하고 상태 기반 패킷 검사를 적용해야 한다. 적합한 관리형 서비스는?",
+      "choices": [
+        "보안 그룹",
+        "Amazon Route 53 Resolver 규칙만 사용",
+        "AWS WAF",
+        "AWS Network Firewall"
+      ],
+      "answerIndex": 3,
+      "explanation": "Network Firewall은 VPC 수준에서 상태 기반 검사, 침입 방지, 도메인 목록 필터링을 제공하는 관리형 방화벽이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-029",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "IAM 사용자가 MFA로 로그인한 경우에만 EC2 인스턴스를 종료할 수 있도록 제한하려면 정책에 어떤 조건을 사용해야 하는가?",
+      "choices": [
+        "aws:SourceVpce 조건",
+        "aws:RequestedRegion 조건",
+        "aws:MultiFactorAuthPresent 조건",
+        "s3:prefix 조건"
+      ],
+      "answerIndex": 2,
+      "explanation": "aws:MultiFactorAuthPresent 조건 키를 사용하면 MFA로 인증된 세션에서만 민감한 작업을 허용할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-030",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "보안 아키텍처 설계",
+      "prompt": "비공개 S3 버킷의 보고서 파일을 로그인하지 않은 외부 협력사에게 1시간 동안만 내려받게 하려면 가장 적절한 방법은?",
+      "choices": [
+        "만료 시간이 1시간인 S3 사전 서명(presigned) URL을 생성해 전달한다",
+        "버킷 정책으로 해당 객체를 퍼블릭 읽기로 연다",
+        "협력사에게 IAM 사용자 액세스 키를 발급한다",
+        "S3 Transfer Acceleration 엔드포인트를 공유한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "사전 서명 URL은 생성한 주체의 권한으로 특정 객체에 대한 임시 접근을 부여하고 만료 후에는 사용할 수 없어, 버킷을 공개하지 않고 안전하게 공유할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-031",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "운영 데이터베이스가 가용 영역 장애 시 수동 개입 없이 자동으로 장애 조치되어야 한다. RDS에서 적합한 구성은?",
+      "choices": [
+        "같은 가용 영역에 읽기 전용 복제본 생성",
+        "RDS 다중 AZ 배포",
+        "자동 백업 보존 기간 연장",
+        "더 큰 인스턴스 클래스로 변경"
+      ],
+      "answerIndex": 1,
+      "explanation": "다중 AZ 배포는 다른 가용 영역에 동기식 대기 인스턴스를 두고 장애 시 DNS 엔드포인트를 자동으로 전환한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-032",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "보고서 조회 쿼리 때문에 RDS 기본 인스턴스의 읽기 부하가 크다. 애플리케이션이 읽기 엔드포인트를 분리할 수 있을 때 적합한 방법은?",
+      "choices": [
+        "스토리지 유형을 마그네틱으로 바꾼다",
+        "자동 백업을 비활성화한다",
+        "다중 AZ 대기 인스턴스로 읽기 쿼리를 보낸다",
+        "읽기 전용 복제본을 만들고 보고서 쿼리를 복제본으로 보낸다"
+      ],
+      "answerIndex": 3,
+      "explanation": "읽기 전용 복제본은 비동기 복제로 읽기 트래픽을 분산한다. 기존 다중 AZ 인스턴스 배포의 대기 인스턴스는 읽기 요청을 처리하지 않는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-033",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "전 세계 사용자를 위한 관계형 데이터베이스가 리전 전체 장애에도 1분 안팎으로 복구되고, 다른 리전에서 저지연 읽기가 필요하다. 적합한 서비스는?",
+      "choices": [
+        "단일 리전 RDS 다중 AZ",
+        "DynamoDB 단일 리전 테이블",
+        "EC2에 직접 설치한 MySQL",
+        "Amazon Aurora 글로벌 데이터베이스"
+      ],
+      "answerIndex": 3,
+      "explanation": "Aurora 글로벌 데이터베이스는 보통 1초 미만 지연으로 다른 리전에 복제하고, 리전 장애 시 보조 리전을 빠르게 승격할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-034",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "여러 리전에서 동시에 쓰기와 읽기를 처리하는 액티브-액티브 NoSQL 구성이 필요하다. 적합한 기능은?",
+      "choices": [
+        "RDS 읽기 전용 복제본",
+        "DynamoDB 온디맨드 백업",
+        "DynamoDB Accelerator(DAX)",
+        "DynamoDB 글로벌 테이블"
+      ],
+      "answerIndex": 3,
+      "explanation": "DynamoDB 글로벌 테이블은 여러 리전에 테이블 복제본을 두고 각 리전에서 읽기·쓰기를 처리하는 다중 리전 액티브-액티브 구성을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-035",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "웹 계층이 한 가용 영역 장애와 비정상 인스턴스에 자동 대응하도록 설계하는 방법으로 가장 적절한 것은?",
+      "choices": [
+        "단일 가용 영역에 큰 인스턴스 하나를 둔다",
+        "Auto Scaling 그룹을 한 서브넷에만 둔다",
+        "여러 가용 영역에 걸친 Auto Scaling 그룹을 ALB 뒤에 두고 ELB 헬스 체크를 사용한다",
+        "Elastic IP를 인스턴스 간에 수동으로 옮긴다"
+      ],
+      "answerIndex": 2,
+      "explanation": "다중 AZ Auto Scaling 그룹과 ELB 헬스 체크를 함께 쓰면 비정상 인스턴스를 자동 교체하고 트래픽을 정상 대상에만 보낸다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-036",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "주문이 몰리면 백엔드 처리 서버가 따라가지 못해 요청이 유실된다. 주문을 잃지 않고 처리 속도 차이를 흡수하려면?",
+      "choices": [
+        "Route 53 TTL을 줄인다",
+        "주문을 Amazon SQS 대기열에 넣고 처리 서버가 대기열에서 가져가도록 분리한다",
+        "ALB 유휴 제한 시간을 늘린다",
+        "처리 서버의 인스턴스 크기만 늘린다"
+      ],
+      "answerIndex": 1,
+      "explanation": "SQS로 계층을 분리하면 메시지가 대기열에 안전하게 보관되고 처리 서버는 자신의 속도로 소비하며, 대기열 길이에 따라 확장할 수도 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-037",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "결제 이벤트를 발생 순서대로 정확히 한 번만 처리해야 한다. 적합한 SQS 대기열 유형은?",
+      "choices": [
+        "FIFO 대기열",
+        "지연 대기열만 사용",
+        "짧은 폴링 대기열",
+        "표준 대기열"
+      ],
+      "answerIndex": 0,
+      "explanation": "FIFO 대기열은 메시지 그룹 내 순서를 보장하고 중복 제거로 정확히 한 번 처리를 지원한다. 표준 대기열은 최소 한 번 전달과 최선의 순서만 보장한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-038",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "SQS 소비자가 메시지를 처리하는 데 최대 5분이 걸리는데, 처리 도중 같은 메시지가 다른 소비자에게 다시 전달된다. 무엇을 조정해야 하는가?",
+      "choices": [
+        "메시지 보존 기간을 줄인다",
+        "대기열의 가시성 제한 시간을 처리 시간보다 길게 늘린다",
+        "긴 폴링 대기 시간을 0으로 설정한다",
+        "대기열을 FIFO로 바꾸기만 한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "가시성 제한 시간 동안 수신된 메시지는 다른 소비자에게 보이지 않는다. 처리 시간보다 짧으면 처리가 끝나기 전에 메시지가 다시 노출된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-039",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "형식 오류로 계속 처리에 실패하는 메시지가 대기열을 막아 다른 메시지 처리를 지연시킨다. 적합한 해결책은?",
+      "choices": [
+        "소비자 수를 줄인다",
+        "가시성 제한 시간을 0으로 설정한다",
+        "최대 수신 횟수를 설정한 데드 레터 대기열(DLQ)을 연결한다",
+        "메시지 보존 기간을 14일로 늘린다"
+      ],
+      "answerIndex": 2,
+      "explanation": "DLQ를 연결하면 지정 횟수 이상 실패한 메시지를 별도 대기열로 옮겨 정상 처리를 방해하지 않고 나중에 원인을 분석할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-040",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "주문 완료 이벤트 하나를 재고, 배송, 알림 서비스가 각자 독립적으로 받아 처리해야 한다. 적합한 패턴은?",
+      "choices": [
+        "Lambda 하나가 세 서비스를 순서대로 동기 호출",
+        "SNS 주제에 여러 SQS 대기열을 구독시키는 팬아웃",
+        "하나의 SQS 대기열을 세 서비스가 공유",
+        "각 서비스가 DB를 폴링"
+      ],
+      "answerIndex": 1,
+      "explanation": "SNS 팬아웃은 메시지 하나를 여러 SQS 대기열에 복제해 각 서비스가 독립적으로, 자신의 속도로 처리하게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-041",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "기본 리전의 웹사이트가 장애일 때 DNS 수준에서 보조 리전의 정적 점검 페이지로 자동 전환하려면?",
+      "choices": [
+        "ALB를 두 리전에 걸쳐 만든다",
+        "Route 53 단순 라우팅을 사용한다",
+        "CloudFront 캐시 TTL을 늘린다",
+        "Route 53 장애 조치 라우팅과 헬스 체크를 구성한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "Route 53 장애 조치 라우팅은 헬스 체크로 기본 레코드가 비정상이면 보조 레코드로 응답한다. ALB는 리전 단위 리소스라 리전을 걸칠 수 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-042",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "재해 복구 요구 사항이 RTO 수십 분, 비용 최소화다. 보조 리전에는 데이터베이스 복제본 같은 핵심 구성 요소만 항상 실행하고 나머지는 재해 시 기동하는 전략은?",
+      "choices": [
+        "파일럿 라이트",
+        "다중 사이트 액티브-액티브",
+        "백업 및 복원",
+        "웜 스탠바이"
+      ],
+      "answerIndex": 0,
+      "explanation": "파일럿 라이트는 핵심 데이터 계층만 상시 복제하고 애플리케이션 서버는 재해 시 프로비저닝한다. 백업 및 복원보다 빠르고 웜 스탠바이보다 저렴하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-043",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "보조 리전에서 전체 스택을 축소된 규모로 항상 실행해 두다가 재해 시 확장만 하는 DR 전략은?",
+      "choices": [
+        "콜드 사이트",
+        "백업 및 복원",
+        "웜 스탠바이",
+        "파일럿 라이트"
+      ],
+      "answerIndex": 2,
+      "explanation": "웜 스탠바이는 기능은 완전하지만 규모가 작은 환경을 상시 운영해 파일럿 라이트보다 RTO가 짧다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-044",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "RTO와 RPO가 수 시간이어도 괜찮고 비용을 최소화해야 하는 워크로드에 적합한 DR 전략은?",
+      "choices": [
+        "백업 및 복원",
+        "다중 사이트 액티브-액티브",
+        "웜 스탠바이",
+        "Aurora 글로벌 데이터베이스"
+      ],
+      "answerIndex": 0,
+      "explanation": "백업 및 복원은 백업만 다른 리전에 보관하고 재해 시 환경을 새로 만들므로 가장 저렴하지만 복구 시간이 가장 길다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-045",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "RTO와 RPO가 거의 0이어야 하는 결제 시스템에 적합한 DR 전략은?",
+      "choices": [
+        "파일럿 라이트",
+        "백업 및 복원",
+        "주 1회 스냅샷을 다른 리전으로 복사",
+        "여러 리전에서 동시에 트래픽을 처리하는 다중 사이트 액티브-액티브"
+      ],
+      "answerIndex": 3,
+      "explanation": "다중 사이트 액티브-액티브는 여러 리전이 모두 운영 트래픽을 처리해 장애 시 즉시 전환되지만 비용이 가장 높다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-046",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "EC2, EBS, RDS, DynamoDB, EFS의 백업 일정과 보존 기간을 한 곳에서 정책으로 관리하고 다른 리전으로도 복사하려면?",
+      "choices": [
+        "서비스별 콘솔에서 수동 스냅샷",
+        "AWS Backup 백업 계획",
+        "S3 수명 주기 규칙",
+        "AWS DataSync 작업"
+      ],
+      "answerIndex": 1,
+      "explanation": "AWS Backup은 여러 서비스의 백업을 중앙 정책으로 예약·보존하고 교차 리전·교차 계정 복사를 지원한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-047",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "S3 버킷의 신규 객체를 재해 대비용으로 다른 리전 버킷에 자동 복제하려면 무엇이 필요한가?",
+      "choices": [
+        "양쪽 버킷에 버전 관리를 켜고 교차 리전 복제(CRR) 규칙을 설정한다",
+        "S3 Transfer Acceleration을 켠다",
+        "CloudFront 배포를 만든다",
+        "대상 버킷을 퍼블릭으로 공개한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "S3 복제는 원본과 대상 버킷 모두 버전 관리가 활성화돼 있어야 하며, 규칙을 설정하면 신규 객체가 비동기로 복제된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-048",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "사용자가 실수로 S3 객체를 삭제하거나 덮어써도 이전 상태로 복구할 수 있게 하려면?",
+      "choices": [
+        "스토리지 클래스를 One Zone-IA로 바꾼다",
+        "S3 Transfer Acceleration을 활성화한다",
+        "S3 버전 관리를 활성화한다",
+        "요청자 지불을 활성화한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "버전 관리를 켜면 덮어쓴 객체의 이전 버전이 보존되고 삭제 시 삭제 마커만 추가되므로 이전 버전을 복구할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-049",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "EBS 볼륨 데이터를 다른 리전에서 복구할 수 있도록 대비하려면?",
+      "choices": [
+        "EBS 스냅샷을 만들고 대상 리전으로 복사한다",
+        "인스턴스 스토어로 옮긴다",
+        "볼륨 유형을 io2로 변경한다",
+        "EBS 볼륨을 다른 리전 인스턴스에 직접 연결한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "EBS 볼륨은 한 가용 영역에 종속되므로 스냅샷을 만들어 다른 리전으로 복사한 뒤 볼륨을 새로 만들어 복구한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-050",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "여러 가용 영역의 EC2 인스턴스가 같은 파일을 읽고 써야 하며, 한 가용 영역이 장애여도 데이터에 접근할 수 있어야 한다. 적합한 스토리지는?",
+      "choices": [
+        "인스턴스마다 EBS gp3 볼륨",
+        "인스턴스 스토어",
+        "EBS 다중 연결 볼륨",
+        "Amazon EFS 리전(Standard) 파일 시스템"
+      ],
+      "answerIndex": 3,
+      "explanation": "EFS Standard는 데이터를 여러 가용 영역에 저장하고 여러 AZ의 인스턴스가 동시에 마운트할 수 있다. EBS는 단일 가용 영역에 종속된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-051",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "여러 Lambda 함수를 순서대로 실행하며 단계별 재시도, 오류 분기, 대기 상태를 코드 없이 관리하려면?",
+      "choices": [
+        "Amazon SQS 표준 대기열",
+        "Amazon SNS 주제",
+        "AWS Step Functions",
+        "Amazon EventBridge 스케줄러만 사용"
+      ],
+      "answerIndex": 2,
+      "explanation": "Step Functions는 상태 머신으로 워크플로 단계, 재시도, 오류 처리, 병렬 실행을 선언적으로 정의한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-052",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "여러 SaaS 애플리케이션과 AWS 서비스에서 발생하는 이벤트를 규칙 기반으로 다양한 대상에 라우팅해 서비스 간 결합도를 낮추려면?",
+      "choices": [
+        "Amazon EventBridge",
+        "Amazon SQS FIFO",
+        "AWS Direct Connect",
+        "Amazon Kinesis Video Streams"
+      ],
+      "answerIndex": 0,
+      "explanation": "EventBridge는 이벤트 버스와 규칙으로 이벤트를 필터링해 Lambda, SQS 등 여러 대상에 전달하는 서버리스 이벤트 라우터다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-053",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "Application Load Balancer 뒤의 가용 영역별 인스턴스 수가 달라도 모든 인스턴스에 요청이 고르게 분산되게 하는 기능은?",
+      "choices": [
+        "경로 기반 라우팅",
+        "교차 영역 로드 밸런싱",
+        "연결 드레이닝",
+        "고정 세션(sticky session)"
+      ],
+      "answerIndex": 1,
+      "explanation": "교차 영역 로드 밸런싱을 사용하면 로드 밸런서 노드가 모든 가용 영역의 정상 대상에 고르게 트래픽을 분산한다. ALB는 기본적으로 켜져 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-054",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "RDS 데이터가 실수로 삭제됐다. 삭제 5분 전 상태로 되돌리려면 어떤 기능을 사용해야 하는가?",
+      "choices": [
+        "다중 AZ 장애 조치",
+        "읽기 전용 복제본 승격",
+        "파라미터 그룹 재설정",
+        "자동 백업 기반 특정 시점 복구(PITR)"
+      ],
+      "answerIndex": 3,
+      "explanation": "자동 백업을 켜면 보존 기간(최대 35일) 안의 특정 시점으로 새 DB 인스턴스를 복원할 수 있다. 다중 AZ는 삭제 작업도 그대로 복제한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-055",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "S3 업로드 이벤트로 비동기 호출된 Lambda 함수가 재시도 후에도 실패하면 이벤트를 잃지 않고 보관해야 한다. 적합한 방법은?",
+      "choices": [
+        "S3 버전 관리를 비활성화한다",
+        "함수 제한 시간을 1초로 줄인다",
+        "Lambda 비동기 호출의 실패 대상(on-failure destination)을 SQS로 지정한다",
+        "예약된 동시성을 0으로 설정한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "비동기 호출은 재시도 후에도 실패하면 실패 대상이나 DLQ로 이벤트를 보낼 수 있어 나중에 재처리할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-056",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "복원력 있는 아키텍처 설계",
+      "prompt": "Aurora 클러스터에서 기본 인스턴스 장애 시 자동 승격될 복제본의 순서를 지정하는 방법은?",
+      "choices": [
+        "Aurora 복제본에 장애 조치 우선순위(티어)를 설정한다",
+        "클러스터 엔드포인트를 수동으로 변경한다",
+        "자동 백업 보존 기간을 늘린다",
+        "읽기 전용 복제본을 다른 리전에만 둔다"
+      ],
+      "answerIndex": 0,
+      "explanation": "Aurora는 최대 15개의 복제본을 둘 수 있고, 장애 시 설정된 우선순위 티어가 높은 복제본을 기본 인스턴스로 승격한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-057",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "상품 상세 페이지가 같은 데이터를 반복 조회해 RDS CPU가 높다. 데이터가 몇 분 늦게 갱신돼도 괜찮을 때 가장 효과적인 방법은?",
+      "choices": [
+        "RDS 다중 AZ를 활성화한다",
+        "RDS 스토리지를 늘린다",
+        "Amazon ElastiCache에 조회 결과를 캐시한다",
+        "RDS 백업 창을 변경한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "ElastiCache에 자주 읽는 데이터를 캐시하면 DB 조회 횟수가 줄어 CPU 부하와 응답 시간이 함께 감소한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-058",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "DynamoDB 테이블 읽기 지연 시간을 밀리초에서 마이크로초 수준으로 줄이면서 애플리케이션 코드 변경을 최소화하려면?",
+      "choices": [
+        "테이블을 온디맨드 모드로 바꾼다",
+        "DynamoDB 글로벌 테이블을 사용한다",
+        "DynamoDB Accelerator(DAX)를 사용한다",
+        "ElastiCache for Memcached를 직접 구현한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "DAX는 DynamoDB API와 호환되는 인메모리 캐시로 읽기 지연을 마이크로초 수준으로 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-059",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "전 세계 사용자가 S3의 이미지와 동영상을 느리게 내려받는다. 다운로드 지연 시간을 줄이려면?",
+      "choices": [
+        "Route 53 레코드 TTL을 늘린다",
+        "S3를 오리진으로 하는 CloudFront 배포를 만든다",
+        "S3 버킷을 더 큰 스토리지 클래스로 바꾼다",
+        "S3 버전 관리를 켠다"
+      ],
+      "answerIndex": 1,
+      "explanation": "CloudFront는 엣지 로케이션에 콘텐츠를 캐시해 사용자와 가까운 위치에서 전달하므로 다운로드 속도가 빨라진다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-060",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "수 GB 크기의 동영상을 S3에 업로드할 때 네트워크 오류에 강하고 더 빠르게 업로드하려면?",
+      "choices": [
+        "S3 Glacier Deep Archive로 직접 업로드한다",
+        "멀티파트 업로드로 파트를 병렬 전송한다",
+        "업로드 전에 버전 관리를 끈다",
+        "단일 PUT 요청으로 업로드한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "멀티파트 업로드는 파일을 나눠 병렬 전송하고 실패한 파트만 재전송한다. 100MB 이상이면 권장되고 5GB를 넘는 객체는 필수다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-061",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "해외 지사에서 서울 리전 S3 버킷으로 대용량 파일을 업로드하는 속도가 느리다. 애플리케이션 변경을 최소화하며 개선하려면?",
+      "choices": [
+        "Direct Connect를 모든 지사에 개설한다",
+        "S3 Transfer Acceleration을 활성화한다",
+        "S3 One Zone-IA로 바꾼다",
+        "버킷 정책을 수정한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "Transfer Acceleration은 가까운 엣지 로케이션으로 데이터를 받아 AWS 백본망으로 버킷까지 전송해 원거리 업로드를 빠르게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-062",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "데이터베이스용 EBS 볼륨에 용량과 무관하게 IOPS와 처리량을 따로 지정하면서 비용 효율을 높이려면 어떤 볼륨 유형이 적합한가?",
+      "choices": [
+        "gp2",
+        "gp3",
+        "sc1",
+        "st1"
+      ],
+      "answerIndex": 1,
+      "explanation": "gp3는 용량과 별개로 IOPS와 처리량을 프로비저닝할 수 있다. gp2는 IOPS가 용량에 비례하고, st1·sc1은 순차 처리용 HDD다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-063",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "수십만 IOPS와 1밀리초 미만 지연이 필요한 미션 크리티컬 데이터베이스에 적합한 EBS 볼륨은?",
+      "choices": [
+        "io2 Block Express",
+        "st1",
+        "gp3",
+        "sc1"
+      ],
+      "answerIndex": 0,
+      "explanation": "io2 Block Express는 볼륨당 최대 256,000 IOPS와 1밀리초 미만 지연을 제공하는 최고 성능 EBS 볼륨이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-064",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "분산 처리 작업의 임시 데이터를 가능한 가장 빠른 로컬 디스크에 두려고 한다. 데이터는 작업이 끝나면 필요 없다. 적합한 스토리지는?",
+      "choices": [
+        "EBS sc1",
+        "Amazon S3 Glacier",
+        "EC2 인스턴스 스토어",
+        "Amazon EFS"
+      ],
+      "answerIndex": 2,
+      "explanation": "인스턴스 스토어는 호스트에 직접 연결된 NVMe 디스크로 매우 높은 I/O를 제공하지만 임시 저장소라 임시 데이터에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-065",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "HPC 작업의 노드 간 통신에 가장 낮은 지연 시간과 높은 네트워크 처리량이 필요하다. 적합한 배치 그룹은?",
+      "choices": [
+        "배치 그룹 없이 여러 가용 영역에 분산",
+        "분산형(spread) 배치 그룹",
+        "파티션 배치 그룹",
+        "클러스터 배치 그룹"
+      ],
+      "answerIndex": 3,
+      "explanation": "클러스터 배치 그룹은 인스턴스를 한 가용 영역 안에서 물리적으로 가깝게 배치해 노드 간 저지연·고처리량 통신을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-066",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "소수의 핵심 인스턴스가 같은 하드웨어 장애로 동시에 중단되는 위험을 줄이려면 어떤 배치 그룹을 써야 하는가?",
+      "choices": [
+        "단일 전용 호스트",
+        "배치 그룹 없이 같은 랙에 배치",
+        "분산형(spread) 배치 그룹",
+        "클러스터 배치 그룹"
+      ],
+      "answerIndex": 2,
+      "explanation": "분산형 배치 그룹은 각 인스턴스를 서로 다른 랙(하드웨어)에 배치하며, 가용 영역당 그룹별 최대 7개 인스턴스까지 둘 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-067",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "매일 밤 실행되는 무거운 분석 쿼리가 운영 Aurora 클러스터의 쓰기 성능에 영향을 준다. 가장 간단한 해결책은?",
+      "choices": [
+        "클러스터를 다른 리전으로 옮긴다",
+        "자동 백업을 끈다",
+        "쓰기 인스턴스 크기만 두 배로 늘린다",
+        "Aurora 복제본을 추가하고 분석 쿼리를 리더 엔드포인트로 보낸다"
+      ],
+      "answerIndex": 3,
+      "explanation": "Aurora 복제본과 리더 엔드포인트를 사용하면 읽기 부하를 쓰기 인스턴스에서 분리할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-068",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "사용량이 하루 중 크게 변하고 가끔은 거의 쓰지 않는 사내 애플리케이션용 관계형 DB에 용량 관리를 자동화하려면?",
+      "choices": [
+        "EC2에 DB를 직접 설치",
+        "DynamoDB 프로비저닝 모드",
+        "Aurora Serverless v2",
+        "고정 크기 RDS 인스턴스를 최대 사양으로 운영"
+      ],
+      "answerIndex": 2,
+      "explanation": "Aurora Serverless v2는 부하에 따라 용량 단위를 세밀하게 자동 조정해 변동이 큰 워크로드에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-069",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "수천 대 IoT 장치의 클릭스트림 데이터를 실시간으로 수집하고 여러 애플리케이션이 같은 데이터를 동시에 읽어 처리해야 한다. 적합한 서비스는?",
+      "choices": [
+        "Amazon Kinesis Data Streams",
+        "Amazon SNS 이메일 구독",
+        "Amazon S3 배치 업로드",
+        "Amazon SQS 표준 대기열"
+      ],
+      "answerIndex": 0,
+      "explanation": "Kinesis Data Streams는 실시간 스트리밍 데이터를 샤드에 저장하고 여러 소비자가 같은 데이터를 독립적으로 읽을 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-070",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "스트리밍 로그를 별도 소비자 코드 없이 거의 실시간으로 S3에 적재하고 형식 변환까지 하려면 운영 부담이 가장 적은 서비스는?",
+      "choices": [
+        "Amazon SQS와 Lambda 직접 구현",
+        "AWS DataSync",
+        "Amazon Data Firehose",
+        "Amazon Kinesis Data Streams와 EC2 소비자"
+      ],
+      "answerIndex": 2,
+      "explanation": "Data Firehose는 완전관리형 전송 서비스로 스트리밍 데이터를 버퍼링·변환해 S3, Redshift 등에 자동 적재한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-071",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "S3에 쌓인 CSV·Parquet 로그를 서버를 띄우지 않고 표준 SQL로 바로 조회하려면?",
+      "choices": [
+        "Amazon EMR 상시 클러스터",
+        "Amazon Athena",
+        "Amazon ElastiCache",
+        "Amazon RDS"
+      ],
+      "answerIndex": 1,
+      "explanation": "Athena는 서버리스 대화형 쿼리 서비스로 S3 데이터를 표준 SQL로 조회하고 스캔한 데이터량만큼 비용을 낸다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-072",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "UDP 기반 온라인 게임 서버를 여러 리전에서 운영하며, 사용자는 고정 IP로 가장 가까운 정상 리전에 접속해야 한다. 적합한 서비스는?",
+      "choices": [
+        "Amazon CloudFront",
+        "AWS Global Accelerator",
+        "Application Load Balancer",
+        "Route 53 단순 라우팅"
+      ],
+      "answerIndex": 1,
+      "explanation": "Global Accelerator는 고정 애니캐스트 IP로 TCP·UDP 트래픽을 가장 가까운 정상 엔드포인트로 보낸다. CloudFront는 HTTP(S) 콘텐츠 전송용이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-073",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "Auto Scaling 그룹의 평균 CPU 사용률을 50%로 유지하도록 인스턴스 수를 자동 조정하려면 어떤 조정 정책을 써야 하는가?",
+      "choices": [
+        "수동 조정",
+        "예약된 조정",
+        "단순 조정 정책",
+        "대상 추적 조정 정책"
+      ],
+      "answerIndex": 3,
+      "explanation": "대상 추적 조정은 지정한 지표 목표값을 유지하도록 인스턴스를 자동으로 추가·제거한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-074",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "매주 월요일 오전 9시에 트래픽이 급증하는 패턴이 명확하다. 급증 전에 미리 용량을 늘리려면 가장 간단한 방법은?",
+      "choices": [
+        "예약된 조정으로 월요일 오전 9시 이전에 원하는 용량을 늘린다",
+        "인스턴스 유형을 매주 수동 변경한다",
+        "ALB 유휴 제한 시간을 늘린다",
+        "단순 조정 정책의 쿨다운만 줄인다"
+      ],
+      "answerIndex": 0,
+      "explanation": "예약된 조정은 알려진 시각에 맞춰 원하는 용량을 미리 설정해 급증 시작 전에 인스턴스를 준비한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-075",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "일별·주별 반복 패턴이 있는 트래픽을 과거 데이터로 예측해 미리 용량을 확보하는 Auto Scaling 기능은?",
+      "choices": [
+        "수명 주기 후크",
+        "단계 조정",
+        "인스턴스 새로 고침",
+        "예측 조정(Predictive Scaling)"
+      ],
+      "answerIndex": 3,
+      "explanation": "예측 조정은 과거 지표를 머신러닝으로 분석해 예상 부하보다 앞서 용량을 늘린다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-076",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "API 요청을 처리하는 Lambda 함수의 콜드 스타트 지연이 사용자 경험을 해친다. 지연을 줄이는 방법은?",
+      "choices": [
+        "함수를 VPC 밖으로만 옮긴다",
+        "예약된 동시성을 0으로 설정한다",
+        "프로비저닝된 동시성을 설정한다",
+        "함수 제한 시간을 늘린다"
+      ],
+      "answerIndex": 2,
+      "explanation": "프로비저닝된 동시성은 지정한 수만큼 실행 환경을 미리 초기화해 두어 콜드 스타트 없이 즉시 응답하게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-077",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "API Gateway 뒤 백엔드가 같은 요청에 대해 동일한 응답을 자주 반환한다. 응답 지연과 백엔드 호출 수를 줄이려면?",
+      "choices": [
+        "사용량 계획을 삭제한다",
+        "API Gateway 스로틀링 한도를 낮춘다",
+        "Lambda 메모리를 줄인다",
+        "API Gateway 스테이지 캐싱을 활성화한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "스테이지 캐시를 켜면 지정한 TTL 동안 응답을 캐시해 백엔드 호출 없이 빠르게 응답한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-078",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "공유 파일 시스템의 처리량 요구가 예측하기 어렵고 급증과 유휴가 반복된다. EFS에서 적합한 처리량 모드는?",
+      "choices": [
+        "EBS로 교체",
+        "Elastic 처리량 모드",
+        "프로비저닝된 처리량 모드를 최대치로 고정",
+        "버스트 처리량 모드에서 크레딧 소진 방치"
+      ],
+      "answerIndex": 1,
+      "explanation": "EFS Elastic 처리량은 워크로드에 맞춰 처리량을 자동으로 늘리고 줄이며 사용한 만큼 과금돼 예측하기 어려운 패턴에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-079",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "머신러닝 학습 작업이 S3의 대규모 데이터셋을 수백 GB/s 수준의 처리량으로 읽어야 한다. 적합한 파일 시스템은?",
+      "choices": [
+        "Amazon FSx for Lustre",
+        "Amazon EFS 기본 설정",
+        "EBS st1",
+        "Amazon FSx for Windows File Server"
+      ],
+      "answerIndex": 0,
+      "explanation": "FSx for Lustre는 HPC·ML용 고성능 병렬 파일 시스템으로 S3와 연동해 데이터셋을 빠르게 처리할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-080",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "고성능 아키텍처 설계",
+      "prompt": "수천 개의 Lambda 함수 실행이 동시에 RDS에 연결해 연결 수 한도를 초과한다. 적합한 해결책은?",
+      "choices": [
+        "RDS 인스턴스를 다중 AZ로 바꾼다",
+        "RDS 스토리지를 늘린다",
+        "Amazon RDS Proxy로 연결을 풀링한다",
+        "Lambda 제한 시간을 늘린다"
+      ],
+      "answerIndex": 2,
+      "explanation": "RDS Proxy는 데이터베이스 연결을 풀링하고 재사용해 대량의 짧은 연결로 인한 한도 초과와 장애 조치 시간을 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-081",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "업로드 후 30일 동안은 자주 조회하고, 이후 1년까지는 가끔 조회하며, 1년 후에는 거의 조회하지 않는 로그의 비용을 자동으로 줄이려면?",
+      "choices": [
+        "EBS 스냅샷으로 보관한다",
+        "S3 수명 주기 규칙으로 30일 후 Standard-IA, 1년 후 Glacier 계열로 전환한다",
+        "모든 로그를 S3 Standard에 계속 둔다",
+        "매달 수동으로 파일을 옮긴다"
+      ],
+      "answerIndex": 1,
+      "explanation": "수명 주기 규칙은 객체 나이에 따라 스토리지 클래스를 자동 전환하거나 만료시켜 액세스 패턴에 맞게 비용을 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-082",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "연 1~2회 감사 때만 조회하고 조회 시 48시간 안에 받으면 되는 보관 데이터에 가장 저렴한 스토리지 클래스는?",
+      "choices": [
+        "S3 Intelligent-Tiering 기본 계층",
+        "S3 Glacier Instant Retrieval",
+        "S3 Glacier Deep Archive",
+        "S3 Standard-IA"
+      ],
+      "answerIndex": 2,
+      "explanation": "Deep Archive는 가장 저렴한 스토리지 클래스로 표준 검색 12시간, 대량 검색 48시간 이내 복원을 제공해 드물게 조회하는 장기 보관에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-083",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "원본에서 언제든 다시 생성할 수 있는 썸네일 이미지를 가끔 조회한다. 가용 영역 장애 시 손실돼도 괜찮을 때 가장 저렴한 선택은?",
+      "choices": [
+        "S3 One Zone-IA",
+        "S3 Standard",
+        "S3 Standard-IA",
+        "EBS io2"
+      ],
+      "answerIndex": 0,
+      "explanation": "One Zone-IA는 한 가용 영역에만 저장해 Standard-IA보다 저렴하다. 재생성 가능한 데이터나 보조 사본에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-084",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "중간에 중단돼도 체크포인트에서 이어서 처리할 수 있는 영상 인코딩 작업의 컴퓨팅 비용을 가장 크게 줄이려면?",
+      "choices": [
+        "전용 호스트를 사용한다",
+        "스팟 인스턴스를 사용한다",
+        "온디맨드 인스턴스를 사용한다",
+        "3년 전체 선결제 예약 인스턴스를 사용한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "스팟 인스턴스는 최대 90% 할인되지만 중단될 수 있으므로 중단을 견디는 배치·인코딩 작업에 가장 비용 효율적이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-085",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "앞으로 3년간 컴퓨팅을 꾸준히 사용하지만 인스턴스 패밀리, 리전, EC2·Fargate·Lambda 간 변경 가능성이 있다. 가장 유연하게 할인을 받는 방법은?",
+      "choices": [
+        "스팟 블록",
+        "EC2 Instance Savings Plans",
+        "표준 예약 인스턴스",
+        "Compute Savings Plans"
+      ],
+      "answerIndex": 3,
+      "explanation": "Compute Savings Plans는 인스턴스 패밀리·크기·리전·OS와 EC2·Fargate·Lambda에 걸쳐 자동 적용돼 가장 유연하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-086",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "24시간 운영되며 앞으로 1년 이상 사양 변경 계획이 없는 RDS 운영 DB의 비용을 줄이려면?",
+      "choices": [
+        "읽기 전용 복제본을 추가한다",
+        "RDS 인스턴스를 스팟으로 실행한다",
+        "매일 밤 DB를 삭제하고 아침에 새로 만든다",
+        "RDS 예약 인스턴스를 구매한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "꾸준히 실행되는 RDS에는 1년·3년 예약 인스턴스로 온디맨드 대비 큰 할인을 받을 수 있다. RDS에는 스팟 옵션이 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-087",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "프라이빗 서브넷 인스턴스가 NAT 게이트웨이를 통해 S3로 대용량 데이터를 보내 데이터 처리 요금이 크게 나온다. 비용을 줄이려면?",
+      "choices": [
+        "인스턴스 크기를 줄인다",
+        "S3 Transfer Acceleration을 켠다",
+        "NAT 게이트웨이를 가용 영역마다 추가한다",
+        "S3 게이트웨이 VPC 엔드포인트를 추가해 S3 트래픽이 NAT를 거치지 않게 한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "게이트웨이 엔드포인트는 무료이며 S3·DynamoDB 트래픽을 NAT 게이트웨이 대신 엔드포인트로 보내 GB당 데이터 처리 요금을 없앤다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-088",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "개발·테스트 EC2 인스턴스는 평일 업무 시간에만 필요하다. 비용을 줄이는 가장 간단한 방법은?",
+      "choices": [
+        "EventBridge 스케줄로 업무 시간 외에 인스턴스를 자동 중지·시작한다",
+        "모든 개발 인스턴스에 3년 예약 인스턴스를 구매한다",
+        "인스턴스를 전용 호스트로 옮긴다",
+        "인스턴스 스토어 기반으로 바꾼다"
+      ],
+      "answerIndex": 0,
+      "explanation": "사용하지 않는 시간에 인스턴스를 중지하면 컴퓨팅 요금이 나가지 않는다. EventBridge 스케줄러나 Instance Scheduler로 자동화할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-089",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "x86 인스턴스에서 실행되는 컨테이너 웹 서비스를 코드 수정 부담이 적게 옮겨 가격 대비 성능을 높이려면 어떤 인스턴스를 검토해야 하는가?",
+      "choices": [
+        "스토리지 최적화 인스턴스",
+        "이전 세대 x86 인스턴스",
+        "AWS Graviton(Arm) 기반 인스턴스",
+        "GPU 가속 인스턴스"
+      ],
+      "answerIndex": 2,
+      "explanation": "Graviton 기반 인스턴스는 비슷한 x86 인스턴스보다 가격 대비 성능이 우수하며, 멀티 아키텍처 컨테이너 이미지로 비교적 쉽게 전환할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-090",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "과다 프로비저닝된 EC2 인스턴스를 찾아 사용 지표 기반의 적정 크기 권장 사항을 받으려면?",
+      "choices": [
+        "Amazon Inspector",
+        "AWS Artifact",
+        "AWS Config 적합성 팩",
+        "AWS Compute Optimizer"
+      ],
+      "answerIndex": 3,
+      "explanation": "Compute Optimizer는 CloudWatch 지표를 분석해 EC2, EBS, Lambda 등의 적정 크기와 유형을 권장한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-091",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "신규 서비스의 DynamoDB 트래픽을 전혀 예측할 수 없고 급증과 유휴가 반복된다. 용량 계획 없이 비용을 맞추려면?",
+      "choices": [
+        "DynamoDB 온디맨드 용량 모드",
+        "프로비저닝 모드를 최대 용량으로 고정",
+        "글로벌 테이블 활성화",
+        "DAX만 추가"
+      ],
+      "answerIndex": 0,
+      "explanation": "온디맨드 모드는 요청 수만큼 과금되고 용량 계획이 필요 없어 예측할 수 없는 트래픽에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-092",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "팀별 월 비용이 예산의 80%에 도달하면 담당자에게 자동으로 알려야 한다. 적합한 서비스는?",
+      "choices": [
+        "AWS Cost Explorer 보고서만 조회",
+        "AWS Pricing Calculator",
+        "AWS Budgets",
+        "Amazon Inspector"
+      ],
+      "answerIndex": 2,
+      "explanation": "AWS Budgets는 비용·사용량 예산에 대해 실제 또는 예측 금액이 임계값을 넘으면 이메일이나 SNS로 알린다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-093",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "액세스 패턴을 알 수 없는 대규모 데이터 레이크 객체의 스토리지 비용을 검색 요금 없이 자동으로 최적화하려면?",
+      "choices": [
+        "S3 Glacier Flexible Retrieval로 일괄 전환",
+        "S3 One Zone-IA로 일괄 전환",
+        "S3 Standard-IA로 일괄 전환",
+        "S3 Intelligent-Tiering"
+      ],
+      "answerIndex": 3,
+      "explanation": "Intelligent-Tiering은 액세스 빈도에 따라 자동으로 계층을 옮기며 검색 요금이 없어 패턴을 모를 때 적합하다. Standard-IA와 Glacier는 조회 시 요금이 발생한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-094",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "gp2 EBS 볼륨을 성능 저하 없이 더 저렴하게 운영하려면?",
+      "choices": [
+        "gp3로 볼륨 유형을 변경한다",
+        "st1로 변경한다",
+        "볼륨을 삭제하고 인스턴스 스토어만 쓴다",
+        "io2로 변경한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "gp3는 GB당 요금이 gp2보다 약 20% 저렴하고 기본 3,000 IOPS를 제공하며, 볼륨 유형 변경은 서비스 중단 없이 가능하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-095",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "S3에서 전 세계로 제공하는 대용량 다운로드 파일의 데이터 전송 비용과 오리진 부하를 함께 줄이려면?",
+      "choices": [
+        "S3 Transfer Acceleration을 켠다",
+        "모든 파일을 One Zone-IA로 바꾼다",
+        "S3 버전 관리를 켠다",
+        "CloudFront를 앞단에 두어 엣지에서 캐시해 제공한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "CloudFront 캐시로 오리진 요청이 줄고, S3에서 CloudFront로의 전송은 무료라 인터넷 직접 전송보다 비용이 낮아지는 경우가 많다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-096",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "같은 리전에서 서로 대량 데이터를 주고받는 EC2 두 대의 데이터 전송 비용을 없애려면?",
+      "choices": [
+        "Elastic IP를 붙여 통신한다",
+        "같은 가용 영역에 두고 사설 IP로 통신한다",
+        "서로 다른 가용 영역에 두고 퍼블릭 IP로 통신한다",
+        "NAT 게이트웨이를 경유시킨다"
+      ],
+      "answerIndex": 1,
+      "explanation": "같은 가용 영역 안에서 사설 IP로 주고받는 데이터는 무료다. 가용 영역 간이나 퍼블릭·Elastic IP를 거치는 전송에는 요금이 부과된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-097",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "하루 몇 시간만 사용되는 개발용 관계형 데이터베이스의 비용을 줄이면서 관리 부담도 낮추려면?",
+      "choices": [
+        "최대 사양 RDS 인스턴스를 상시 운영한다",
+        "다중 AZ 읽기 복제본을 여러 개 추가한다",
+        "EC2에 DB를 설치하고 수동 관리한다",
+        "Aurora Serverless v2로 부하에 맞게 용량을 자동 조정한다"
+      ],
+      "answerIndex": 3,
+      "explanation": "Aurora Serverless v2는 사용량에 따라 용량이 자동으로 조정돼 간헐적으로 쓰는 개발 DB에 비용 효율적이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-098",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "중단돼도 재시작하면 되는 ECS 배치 작업을 Fargate에서 더 저렴하게 실행하려면?",
+      "choices": [
+        "Fargate Spot 용량 공급자를 사용한다",
+        "Fargate 온디맨드만 사용한다",
+        "EC2 전용 호스트로 옮긴다",
+        "작업 CPU를 최대로 늘린다"
+      ],
+      "answerIndex": 0,
+      "explanation": "Fargate Spot은 여유 용량을 할인된 가격에 사용하지만 중단될 수 있어 중단을 허용하는 작업에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-099",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "여러 부서가 한 계정을 공유한다. 부서별 비용을 Cost Explorer에서 구분해 보고하려면 가장 먼저 무엇을 해야 하는가?",
+      "choices": [
+        "모든 리소스를 한 VPC에 모은다",
+        "리소스에 부서 태그를 지정하고 비용 할당 태그로 활성화한다",
+        "부서별로 보안 그룹을 만든다",
+        "부서마다 다른 리전을 사용하게 한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "비용 할당 태그를 활성화하면 태그 값별로 비용을 집계해 부서·프로젝트 단위로 분석할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-saa-100",
+      "examId": "aws-solutions-architect-associate",
+      "subject": "비용 최적화 아키텍처 설계",
+      "prompt": "사용되지 않는 Elastic IP, 유휴 로드 밸런서, 사용률이 낮은 EC2 같은 비용 낭비 요소를 계정 전반에서 점검하려면?",
+      "choices": [
+        "Amazon Macie",
+        "AWS Trusted Advisor 비용 최적화 검사",
+        "AWS WAF",
+        "AWS Artifact"
+      ],
+      "answerIndex": 1,
+      "explanation": "Trusted Advisor 비용 최적화 검사는 유휴·저활용 리소스와 예약 구매 기회를 찾아 절감 방안을 제시한다.",
+      "sourceType": "ai_generated"
+    }
+  ]
+}
