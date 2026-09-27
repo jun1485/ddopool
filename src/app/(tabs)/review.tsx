@@ -8,10 +8,12 @@ import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
-import { ReviewForecastCard } from "@/components/review-forecast-card";
 import { PageHead } from "@/components/page-head";
+import { ReviewForecastCard } from "@/components/review-forecast-card";
+import { SectionHeader } from "@/components/section-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { WrongAnswerSummaryCard } from "@/components/wrong-answer-summary-card";
 import { stagger } from "@/constants/motion";
 import {
   accentByIndex,
@@ -21,10 +23,12 @@ import {
   Shadows,
   Spacing,
 } from "@/constants/theme";
+import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useSettings } from "@/hooks/use-settings";
 import { useSrsSummary } from "@/hooks/use-srs-summary";
 import { useTheme } from "@/hooks/use-theme";
+import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
 import { createReviewForecast } from "@/learning/review-forecast";
 import { Exam } from "@/types/exam";
 
@@ -55,7 +59,15 @@ function startForecastSession(questionIds: string[], sessionSize: number) {
   });
 }
 
-// SRS 복습 큐 화면
+// 복습 보관함 필터 화면 진입
+function openReviewLibrary(filter: "wrong" | "bookmarked") {
+  router.push({
+    pathname: "/review-library",
+    params: { filter },
+  });
+}
+
+// 복습 일정·다시 볼 문제 화면
 export default function ReviewScreen() {
   const {
     cards,
@@ -68,8 +80,10 @@ export default function ReviewScreen() {
     evaluatedAt,
     isLoading,
   } = useSrsSummary();
-  const { exams } = useExamCatalog();
+  const { exams, questions } = useExamCatalog();
   const { settings } = useSettings();
+  const { bookmarkedQuestionIds } = useBookmarks();
+  const { unresolvedNotes, resolvedNotes } = useWrongAnswerNotes();
   const theme = useTheme();
   const forecast = useMemo(
     () => createReviewForecast(cards, evaluatedAt),
@@ -82,6 +96,13 @@ export default function ReviewScreen() {
       ),
     [exams],
   );
+  const studiedExams = exams.filter(
+    (exam) => (studiedCounts[exam.id] ?? 0) > 0,
+  );
+  const availableUnresolvedNotes = unresolvedNotes.filter((note) =>
+    questions.some((question) => question.id === note.questionId),
+  );
+  const hasBookmarks = bookmarkedQuestionIds.length > 0;
 
   return (
     <ThemedView style={styles.container}>
@@ -96,7 +117,7 @@ export default function ReviewScreen() {
           bounces={false}
         >
           <View style={styles.header}>
-            <ThemedText type="subtitle">스마트 복습</ThemedText>
+            <ThemedText type="subtitle">복습</ThemedText>
             <ThemedText themeColor="textSecondary">
               잊을 때쯤 다시 만나 오래 기억하도록 도와드려요.
             </ThemedText>
@@ -104,9 +125,6 @@ export default function ReviewScreen() {
 
           <RevealView variant="zoom" duration={400}>
             <View style={[styles.heroCard, { backgroundColor: theme.primary }]}>
-              <View
-                style={[styles.heroOrb, { backgroundColor: theme.onPrimary }]}
-              />
               <View style={styles.heroTop}>
                 <View style={styles.heroCopy}>
                   <ThemedText themeColor="onPrimaryMuted" type="smallBold">
@@ -118,9 +136,7 @@ export default function ReviewScreen() {
                     value={totalDue}
                   />
                   <ThemedText themeColor="onPrimaryMuted" type="small">
-                    {totalDue > 0
-                      ? "짧게 복습하고 기억을 단단하게 만들어요"
-                      : "오늘 예정된 복습을 모두 마쳤어요"}
+                    24시간 내 {upcomingCount} · 이후 예정 {scheduledCount}
                   </ThemedText>
                 </View>
                 <PulseView active={totalDue > 0} scaleTo={1.07}>
@@ -137,13 +153,13 @@ export default function ReviewScreen() {
                         android: "psychology",
                         web: "psychology",
                       }}
-                      size={36}
+                      size={32}
                     />
                   </View>
                 </PulseView>
               </View>
 
-              {totalDue > 0 && (
+              {totalDue > 0 ? (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`${totalDue}문제 전체 복습 시작`}
@@ -167,50 +183,15 @@ export default function ReviewScreen() {
                     size={18}
                   />
                 </Pressable>
+              ) : (
+                <ThemedText themeColor="onPrimaryMuted" type="small">
+                  {totalStudied > 0
+                    ? "오늘 예정된 복습을 모두 마쳤어요"
+                    : "문제를 풀면 복습 일정이 자동으로 만들어져요"}
+                </ThemedText>
               )}
             </View>
           </RevealView>
-
-          <View style={styles.scheduleGrid}>
-            {[
-              { label: "지금", value: totalDue, color: theme.danger },
-              {
-                label: "24시간 내",
-                value: upcomingCount,
-                color: theme.warning,
-              },
-              {
-                label: "이후 예정",
-                value: scheduledCount,
-                color: theme.success,
-              },
-            ].map((schedule, scheduleIndex) => (
-              <RevealView
-                key={schedule.label}
-                delay={stagger(scheduleIndex, 60)}
-                style={styles.scheduleSlot}
-              >
-                <ThemedView
-                  type="backgroundElement"
-                  style={styles.scheduleCard}
-                >
-                  <View
-                    style={[
-                      styles.scheduleDot,
-                      { backgroundColor: schedule.color },
-                    ]}
-                  />
-                  <AnimatedCounter
-                    style={styles.scheduleValue}
-                    value={schedule.value}
-                  />
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {schedule.label}
-                  </ThemedText>
-                </ThemedView>
-              </RevealView>
-            ))}
-          </View>
 
           {!isLoading && totalStudied > 0 && (
             <ReviewForecastCard
@@ -223,92 +204,121 @@ export default function ReviewScreen() {
             />
           )}
 
-          {!isLoading && totalStudied === 0 && (
-            <ThemedView type="backgroundElement" style={styles.guideCard}>
-              <View
-                style={[
-                  styles.guideIcon,
-                  { backgroundColor: theme.primarySoft },
-                ]}
-              >
-                <SymbolView
-                  tintColor={theme.primary}
-                  name={{
-                    ios: "sparkles",
-                    android: "auto_awesome",
-                    web: "auto_awesome",
-                  }}
-                  size={22}
-                />
-              </View>
-              <View style={styles.guideText}>
-                <ThemedText type="smallBold">
-                  첫 학습을 시작해 보세요
-                </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  문제를 풀면 정답 여부에 따라 복습 일정이 자동으로 만들어져요.
-                </ThemedText>
-              </View>
-            </ThemedView>
-          )}
-
           <View style={styles.section}>
-            <View>
-              <ThemedText style={styles.sectionTitle}>시험별 복습</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                학습한 {totalStudied}문제를 기억 주기에 맞춰 관리 중
-              </ThemedText>
-            </View>
+            <SectionHeader
+              title="다시 볼 문제"
+              subtitle="틀린 문제와 저장한 문제를 골라서 풀어요"
+            />
+            <WrongAnswerSummaryCard
+              unresolvedNotes={availableUnresolvedNotes}
+              resolvedCount={resolvedNotes.length}
+              onOpen={() => openReviewLibrary("wrong")}
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={
+                hasBookmarks
+                  ? `저장한 문제 ${bookmarkedQuestionIds.length}개 보기`
+                  : "저장한 문제 없음"
+              }
+              aria-disabled={!hasBookmarks}
+              disabled={!hasBookmarks}
+              onPress={() => openReviewLibrary("bookmarked")}
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              <ThemedView
+                type="backgroundElement"
+                style={[styles.rowCard, !hasBookmarks && styles.dimmed]}
+              >
+                <View
+                  style={[
+                    styles.rowIcon,
+                    { backgroundColor: theme.warningSoft },
+                  ]}
+                >
+                  <SymbolView
+                    tintColor={theme.warning}
+                    name={{
+                      ios: "bookmark.fill",
+                      android: "bookmark",
+                      web: "bookmark",
+                    }}
+                    size={20}
+                  />
+                </View>
+                <View style={styles.rowCopy}>
+                  <ThemedText type="smallBold">저장한 문제</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {hasBookmarks
+                      ? `${bookmarkedQuestionIds.length}문제를 골라서 다시 풀 수 있어요`
+                      : "풀이 중 북마크를 누르면 여기에 모여요"}
+                  </ThemedText>
+                </View>
+                {hasBookmarks && (
+                  <SymbolView
+                    tintColor={theme.textSecondary}
+                    name={{
+                      ios: "chevron.right",
+                      android: "chevron_right",
+                      web: "chevron_right",
+                    }}
+                    size={18}
+                  />
+                )}
+              </ThemedView>
+            </Pressable>
+          </View>
 
-            <View style={styles.examList}>
-              {exams.map((exam, listIndex) => {
-                const dueCount = dueCounts[exam.id] ?? 0;
-                const studiedCount = studiedCounts[exam.id] ?? 0;
-                const hasDue = dueCount > 0;
-                const { accent, soft: softAccent } = accentByIndex(
-                  theme,
-                  listIndex,
-                );
+          {studiedExams.length > 0 && (
+            <View style={styles.section}>
+              <SectionHeader
+                title="시험별 복습"
+                subtitle={`학습한 ${totalStudied}문제를 기억 주기에 맞춰 관리 중`}
+              />
+              <ThemedView type="backgroundElement" style={styles.listCard}>
+                {studiedExams.map((exam, listIndex) => {
+                  const dueCount = dueCounts[exam.id] ?? 0;
+                  const hasDue = dueCount > 0;
+                  const { accent, soft } = accentByIndex(theme, listIndex);
 
-                return (
-                  <RevealView key={exam.id} delay={stagger(listIndex, 60)}>
-                    <Pressable
-                      accessibilityRole="button"
-                      aria-disabled={!hasDue}
-                      accessibilityLabel={
-                        hasDue
-                          ? `${exam.shortTitle} ${dueCount}문제 복습 시작`
-                          : `${exam.shortTitle} 복습할 문제 없음`
-                      }
-                      disabled={!hasDue}
-                      onPress={() => startReviewSession(exam)}
-                      style={({ pressed }) => pressed && styles.pressed}
-                    >
-                      <ThemedView
-                        type="backgroundElement"
-                        style={[
-                          styles.examCard,
-                          !hasDue && styles.examCardDisabled,
+                  return (
+                    <RevealView key={exam.id} delay={stagger(listIndex, 60)}>
+                      {listIndex > 0 && (
+                        <View
+                          style={[
+                            styles.rowDivider,
+                            { backgroundColor: theme.border },
+                          ]}
+                        />
+                      )}
+                      <Pressable
+                        accessibilityRole="button"
+                        aria-disabled={!hasDue}
+                        accessibilityLabel={
+                          hasDue
+                            ? `${exam.shortTitle} ${dueCount}문제 복습 시작`
+                            : `${exam.shortTitle} 복습할 문제 없음`
+                        }
+                        disabled={!hasDue}
+                        onPress={() => startReviewSession(exam)}
+                        style={({ pressed }) => [
+                          styles.examRow,
+                          pressed && styles.pressed,
                         ]}
                       >
                         <View
-                          style={[
-                            styles.examIcon,
-                            { backgroundColor: softAccent },
-                          ]}
+                          style={[styles.examIcon, { backgroundColor: soft }]}
                         >
                           <ThemedText style={styles.examIconText}>
                             {exam.icon}
                           </ThemedText>
                         </View>
-                        <View style={styles.examTexts}>
+                        <View style={styles.rowCopy}>
                           <ThemedText type="smallBold">
                             {exam.shortTitle}
                           </ThemedText>
                           <ThemedText type="small" themeColor="textSecondary">
-                            {studiedCount > 0
-                              ? `${studiedCount}문제 학습 완료`
-                              : "아직 학습 전"}
+                            {studiedCounts[exam.id] ?? 0}문제 학습
                           </ThemedText>
                         </View>
                         <View
@@ -316,7 +326,7 @@ export default function ReviewScreen() {
                             styles.examStatus,
                             {
                               backgroundColor: hasDue
-                                ? softAccent
+                                ? soft
                                 : theme.backgroundSelected,
                             },
                           ]}
@@ -327,27 +337,16 @@ export default function ReviewScreen() {
                               color: hasDue ? accent : theme.textSecondary,
                             }}
                           >
-                            {hasDue ? `${dueCount}문제` : "완료"}
+                            {hasDue ? `복습 ${dueCount}` : "오늘 완료"}
                           </ThemedText>
-                          {hasDue && (
-                            <SymbolView
-                              tintColor={accent}
-                              name={{
-                                ios: "chevron.right",
-                                android: "chevron_right",
-                                web: "chevron_right",
-                              }}
-                              size={15}
-                            />
-                          )}
                         </View>
-                      </ThemedView>
-                    </Pressable>
-                  </RevealView>
-                );
-              })}
+                      </Pressable>
+                    </RevealView>
+                  );
+                })}
+              </ThemedView>
             </View>
-          </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -378,21 +377,10 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   heroCard: {
-    position: "relative",
-    overflow: "hidden",
     gap: Spacing.three,
     padding: Spacing.four,
     borderRadius: Radius.large,
     ...Shadows.card,
-  },
-  heroOrb: {
-    position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    opacity: 0.08,
-    right: -54,
-    top: -96,
   },
   heroTop: {
     flexDirection: "row",
@@ -405,121 +393,87 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   heroCount: {
-    fontSize: 47,
-    lineHeight: 54,
+    fontSize: 44,
+    lineHeight: 52,
     fontWeight: 800,
   },
   heroIcon: {
-    width: 64,
-    height: 64,
+    width: 58,
+    height: 58,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.large,
   },
   reviewAllButton: {
+    minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.two,
-    paddingVertical: Spacing.twoHalf,
     borderRadius: Radius.medium,
   },
   heroPressed: {
     opacity: 0.86,
     transform: [{ scale: 0.99 }],
   },
-  scheduleGrid: {
-    flexDirection: "row",
-    gap: Spacing.two,
+  section: {
+    gap: Spacing.three,
   },
-  scheduleSlot: {
-    flex: 1,
-  },
-  scheduleCard: {
-    alignItems: "center",
-    gap: Spacing.half,
-    paddingVertical: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
-  },
-  scheduleDot: {
-    width: 7,
-    height: 7,
-    marginBottom: Spacing.half,
-    borderRadius: Radius.pill,
-  },
-  scheduleValue: {
-    fontSize: 19,
-    lineHeight: 26,
-    fontWeight: 800,
-  },
-  guideCard: {
+  rowCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
     padding: Spacing.three,
-    borderRadius: Radius.medium,
-    borderWidth: 1,
-    borderColor: "rgba(127, 127, 127, 0.12)",
+    borderRadius: Radius.large,
+    ...Shadows.card,
   },
-  guideIcon: {
+  rowIcon: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
-  guideText: {
+  rowCopy: {
+    minWidth: 0,
     flex: 1,
     gap: Spacing.half,
   },
-  section: {
-    gap: Spacing.three,
+  dimmed: {
+    opacity: 0.66,
   },
-  sectionTitle: {
-    fontSize: 19,
-    lineHeight: 28,
-    fontWeight: 800,
+  listCard: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: Radius.large,
+    ...Shadows.card,
   },
-  examList: {
-    gap: Spacing.three,
+  rowDivider: {
+    height: 1,
   },
-  examCard: {
+  examRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
-  },
-  examCardDisabled: {
-    opacity: 0.62,
+    paddingVertical: Spacing.twoHalf,
   },
   examIcon: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: Radius.medium,
     alignItems: "center",
     justifyContent: "center",
   },
   examIconText: {
-    fontSize: 22,
-    lineHeight: 29,
-  },
-  examTexts: {
-    flex: 1,
-    gap: Spacing.half,
+    fontSize: 20,
+    lineHeight: 27,
   },
   examStatus: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.half,
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.one,
     borderRadius: Radius.pill,
   },
   pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.985 }],
+    opacity: 0.72,
   },
 });
