@@ -345,6 +345,36 @@ export default function CatalogScreen({
   );
   const hasSearchText = searchQuery.length > 0;
   const isLoading = isCatalogLoading || isRequestsLoading;
+  // 캐시 목록이 있으면 목록 위에 표시하는 카탈로그 갱신 실패 안내
+  const catalogErrorNotice = catalogErrorMessage != null && (
+    <View style={[styles.loadError, { backgroundColor: theme.dangerSoft }]}>
+      <SymbolView
+        tintColor={theme.danger}
+        name={{
+          ios: "wifi.exclamationmark",
+          android: "wifi_off",
+          web: "wifi_off",
+        }}
+        size={24}
+      />
+      <ThemedText type="smallBold" style={{ color: theme.danger }}>
+        {catalogErrorMessage}
+      </ThemedText>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => void reloadCatalog()}
+        style={({ pressed }) => [
+          styles.retryButton,
+          { backgroundColor: theme.backgroundElement },
+          pressed && styles.pressed,
+        ]}
+      >
+        <ThemedText type="smallBold" style={{ color: theme.danger }}>
+          다시 불러오기
+        </ThemedText>
+      </Pressable>
+    </View>
+  );
 
   // 시험 요청 공감 인증·처리
   const voteRequest = (requestId: string) => {
@@ -558,44 +588,11 @@ export default function CatalogScreen({
                     />
                   ))}
                 </View>
-              ) : catalogErrorMessage != null ? (
-                <View
-                  style={[
-                    styles.loadError,
-                    { backgroundColor: theme.dangerSoft },
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={theme.danger}
-                    name={{
-                      ios: "wifi.exclamationmark",
-                      android: "wifi_off",
-                      web: "wifi_off",
-                    }}
-                    size={24}
-                  />
-                  <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                    {catalogErrorMessage}
-                  </ThemedText>
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => void reloadCatalog()}
-                    style={({ pressed }) => [
-                      styles.retryButton,
-                      { backgroundColor: theme.backgroundElement },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <ThemedText
-                      type="smallBold"
-                      style={{ color: theme.danger }}
-                    >
-                      다시 불러오기
-                    </ThemedText>
-                  </Pressable>
-                </View>
+              ) : catalogErrorMessage != null && exams.length === 0 ? (
+                catalogErrorNotice
               ) : (
                 <>
+                  {catalogErrorNotice}
                   <View style={styles.sectionHeader}>
                     <View>
                       <ThemedText style={styles.sectionTitle}>
