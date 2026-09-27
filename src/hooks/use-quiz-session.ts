@@ -6,7 +6,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useSettings } from "@/hooks/use-settings";
 import { selectAdaptiveQuestions } from "@/learning/adaptive-questions";
-import type { AnswerConfidence } from "@/learning/answer-confidence";
+import {
+  type AnswerConfidence,
+  getConfidenceReviewQuality,
+} from "@/learning/answer-confidence";
 import { createSrsCard, reviewSrsCard } from "@/srs/sm2";
 import {
   clearActiveQuizSession,
@@ -27,7 +30,10 @@ import {
   updateSrsCards,
 } from "@/storage/srs-store";
 import { loadPerformanceStats, recordAnswer } from "@/storage/stats-store";
-import { recordWrongAnswerState } from "@/storage/wrong-answer-note-store";
+import {
+  recordUncertainAnswerState,
+  recordWrongAnswerState,
+} from "@/storage/wrong-answer-note-store";
 import { queueLearningAttempt } from "@/sync/learning-attempt-sync";
 import {
   enqueueLearningSync,
@@ -43,6 +49,12 @@ async function triggerAnswerHaptic(isCorrect: boolean): Promise<void> {
       ? Haptics.NotificationFeedbackType.Success
       : Haptics.NotificationFeedbackType.Error,
   );
+}
+
+// 첫 시도 채점 시점과 채점 전 SRS 카드
+interface FirstReview {
+  reviewedAt: number;
+  base?: SrsCard;
 }
 
 // 퀴즈 세션 진행 상태
@@ -101,6 +113,9 @@ export interface QuizSession {
   answers: QuizAnswer[];
   flaggedQuestionIds: string[];
   mockDeadline: number | undefined;
+  canRateConfidence: boolean;
+  currentConfidence: AnswerConfidence | null;
+  rateConfidence: (confidence: AnswerConfidence) => void;
   selectChoice: (choiceIndex: number) => void;
   submitAnswer: () => void;
   goToQuestion: (questionIndex: number) => void;
@@ -186,6 +201,11 @@ export function useQuizSession(
   const sessionStatusRef = useRef<QuizStatus>("loading");
   const [clockRevision, setClockRevision] = useState(0);
   const sessionFinishLocked = useRef(false);
+  const firstReviewsRef = useRef<Record<string, FirstReview | undefined>>({});
+  const [ratingTarget, setRatingTarget] = useState<{
+    questionId: string;
+    index: number;
+  } | null>(null);
 
   // 현재 세션 활성 학습 시간 계산
   const getSessionDurationSeconds = useCallback((now = Date.now()) => {
@@ -492,19 +512,20 @@ export function useQuizSession(
       const baseCard =
         cards[question.id] ?? createSrsCard(question.id, question.examId, now);
       const optimisticCard = reviewSrsCard(baseCard, isCorrect, now);
+      const firstReview: FirstReview = { reviewedAt: now };
+      firstReviewsRef.current[question.id] = firstReview;
+      setRatingTarget({ questionId: question.id, index: currentIndex });
       setCards((current) => ({
         ...current,
         [question.id]: optimisticCard,
       }));
-      void updateSrsCard(question.id, (current) =>
-        current != null && current.lastReviewedAt > now
-          ? current
-          : reviewSrsCard(
-              current ?? createSrsCard(question.id, question.examId, now),
-              isCorrect,
-              now,
-            ),
-      ).then((card) => {
+      void updateSrsCard(question.id, (current) => {
+        if (current != null && current.lastReviewedAt > now) return current;
+        // 확신도 평가 시 다시 계산할 채점 전 카드 보관
+        firstReview.base =
+          current ?? createSrsCard(question.id, question.examId, now);
+        return reviewSrsCard(firstReview.base, isCorrect, now);
+      }).then((card) => {
         setCards((current) => ({ ...current, [question.id]: card }));
         void enqueueLearningSync(
           {
@@ -517,7 +538,68 @@ export function useQuizSession(
       });
       void recordWrongAnswerState(question, isCorrect, now);
     },
-    [cards, userId],
+    [cards, currentIndex, userId],
+  );
+
+  const currentAnswer =
+    currentQuestion == null
+      ? undefined
+      : answers.find((answer) => answer.questionId === currentQuestion.id);
+  // 첫 시도 채점 직후에만 확신도 평가 허용
+  const canRateConfidence =
+    mode !== "mock" &&
+    isSubmitted &&
+    currentQuestion != null &&
+    currentAnswer != null &&
+    ratingTarget?.questionId === currentQuestion.id &&
+    ratingTarget.index === currentIndex;
+
+  // 확신도 기준 SRS 복습 간격·오답 노트 재조정
+  const rateConfidence = useCallback(
+    (confidence: AnswerConfidence) => {
+      const question = questions[currentIndex];
+      if (!canRateConfidence || question == null || currentAnswer == null)
+        return;
+      const review = firstReviewsRef.current[question.id];
+      if (currentAnswer.confidence != null || review == null) return;
+      const { isCorrect } = currentAnswer;
+      const quality = getConfidenceReviewQuality(isCorrect, confidence);
+      const syncVersion = getLearningSyncOutboxVersion();
+      setAnswers((current) =>
+        current.map((answer) =>
+          answer.questionId === question.id
+            ? { ...answer, confidence }
+            : answer,
+        ),
+      );
+      void updateSrsCard(question.id, (current) => {
+        // 채점 이후 다른 복습이 반영된 카드는 유지
+        if (
+          review.base == null ||
+          (current != null && current.lastReviewedAt !== review.reviewedAt)
+        )
+          return (
+            current ??
+            createSrsCard(question.id, question.examId, review.reviewedAt)
+          );
+        return reviewSrsCard(
+          review.base,
+          isCorrect,
+          review.reviewedAt,
+          quality,
+        );
+      }).then((card) => {
+        setCards((current) => ({ ...current, [question.id]: card }));
+        void enqueueLearningSync(
+          { type: "progress", payload: [toProgressInput(card)] },
+          userId,
+          syncVersion,
+        );
+      });
+      if (isCorrect && confidence !== "confident")
+        void recordUncertainAnswerState(question, Date.now());
+    },
+    [canRateConfidence, currentAnswer, currentIndex, questions, userId],
   );
 
   // 채점 및 풀이 기록 저장
@@ -900,6 +982,9 @@ export function useQuizSession(
     answers,
     flaggedQuestionIds,
     mockDeadline,
+    canRateConfidence,
+    currentConfidence: currentAnswer?.confidence ?? null,
+    rateConfidence,
     selectChoice,
     submitAnswer,
     goToQuestion,
