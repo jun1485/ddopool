@@ -48,6 +48,7 @@ import {
   invalidateRemoteLearningHydration,
 } from "@/sync/hydrate-remote-learning-data";
 import { invalidateLearningAttemptSync } from "@/sync/learning-attempt-sync";
+import { learningSyncRetryDelay } from "@/sync/learning-sync-retry";
 import { flushMigratedLearningData } from "@/sync/migrate-local-learning-data";
 
 // 인증 사용자 정보
@@ -97,18 +98,19 @@ async function isActiveUser(userId: string): Promise<boolean> {
   return error == null && data.session?.user.id === userId;
 }
 
-// 로그인 후 대기 기록 전송·서버 학습 상태 병합
-async function synchronizeLearningData(userId: string): Promise<void> {
-  if (learningSyncApi == null || !(await isActiveUser(userId))) return;
+// 로그인 후 대기 기록 전송·서버 학습 상태 병합, 전송 대기 잔존 여부 반환
+async function synchronizeLearningData(userId: string): Promise<boolean> {
+  if (learningSyncApi == null || !(await isActiveUser(userId))) return false;
   const result = await flushMigratedLearningData(learningSyncApi, userId);
+  if (!(await isActiveUser(userId))) return false;
   if (
     result.pendingCount > 0 ||
-    (await loadPendingLearningAttempts()).length > 0 ||
-    !(await isActiveUser(userId))
+    (await loadPendingLearningAttempts()).length > 0
   )
-    return;
+    return true;
   await hydrateRemoteLearningData(learningSyncApi);
   await synchronizeLearningExtras(userId);
+  return false;
 }
 
 // 사용자 인증 상태 제공
@@ -175,10 +177,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setVaultError(false);
           setVaultReady(true);
           setIsLoading(false);
-          if (nextUser != null)
-            void synchronizeLearningData(nextUser.id).catch((error) =>
-              captureHandledError(error, "learning-sync"),
-            );
         })
         .catch((error) => {
           captureHandledError(error, "account-transition");
@@ -215,10 +213,29 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, [retryCount]);
 
-  // 앱 복귀 시 계정 학습 기록 동기화
+  // 로그인·앱 복귀 시 계정 학습 기록 동기화
   useEffect(() => {
     if (user == null || learningSyncApi == null) return;
+    let disposed = false;
+    let failures = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    // 전송 실패·대기 잔존 시 지수 백오프로 자동 재시도
+    const runSync = () => {
+      clearTimeout(retryTimer);
+      void synchronizeLearningData(user.id)
+        .catch((error) => {
+          captureHandledError(error, "learning-sync");
+          return true;
+        })
+        .then((pending) => {
+          if (disposed) return;
+          failures = pending ? failures + 1 : 0;
+          if (pending)
+            retryTimer = setTimeout(runSync, learningSyncRetryDelay(failures));
+        });
+    };
     lastActiveSyncAtRef.current = Date.now();
+    runSync();
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "background")
         void synchronizeLearningExtras(user.id).catch((error) =>
@@ -229,7 +246,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         Date.now() - lastActiveSyncAtRef.current >= ACTIVE_SYNC_INTERVAL_MS
       ) {
         lastActiveSyncAtRef.current = Date.now();
-        void synchronizeLearningData(user.id).catch(() => undefined);
+        runSync();
       }
     });
     const timer = setInterval(() => {
@@ -238,6 +255,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       );
     }, ACTIVE_SYNC_INTERVAL_MS);
     return () => {
+      disposed = true;
+      clearTimeout(retryTimer);
       subscription.remove();
       clearInterval(timer);
     };
