@@ -2,7 +2,7 @@ import type { z } from "zod";
 
 import type { catalogSchema } from "@/storage/data-schemas";
 
-const catalogSource = process.env.EXPO_PUBLIC_SUPABASE_URL ?? "demo-ten-exams";
+const catalogSource = process.env.EXPO_PUBLIC_SUPABASE_URL ?? "demo-exams";
 export const EXAM_CATALOG_SOURCE = catalogSource;
 export const EXAM_CATALOG_CACHE_KEY = `exam-loop:exam-catalog-cache:v2:${catalogSource}`;
 export const EXAM_CATALOG_CACHE_TIME_KEY = `${EXAM_CATALOG_CACHE_KEY}:time`;

@@ -1,0 +1,1519 @@
+{
+  "exams": [
+    {
+      "id": "aws-cloud-practitioner",
+      "title": "AWS Certified Cloud Practitioner (CLF-C02)",
+      "shortTitle": "AWS CLF",
+      "description": "클라우드 개념 · 보안 및 규정 준수 · 클라우드 기술 및 서비스 · 결제·요금 및 지원",
+      "icon": "☁️",
+      "subjects": [
+        "클라우드 개념",
+        "보안 및 규정 준수",
+        "클라우드 기술 및 서비스",
+        "결제·요금 및 지원"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "aws-clf-001",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "AWS 클라우드의 장점 중 '자본 비용을 가변 비용으로 전환한다'가 뜻하는 것은?",
+      "choices": [
+        "모든 요금을 1년 단위로 선납해 할인을 받는다",
+        "하드웨어 구매 비용을 여러 해에 걸쳐 감가상각한다",
+        "사용량과 관계없이 매월 같은 요금을 낸다",
+        "데이터센터와 서버에 미리 투자하는 대신 사용한 만큼만 비용을 낸다"
+      ],
+      "answerIndex": 3,
+      "explanation": "클라우드는 서버·데이터센터 선투자(자본 비용) 없이 실제 사용량에 비례해 요금을 내는 가변 비용 구조다. 선납 할인은 예약 인스턴스·Savings Plans 같은 별도 구매 옵션이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-002",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "AWS가 수많은 고객의 사용량을 모아 더 낮은 종량 요금을 제공할 수 있는 이유를 설명하는 클라우드 장점은?",
+      "choices": [
+        "규모의 경제",
+        "고가용성",
+        "민첩성",
+        "탄력성"
+      ],
+      "answerIndex": 0,
+      "explanation": "대규모 고객 사용량을 집계하면 인프라 단가가 낮아지고 그 효과가 낮은 종량 요금으로 이어진다. 이를 규모의 경제라고 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-003",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "신규 서비스의 트래픽을 예측할 수 없어 서버 대수를 정하지 못하는 스타트업에 가장 크게 도움이 되는 클라우드 장점은?",
+      "choices": [
+        "용량 추정이 필요 없이 필요에 따라 늘리고 줄일 수 있다",
+        "데이터센터 전력을 직접 관리할 수 있다",
+        "모든 서버를 3년 약정으로 할인받을 수 있다",
+        "물리 서버를 직접 선택해 배치할 수 있다"
+      ],
+      "answerIndex": 0,
+      "explanation": "클라우드에서는 수요에 맞춰 리소스를 늘리고 줄일 수 있어 과잉·부족 프로비저닝을 걱정할 필요가 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-004",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "개발팀이 새 테스트 환경을 몇 주가 아닌 몇 분 만에 만들 수 있게 해 주는 클라우드 장점은?",
+      "choices": [
+        "고정 비용 증가",
+        "속도와 민첩성 향상",
+        "규모의 경제",
+        "데이터 주권 강화"
+      ],
+      "answerIndex": 1,
+      "explanation": "필요한 리소스를 몇 분 만에 프로비저닝할 수 있어 실험과 출시 속도가 빨라진다. 이를 속도와 민첩성의 향상이라고 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-005",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "한국 기업이 유럽 사용자를 위해 몇 분 만에 가까운 지역에 애플리케이션을 배포할 수 있게 하는 클라우드 장점은?",
+      "choices": [
+        "단일 데이터센터로 운영한다",
+        "온프레미스 서버를 재사용한다",
+        "몇 분 만에 전 세계에 배포할 수 있다",
+        "용량을 미리 구매해야 한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "AWS는 전 세계 여러 리전을 제공하므로 사용자와 가까운 리전에 빠르게 배포해 지연 시간을 줄일 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-006",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "'차별화되지 않는 무거운 작업에 드는 비용을 없앤다'는 클라우드 장점의 예로 가장 적절한 것은?",
+      "choices": [
+        "자체 데이터센터를 추가로 짓는다",
+        "하드웨어 교체 주기를 늘린다",
+        "서버 랙 설치·전원·냉각 관리를 AWS에 맡기고 제품 개발에 집중한다",
+        "모든 서버 운영체제를 직접 컴파일한다"
+      ],
+      "answerIndex": 2,
+      "explanation": "데이터센터 운영처럼 고객 가치를 직접 만들지 않는 작업을 AWS가 대신 맡으므로, 고객은 비즈니스 차별화에 집중할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-007",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "클라우드에서 '탄력성(elasticity)'이 뜻하는 것은?",
+      "choices": [
+        "장애가 나도 데이터가 손실되지 않는 능력",
+        "여러 리전에 데이터를 복제하는 능력",
+        "수요 변화에 맞춰 리소스를 자동으로 늘리거나 줄이는 능력",
+        "하드웨어를 장기간 교체하지 않는 능력"
+      ],
+      "answerIndex": 2,
+      "explanation": "탄력성은 부하에 따라 리소스를 자동으로 확장·축소하는 능력이다. 데이터 손실 방지는 내구성, 여러 위치 배포는 고가용성과 관련된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-008",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "애플리케이션을 한 가용 영역에 장애가 나도 계속 운영되도록 설계하는 가장 기본적인 방법은?",
+      "choices": [
+        "엣지 로케이션에 서버를 설치한다",
+        "여러 가용 영역에 리소스를 분산 배포한다",
+        "더 큰 인스턴스 유형 하나로 교체한다",
+        "단일 가용 영역에 인스턴스를 더 추가한다"
+      ],
+      "answerIndex": 1,
+      "explanation": "가용 영역은 전력·네트워크가 분리돼 있으므로 여러 가용 영역에 분산하면 한 곳의 장애가 서비스 전체 중단으로 이어지지 않는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-009",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "AWS Well-Architected 프레임워크의 6가지 원칙(Pillar)에 해당하지 않는 것은?",
+      "choices": [
+        "데이터 주권",
+        "지속 가능성",
+        "비용 최적화",
+        "운영 우수성"
+      ],
+      "answerIndex": 0,
+      "explanation": "6가지 원칙은 운영 우수성, 보안, 안정성, 성능 효율성, 비용 최적화, 지속 가능성이다. 데이터 주권은 원칙이 아니라 리전 선택 시 고려하는 규정 요소다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-010",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "Well-Architected 프레임워크에서 '장애에서 자동으로 복구하고 수평 확장으로 가용성을 높이라'는 설계 원칙이 속한 원칙은?",
+      "choices": [
+        "안정성(Reliability)",
+        "성능 효율성",
+        "지속 가능성",
+        "운영 우수성"
+      ],
+      "answerIndex": 0,
+      "explanation": "안정성 원칙은 장애 자동 복구, 복구 절차 테스트, 수평 확장, 용량 추측 중단 같은 설계 원칙을 다룬다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-011",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "워크로드가 환경에 미치는 영향을 최소화하고 에너지 효율을 높이는 데 초점을 둔 Well-Architected 원칙은?",
+      "choices": [
+        "안정성",
+        "비용 최적화",
+        "보안",
+        "지속 가능성"
+      ],
+      "answerIndex": 3,
+      "explanation": "지속 가능성 원칙은 리소스 사용 효율을 높이고 필요한 만큼만 사용해 환경 영향을 줄이는 방법을 다룬다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-012",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "Well-Architected의 성능 효율성 원칙에 가장 부합하는 실천은?",
+      "choices": [
+        "모든 워크로드에 가장 큰 인스턴스를 고정 사용한다",
+        "서버리스·관리형 서비스를 활용하고 워크로드에 맞는 리소스 유형을 선택한다",
+        "변경을 한 번에 크게 모아서 배포한다",
+        "보안 로그를 수집하지 않는다"
+      ],
+      "answerIndex": 1,
+      "explanation": "성능 효율성은 요구 사항에 맞는 리소스 유형을 고르고 서버리스 등 관리형 기술로 효율을 높이는 것을 강조한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-013",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "'운영을 코드로 수행하고, 작고 되돌릴 수 있는 변경을 자주 적용하라'는 설계 원칙이 속한 Well-Architected 원칙은?",
+      "choices": [
+        "비용 최적화",
+        "운영 우수성",
+        "지속 가능성",
+        "보안"
+      ],
+      "answerIndex": 1,
+      "explanation": "운영 우수성 원칙은 코드형 운영, 작고 가역적인 변경, 운영 절차의 지속적 개선을 강조한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-014",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "온프레미스 데이터센터와 AWS 클라우드 리소스를 연결해 함께 사용하는 배포 모델은?",
+      "choices": [
+        "멀티 테넌트 SaaS",
+        "프라이빗 클라우드 전용 배포",
+        "하이브리드 배포",
+        "퍼블릭 클라우드 전용 배포"
+      ],
+      "answerIndex": 2,
+      "explanation": "하이브리드 배포는 기존 온프레미스 인프라와 클라우드를 연결해 함께 운영하는 방식이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-015",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "다음 중 IaaS(Infrastructure as a Service)에 가장 가까운 AWS 서비스는?",
+      "choices": [
+        "AWS Elastic Beanstalk",
+        "Amazon EC2",
+        "Amazon Rekognition",
+        "Amazon WorkMail"
+      ],
+      "answerIndex": 1,
+      "explanation": "EC2는 가상 서버를 제공하고 운영체제부터 애플리케이션까지 고객이 관리하므로 IaaS에 해당한다. Elastic Beanstalk는 PaaS, WorkMail은 SaaS 성격이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-016",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "코드를 업로드하면 용량 프로비저닝·로드 밸런싱·오토 스케일링을 자동으로 처리해 주는 PaaS 성격의 서비스는?",
+      "choices": [
+        "Amazon EBS",
+        "Amazon EC2",
+        "AWS Direct Connect",
+        "AWS Elastic Beanstalk"
+      ],
+      "answerIndex": 3,
+      "explanation": "Elastic Beanstalk는 애플리케이션 코드만 올리면 배포와 인프라 구성을 자동 처리하는 PaaS형 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-017",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "SaaS(Software as a Service)의 특징으로 옳은 것은?",
+      "choices": [
+        "공급자가 운영하는 완성된 애플리케이션을 사용자가 그대로 이용한다",
+        "사용자가 런타임과 미들웨어를 직접 설치한다",
+        "사용자가 네트워크 장비를 직접 구성한다",
+        "사용자가 가상 서버의 운영체제를 직접 패치한다"
+      ],
+      "answerIndex": 0,
+      "explanation": "SaaS는 공급자가 인프라부터 애플리케이션까지 관리하고 사용자는 완성된 소프트웨어를 이용만 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-018",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "AWS 클라우드 도입 프레임워크(AWS CAF)의 '사람(People)' 관점이 주로 다루는 내용은?",
+      "choices": [
+        "네트워크 아키텍처 설계",
+        "조직 문화, 교육, 변화 관리",
+        "서비스 한도 증가 요청",
+        "데이터 암호화 방식"
+      ],
+      "answerIndex": 1,
+      "explanation": "CAF의 사람 관점은 클라우드 전환에 필요한 조직 구조, 역량 교육, 문화와 변화 관리를 다룬다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-019",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "AWS CAF의 6가지 관점에 해당하지 않는 것은?",
+      "choices": [
+        "거버넌스",
+        "마케팅",
+        "운영",
+        "플랫폼"
+      ],
+      "answerIndex": 1,
+      "explanation": "AWS CAF의 관점은 비즈니스, 사람, 거버넌스, 플랫폼, 보안, 운영의 6가지다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-020",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "애플리케이션을 코드 변경 없이 그대로 클라우드로 옮기는 마이그레이션 전략은?",
+      "choices": [
+        "폐기(Retire)",
+        "리호스팅(Rehost, lift and shift)",
+        "재구매(Repurchase)",
+        "리팩터링(Refactor)"
+      ],
+      "answerIndex": 1,
+      "explanation": "리호스팅은 애플리케이션을 수정하지 않고 가상 서버 등으로 그대로 이전하는 가장 빠른 전략이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-021",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "자체 설치 데이터베이스를 Amazon RDS로 옮겨 관리 부담만 줄이고 애플리케이션 구조는 유지하는 마이그레이션 전략은?",
+      "choices": [
+        "리플랫포밍(Replatform)",
+        "리호스팅(Rehost)",
+        "리팩터링(Refactor)",
+        "유지(Retain)"
+      ],
+      "answerIndex": 0,
+      "explanation": "리플랫포밍은 핵심 아키텍처는 유지하면서 관리형 서비스 도입 같은 일부 최적화를 적용하는 전략이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-022",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "모놀리식 애플리케이션을 서버리스·마이크로서비스로 다시 설계해 클라우드 네이티브 기능을 최대한 활용하는 전략은?",
+      "choices": [
+        "재배치(Relocate)",
+        "폐기(Retire)",
+        "리팩터링(Refactor)",
+        "리호스팅(Rehost)"
+      ],
+      "answerIndex": 2,
+      "explanation": "리팩터링은 애플리케이션을 재설계해 확장성·민첩성 같은 클라우드 이점을 최대한 얻는 전략이다. 시간과 비용은 가장 많이 든다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-023",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "마이그레이션 평가 중 더 이상 쓰지 않는 것으로 확인된 애플리케이션에 적용할 전략은?",
+      "choices": [
+        "재구매(Repurchase)",
+        "폐기(Retire)",
+        "리플랫포밍(Replatform)",
+        "리호스팅(Rehost)"
+      ],
+      "answerIndex": 1,
+      "explanation": "사용하지 않는 애플리케이션은 옮기지 않고 종료하는 폐기 전략으로 비용과 관리 범위를 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-024",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 개념",
+      "prompt": "온프레미스 대비 클라우드의 총소유비용(TCO)을 비교할 때 클라우드에서 크게 줄어드는 항목은?",
+      "choices": [
+        "서버 하드웨어 구매, 전력, 냉각, 상면 비용",
+        "사용자 교육 비용 전부",
+        "소프트웨어 요구 사항 분석 비용",
+        "애플리케이션 기능 개발 비용"
+      ],
+      "answerIndex": 0,
+      "explanation": "클라우드로 옮기면 데이터센터 하드웨어·전력·냉각·공간 같은 인프라 비용이 사라지거나 크게 줄어든다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-025",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "AWS 공동 책임 모델에서 Amazon EC2 인스턴스의 게스트 운영체제 보안 패치는 누구의 책임인가?",
+      "choices": [
+        "AWS",
+        "고객",
+        "AWS와 하드웨어 공급업체",
+        "인터넷 서비스 제공업체"
+      ],
+      "answerIndex": 1,
+      "explanation": "EC2는 IaaS이므로 게스트 OS 패치, 애플리케이션, 보안 그룹 설정은 고객 책임이다. AWS는 하이퍼바이저와 물리 인프라를 책임진다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-026",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "AWS 공동 책임 모델에서 AWS가 책임지는 항목은?",
+      "choices": [
+        "고객 데이터 분류",
+        "S3 버킷 정책 작성",
+        "IAM 사용자 권한 설정",
+        "데이터센터의 물리적 보안"
+      ],
+      "answerIndex": 3,
+      "explanation": "AWS는 '클라우드의 보안', 즉 물리적 시설·하드웨어·글로벌 인프라를 책임지고, 고객은 '클라우드 안의 보안'을 책임진다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-027",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "Amazon RDS를 사용할 때 데이터베이스 엔진 패치와 기반 OS 관리는 누구의 책임인가?",
+      "choices": [
+        "데이터베이스 벤더",
+        "고객과 벤더 공동",
+        "고객",
+        "AWS"
+      ],
+      "answerIndex": 3,
+      "explanation": "RDS는 관리형 서비스라 OS와 DB 엔진 패치는 AWS가 수행한다. 고객은 DB 사용자 권한, 네트워크 접근 제어, 데이터를 관리한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-028",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "공동 책임 모델에서 Amazon S3 버킷의 데이터 암호화 설정과 접근 정책 구성은 누구의 책임인가?",
+      "choices": [
+        "리전 운영팀",
+        "AWS Support",
+        "고객",
+        "AWS"
+      ],
+      "answerIndex": 2,
+      "explanation": "S3 데이터 자체와 버킷 정책·암호화 설정 같은 접근 제어는 고객이 구성해야 하는 '클라우드 안의 보안'에 속한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-029",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "AWS Lambda를 사용할 때 고객이 책임지는 것은?",
+      "choices": [
+        "함수 코드와 함수에 부여한 IAM 권한",
+        "하이퍼바이저 업데이트",
+        "런타임 인프라의 물리 보안",
+        "함수가 실행되는 서버의 OS 패치"
+      ],
+      "answerIndex": 0,
+      "explanation": "Lambda는 서버리스라 OS·런타임 인프라는 AWS가 관리하고, 고객은 코드와 권한 설정을 책임진다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-030",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "AWS 계정 루트 사용자에 대한 모범 사례로 옳은 것은?",
+      "choices": [
+        "모든 팀원과 루트 자격 증명을 공유한다",
+        "매일 루트 사용자로 로그인해 리소스를 관리한다",
+        "루트 사용자 액세스 키를 만들어 애플리케이션에 넣는다",
+        "MFA를 활성화하고 일상 작업에는 사용하지 않는다"
+      ],
+      "answerIndex": 3,
+      "explanation": "루트 사용자는 모든 권한을 가지므로 MFA로 보호하고, 일상 작업은 권한이 제한된 IAM 사용자나 역할로 수행한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-031",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "다음 중 루트 사용자만 수행할 수 있는 작업은?",
+      "choices": [
+        "IAM 사용자 생성",
+        "EC2 인스턴스 시작",
+        "AWS 계정 해지(닫기)",
+        "S3 버킷 생성"
+      ],
+      "answerIndex": 2,
+      "explanation": "계정 해지, 계정 이메일·루트 암호 변경, 지원 플랜 변경 등은 루트 사용자만 할 수 있다. 나머지는 권한이 있는 IAM 주체도 가능하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-032",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "사용자에게 업무에 꼭 필요한 권한만 부여하라는 보안 원칙은?",
+      "choices": [
+        "공동 책임 원칙",
+        "최소 권한 원칙",
+        "심층 방어 원칙",
+        "직무 순환 원칙"
+      ],
+      "answerIndex": 1,
+      "explanation": "최소 권한 원칙은 필요한 작업에 필요한 권한만 부여해 계정 탈취나 실수의 피해 범위를 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-033",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "EC2에서 실행되는 애플리케이션이 Amazon S3에 안전하게 접근하도록 하는 가장 좋은 방법은?",
+      "choices": [
+        "IAM 역할을 인스턴스에 연결한다",
+        "S3 버킷을 퍼블릭으로 공개한다",
+        "IAM 사용자의 액세스 키를 코드에 저장한다",
+        "루트 사용자 자격 증명을 환경 변수에 넣는다"
+      ],
+      "answerIndex": 0,
+      "explanation": "IAM 역할을 연결하면 인스턴스가 자동 교체되는 임시 자격 증명을 받으므로 장기 액세스 키를 저장할 필요가 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-034",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "여러 IAM 사용자에게 동일한 권한 세트를 한 번에 부여하고 관리하려면 무엇을 사용해야 하는가?",
+      "choices": [
+        "IAM 그룹",
+        "리소스 태그",
+        "보안 그룹",
+        "IAM 역할"
+      ],
+      "answerIndex": 0,
+      "explanation": "IAM 그룹에 정책을 연결하면 그룹에 속한 모든 사용자가 같은 권한을 받는다. 보안 그룹은 네트워크 방화벽이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-035",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "IAM 정책 문서는 어떤 형식으로 작성되는가?",
+      "choices": [
+        "YAML 전용",
+        "CSV",
+        "JSON",
+        "XML"
+      ],
+      "answerIndex": 2,
+      "explanation": "IAM 정책은 Effect, Action, Resource, Condition 등의 요소를 가진 JSON 문서로 작성한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-036",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "암호 외에 인증 장치의 일회용 코드를 추가로 요구해 로그인 보안을 강화하는 기능은?",
+      "choices": [
+        "IAM 액세스 분석기",
+        "보안 그룹",
+        "AWS Config 규칙",
+        "멀티 팩터 인증(MFA)"
+      ],
+      "answerIndex": 3,
+      "explanation": "MFA는 알고 있는 것(암호)과 가지고 있는 것(인증 장치)을 함께 요구해 암호 유출 시에도 계정을 보호한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-037",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "여러 AWS 계정과 비즈니스 애플리케이션에 대한 직원 로그인을 한 곳에서 중앙 관리하는 서비스는?",
+      "choices": [
+        "AWS IAM Identity Center",
+        "Amazon Cognito 사용자 풀",
+        "AWS Artifact",
+        "AWS Config"
+      ],
+      "answerIndex": 0,
+      "explanation": "IAM Identity Center(구 AWS SSO)는 여러 계정과 애플리케이션에 대한 인력 접근을 중앙에서 관리한다. Cognito는 주로 고객용 앱 사용자 인증에 쓴다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-038",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "AWS Organizations에서 멤버 계정이 사용할 수 있는 최대 권한을 제한하는 기능은?",
+      "choices": [
+        "보안 그룹",
+        "비용 할당 태그",
+        "IAM 그룹",
+        "서비스 제어 정책(SCP)"
+      ],
+      "answerIndex": 3,
+      "explanation": "SCP는 조직 단위나 계정에 적용해 해당 계정의 IAM 주체가 가질 수 있는 최대 권한 범위를 제한한다. SCP 자체가 권한을 부여하지는 않는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-039",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "감사 대응을 위해 AWS의 SOC 보고서와 ISO 인증서 같은 규정 준수 문서를 내려받을 수 있는 서비스는?",
+      "choices": [
+        "AWS Artifact",
+        "AWS Trusted Advisor",
+        "AWS Config",
+        "Amazon Inspector"
+      ],
+      "answerIndex": 0,
+      "explanation": "AWS Artifact는 AWS의 보안·규정 준수 보고서와 일부 계약서를 셀프 서비스로 제공하는 포털이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-040",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "CloudTrail·VPC 흐름 로그·DNS 로그를 분석해 악의적 활동과 비정상 동작을 지속적으로 탐지하는 서비스는?",
+      "choices": [
+        "Amazon Macie",
+        "Amazon Inspector",
+        "AWS Shield",
+        "Amazon GuardDuty"
+      ],
+      "answerIndex": 3,
+      "explanation": "GuardDuty는 여러 로그 소스를 머신러닝과 위협 인텔리전스로 분석해 위협을 탐지하는 관리형 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-041",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "EC2 인스턴스와 컨테이너 이미지의 소프트웨어 취약점과 의도하지 않은 네트워크 노출을 자동으로 스캔하는 서비스는?",
+      "choices": [
+        "Amazon GuardDuty",
+        "Amazon Detective",
+        "AWS WAF",
+        "Amazon Inspector"
+      ],
+      "answerIndex": 3,
+      "explanation": "Amazon Inspector는 EC2, ECR 컨테이너 이미지, Lambda 함수의 알려진 취약점(CVE)과 네트워크 노출을 자동 평가한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-042",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "모든 AWS 고객에게 추가 비용 없이 자동 적용되는 DDoS 보호 서비스는?",
+      "choices": [
+        "AWS Shield Standard",
+        "AWS WAF",
+        "AWS Shield Advanced",
+        "Amazon GuardDuty"
+      ],
+      "answerIndex": 0,
+      "explanation": "Shield Standard는 흔한 네트워크·전송 계층 DDoS 공격을 무료로 자동 방어한다. Shield Advanced는 유료로 추가 보호와 대응팀 지원을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-043",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "웹 애플리케이션으로 들어오는 SQL 인젝션과 크로스 사이트 스크립팅 요청을 규칙으로 차단하려면 어떤 서비스를 사용해야 하는가?",
+      "choices": [
+        "AWS Shield Standard",
+        "AWS WAF",
+        "네트워크 ACL",
+        "Amazon Inspector"
+      ],
+      "answerIndex": 1,
+      "explanation": "AWS WAF는 HTTP(S) 요청을 검사해 SQL 인젝션·XSS 같은 웹 공격 패턴을 규칙으로 차단하는 웹 애플리케이션 방화벽이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-044",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "데이터 암호화에 사용하는 암호화 키를 생성하고 관리하며 여러 AWS 서비스와 통합되는 서비스는?",
+      "choices": [
+        "AWS Key Management Service(AWS KMS)",
+        "AWS Secrets Manager",
+        "AWS Certificate Manager",
+        "Amazon Macie"
+      ],
+      "answerIndex": 0,
+      "explanation": "AWS KMS는 암호화 키의 생성·교체·사용 권한을 관리하고 S3, EBS, RDS 등 많은 서비스의 암호화와 통합된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-045",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "규정상 다른 고객과 공유하지 않는 전용 하드웨어에서 암호화 키를 관리해야 할 때 적합한 서비스는?",
+      "choices": [
+        "AWS KMS 기본 키",
+        "AWS CloudHSM",
+        "AWS Secrets Manager",
+        "IAM 액세스 키"
+      ],
+      "answerIndex": 1,
+      "explanation": "CloudHSM은 고객 전용 하드웨어 보안 모듈(HSM)을 제공하며 FIPS 140 레벨 3 검증을 받은 장비에서 키를 직접 관리할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-046",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "데이터베이스 암호를 코드에 넣지 않고 안전하게 저장하며 주기적으로 자동 교체하려면 어떤 서비스를 사용해야 하는가?",
+      "choices": [
+        "AWS CloudTrail",
+        "AWS Artifact",
+        "Amazon S3",
+        "AWS Secrets Manager"
+      ],
+      "answerIndex": 3,
+      "explanation": "Secrets Manager는 자격 증명을 암호화해 저장하고 RDS 등과 연동해 자동 교체 기능을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-047",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "어떤 IAM 사용자가 언제 EC2 인스턴스를 종료했는지 확인하려면 어떤 서비스의 기록을 봐야 하는가?",
+      "choices": [
+        "Amazon Inspector",
+        "AWS Trusted Advisor",
+        "Amazon CloudWatch 지표",
+        "AWS CloudTrail"
+      ],
+      "answerIndex": 3,
+      "explanation": "CloudTrail은 계정에서 발생한 API 호출을 누가, 언제, 어디서 했는지 기록해 감사와 보안 분석에 활용한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-048",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "리소스 구성 변경 이력을 기록하고, 보안 그룹이 SSH를 전체 인터넷에 열어 두었는지 같은 규칙 준수 여부를 지속적으로 평가하는 서비스는?",
+      "choices": [
+        "Amazon GuardDuty",
+        "AWS Budgets",
+        "AWS Config",
+        "AWS CloudTrail"
+      ],
+      "answerIndex": 2,
+      "explanation": "AWS Config는 리소스 구성과 변경 이력을 기록하고 Config 규칙으로 원하는 구성 기준을 지키는지 평가한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-049",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "Amazon S3에 저장된 데이터에서 개인 식별 정보(PII) 같은 민감 데이터를 자동으로 찾아내는 서비스는?",
+      "choices": [
+        "AWS Shield",
+        "Amazon Inspector",
+        "Amazon Macie",
+        "Amazon Detective"
+      ],
+      "answerIndex": 2,
+      "explanation": "Macie는 머신러닝과 패턴 매칭으로 S3의 민감 데이터를 발견하고 버킷의 보안 상태를 평가한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-050",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "GuardDuty, Inspector, Macie 등 여러 서비스의 보안 결과를 한곳에 모으고 보안 모범 사례 준수 상태를 점검하는 서비스는?",
+      "choices": [
+        "AWS Security Hub",
+        "AWS Artifact",
+        "Amazon CloudWatch Logs",
+        "AWS Organizations"
+      ],
+      "answerIndex": 0,
+      "explanation": "Security Hub는 여러 보안 서비스의 결과를 통합하고 보안 표준 기준으로 계정의 보안 상태를 자동 점검한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-051",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "EC2 인스턴스 수준에서 동작하며 허용 규칙만 가지고 응답 트래픽을 자동 허용하는(상태 저장) 가상 방화벽은?",
+      "choices": [
+        "AWS WAF",
+        "네트워크 ACL",
+        "보안 그룹",
+        "라우팅 테이블"
+      ],
+      "answerIndex": 2,
+      "explanation": "보안 그룹은 인스턴스(ENI) 수준의 상태 저장 방화벽으로 허용 규칙만 설정한다. 네트워크 ACL은 서브넷 수준의 상태 비저장 방화벽이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-052",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "서브넷 수준에서 허용과 거부 규칙을 모두 지정할 수 있는 상태 비저장 방화벽은?",
+      "choices": [
+        "인터넷 게이트웨이",
+        "IAM 정책",
+        "보안 그룹",
+        "네트워크 ACL"
+      ],
+      "answerIndex": 3,
+      "explanation": "네트워크 ACL은 서브넷 단위로 적용되고 거부 규칙을 지정할 수 있으며, 상태 비저장이라 응답 트래픽도 규칙으로 허용해야 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-053",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "웹사이트에 사용할 SSL/TLS 인증서를 무료로 발급받고 자동 갱신까지 맡길 수 있는 서비스는?",
+      "choices": [
+        "Amazon Route 53",
+        "AWS Secrets Manager",
+        "AWS Certificate Manager(ACM)",
+        "AWS KMS"
+      ],
+      "answerIndex": 2,
+      "explanation": "ACM은 ELB, CloudFront 등과 통합되는 공인 SSL/TLS 인증서를 무료로 발급하고 자동 갱신한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-054",
+      "examId": "aws-cloud-practitioner",
+      "subject": "보안 및 규정 준수",
+      "prompt": "GuardDuty가 탐지한 보안 결과의 근본 원인을 조사하기 위해 로그를 연결·시각화해 분석하는 서비스는?",
+      "choices": [
+        "Amazon Macie",
+        "Amazon Detective",
+        "AWS Config",
+        "AWS Artifact"
+      ],
+      "answerIndex": 1,
+      "explanation": "Detective는 로그 데이터를 자동으로 수집·연결해 보안 이벤트의 범위와 근본 원인을 조사하도록 돕는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-055",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "AWS 리전을 선택할 때 일반적인 고려 요소가 아닌 것은?",
+      "choices": [
+        "리전별 서비스 제공 여부와 요금",
+        "데이터 주권 등 규정 준수 요구 사항",
+        "사용자와의 거리에 따른 지연 시간",
+        "가입한 AWS Support 플랜 등급"
+      ],
+      "answerIndex": 3,
+      "explanation": "리전 선택 시에는 규정 준수, 지연 시간, 서비스 가용성, 요금을 고려한다. 지원 플랜은 계정 단위라 리전 선택과 무관하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-056",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "AWS 가용 영역(Availability Zone)에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "리전 안에서 전력·네트워크가 분리된 하나 이상의 데이터센터로 구성된다",
+        "고객 사무실에 설치되는 AWS 장비다",
+        "전 세계에 하나만 존재하는 중앙 데이터센터다",
+        "CloudFront 캐시만 제공하는 소규모 거점이다"
+      ],
+      "answerIndex": 0,
+      "explanation": "가용 영역은 리전 내에서 물리적으로 분리되고 독립된 전력·네트워크를 갖춘 데이터센터 묶음이며, 영역 간은 저지연 네트워크로 연결된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-057",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "Amazon CloudFront가 콘텐츠를 캐시해 사용자에게 빠르게 전달하는 데 사용하는 전 세계 거점은?",
+      "choices": [
+        "AWS Outposts",
+        "VPC 서브넷",
+        "가용 영역",
+        "엣지 로케이션"
+      ],
+      "answerIndex": 3,
+      "explanation": "엣지 로케이션은 사용자와 가까운 곳에서 CloudFront 캐시와 Route 53 DNS 응답 등을 제공하는 전 세계 거점이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-058",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "데이터 처리 지연을 최소화하려고 AWS 인프라와 서비스를 고객의 온프레미스 데이터센터 안에서 실행하려면 무엇을 사용해야 하는가?",
+      "choices": [
+        "엣지 로케이션",
+        "Amazon CloudFront",
+        "AWS Direct Connect",
+        "AWS Outposts"
+      ],
+      "answerIndex": 3,
+      "explanation": "Outposts는 AWS가 관리하는 랙을 고객 시설에 설치해 온프레미스에서도 동일한 AWS 인프라와 API를 사용하게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-059",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "대용량 인메모리 데이터베이스를 실행하려고 한다. 가장 적합한 EC2 인스턴스 계열은?",
+      "choices": [
+        "가속화된 컴퓨팅 인스턴스",
+        "메모리 최적화 인스턴스",
+        "컴퓨팅 최적화 인스턴스",
+        "스토리지 최적화 인스턴스"
+      ],
+      "answerIndex": 1,
+      "explanation": "메모리 최적화 인스턴스(R, X 계열 등)는 큰 메모리가 필요한 인메모리 DB와 실시간 분석에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-060",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "트래픽에 따라 EC2 인스턴스 수를 자동으로 늘리고 줄이는 기능은?",
+      "choices": [
+        "AWS Config",
+        "Amazon EC2 Auto Scaling",
+        "Amazon Route 53",
+        "Elastic Load Balancing"
+      ],
+      "answerIndex": 1,
+      "explanation": "EC2 Auto Scaling은 수요와 정책에 따라 인스턴스 수를 자동 조정한다. 트래픽 분산은 Elastic Load Balancing의 역할이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-061",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "들어오는 애플리케이션 트래픽을 여러 대상 인스턴스에 자동으로 분산하는 서비스는?",
+      "choices": [
+        "Amazon EC2 Auto Scaling",
+        "Amazon SQS",
+        "AWS Global Accelerator",
+        "Elastic Load Balancing"
+      ],
+      "answerIndex": 3,
+      "explanation": "Elastic Load Balancing은 여러 가용 영역의 대상에 트래픽을 분산하고 비정상 대상을 제외한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-062",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "서버를 관리하지 않고 이벤트가 발생할 때만 코드를 실행하며 실행 시간만큼 비용을 내는 서비스는?",
+      "choices": [
+        "Amazon EC2",
+        "AWS Lambda",
+        "Amazon Lightsail",
+        "AWS Outposts"
+      ],
+      "answerIndex": 1,
+      "explanation": "Lambda는 서버리스 컴퓨팅 서비스로 이벤트에 따라 코드를 실행하고 요청 수와 실행 시간 기준으로 과금한다. 한 번 실행은 최대 15분이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-063",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "AWS에서 관리형 Kubernetes 컨트롤 플레인을 제공하는 서비스는?",
+      "choices": [
+        "Amazon ECS",
+        "Amazon EKS",
+        "AWS Batch",
+        "Amazon Lightsail"
+      ],
+      "answerIndex": 1,
+      "explanation": "Amazon EKS(Elastic Kubernetes Service)는 관리형 Kubernetes 서비스다. ECS는 AWS 자체 컨테이너 오케스트레이션 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-064",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "EC2 인스턴스를 직접 관리하지 않고 ECS 또는 EKS 컨테이너를 실행할 수 있는 서버리스 컴퓨팅 엔진은?",
+      "choices": [
+        "AWS Elastic Beanstalk",
+        "AWS Lambda@Edge",
+        "Amazon EC2 Auto Scaling",
+        "AWS Fargate"
+      ],
+      "answerIndex": 3,
+      "explanation": "Fargate는 컨테이너 실행에 필요한 서버 프로비저닝과 관리를 AWS가 대신하는 서버리스 컨테이너 엔진이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-065",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "Amazon S3에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "99.999999999%(11 9s) 내구성을 제공하는 객체 스토리지다",
+        "EC2에 직접 연결하는 블록 스토리지다",
+        "관계형 데이터베이스 서비스다",
+        "여러 인스턴스가 마운트하는 NFS 파일 시스템이다"
+      ],
+      "answerIndex": 0,
+      "explanation": "S3는 객체 스토리지로 데이터를 여러 가용 영역에 저장해 11 9s의 내구성을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-066",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "몇 년간 보관하되 거의 조회하지 않고 조회 시 12시간 정도 기다려도 되는 규정 보관 데이터에 가장 저렴한 S3 스토리지 클래스는?",
+      "choices": [
+        "S3 Standard",
+        "S3 Standard-IA",
+        "S3 Glacier Deep Archive",
+        "S3 Glacier Instant Retrieval"
+      ],
+      "answerIndex": 2,
+      "explanation": "Glacier Deep Archive는 가장 저렴한 S3 스토리지 클래스로 장기 보관용이며, 표준 검색은 12시간 이내에 완료된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-067",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "액세스 패턴을 예측할 수 없는 데이터를 자동으로 적절한 계층으로 옮겨 비용을 줄여 주는 S3 스토리지 클래스는?",
+      "choices": [
+        "S3 Glacier Deep Archive",
+        "S3 Intelligent-Tiering",
+        "S3 Standard",
+        "S3 One Zone-IA"
+      ],
+      "answerIndex": 1,
+      "explanation": "Intelligent-Tiering은 객체 액세스 빈도를 감시해 자동으로 계층을 이동하므로 패턴을 모를 때 비용을 최적화한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-068",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "EC2 인스턴스에 연결해 부팅 볼륨이나 데이터베이스 디스크로 쓰는 영구 블록 스토리지는?",
+      "choices": [
+        "Amazon EBS",
+        "Amazon S3",
+        "Amazon EFS",
+        "Amazon S3 Glacier"
+      ],
+      "answerIndex": 0,
+      "explanation": "EBS는 EC2용 블록 스토리지로 인스턴스를 중지해도 데이터가 유지되며, 같은 가용 영역의 인스턴스에 연결한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-069",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "여러 Linux EC2 인스턴스가 동시에 마운트해 공유하는 완전관리형 파일 시스템은?",
+      "choices": [
+        "Amazon EFS",
+        "인스턴스 스토어",
+        "Amazon S3 Glacier",
+        "Amazon EBS"
+      ],
+      "answerIndex": 0,
+      "explanation": "EFS는 NFS 기반 공유 파일 시스템으로 여러 가용 영역의 많은 인스턴스가 동시에 사용할 수 있고 용량이 자동 확장된다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-070",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "인스턴스를 중지하거나 종료하면 데이터가 사라지는 EC2 스토리지는?",
+      "choices": [
+        "Amazon EBS",
+        "Amazon EFS",
+        "Amazon S3",
+        "인스턴스 스토어"
+      ],
+      "answerIndex": 3,
+      "explanation": "인스턴스 스토어는 호스트에 물리적으로 붙은 임시 스토리지로 매우 빠르지만 인스턴스를 중지·종료하면 데이터가 사라진다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-071",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "백업, 패치, 장애 조치 같은 관리 작업을 AWS가 대신하는 관계형 데이터베이스 서비스는?",
+      "choices": [
+        "Amazon ElastiCache",
+        "Amazon DynamoDB",
+        "Amazon RDS",
+        "Amazon Redshift"
+      ],
+      "answerIndex": 2,
+      "explanation": "Amazon RDS는 MySQL, PostgreSQL 등 관계형 DB의 프로비저닝·백업·패치를 자동화하는 관리형 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-072",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "MySQL·PostgreSQL과 호환되면서 높은 성능과 가용성을 제공하도록 AWS가 클라우드용으로 설계한 데이터베이스는?",
+      "choices": [
+        "Amazon DynamoDB",
+        "Amazon Aurora",
+        "Amazon DocumentDB",
+        "Amazon Neptune"
+      ],
+      "answerIndex": 1,
+      "explanation": "Aurora는 MySQL·PostgreSQL 호환 관계형 DB로 스토리지를 여러 가용 영역에 복제해 높은 성능과 내구성을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-073",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "대규모 트래픽에서도 한 자릿수 밀리초 응답을 제공하는 서버리스 키-값·문서형 NoSQL 데이터베이스는?",
+      "choices": [
+        "Amazon Aurora",
+        "Amazon DynamoDB",
+        "Amazon RDS",
+        "Amazon Redshift"
+      ],
+      "answerIndex": 1,
+      "explanation": "DynamoDB는 서버 관리 없이 자동 확장되는 NoSQL 데이터베이스로 규모와 관계없이 한 자릿수 밀리초 성능을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-074",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "대량의 정형 데이터를 대상으로 복잡한 분석 쿼리를 수행하는 데이터 웨어하우스 서비스는?",
+      "choices": [
+        "Amazon Redshift",
+        "Amazon RDS for MySQL",
+        "Amazon ElastiCache",
+        "Amazon DynamoDB"
+      ],
+      "answerIndex": 0,
+      "explanation": "Redshift는 페타바이트 규모 데이터를 분석하는 컬럼 기반 데이터 웨어하우스 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-075",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "자주 조회하는 데이터를 메모리에 캐시해 데이터베이스 부하를 줄이는 Redis·Memcached 호환 서비스는?",
+      "choices": [
+        "Amazon ElastiCache",
+        "Amazon Redshift",
+        "Amazon S3",
+        "Amazon EBS"
+      ],
+      "answerIndex": 0,
+      "explanation": "ElastiCache는 인메모리 캐시로 반복 조회 결과를 빠르게 제공해 DB 부하와 응답 시간을 줄인다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-076",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "AWS 클라우드 안에서 IP 대역·서브넷·라우팅을 직접 정의하는 논리적으로 격리된 가상 네트워크는?",
+      "choices": [
+        "Amazon Route 53",
+        "AWS Direct Connect",
+        "Amazon VPC",
+        "Amazon CloudFront"
+      ],
+      "answerIndex": 2,
+      "explanation": "Amazon VPC는 고객이 IP 주소 범위, 서브넷, 라우팅 테이블, 게이트웨이를 정의하는 격리된 가상 네트워크다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-077",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "VPC의 퍼블릭 서브넷에 있는 리소스가 인터넷과 통신하도록 VPC에 연결하는 구성 요소는?",
+      "choices": [
+        "VPC 피어링",
+        "인터넷 게이트웨이",
+        "가상 프라이빗 게이트웨이",
+        "NAT 게이트웨이"
+      ],
+      "answerIndex": 1,
+      "explanation": "인터넷 게이트웨이를 VPC에 연결하고 라우팅 테이블에 경로를 추가하면 퍼블릭 서브넷이 인터넷과 양방향 통신할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-078",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "프라이빗 서브넷의 인스턴스가 소프트웨어 업데이트를 내려받도록 인터넷으로 나가는 연결만 허용하려면 무엇을 사용해야 하는가?",
+      "choices": [
+        "AWS Direct Connect",
+        "Elastic IP를 각 인스턴스에 할당",
+        "인터넷 게이트웨이를 프라이빗 서브넷에 직접 연결",
+        "NAT 게이트웨이"
+      ],
+      "answerIndex": 3,
+      "explanation": "NAT 게이트웨이는 프라이빗 서브넷 인스턴스의 아웃바운드 인터넷 연결을 허용하면서 외부에서 들어오는 연결은 막는다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-079",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "온프레미스 데이터센터와 AWS를 인터넷을 거치지 않는 전용 사설 네트워크 회선으로 연결하는 서비스는?",
+      "choices": [
+        "AWS Site-to-Site VPN",
+        "Amazon CloudFront",
+        "AWS Direct Connect",
+        "인터넷 게이트웨이"
+      ],
+      "answerIndex": 2,
+      "explanation": "Direct Connect는 전용 회선으로 AWS와 연결해 일관된 네트워크 성능을 제공한다. Site-to-Site VPN은 인터넷 위에 암호화 터널을 만든다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-080",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "빠르게 구축할 수 있고 인터넷을 통해 온프레미스 네트워크와 VPC 사이에 암호화된 연결을 만드는 방법은?",
+      "choices": [
+        "Amazon CloudFront",
+        "AWS Direct Connect",
+        "VPC 피어링",
+        "AWS Site-to-Site VPN"
+      ],
+      "answerIndex": 3,
+      "explanation": "Site-to-Site VPN은 인터넷 위에 IPsec 암호화 터널을 만들어 빠르고 저렴하게 연결한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-081",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "도메인 이름 등록, DNS 라우팅, 엔드포인트 상태 확인을 제공하는 서비스는?",
+      "choices": [
+        "Amazon CloudFront",
+        "Elastic Load Balancing",
+        "Amazon Route 53",
+        "AWS Global Accelerator"
+      ],
+      "answerIndex": 2,
+      "explanation": "Route 53은 확장 가능한 DNS 서비스로 도메인 등록, 다양한 라우팅 정책, 헬스 체크 기능을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-082",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "전 세계 사용자에게 정적·동적 웹 콘텐츠를 낮은 지연 시간으로 전달하는 콘텐츠 전송 네트워크(CDN) 서비스는?",
+      "choices": [
+        "AWS Transit Gateway",
+        "AWS Direct Connect",
+        "Amazon CloudFront",
+        "Amazon Route 53"
+      ],
+      "answerIndex": 2,
+      "explanation": "CloudFront는 엣지 로케이션에서 콘텐츠를 캐시해 사용자에게 가까운 위치에서 빠르게 제공하는 CDN이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-083",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "AWS 글로벌 네트워크를 이용해 애플리케이션 성능을 높이고 고정 애니캐스트 IP 주소 두 개를 제공하는 서비스는?",
+      "choices": [
+        "Amazon CloudFront",
+        "Amazon Route 53",
+        "AWS Transit Gateway",
+        "AWS Global Accelerator"
+      ],
+      "answerIndex": 3,
+      "explanation": "Global Accelerator는 가장 가까운 엣지에서 AWS 백본으로 트래픽을 보내 성능과 가용성을 높이고 고정 IP를 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-084",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "EC2 CPU 사용률 같은 지표를 수집하고 임계값을 넘으면 경보를 보내는 모니터링 서비스는?",
+      "choices": [
+        "AWS Config",
+        "AWS CloudTrail",
+        "AWS Artifact",
+        "Amazon CloudWatch"
+      ],
+      "answerIndex": 3,
+      "explanation": "CloudWatch는 지표·로그를 수집해 대시보드와 경보를 제공한다. API 호출 기록은 CloudTrail의 역할이다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-085",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "인프라를 템플릿 코드로 정의해 같은 환경을 반복적으로 자동 생성하는 서비스는?",
+      "choices": [
+        "AWS Systems Manager Session Manager",
+        "AWS CloudFormation",
+        "Amazon CloudWatch",
+        "AWS Config"
+      ],
+      "answerIndex": 1,
+      "explanation": "CloudFormation은 JSON·YAML 템플릿으로 리소스를 코드로 정의해 일관되게 배포하는 IaC 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-086",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "주문 접수 시스템과 결제 처리 시스템 사이에 메시지를 임시 저장해 두 시스템을 느슨하게 결합하는 서비스는?",
+      "choices": [
+        "Amazon SNS",
+        "Amazon Kinesis Video Streams",
+        "Amazon SQS",
+        "AWS Step Functions"
+      ],
+      "answerIndex": 2,
+      "explanation": "SQS는 완전관리형 메시지 대기열로 생산자와 소비자를 분리해 한쪽이 느리거나 장애가 나도 메시지를 보존한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-087",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "사진 속 얼굴·사물·텍스트를 인식하는 기능을 머신러닝 지식 없이 API로 추가할 수 있는 서비스는?",
+      "choices": [
+        "Amazon Polly",
+        "Amazon Lex",
+        "Amazon Rekognition",
+        "Amazon Translate"
+      ],
+      "answerIndex": 2,
+      "explanation": "Rekognition은 이미지·동영상 분석 서비스다. Polly는 텍스트 음성 변환, Translate는 번역, Lex는 챗봇 구축 서비스다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-088",
+      "examId": "aws-cloud-practitioner",
+      "subject": "클라우드 기술 및 서비스",
+      "prompt": "소스 데이터베이스를 계속 운영하면서 최소한의 중단으로 데이터베이스를 AWS로 이전하는 서비스는?",
+      "choices": [
+        "AWS Database Migration Service(AWS DMS)",
+        "AWS DataSync",
+        "AWS Backup",
+        "AWS Snowball Edge"
+      ],
+      "answerIndex": 0,
+      "explanation": "DMS는 이전 중에도 소스 DB를 계속 사용할 수 있게 하며 동종·이기종 데이터베이스 마이그레이션을 지원한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-089",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "언제 중단돼도 괜찮은 대규모 배치 작업을 가장 저렴하게 실행할 수 있는 EC2 구매 옵션은?",
+      "choices": [
+        "온디맨드 인스턴스",
+        "스팟 인스턴스",
+        "예약 인스턴스",
+        "전용 호스트"
+      ],
+      "answerIndex": 1,
+      "explanation": "스팟 인스턴스는 남는 EC2 용량을 온디맨드 대비 최대 90% 할인된 가격으로 사용하지만, AWS가 용량을 회수하면 2분 전 알림 후 중단될 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-090",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "1년 또는 3년 동안 일정한 사용량을 약정하는 대신 온디맨드보다 큰 할인을 받는 요금 모델은?",
+      "choices": [
+        "온디맨드 인스턴스",
+        "스팟 인스턴스",
+        "Savings Plans",
+        "프리 티어"
+      ],
+      "answerIndex": 2,
+      "explanation": "Savings Plans와 예약 인스턴스는 1년·3년 사용 약정의 대가로 할인을 제공하므로 꾸준히 실행되는 워크로드에 적합하다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-091",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "서버 단위 소프트웨어 라이선스를 가져와 사용해야 해서 물리 서버 전체를 고객 전용으로 할당받아야 할 때 적합한 옵션은?",
+      "choices": [
+        "전용 호스트(Dedicated Hosts)",
+        "Savings Plans만 구매",
+        "온디맨드 인스턴스",
+        "스팟 인스턴스"
+      ],
+      "answerIndex": 0,
+      "explanation": "전용 호스트는 물리 서버 전체를 고객에게 할당해 소켓·코어 기반 기존 라이선스(BYOL)와 규정 준수 요구를 충족한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-092",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "아직 AWS를 쓰지 않는 회사가 계획 중인 아키텍처의 월 예상 비용을 미리 계산하려면 어떤 도구를 사용해야 하는가?",
+      "choices": [
+        "AWS Cost and Usage Report",
+        "AWS Budgets",
+        "AWS Cost Explorer",
+        "AWS Pricing Calculator"
+      ],
+      "answerIndex": 3,
+      "explanation": "Pricing Calculator는 서비스 구성을 입력해 사전 비용을 추정하는 도구다. Cost Explorer는 이미 발생한 비용을 분석한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-093",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "월 비용이 설정한 금액을 넘거나 넘을 것으로 예측되면 알림을 받으려면 어떤 서비스를 사용해야 하는가?",
+      "choices": [
+        "AWS Budgets",
+        "AWS Artifact",
+        "Amazon Inspector",
+        "AWS Pricing Calculator"
+      ],
+      "answerIndex": 0,
+      "explanation": "AWS Budgets는 비용·사용량 예산을 설정하고 실제 또는 예측 금액이 임계값을 넘으면 알림을 보낸다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-094",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "지난 몇 달 동안의 서비스별 비용 추세를 그래프로 확인하고 향후 비용을 예측하는 도구는?",
+      "choices": [
+        "AWS Pricing Calculator",
+        "AWS Config",
+        "AWS Cost Explorer",
+        "AWS Trusted Advisor"
+      ],
+      "answerIndex": 2,
+      "explanation": "Cost Explorer는 과거 비용과 사용량을 시각화하고 필터링하며 향후 비용 예측을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-095",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "AWS Organizations의 통합 결제(Consolidated Billing)의 이점으로 옳은 것은?",
+      "choices": [
+        "계정별 비용 추적이 불가능해진다",
+        "여러 계정의 사용량을 합산해 볼륨 할인을 더 쉽게 받는다",
+        "모든 계정의 IAM 사용자를 하나로 합친다",
+        "리전 간 데이터 전송이 무료가 된다"
+      ],
+      "answerIndex": 1,
+      "explanation": "통합 결제는 여러 계정의 요금을 하나로 청구하고 사용량을 합산해 볼륨 할인과 예약 할인 공유 혜택을 받을 수 있게 한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-096",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "부서별 AWS 비용을 구분해 보고서로 보려면 리소스에 무엇을 지정하고 활성화해야 하는가?",
+      "choices": [
+        "IAM 역할",
+        "보안 그룹",
+        "비용 할당 태그",
+        "가용 영역"
+      ],
+      "answerIndex": 2,
+      "explanation": "리소스에 부서·프로젝트 태그를 달고 결제 콘솔에서 비용 할당 태그로 활성화하면 태그별 비용을 집계할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-097",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "지정된 기술 계정 관리자(TAM)가 배정되는 AWS Support 플랜은?",
+      "choices": [
+        "Business",
+        "Basic",
+        "Enterprise",
+        "Developer"
+      ],
+      "answerIndex": 2,
+      "explanation": "Enterprise Support는 지정 TAM을 제공한다. Enterprise On-Ramp는 TAM 풀을 통해 지원하며, Basic·Developer·Business에는 TAM이 없다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-098",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "AWS Trusted Advisor의 전체 검사 항목과 24시간 전화 기술 지원을 이용할 수 있는 가장 저렴한 Support 플랜은?",
+      "choices": [
+        "Business",
+        "Developer",
+        "Enterprise",
+        "Basic"
+      ],
+      "answerIndex": 0,
+      "explanation": "Business 플랜부터 전체 Trusted Advisor 검사와 연중무휴 전화·채팅 기술 지원이 제공된다. Basic·Developer는 핵심 검사만 이용할 수 있다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-099",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "비용 최적화, 보안, 내결함성, 성능, 서비스 한도에 대한 권장 사항을 계정을 검사해 제공하는 서비스는?",
+      "choices": [
+        "AWS Artifact",
+        "Amazon Inspector",
+        "AWS Trusted Advisor",
+        "AWS Organizations"
+      ],
+      "answerIndex": 2,
+      "explanation": "Trusted Advisor는 계정 리소스를 모범 사례와 비교해 비용 절감, 보안, 내결함성, 성능, 서비스 한도에 대한 권장 사항을 제공한다.",
+      "sourceType": "ai_generated"
+    },
+    {
+      "id": "aws-clf-100",
+      "examId": "aws-cloud-practitioner",
+      "subject": "결제·요금 및 지원",
+      "prompt": "다음 중 일반적으로 데이터 전송 요금이 부과되지 않는 것은?",
+      "choices": [
+        "리전 간 데이터 전송",
+        "AWS에서 인터넷으로 나가는 아웃바운드 데이터 전송",
+        "가용 영역 간 데이터 전송",
+        "인터넷에서 AWS로 들어오는 인바운드 데이터 전송"
+      ],
+      "answerIndex": 3,
+      "explanation": "인터넷에서 AWS로 들어오는 데이터는 일반적으로 무료다. 인터넷으로 나가는 데이터, 리전 간·가용 영역 간 전송에는 요금이 부과된다.",
+      "sourceType": "ai_generated"
+    }
+  ]
+}
