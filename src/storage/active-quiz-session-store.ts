@@ -6,6 +6,7 @@ import type { AnswerConfidence } from "@/learning/answer-confidence";
 import type { Question, QuizMode } from "@/types/exam";
 
 const ACTIVE_QUIZ_SESSION_KEY = "exam-loop:active-quiz-session:v1";
+const RECENT_ACTIVITY_GRACE_MS = 6 * 60 * 60 * 1000;
 let activeSessionWriteQueue: Promise<void> = Promise.resolve();
 
 // 저장 세션 답안
@@ -62,13 +63,19 @@ export function isActiveQuizSessionValid(
 ): boolean {
   const startedDate = new Date(session.startedAt ?? session.updatedAt);
   const currentDate = new Date(now);
+  const isSameDay =
+    startedDate.getFullYear() === currentDate.getFullYear() &&
+    startedDate.getMonth() === currentDate.getMonth() &&
+    startedDate.getDate() === currentDate.getDate();
+  // 자정을 넘겨 이어 풀던 세션은 최근 풀이 기준으로 유지
+  const isRecentlyActive =
+    session.updatedAt <= now &&
+    now - session.updatedAt < RECENT_ACTIVITY_GRACE_MS;
   return (
     session.questions.length > 0 &&
     session.currentIndex >= 0 &&
     session.currentIndex < session.questions.length &&
-    startedDate.getFullYear() === currentDate.getFullYear() &&
-    startedDate.getMonth() === currentDate.getMonth() &&
-    startedDate.getDate() === currentDate.getDate()
+    (isSameDay || isRecentlyActive)
   );
 }
 
