@@ -1,6 +1,9 @@
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 
+import { MascotCat } from "@/components/mascot-cat";
+import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -14,32 +17,73 @@ import type {
 interface DailyStudyPlanCardProps {
   plan: DailyStudyPlan;
   isLoading: boolean;
+  answered: number;
+  dailyGoal: number;
+  streak: number;
+  accuracyRate: number | null;
+  emphasizeStart: boolean;
   onStartTask: (task: StudyPlanTask) => void;
   onStartPlan: (questionIds: string[]) => void;
   onEmptyAction: () => void;
   onCompletedAction: () => void;
 }
 
-// 일일 맞춤 학습 플랜 카드
+// 오늘 목표 진행과 맞춤 플랜 카드
 export function DailyStudyPlanCard({
   plan,
   isLoading,
+  answered,
+  dailyGoal,
+  streak,
+  accuracyRate,
+  emphasizeStart,
   onStartTask,
   onStartPlan,
   onEmptyAction,
   onCompletedAction,
 }: DailyStudyPlanCardProps) {
   const theme = useTheme();
+  const isGoalReached = dailyGoal > 0 && answered >= dailyGoal;
+  const progress = dailyGoal === 0 ? 0 : Math.min(answered / dailyGoal, 1);
 
-  if (isLoading)
-    return (
-      <ThemedView type="backgroundElement" style={styles.stateCard}>
-        <View
-          style={[
-            styles.stateIcon,
-            { backgroundColor: theme.backgroundSelected },
-          ]}
-        >
+  return (
+    <ThemedView type="backgroundElement" style={styles.card}>
+      <View style={styles.goalHeader}>
+        <View style={styles.goalCopy}>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            오늘의 목표
+          </ThemedText>
+          <View style={styles.goalValueRow}>
+            <AnimatedCounter style={styles.goalValue} value={answered} />
+            <ThemedText type="smallBold" themeColor="textSecondary">
+              / {dailyGoal}문제
+            </ThemedText>
+          </View>
+          <View style={styles.metaRow}>
+            <ThemedText type="small" themeColor="textSecondary">
+              🔥 {streak}일 연속
+            </ThemedText>
+            <View style={[styles.metaDot, { backgroundColor: theme.border }]} />
+            <ThemedText type="small" themeColor="textSecondary">
+              정답률 {accuracyRate == null ? "–" : `${accuracyRate}%`}
+            </ThemedText>
+          </View>
+        </View>
+        <MascotCat size={60} />
+      </View>
+
+      <AnimatedProgressBar
+        progress={progress}
+        height={8}
+        shimmer={!isGoalReached && progress > 0}
+        color={isGoalReached ? theme.success : theme.primary}
+        trackColor={theme.backgroundSelected}
+      />
+
+      <View style={[styles.separator, { backgroundColor: theme.border }]} />
+
+      {isLoading ? (
+        <View style={styles.stateRow}>
           <SymbolView
             tintColor={theme.textSecondary}
             name={{
@@ -47,26 +91,21 @@ export function DailyStudyPlanCard({
               android: "checklist",
               web: "checklist",
             }}
-            size={22}
+            size={20}
           />
+          <View style={styles.stateCopy}>
+            <ThemedText type="smallBold">오늘의 플랜 구성 중</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              복습 일정과 학습 기록을 분석하고 있어요
+            </ThemedText>
+          </View>
         </View>
-        <View style={styles.stateCopy}>
-          <ThemedText type="smallBold">오늘의 플랜 구성 중</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            복습 일정과 학습 기록을 분석하고 있어요
-          </ThemedText>
-        </View>
-      </ThemedView>
-    );
-
-  if (plan.status === "completed")
-    return (
-      <ThemedView
-        type="backgroundElement"
-        style={[styles.stateCard, { borderColor: theme.successSoft }]}
-      >
-        <View
-          style={[styles.stateIcon, { backgroundColor: theme.successSoft }]}
+      ) : plan.status === "completed" ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="학습 리포트 보기"
+          onPress={onCompletedAction}
+          style={({ pressed }) => [styles.stateRow, pressed && styles.pressed]}
         >
           <SymbolView
             tintColor={theme.success}
@@ -75,205 +114,144 @@ export function DailyStudyPlanCard({
               android: "verified",
               web: "verified",
             }}
-            size={24}
-          />
-        </View>
-        <View style={styles.stateCopy}>
-          <ThemedText type="smallBold">오늘의 맞춤 플랜 완료</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            목표를 채웠어요. 리포트에서 성장 기록을 확인해 보세요
-          </ThemedText>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="학습 리포트 보기"
-          onPress={onCompletedAction}
-          hitSlop={Spacing.two}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          <SymbolView
-            tintColor={theme.success}
-            name={{
-              ios: "chevron.right",
-              android: "chevron_right",
-              web: "chevron_right",
-            }}
-            size={20}
-          />
-        </Pressable>
-      </ThemedView>
-    );
-
-  if (plan.status === "empty")
-    return (
-      <ThemedView type="backgroundElement" style={styles.stateCard}>
-        <View
-          style={[styles.stateIcon, { backgroundColor: theme.primarySoft }]}
-        >
-          <SymbolView
-            tintColor={theme.primary}
-            name={{
-              ios: "books.vertical.fill",
-              android: "library_books",
-              web: "library_books",
-            }}
             size={22}
           />
-        </View>
-        <View style={styles.stateCopy}>
-          <ThemedText type="smallBold">
-            학습할 문제를 기다리고 있어요
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            문제은행이 있는 시험을 추가하면 맞춤 플랜을 만들어요
-          </ThemedText>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="시험 문제 찾아보기"
-          onPress={onEmptyAction}
-          hitSlop={Spacing.two}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
+          <View style={styles.stateCopy}>
+            <ThemedText type="smallBold">오늘의 맞춤 플랜 완료</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              리포트에서 오늘 쌓은 기록을 확인해 보세요
+            </ThemedText>
+          </View>
           <SymbolView
-            tintColor={theme.primary}
+            tintColor={theme.textSecondary}
             name={{
               ios: "chevron.right",
               android: "chevron_right",
               web: "chevron_right",
             }}
-            size={20}
+            size={18}
           />
         </Pressable>
-      </ThemedView>
-    );
-
-  return (
-    <ThemedView type="backgroundElement" style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.headerCopy}>
-          <View style={styles.eyebrow}>
+      ) : plan.status === "empty" ? (
+        <>
+          <View style={styles.stateRow}>
             <SymbolView
               tintColor={theme.primary}
               name={{
-                ios: "list.bullet",
-                android: "checklist",
-                web: "checklist",
+                ios: "books.vertical.fill",
+                android: "library_books",
+                web: "library_books",
               }}
-              size={16}
+              size={20}
             />
-            <ThemedText type="smallBold" style={{ color: theme.primary }}>
-              오늘의 맞춤 플랜
+            <View style={styles.stateCopy}>
+              <ThemedText type="smallBold">
+                학습할 문제를 기다리고 있어요
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                문제은행이 있는 시험을 추가하면 맞춤 플랜을 만들어요
+              </ThemedText>
+            </View>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="시험 문제 찾아보기"
+            onPress={onEmptyAction}
+            style={({ pressed }) => [
+              styles.startButton,
+              { backgroundColor: theme.primary },
+              pressed && styles.primaryPressed,
+            ]}
+          >
+            <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
+              시험 찾아보기
+            </ThemedText>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <View style={styles.planHeader}>
+            <ThemedText type="smallBold">오늘의 맞춤 플랜</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              복습·취약 과목 반영 {plan.totalCount}문제
             </ThemedText>
           </View>
-          <ThemedText style={styles.title}>지금 풀 문제를 골랐어요</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            복습 일정과 취약 과목을 반영한 {plan.totalCount}문제
-          </ThemedText>
-        </View>
-        <View
-          style={[styles.totalBadge, { backgroundColor: theme.primarySoft }]}
-        >
-          <ThemedText type="smallBold" style={{ color: theme.primary }}>
-            {plan.totalCount}
-          </ThemedText>
-          <ThemedText style={[styles.badgeUnit, { color: theme.primary }]}>
-            문제
-          </ThemedText>
-        </View>
-      </View>
 
-      <View style={styles.taskList}>
-        {plan.tasks.map((task, index) => {
-          const accent =
-            task.id === "review"
-              ? theme.danger
-              : task.id === "weak"
-                ? theme.warning
-                : task.id === "new"
-                  ? theme.primary
-                  : theme.success;
-          const softAccent =
-            task.id === "review"
-              ? theme.dangerSoft
-              : task.id === "weak"
-                ? theme.warningSoft
-                : task.id === "new"
-                  ? theme.primarySoft
-                  : theme.successSoft;
-          return (
-            <Pressable
-              key={task.id}
-              accessibilityRole="button"
-              accessibilityLabel={`${task.title} ${task.questionIds.length}문제 시작`}
-              onPress={() => onStartTask(task)}
-              style={({ pressed }) => [
-                styles.taskRow,
-                pressed && styles.taskPressed,
-              ]}
-            >
-              <View style={styles.stepColumn}>
-                <View
-                  style={[styles.taskIcon, { backgroundColor: softAccent }]}
+          <View style={styles.taskList}>
+            {plan.tasks.map((task) => {
+              const accent =
+                task.id === "review"
+                  ? theme.danger
+                  : task.id === "weak"
+                    ? theme.warning
+                    : task.id === "new"
+                      ? theme.primary
+                      : theme.success;
+              return (
+                <Pressable
+                  key={task.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${task.title} ${task.questionIds.length}문제 시작`}
+                  onPress={() => onStartTask(task)}
+                  style={({ pressed }) => [
+                    styles.taskRow,
+                    { backgroundColor: theme.background },
+                    pressed && styles.taskPressed,
+                  ]}
                 >
-                  <ThemedText type="smallBold" style={{ color: accent }}>
-                    {index + 1}
-                  </ThemedText>
-                </View>
-                {index < plan.tasks.length - 1 && (
-                  <View
-                    style={[styles.stepLine, { backgroundColor: theme.border }]}
-                  />
-                )}
-              </View>
-              <View style={styles.taskCopy}>
-                <View style={styles.taskTitleRow}>
-                  <ThemedText type="smallBold">{task.title}</ThemedText>
+                  <View style={[styles.taskDot, { backgroundColor: accent }]} />
+                  <View style={styles.taskCopy}>
+                    <ThemedText type="smallBold">{task.title}</ThemedText>
+                    <ThemedText
+                      type="small"
+                      themeColor="textSecondary"
+                      numberOfLines={1}
+                    >
+                      {task.description}
+                    </ThemedText>
+                  </View>
                   <ThemedText type="smallBold" style={{ color: accent }}>
                     {task.questionIds.length}문제
                   </ThemedText>
-                </View>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {task.description}
-                </ThemedText>
-              </View>
-              <SymbolView
-                tintColor={accent}
-                name={{
-                  ios: "play.circle.fill",
-                  android: "play_circle",
-                  web: "play_circle",
-                }}
-                size={23}
-              />
-            </Pressable>
-          );
-        })}
-      </View>
+                </Pressable>
+              );
+            })}
+          </View>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`맞춤 플랜 ${plan.totalCount}문제 시작`}
-        onPress={() => onStartPlan(plan.questionIds)}
-        style={({ pressed }) => [
-          styles.startButton,
-          { backgroundColor: theme.primary },
-          pressed && styles.primaryPressed,
-        ]}
-      >
-        <SymbolView
-          tintColor={theme.onPrimary}
-          name={{
-            ios: "play.fill",
-            android: "play_arrow",
-            web: "play_arrow",
-          }}
-          size={18}
-        />
-        <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
-          맞춤 플랜 {plan.totalCount}문제 시작
-        </ThemedText>
-      </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`맞춤 플랜 ${plan.totalCount}문제 시작`}
+            onPress={() => onStartPlan(plan.questionIds)}
+            style={({ pressed }) => [
+              styles.startButton,
+              {
+                backgroundColor: emphasizeStart
+                  ? theme.primary
+                  : theme.primarySoft,
+              },
+              pressed && styles.primaryPressed,
+            ]}
+          >
+            <SymbolView
+              tintColor={emphasizeStart ? theme.onPrimary : theme.primary}
+              name={{
+                ios: "play.fill",
+                android: "play_arrow",
+                web: "play_arrow",
+              }}
+              size={18}
+            />
+            <ThemedText
+              type="smallBold"
+              style={{
+                color: emphasizeStart ? theme.onPrimary : theme.primary,
+              }}
+            >
+              맞춤 플랜 {plan.totalCount}문제 시작
+            </ThemedText>
+          </Pressable>
+        </>
+      )}
     </ThemedView>
   );
 }
@@ -281,79 +259,70 @@ export function DailyStudyPlanCard({
 const styles = StyleSheet.create({
   card: {
     gap: Spacing.three,
-    padding: Spacing.three,
+    padding: Spacing.four,
     borderRadius: Radius.large,
     ...Shadows.card,
   },
-  header: {
+  goalHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: Spacing.three,
   },
-  headerCopy: {
+  goalCopy: {
     minWidth: 0,
     flex: 1,
     gap: Spacing.one,
   },
-  eyebrow: {
+  goalValueRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "baseline",
     gap: Spacing.one,
   },
-  title: {
-    fontSize: 16,
-    lineHeight: 23,
+  goalValue: {
+    fontSize: 30,
+    lineHeight: 38,
     fontWeight: 800,
   },
-  totalBadge: {
-    minWidth: 58,
+  metaRow: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: Spacing.two,
+    gap: Spacing.two,
+  },
+  metaDot: {
+    width: 3,
+    height: 3,
+    borderRadius: Radius.pill,
+  },
+  separator: {
+    height: 1,
+  },
+  planHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: Spacing.two,
+  },
+  taskList: {
+    gap: Spacing.two,
+  },
+  taskRow: {
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.twoHalf,
+    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: Radius.medium,
   },
-  badgeUnit: {
-    fontSize: 10,
-    lineHeight: 13,
-    fontWeight: 700,
-  },
-  taskList: {
-    gap: Spacing.one,
-  },
-  taskRow: {
-    minHeight: 62,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.three,
-    borderRadius: Radius.medium,
-  },
-  stepColumn: {
-    alignSelf: "stretch",
-    alignItems: "center",
-  },
-  taskIcon: {
-    zIndex: 1,
-    width: 42,
-    height: 42,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.medium,
-  },
-  stepLine: {
-    width: 2,
-    flex: 1,
-    minHeight: Spacing.two,
+  taskDot: {
+    width: 8,
+    height: 8,
+    borderRadius: Radius.pill,
   },
   taskCopy: {
     minWidth: 0,
     flex: 1,
     gap: Spacing.half,
-  },
-  taskTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: Spacing.two,
   },
   startButton: {
     minHeight: 50,
@@ -363,23 +332,11 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     borderRadius: Radius.medium,
   },
-  stateCard: {
-    minHeight: 96,
+  stateRow: {
+    minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
-    padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: "rgba(127, 127, 127, 0.1)",
-    borderRadius: Radius.large,
-    ...Shadows.card,
-  },
-  stateIcon: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.medium,
   },
   stateCopy: {
     minWidth: 0,

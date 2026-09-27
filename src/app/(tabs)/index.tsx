@@ -5,51 +5,49 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActiveSessionCard } from "@/components/active-session-card";
-import { MascotCat } from "@/components/mascot-cat";
+import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
+import { ExamPaceCard } from "@/components/exam-pace-card";
+import { HomeExamRow } from "@/components/home-exam-row";
+import { LearningMomentumCard } from "@/components/learning-momentum-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
-import { AnimatedCounter } from "@/components/motion/animated-counter";
-import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { CelebrationBurst } from "@/components/motion/celebration-burst";
 import { PulseView } from "@/components/motion/pulse-view";
 import { RevealView } from "@/components/motion/reveal-view";
-import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
-import { StudyDeadlineCard } from "@/components/study-deadline-card";
-import { ExamPaceCard } from "@/components/exam-pace-card";
-import { LearningMomentumCard } from "@/components/learning-momentum-card";
-import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
 import { PageHead } from "@/components/page-head";
+import { SavedStudyRoutineCard } from "@/components/saved-study-routine-card";
+import { SectionHeader } from "@/components/section-header";
+import { StudyDeadlineCard } from "@/components/study-deadline-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WeeklyGoalCard } from "@/components/weekly-goal-card";
 import { stagger } from "@/constants/motion";
 import {
   accentByIndex,
-  Alpha,
   BottomTabInset,
   MaxContentWidth,
   Radius,
   Shadows,
   Spacing,
 } from "@/constants/theme";
-import { useDailyStats } from "@/hooks/use-daily-stats";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useActiveQuizSession } from "@/hooks/use-active-quiz-session";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useCustomSessionPresets } from "@/hooks/use-custom-session-presets";
+import { useDailyStats } from "@/hooks/use-daily-stats";
 import { useDailyStudyPlan } from "@/hooks/use-daily-study-plan";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useLearningReport } from "@/hooks/use-learning-report";
+import { useNotifications } from "@/hooks/use-notifications";
 import { useSettings } from "@/hooks/use-settings";
 import { useSrsSummary } from "@/hooks/use-srs-summary";
 import { useStudyTarget } from "@/hooks/use-study-target";
 import { useTheme } from "@/hooks/use-theme";
-import { useNotifications } from "@/hooks/use-notifications";
-import { calculateExamPace } from "@/learning/exam-pace";
 import { selectCustomSessionQuestions } from "@/learning/custom-session";
+import type { StudyPlanTask } from "@/learning/daily-study-plan";
+import { calculateExamPace } from "@/learning/exam-pace";
 import { calculateWeeklyGoalProgress } from "@/learning/weekly-goal";
 import type { ActiveQuizSession } from "@/storage/active-quiz-session-store";
-import type { StudyPlanTask } from "@/learning/daily-study-plan";
 import type { Exam } from "@/types/exam";
 
 // 학습 세션 진입
@@ -96,7 +94,7 @@ function getGreeting(hour: number): string {
   return "오늘의 마무리 학습";
 }
 
-// 시험 선택 홈 화면
+// 오늘 할 학습 중심 홈 화면
 export default function HomeScreen() {
   const {
     todayStat,
@@ -109,7 +107,6 @@ export default function HomeScreen() {
     cards,
     studiedCounts,
     dueCounts,
-    totalDue,
     totalStudied,
     recentExamId,
     isLoading: isSrsLoading,
@@ -207,8 +204,6 @@ export default function HomeScreen() {
     useAchievements(achievementMetrics);
   const theme = useTheme();
   const myExams = exams.filter((exam) => examIds.includes(exam.id));
-  const recentExam =
-    myExams.find((exam) => exam.id === recentExamId) ?? myExams[0];
   const savedRoutinePreset = Object.values(customSessionPresets)
     .filter((preset) => examIds.includes(preset.examId))
     .sort((left, right) => right.updatedAt - left.updatedAt)[0];
@@ -233,13 +228,13 @@ export default function HomeScreen() {
     (activeSessionExamIds.length > 1
       ? "여러 시험 맞춤 플랜"
       : "진행 중인 학습");
-  const dailyProgress = Math.min(todayStat.answered / settings.dailyGoal, 1);
-  const remainingGoal = Math.max(settings.dailyGoal - todayStat.answered, 0);
+  const hasActiveSession = !isActiveSessionLoading && activeQuizSession != null;
   const todayAccuracyRate =
     todayStat.answered > 0
       ? Math.round((todayStat.correct / todayStat.answered) * 100)
       : null;
-  const isGoalReached = settings.dailyGoal > 0 && remainingGoal === 0;
+  const isGoalReached =
+    settings.dailyGoal > 0 && todayStat.answered >= settings.dailyGoal;
   const [goalCelebration, setGoalCelebration] = useState(0);
   const wasGoalReachedRef = useRef<boolean | null>(null);
 
@@ -250,15 +245,6 @@ export default function HomeScreen() {
       setGoalCelebration((count) => count + 1);
     wasGoalReachedRef.current = isGoalReached;
   }, [isGoalReached, isStatsLoading]);
-
-  // 주간 목표 맞춤 세션 진입
-  const startWeeklyGoalSession = () => {
-    if (dailyStudyPlan.questionIds.length > 0) {
-      startStudyPlanSession(dailyStudyPlan.questionIds);
-      return;
-    }
-    if (recentExam != null) startLearnSession(recentExam);
-  };
 
   // 최근 저장 학습 루틴 즉시 시작
   const startSavedRoutine = () => {
@@ -314,39 +300,11 @@ export default function HomeScreen() {
             <View style={styles.headerActions}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="시험 찾기 및 요청"
-                onPress={() => router.push("/catalog")}
-                hitSlop={Spacing.two}
-                style={({ pressed }) => [
-                  styles.iconButton,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                  },
-                  pressed && styles.pressed,
-                ]}
-              >
-                <SymbolView
-                  tintColor={theme.primary}
-                  name={{
-                    ios: "magnifyingglass",
-                    android: "search",
-                    web: "search",
-                  }}
-                  size={21}
-                />
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
                 accessibilityLabel={`알림 열기${unreadCount > 0 ? `, 새 알림 ${unreadCount}개` : ""}`}
                 onPress={() => router.push("/notifications")}
                 hitSlop={Spacing.two}
                 style={({ pressed }) => [
                   styles.iconButton,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                  },
                   pressed && styles.pressed,
                 ]}
               >
@@ -359,7 +317,7 @@ export default function HomeScreen() {
                     web:
                       unreadCount > 0 ? "notifications" : "notifications_none",
                   }}
-                  size={21}
+                  size={22}
                 />
                 {unreadCount > 0 && (
                   <PulseView
@@ -386,27 +344,25 @@ export default function HomeScreen() {
                 hitSlop={Spacing.two}
                 style={({ pressed }) => [
                   styles.iconButton,
-                  {
-                    backgroundColor: theme.backgroundElement,
-                    borderColor: theme.cardBorder,
-                  },
                   pressed && styles.pressed,
                 ]}
               >
                 <SymbolView
                   tintColor={theme.text}
                   name={{
-                    ios: "gearshape.fill",
+                    ios: "gearshape",
                     android: "settings",
                     web: "settings",
                   }}
-                  size={21}
+                  size={22}
                 />
               </Pressable>
             </View>
           </View>
 
-          {!isActiveSessionLoading && activeQuizSession != null && (
+          <StudyDeadlineCard />
+
+          {hasActiveSession && (
             <RevealView delay={stagger(1, 40)}>
               <ActiveSessionCard
                 session={activeQuizSession}
@@ -417,128 +373,130 @@ export default function HomeScreen() {
             </RevealView>
           )}
 
-          <RevealView delay={stagger(2, 40)}>
+          <RevealView delay={stagger(2, 40)} style={styles.todayWrapper}>
             <DailyStudyPlanCard
               plan={dailyStudyPlan}
               isLoading={isDailyPlanLoading}
+              answered={todayStat.answered}
+              dailyGoal={settings.dailyGoal}
+              streak={streak}
+              accuracyRate={todayAccuracyRate}
+              emphasizeStart={!hasActiveSession}
               onStartTask={(task) =>
                 startStudyPlanSession(task.questionIds, task.mode)
               }
               onStartPlan={startStudyPlanSession}
-              onEmptyAction={() => router.push("/catalog")}
+              onEmptyAction={() => router.push("/discover")}
               onCompletedAction={() => router.push("/report")}
             />
-          </RevealView>
-
-          <StudyDeadlineCard />
-          <RevealView variant="fade" duration={180} style={styles.goalWrapper}>
-            <View
-              style={[
-                styles.goalCard,
-                {
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.border,
-                },
-              ]}
-            >
-              <View style={styles.goalHeader}>
-                <View style={styles.goalText}>
-                  <ThemedText
-                    type="smallBold"
-                    style={{ color: theme.textSecondary }}
-                  >
-                    오늘의 목표
-                  </ThemedText>
-                  <ThemedText
-                    themeColor="onPrimary"
-                    style={[styles.goalTitle, { color: theme.text }]}
-                  >
-                    {isGoalReached
-                      ? "오늘 목표를 채웠어요"
-                      : `남은 문제 ${remainingGoal}개`}
-                  </ThemedText>
-                </View>
-                <MascotCat size={64} />
-              </View>
-
-              <AnimatedProgressBar
-                progress={dailyProgress}
-                height={8}
-                shimmer={!isGoalReached && dailyProgress > 0}
-                color={theme.primary}
-                trackColor={theme.backgroundSelected}
-              />
-
-              <View style={styles.goalStats}>
-                <View style={styles.goalStatItem}>
-                  <AnimatedCounter
-                    themeColor="onPrimary"
-                    style={[styles.goalStatValue, { color: theme.text }]}
-                    value={todayStat.answered}
-                  />
-                  <ThemedText
-                    type="small"
-                    style={{ color: theme.textSecondary }}
-                  >
-                    오늘 풀이
-                  </ThemedText>
-                </View>
-                <View
-                  style={[
-                    styles.goalDivider,
-                    { backgroundColor: theme.border },
-                  ]}
-                />
-                <View style={styles.goalStatItem}>
-                  {todayAccuracyRate == null ? (
-                    <ThemedText
-                      themeColor="onPrimary"
-                      style={[styles.goalStatValue, { color: theme.text }]}
-                    >
-                      –
-                    </ThemedText>
-                  ) : (
-                    <AnimatedCounter
-                      themeColor="onPrimary"
-                      style={[styles.goalStatValue, { color: theme.text }]}
-                      value={todayAccuracyRate}
-                      suffix="%"
-                    />
-                  )}
-                  <ThemedText
-                    type="small"
-                    style={{ color: theme.textSecondary }}
-                  >
-                    정답률
-                  </ThemedText>
-                </View>
-                <View
-                  style={[
-                    styles.goalDivider,
-                    { backgroundColor: theme.border },
-                  ]}
-                />
-                <View style={styles.goalStatItem}>
-                  <View style={styles.streakRow}>
-                    <AnimatedCounter
-                      themeColor="onPrimary"
-                      style={[styles.goalStatValue, { color: theme.text }]}
-                      value={streak}
-                    />
-                  </View>
-                  <ThemedText
-                    type="small"
-                    style={{ color: theme.textSecondary }}
-                  >
-                    연속 학습
-                  </ThemedText>
-                </View>
-              </View>
-            </View>
             <CelebrationBurst trigger={goalCelebration} />
           </RevealView>
 
-          <RevealView delay={stagger(3, 40)}>
+          <View style={styles.section}>
+            <SectionHeader
+              title="내 시험"
+              subtitle={
+                myExams.length > 0
+                  ? "시험을 누르면 과목·문제 수를 맞출 수 있어요"
+                  : undefined
+              }
+              actionLabel="관리"
+              actionAccessibilityLabel="내 시험 관리"
+              onAction={() =>
+                router.push({ pathname: "/catalog", params: { tab: "mine" } })
+              }
+            />
+            {myExams.length > 0 ? (
+              <ThemedView type="backgroundElement" style={styles.listCard}>
+                {myExams.map((exam, listIndex) => {
+                  const total = selectQuestionsByExam(exam.id).length;
+                  const { accent, soft } = accentByIndex(theme, listIndex);
+                  return (
+                    <View key={exam.id}>
+                      {listIndex > 0 && (
+                        <View
+                          style={[
+                            styles.rowDivider,
+                            { backgroundColor: theme.border },
+                          ]}
+                        />
+                      )}
+                      <HomeExamRow
+                        exam={exam}
+                        total={total}
+                        studied={Math.min(studiedCounts[exam.id] ?? 0, total)}
+                        dueCount={dueCounts[exam.id] ?? 0}
+                        isRecent={exam.id === recentExamId}
+                        accent={accent}
+                        softAccent={soft}
+                        onCustomize={() => openSessionBuilder(exam.id)}
+                        onStart={() => startLearnSession(exam)}
+                      />
+                    </View>
+                  );
+                })}
+              </ThemedView>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="준비할 시험 추가"
+                onPress={() => router.push("/discover")}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <ThemedView type="backgroundElement" style={styles.emptyCard}>
+                  <View
+                    style={[
+                      styles.emptyIcon,
+                      { backgroundColor: theme.primarySoft },
+                    ]}
+                  >
+                    <SymbolView
+                      tintColor={theme.primary}
+                      name={{
+                        ios: "plus",
+                        android: "add",
+                        web: "add",
+                      }}
+                      size={22}
+                    />
+                  </View>
+                  <View style={styles.emptyCopy}>
+                    <ThemedText type="smallBold">
+                      준비할 시험을 추가해 주세요
+                    </ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      시험찾기에서 담으면 진도와 복습 일정을 관리해요
+                    </ThemedText>
+                  </View>
+                </ThemedView>
+              </Pressable>
+            )}
+
+            {!isCustomSessionPresetsLoading &&
+              !isSrsLoading &&
+              savedRoutinePreset != null &&
+              savedRoutineExam != null && (
+                <SavedStudyRoutineCard
+                  preset={savedRoutinePreset}
+                  exam={savedRoutineExam}
+                  onStart={startSavedRoutine}
+                  onEdit={() => openSessionBuilder(savedRoutineExam.id)}
+                />
+              )}
+          </View>
+
+          <View style={styles.section}>
+            <SectionHeader title="이번 주" />
+            <WeeklyGoalCard
+              activities={currentWeekActivity}
+              progress={weeklyGoalProgress}
+              onAdjust={() => router.push("/settings")}
+              onOpenActivity={() => router.push("/activity")}
+            />
+          </View>
+
+          <View style={styles.section}>
+            <SectionHeader title="계획과 성장" />
             <ExamPaceCard
               pace={examPace}
               exam={targetExam}
@@ -546,9 +504,6 @@ export default function HomeScreen() {
               isLoading={isStudyTargetLoading || isCatalogLoading}
               onPress={() => router.push("/study-plan-settings")}
             />
-          </RevealView>
-
-          <RevealView delay={stagger(4, 40)}>
             <LearningMomentumCard
               lifetime={lifetime}
               today={todayStat}
@@ -556,289 +511,6 @@ export default function HomeScreen() {
               unlockedAchievementCount={unlockedAchievementCount}
               onOpenProgress={() => router.push("/progress")}
             />
-          </RevealView>
-
-          {recentExam != null && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${recentExam.shortTitle} 학습 시작`}
-              onPress={() => startLearnSession(recentExam)}
-            >
-              <ThemedView type="backgroundElement" style={styles.continueCard}>
-                <View
-                  style={[
-                    styles.continueIcon,
-                    { backgroundColor: theme.primarySoft },
-                  ]}
-                >
-                  <SymbolView
-                    tintColor={theme.primary}
-                    name={{
-                      ios: "play.fill",
-                      android: "play_arrow",
-                      web: "play_arrow",
-                    }}
-                    size={22}
-                  />
-                </View>
-                <View style={styles.continueText}>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {recentExamId == null ? "첫 학습 추천" : "이어서 학습"}
-                  </ThemedText>
-                  <ThemedText type="smallBold">
-                    {recentExam.shortTitle}
-                  </ThemedText>
-                </View>
-                {totalDue > 0 && (
-                  <View
-                    style={[
-                      styles.dueBadge,
-                      { backgroundColor: theme.warningSoft },
-                    ]}
-                  >
-                    <ThemedText
-                      type="smallBold"
-                      style={{ color: theme.warning }}
-                    >
-                      복습 {totalDue}
-                    </ThemedText>
-                  </View>
-                )}
-                <SymbolView
-                  tintColor={theme.textSecondary}
-                  name={{
-                    ios: "chevron.right",
-                    android: "chevron_right",
-                    web: "chevron_right",
-                  }}
-                  size={18}
-                />
-              </ThemedView>
-            </Pressable>
-          )}
-
-          {!isCustomSessionPresetsLoading &&
-            !isSrsLoading &&
-            savedRoutinePreset != null &&
-            savedRoutineExam != null && (
-              <RevealView delay={stagger(5, 40)}>
-                <SavedStudyRoutineCard
-                  preset={savedRoutinePreset}
-                  exam={savedRoutineExam}
-                  onStart={startSavedRoutine}
-                  onEdit={() => openSessionBuilder(savedRoutineExam.id)}
-                />
-              </RevealView>
-            )}
-
-          <RevealView delay={stagger(6, 40)}>
-            <WeeklyGoalCard
-              activities={currentWeekActivity}
-              progress={weeklyGoalProgress}
-              canStart={
-                dailyStudyPlan.questionIds.length > 0 || recentExam != null
-              }
-              onStart={startWeeklyGoalSession}
-              onAdjust={() => router.push("/settings")}
-              onOpenActivity={() => router.push("/activity")}
-            />
-          </RevealView>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <ThemedText style={styles.sectionTitle}>시험별 학습</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  원하는 시험을 선택해 바로 시작해 보세요
-                </ThemedText>
-              </View>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  router.push({
-                    pathname: "/catalog",
-                    params: { tab: "mine" },
-                  })
-                }
-                style={({ pressed }) => [
-                  styles.manageButton,
-                  { backgroundColor: theme.primarySoft },
-                  pressed && styles.pressed,
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.primary }}>
-                  관리
-                </ThemedText>
-              </Pressable>
-            </View>
-
-            {myExams.length > 0 ? (
-              <View style={styles.examList}>
-                {myExams.map((exam, listIndex) => {
-                  const total = selectQuestionsByExam(exam.id).length;
-                  const studied = Math.min(studiedCounts[exam.id] ?? 0, total);
-                  const dueCount = dueCounts[exam.id] ?? 0;
-                  const progress = total === 0 ? 0 : studied / total;
-                  const { accent, soft: softAccent } = accentByIndex(
-                    theme,
-                    listIndex,
-                  );
-
-                  return (
-                    <RevealView
-                      key={exam.id}
-                      delay={stagger(listIndex + 5, 45)}
-                    >
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`${exam.title} 맞춤 학습 구성`}
-                        onPress={() => openSessionBuilder(exam.id)}
-                      >
-                        <ThemedView
-                          type="backgroundElement"
-                          style={styles.examCard}
-                        >
-                          <View style={styles.examRow}>
-                            <View
-                              style={[
-                                styles.examIcon,
-                                { backgroundColor: softAccent },
-                              ]}
-                            >
-                              <ThemedText style={styles.examIconText}>
-                                {exam.icon}
-                              </ThemedText>
-                            </View>
-                            <View style={styles.examTexts}>
-                              <View style={styles.examTitleRow}>
-                                <ThemedText
-                                  type="smallBold"
-                                  style={styles.examTitle}
-                                >
-                                  {exam.title}
-                                </ThemedText>
-                                {dueCount > 0 && (
-                                  <View
-                                    style={[
-                                      styles.miniBadge,
-                                      { backgroundColor: theme.dangerSoft },
-                                    ]}
-                                  >
-                                    <ThemedText
-                                      type="smallBold"
-                                      style={{ color: theme.danger }}
-                                    >
-                                      복습 {dueCount}
-                                    </ThemedText>
-                                  </View>
-                                )}
-                              </View>
-                              <ThemedText
-                                type="small"
-                                themeColor="textSecondary"
-                                numberOfLines={1}
-                              >
-                                {exam.description}
-                              </ThemedText>
-                            </View>
-                          </View>
-
-                          <View style={styles.progressMeta}>
-                            <ThemedText type="small" themeColor="textSecondary">
-                              문제은행 학습률
-                            </ThemedText>
-                            <ThemedText
-                              type="smallBold"
-                              style={{ color: accent }}
-                            >
-                              {studied}/{total}
-                            </ThemedText>
-                          </View>
-                          <AnimatedProgressBar
-                            progress={progress}
-                            height={7}
-                            color={accent}
-                            trackColor={softAccent}
-                          />
-                          <View style={styles.customizeHint}>
-                            <SymbolView
-                              tintColor={accent}
-                              name={{
-                                ios: "slider.horizontal.3",
-                                android: "tune",
-                                web: "tune",
-                              }}
-                              size={16}
-                            />
-                            <ThemedText
-                              type="smallBold"
-                              style={{ color: accent }}
-                            >
-                              과목·문제 수 맞춤 설정
-                            </ThemedText>
-                            <SymbolView
-                              tintColor={accent}
-                              name={{
-                                ios: "chevron.right",
-                                android: "chevron_right",
-                                web: "chevron_right",
-                              }}
-                              size={16}
-                            />
-                          </View>
-                        </ThemedView>
-                      </Pressable>
-                    </RevealView>
-                  );
-                })}
-              </View>
-            ) : (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="준비할 시험 추가"
-                onPress={() => router.push("/catalog")}
-              >
-                <ThemedView
-                  type="backgroundElement"
-                  style={styles.emptyExamCard}
-                >
-                  <View
-                    style={[
-                      styles.emptyExamIcon,
-                      { backgroundColor: theme.primarySoft },
-                    ]}
-                  >
-                    <SymbolView
-                      tintColor={theme.primary}
-                      name={{
-                        ios: "plus.circle.fill",
-                        android: "add_circle",
-                        web: "add_circle",
-                      }}
-                      size={27}
-                    />
-                  </View>
-                  <View style={styles.examTexts}>
-                    <ThemedText type="smallBold">
-                      준비할 시험을 추가해 주세요
-                    </ThemedText>
-                    <ThemedText type="small" themeColor="textSecondary">
-                      내 시험에 담으면 학습률과 복습 일정을 바로 관리할 수
-                      있어요.
-                    </ThemedText>
-                  </View>
-                  <SymbolView
-                    tintColor={theme.primary}
-                    name={{
-                      ios: "chevron.right",
-                      android: "chevron_right",
-                      web: "chevron_right",
-                    }}
-                    size={18}
-                  />
-                </ThemedView>
-              </Pressable>
-            )}
           </View>
 
           <ThemedText
@@ -890,7 +562,7 @@ const styles = StyleSheet.create({
   },
   headerActions: {
     flexDirection: "row",
-    gap: Spacing.two,
+    gap: Spacing.one,
   },
   iconButton: {
     position: "relative",
@@ -898,8 +570,7 @@ const styles = StyleSheet.create({
     height: 42,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderRadius: Radius.medium,
+    borderRadius: Radius.pill,
   },
   notificationBadge: {
     position: "absolute",
@@ -917,169 +588,40 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: 700,
   },
-  goalWrapper: {
+  todayWrapper: {
     position: "relative",
   },
-  goalCard: {
-    position: "relative",
-    overflow: "hidden",
+  section: {
     gap: Spacing.three,
-    padding: Spacing.four,
-    borderWidth: 1,
+  },
+  listCard: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
     borderRadius: Radius.large,
+    ...Shadows.card,
   },
-  streakRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.one,
+  rowDivider: {
+    height: 1,
   },
-  goalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: Spacing.three,
-  },
-  goalText: {
-    flex: 1,
-    gap: Spacing.one,
-  },
-  goalTitle: {
-    fontSize: 18,
-    lineHeight: 26,
-    fontWeight: 700,
-  },
-  goalStats: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  goalStatItem: {
-    flex: 1,
-    alignItems: "flex-start",
-    paddingLeft: Spacing.three,
-    gap: Spacing.half,
-  },
-  goalStatValue: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: 600,
-  },
-  goalDivider: {
-    width: 1,
-    height: 28,
-  },
-  continueCard: {
+  emptyCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
     padding: Spacing.three,
-    borderRadius: Radius.medium,
-    borderWidth: 1,
-    borderColor: Alpha.hairline,
+    borderRadius: Radius.large,
     ...Shadows.card,
   },
-  continueIcon: {
+  emptyIcon: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
-  continueText: {
+  emptyCopy: {
+    minWidth: 0,
     flex: 1,
     gap: Spacing.half,
-  },
-  dueBadge: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
-  },
-  section: {
-    gap: Spacing.three,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  manageButton: {
-    minHeight: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: Spacing.three,
-    borderRadius: Radius.pill,
-  },
-  sectionTitle: {
-    fontSize: 19,
-    lineHeight: 28,
-    fontWeight: 800,
-  },
-  examList: {
-    gap: Spacing.three,
-  },
-  emptyExamCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
-  },
-  emptyExamIcon: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.medium,
-  },
-  examCard: {
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.medium,
-    ...Shadows.card,
-  },
-  examRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.three,
-  },
-  examIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.medium,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  examIconText: {
-    fontSize: 22,
-    lineHeight: 29,
-  },
-  examTexts: {
-    flex: 1,
-    gap: Spacing.one,
-  },
-  examTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.two,
-  },
-  examTitle: {
-    flex: 1,
-  },
-  miniBadge: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-    borderRadius: Radius.pill,
-  },
-  progressMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  customizeHint: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: Spacing.one,
   },
   footerText: {
     textAlign: "center",
