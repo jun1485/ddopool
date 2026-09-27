@@ -27,11 +27,11 @@ export const Colors = {
     onPrimaryLine: "rgba(255, 255, 255, 0.38)",
     success: "#4C7566",
     successSoft: "#EAF2EE",
-    danger: "#D33F58",
+    danger: "#B8304A",
     dangerSoft: "#FDE8EC",
     reminderUrgent: "#D92D20",
     reminderUrgentSoft: "#FFF0EF",
-    warning: "#C97A05",
+    warning: "#955900",
     warningSoft: "#FDF0D8",
   },
   dark: {
