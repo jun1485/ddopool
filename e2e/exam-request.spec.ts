@@ -38,7 +38,7 @@ test("검색 결과가 없는 시험을 요청하고 내 요청에서 확인한�
   page,
 }) => {
   await completeOnboarding(page);
-  await page.getByRole("button", { name: "시험 찾기 및 요청" }).click();
+  await page.getByText("시험찾기", { exact: true }).first().click();
   await page.getByLabel("시험 검색").fill("새로운 자격 시험");
   await expect(page.getByText("찾는 시험이 아직 없나요?")).toBeVisible();
   await page.getByRole("button", { name: "이 시험 요청하기" }).click();
