@@ -196,24 +196,9 @@ function ExamCatalogCard({
               </View>
             )}
           </View>
-          <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
             {exam.description}
           </ThemedText>
-          <View style={styles.subjectRow}>
-            {exam.subjects.slice(0, 2).map((subject) => (
-              <View
-                key={subject}
-                style={[
-                  styles.subjectChip,
-                  { backgroundColor: theme.backgroundSelected },
-                ]}
-              >
-                <ThemedText type="small" themeColor="textSecondary">
-                  {subject}
-                </ThemedText>
-              </View>
-            ))}
-          </View>
         </View>
       </View>
       <View style={styles.examActions}>
@@ -227,18 +212,14 @@ function ExamCatalogCard({
           onPress={onToggleEnrollment}
           style={({ pressed }) => [
             styles.enrollmentButton,
-            {
-              backgroundColor: enrolled
-                ? theme.backgroundSelected
-                : theme.primarySoft,
-            },
+            { borderColor: theme.border },
             pressed && styles.pressed,
           ]}
         >
           <SymbolView
             tintColor={enrolled ? theme.textSecondary : theme.primary}
             name={{
-              ios: enrolled ? "minus.circle" : "plus.circle.fill",
+              ios: enrolled ? "minus.circle" : "plus.circle",
               android: enrolled ? "remove_circle_outline" : "add_circle",
               web: enrolled ? "remove_circle_outline" : "add_circle",
             }}
@@ -259,15 +240,18 @@ function ExamCatalogCard({
           onPress={onStart}
           style={({ pressed }) => [
             styles.startButton,
-            { backgroundColor: theme.primary },
+            { backgroundColor: enrolled ? theme.primary : theme.primarySoft },
             pressed && styles.pressed,
           ]}
         >
-          <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
+          <ThemedText
+            type="smallBold"
+            style={{ color: enrolled ? theme.onPrimary : theme.primary }}
+          >
             {enrolled ? "맞춤 학습" : "빠른 진단"}
           </ThemedText>
           <SymbolView
-            tintColor={theme.onPrimary}
+            tintColor={enrolled ? theme.onPrimary : theme.primary}
             name={{
               ios: "play.fill",
               android: "play_arrow",
@@ -505,31 +489,6 @@ export default function CatalogScreen({
         >
           {activeTab === "search" ? (
             <>
-              <RevealView variant="zoom" duration={360}>
-                <View style={[styles.hero, { backgroundColor: theme.primary }]}>
-                  <View style={styles.heroCopy}>
-                    <ThemedText themeColor="onPrimaryMuted" type="smallBold">
-                      원하는 시험부터 시작
-                    </ThemedText>
-                    <ThemedText themeColor="onPrimary" style={styles.heroTitle}>
-                      준비 중인 시험을{"\n"}검색해 보세요
-                    </ThemedText>
-                    <ThemedText themeColor="onPrimaryMuted" type="small">
-                      현재 {exams.length}개 시험 · 요청이 모이면 새 문제은행
-                      준비
-                    </ThemedText>
-                  </View>
-                  <View
-                    style={[
-                      styles.heroIcon,
-                      { backgroundColor: theme.onPrimarySurface },
-                    ]}
-                  >
-                    <ThemedText style={styles.heroEmoji}>🎯</ThemedText>
-                  </View>
-                </View>
-              </RevealView>
-
               <View
                 style={[
                   styles.searchBox,
@@ -599,7 +558,8 @@ export default function CatalogScreen({
                         {hasSearchText ? "검색 결과" : "학습 가능한 시험"}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
-                        {filteredExams.length}개 시험을 바로 학습 가능
+                        {filteredExams.length}개 · 빠른 진단으로 내 수준부터
+                        확인해요
                       </ThemedText>
                     </View>
                   </View>
@@ -1047,36 +1007,6 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.six,
     gap: Spacing.four,
   },
-  hero: {
-    minHeight: 178,
-    flexDirection: "row",
-    alignItems: "center",
-    overflow: "hidden",
-    padding: Spacing.four,
-    borderRadius: Radius.large,
-    ...Shadows.card,
-  },
-  heroCopy: {
-    flex: 1,
-    gap: Spacing.two,
-  },
-  heroTitle: {
-    fontSize: 24,
-    lineHeight: 34,
-    fontWeight: 700,
-  },
-  heroIcon: {
-    width: 88,
-    height: 88,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 44,
-    transform: [{ rotate: "8deg" }],
-  },
-  heroEmoji: {
-    fontSize: 41,
-    lineHeight: 52,
-  },
   searchBox: {
     minHeight: 54,
     flexDirection: "row",
@@ -1126,7 +1056,7 @@ const styles = StyleSheet.create({
   examCard: {
     gap: Spacing.three,
     padding: Spacing.three,
-    borderRadius: Radius.medium,
+    borderRadius: Radius.large,
     ...Shadows.card,
   },
   examInfo: {
@@ -1135,15 +1065,15 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   examIcon: {
-    width: 54,
-    height: 54,
+    width: 46,
+    height: 46,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
   },
   examEmoji: {
-    fontSize: 25,
-    lineHeight: 34,
+    fontSize: 22,
+    lineHeight: 30,
   },
   examCopy: {
     minWidth: 0,
@@ -1164,24 +1094,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.half,
     borderRadius: Radius.pill,
   },
-  subjectRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.one,
-    paddingTop: Spacing.half,
-  },
-  subjectChip: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-    borderRadius: Radius.pill,
-  },
   examActions: {
     flexDirection: "row",
     gap: Spacing.two,
   },
   enrollmentButton: {
-    minHeight: 42,
+    minHeight: 40,
     flex: 1,
+    borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1189,7 +1109,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
   },
   startButton: {
-    minHeight: 42,
+    minHeight: 40,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
