@@ -13,11 +13,13 @@ export interface LegacyImport {
   collection: string;
   legacyKey: string;
   decode: () => Promise<[string, string][]>;
+  discardUnreadable?: boolean;
 }
 
 // 소유 계정 기준 컬렉션 행 조작
 export interface LearningRows {
   entries(collection: string): Promise<[string, string][]>;
+  ids(collection: string): Promise<string[]>;
   get(collection: string, id: string): Promise<string | null>;
   put(collection: string, entries: [string, string][]): Promise<void>;
   remove(collection: string, ids: string[]): Promise<void>;
@@ -26,6 +28,7 @@ export interface LearningRows {
   trim(collection: string, limit: number): Promise<void>;
 }
 
+export const DEVICE_OWNER = "device";
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 // 학습 기록 데이터베이스 열기·테이블 준비
@@ -61,6 +64,13 @@ function bindRows(connection: RowConnection, owner: string): LearningRows {
         [collection, owner],
       );
       return rows.map((row) => [row.id, row.value]);
+    },
+    async ids(collection) {
+      const rows = await connection.getAllAsync<{ id: string }>(
+        "SELECT id FROM learning_rows WHERE collection = ? AND owner = ? ORDER BY seq",
+        [collection, owner],
+      );
+      return rows.map((row) => row.id);
     },
     async get(collection, id) {
       const row = await connection.getFirstAsync<{ value: string }>(
@@ -111,17 +121,32 @@ function bindRows(connection: RowConnection, owner: string): LearningRows {
   };
 }
 
-// 기존 키 이전 후 단일 트랜잭션으로 행 작업 실행
-export async function withLearningRows<T>(
+// 기존 키 존재 시 이전할 행 목록 해석
+async function readLegacy(
+  item: LegacyImport,
+): Promise<[string, string][] | null> {
+  try {
+    if ((await AsyncStorage.getItem(item.legacyKey)) == null) return null;
+  } catch (error) {
+    // 기기 값 한도를 넘어 읽을 수 없는 캐시 키 폐기
+    if (item.discardUnreadable === true) return [];
+    throw error;
+  }
+  return item.decode();
+}
+
+// 기존 키 이전 후 단일 트랜잭션으로 소유 계정 행 작업 실행
+async function runRows<T>(
+  owner: string,
   imports: LegacyImport[],
   task: (rows: LearningRows) => Promise<T>,
 ): Promise<T> {
   const database = await openLearningDatabase();
-  const owner = await resolveVaultOwner();
   const legacy: [LegacyImport, [string, string][]][] = [];
-  for (const item of imports)
-    if ((await AsyncStorage.getItem(item.legacyKey)) != null)
-      legacy.push([item, await item.decode()]);
+  for (const item of imports) {
+    const entries = await readLegacy(item);
+    if (entries != null) legacy.push([item, entries]);
+  }
 
   const box: { outcome?: { value: T } } = {};
   await database.withExclusiveTransactionAsync(async (connection) => {
@@ -138,6 +163,22 @@ export async function withLearningRows<T>(
   if (box.outcome == null)
     throw new Error("학습 기록 저장이 완료되지 않았습니다");
   return box.outcome.value;
+}
+
+// 현재 소유 계정 행 작업 실행
+export async function withLearningRows<T>(
+  imports: LegacyImport[],
+  task: (rows: LearningRows) => Promise<T>,
+): Promise<T> {
+  return runRows(await resolveVaultOwner(), imports, task);
+}
+
+// 계정과 무관한 기기 공용 행 작업 실행
+export function withDeviceRows<T>(
+  imports: LegacyImport[],
+  task: (rows: LearningRows) => Promise<T>,
+): Promise<T> {
+  return runRows(DEVICE_OWNER, imports, task);
 }
 
 // 삭제·초기화 계정의 행 전체 제거

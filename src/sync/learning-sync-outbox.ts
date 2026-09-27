@@ -10,13 +10,14 @@ import type {
 import { supabase } from "@/lib/supabase";
 import { removePendingLearningAttempts } from "@/storage/pending-learning-attempt-store";
 import { PermanentLearningSyncError } from "@/sync/learning-sync-error";
-
-const LEARNING_SYNC_OUTBOX_KEY = "exam-loop:learning-sync-outbox:v1";
-const LEARNING_SYNC_CORRUPT_OUTBOX_KEY =
-  "exam-loop:learning-sync-outbox-corrupt:v1";
-const LEARNING_SYNC_OUTBOX_RECOVERY_KEY =
-  "exam-loop:learning-sync-outbox-recovery:v1";
-const LEARNING_SYNC_DEAD_LETTER_KEY = "exam-loop:learning-sync-dead-letter:v1";
+import { LEARNING_SYNC_OUTBOX_RECOVERY_KEY } from "@/sync/learning-sync-outbox-keys";
+import {
+  clearOutboxData,
+  moveOutboxOperationToDeadLetter,
+  readOutboxOperations,
+  removeOutboxOperation,
+  updateOutboxOperations,
+} from "@/sync/learning-sync-outbox-persistence";
 const OUTBOX_OPERATION_LIMIT = 1_000;
 const OUTBOX_CHARACTER_LIMIT = 1_000_000;
 const DEAD_LETTER_LIMIT = 100;
@@ -66,13 +67,15 @@ export interface LearningSyncResult {
 
 export type EnqueueLearningSyncResult = "enqueued" | "failed" | "suppressed";
 
-type StoredLearningSyncOperation = LearningSyncPayload & {
+// 기기에 저장된 학습 동기화 대기 작업
+export type StoredLearningSyncOperation = LearningSyncPayload & {
   id: string;
-  userId?: string;
+  userId?: string | null;
   createdAt: string;
 };
 
-interface DeadLetterEntry {
+// 영구 실패로 제외된 학습 동기화 작업
+export interface LearningSyncDeadLetter {
   operation: LearningSyncOperation;
   errorCode: string;
   failedAt: string;
@@ -85,24 +88,19 @@ interface FailedLearningSyncOperation {
 
 let failedLearningSyncOperations: FailedLearningSyncOperation[] = [];
 
-// 학습 동기화 대기열 원본 로드
-async function readLearningSyncOutbox(): Promise<LearningSyncOperation[]> {
-  const raw = await AsyncStorage.getItem(LEARNING_SYNC_OUTBOX_KEY);
-  if (raw == null) return [];
-  let operations: StoredLearningSyncOperation[];
+// 저장 작업 1회 재시도
+async function retryOnce<T>(task: () => Promise<T>): Promise<T> {
   try {
-    operations = JSON.parse(raw) as StoredLearningSyncOperation[];
-    if (!Array.isArray(operations))
-      throw new Error("학습 동기화 대기열 형식이 올바르지 않습니다.");
+    return await task();
   } catch {
-    // 파손 대기열 원본 격리
-    await AsyncStorage.multiSet([
-      [LEARNING_SYNC_CORRUPT_OUTBOX_KEY, raw],
-      [LEARNING_SYNC_OUTBOX_KEY, "[]"],
-      [LEARNING_SYNC_OUTBOX_RECOVERY_KEY, "pending"],
-    ]);
-    return [];
+    return task();
   }
+}
+
+// 저장 대기 작업 사용자 식별자 정규화
+function toLearningSyncOperations(
+  operations: StoredLearningSyncOperation[],
+): LearningSyncOperation[] {
   return operations.map((operation) => ({
     ...operation,
     userId: operation.userId ?? null,
@@ -111,11 +109,7 @@ async function readLearningSyncOutbox(): Promise<LearningSyncOperation[]> {
 
 // 학습 동기화 대기열 읽기 재시도
 async function retryReadLearningSyncOutbox(): Promise<LearningSyncOperation[]> {
-  try {
-    return await readLearningSyncOutbox();
-  } catch {
-    return readLearningSyncOutbox();
-  }
+  return toLearningSyncOperations(await retryOnce(readOutboxOperations));
 }
 
 // 학습 동기화 대기열 로드
@@ -126,35 +120,11 @@ export async function loadLearningSyncOutbox(): Promise<
   return retryReadLearningSyncOutbox();
 }
 
-// 학습 동기화 대기열 원본 저장
-async function writeLearningSyncOutbox(
-  operations: LearningSyncOperation[],
-): Promise<void> {
-  await AsyncStorage.setItem(
-    LEARNING_SYNC_OUTBOX_KEY,
-    JSON.stringify(operations),
-  );
-}
-
-// 학습 동기화 대기열 저장
+// 학습 동기화 대기열 전체 교체
 async function saveLearningSyncOutbox(
   operations: LearningSyncOperation[],
 ): Promise<void> {
-  try {
-    await writeLearningSyncOutbox(operations);
-  } catch {
-    await writeLearningSyncOutbox(operations);
-  }
-}
-
-// 학습 동기화 데드레터 로드
-async function loadLearningSyncDeadLetters(): Promise<DeadLetterEntry[]> {
-  const raw = await AsyncStorage.getItem(LEARNING_SYNC_DEAD_LETTER_KEY);
-  if (raw == null) return [];
-  const entries = JSON.parse(raw) as DeadLetterEntry[];
-  if (!Array.isArray(entries))
-    throw new Error("학습 동기화 제외 기록 형식이 올바르지 않습니다.");
-  return entries;
+  await retryOnce(() => updateOutboxOperations(() => operations));
 }
 
 // 인증 세션 사용자 식별자 로드
@@ -306,25 +276,29 @@ export function enqueueLearningSync(
       return "failed" as const;
     }
     if (userId == null) return "suppressed" as const;
-    const { operations } = normalizeQueuedAttemptPayloads(
-      await retryReadLearningSyncOutbox(),
-    );
     const queuedOperation: LearningSyncOperation = {
       ...normalizedOperation,
       id: Crypto.randomUUID(),
       userId,
       createdAt: new Date().toISOString(),
     };
-    const nextOperations = coalesceLearningSyncOperations(
-      operations,
-      queuedOperation,
+    await retryOnce(() =>
+      updateOutboxOperations((stored) => {
+        const { operations } = normalizeQueuedAttemptPayloads(
+          toLearningSyncOperations(stored),
+        );
+        const nextOperations = coalesceLearningSyncOperations(
+          operations,
+          queuedOperation,
+        );
+        if (
+          nextOperations.length > OUTBOX_OPERATION_LIMIT ||
+          JSON.stringify(nextOperations).length > OUTBOX_CHARACTER_LIMIT
+        )
+          throw new Error("학습 동기화 대기열 저장 한도를 초과했습니다.");
+        return nextOperations;
+      }),
     );
-    if (
-      nextOperations.length > OUTBOX_OPERATION_LIMIT ||
-      JSON.stringify(nextOperations).length > OUTBOX_CHARACTER_LIMIT
-    )
-      throw new Error("학습 동기화 대기열 저장 한도를 초과했습니다.");
-    await saveLearningSyncOutbox(nextOperations);
     return "enqueued" as const;
   });
   outboxWriteQueue = enqueuePromise.then(
@@ -374,22 +348,12 @@ function getAttemptClientId(operation: LearningSyncOperation): string | null {
 // 영구 실패 작업 데드레터 이동
 async function moveOperationToDeadLetter(
   operation: LearningSyncOperation,
-  pendingOperations: LearningSyncOperation[],
   errorCode: string,
 ): Promise<void> {
-  const deadLetters = await loadLearningSyncDeadLetters();
-  const nextDeadLetters = [
-    ...deadLetters,
-    {
-      operation,
-      errorCode,
-      failedAt: new Date().toISOString(),
-    },
-  ].slice(-DEAD_LETTER_LIMIT);
-  await AsyncStorage.multiSet([
-    [LEARNING_SYNC_OUTBOX_KEY, JSON.stringify(pendingOperations)],
-    [LEARNING_SYNC_DEAD_LETTER_KEY, JSON.stringify(nextDeadLetters)],
-  ]);
+  await moveOutboxOperationToDeadLetter(
+    { operation, errorCode, failedAt: new Date().toISOString() },
+    DEAD_LETTER_LIMIT,
+  );
 }
 
 // 학습 동기화 대기열 순차 전송
@@ -431,7 +395,7 @@ export async function flushLearningSyncOutbox(
         const activeUserId = await loadAuthenticatedUserId();
         if (operation.userId !== userId || activeUserId !== userId) {
           operations = pendingOperations;
-          await saveLearningSyncOutbox(operations);
+          await retryOnce(() => removeOutboxOperation(operation.id));
           const clientAttemptId = getAttemptClientId(operation);
           if (clientAttemptId != null)
             completedAttemptIds.push(clientAttemptId);
@@ -443,7 +407,7 @@ export async function flushLearningSyncOutbox(
         } catch (error) {
           if (error instanceof PermanentLearningSyncError) {
             operations = pendingOperations;
-            await moveOperationToDeadLetter(operation, operations, error.code);
+            await moveOperationToDeadLetter(operation, error.code);
             const clientAttemptId = getAttemptClientId(operation);
             if (clientAttemptId != null)
               completedAttemptIds.push(clientAttemptId);
@@ -457,7 +421,7 @@ export async function flushLearningSyncOutbox(
           return;
         }
         operations = pendingOperations;
-        await saveLearningSyncOutbox(operations);
+        await retryOnce(() => removeOutboxOperation(operation.id));
         const clientAttemptId = getAttemptClientId(operation);
         if (clientAttemptId != null) completedAttemptIds.push(clientAttemptId);
         result.syncedCount += 1;
@@ -518,12 +482,7 @@ export function clearLearningSyncOutbox(): Promise<void> {
   const clearPromise = outboxWriteQueue
     .catch(() => undefined)
     .then(async () => {
-      await AsyncStorage.multiRemove([
-        LEARNING_SYNC_OUTBOX_KEY,
-        LEARNING_SYNC_CORRUPT_OUTBOX_KEY,
-        LEARNING_SYNC_OUTBOX_RECOVERY_KEY,
-        LEARNING_SYNC_DEAD_LETTER_KEY,
-      ]);
+      await clearOutboxData();
       resetLearningSyncEnqueueFailureCount();
     });
   outboxWriteQueue = clearPromise;
