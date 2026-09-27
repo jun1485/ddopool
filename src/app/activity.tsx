@@ -185,7 +185,7 @@ export default function ActivityScreen() {
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="다음 달"
-                    accessibilityState={{ disabled: !canGoNext }}
+                    aria-disabled={!canGoNext}
                     disabled={!canGoNext}
                     onPress={goNextMonth}
                     hitSlop={Spacing.two}
@@ -257,7 +257,7 @@ export default function ActivityScreen() {
                               accessibilityLabel={`${formatActivityDate(
                                 day.dateKey,
                               )}, ${day.answered}문제 학습`}
-                              accessibilityState={{ selected }}
+                              aria-selected={selected}
                               onPress={() => setSelectedDateKey(day.dateKey)}
                               style={({ pressed }) => [
                                 styles.dayCell,

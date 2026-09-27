@@ -274,7 +274,7 @@ export default function ReviewScreen() {
                   <RevealView key={exam.id} delay={stagger(listIndex, 60)}>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityState={{ disabled: !hasDue }}
+                      aria-disabled={!hasDue}
                       accessibilityLabel={
                         hasDue
                           ? `${exam.shortTitle} ${dueCount}문제 복습 시작`

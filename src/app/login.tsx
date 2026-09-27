@@ -250,7 +250,7 @@ export default function LoginScreen() {
                   <Pressable
                     key={value}
                     accessibilityRole="tab"
-                    accessibilityState={{ selected }}
+                    aria-selected={selected}
                     onPress={() => selectMode(value)}
                     style={({ pressed }) => [
                       styles.modeTab,
@@ -378,7 +378,7 @@ export default function LoginScreen() {
 
               <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ disabled: !canSubmit }}
+                aria-disabled={!canSubmit}
                 disabled={!canSubmit}
                 onPress={() => void submitAuth()}
                 style={({ pressed }) => [
@@ -420,7 +420,7 @@ export default function LoginScreen() {
 
               <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ disabled: !canRequestEmail }}
+                aria-disabled={!canRequestEmail}
                 disabled={!canRequestEmail}
                 onPress={() =>
                   void (mode === "sign-in"
@@ -450,7 +450,7 @@ export default function LoginScreen() {
                 <>
                   <Pressable
                     accessibilityRole="checkbox"
-                    accessibilityState={{ checked: accepted }}
+
                     aria-checked={accepted}
                     onPress={() => setAccepted((value) => !value)}
                   >

@@ -102,7 +102,7 @@ export function MockExamTrendCard({
               <Pressable
                 key={exam.id}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={`${exam.shortTitle} 모의고사 선택`}
                 onPress={() => {
                   setSelectedExamId(exam.id);
@@ -313,7 +313,7 @@ export function MockExamTrendCard({
                   <Pressable
                     key={result.id}
                     accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    aria-selected={selected}
                     accessibilityLabel={`${index + 1}회차 ${score}점 결과 보기`}
                     onPress={() => setSelectedResultId(result.id)}
                     style={styles.barColumn}

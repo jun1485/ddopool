@@ -36,7 +36,7 @@ export function AnimatedChip({
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       accessibilityLabel={accessibilityLabel ?? label}
       onPress={onPress}
     >

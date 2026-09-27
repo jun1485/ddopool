@@ -174,7 +174,7 @@ export default function AuthCallbackScreen() {
               />
               <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ disabled: !canSubmit }}
+                aria-disabled={!canSubmit}
                 disabled={!canSubmit}
                 onPress={() => void submitPassword()}
                 style={({ pressed }) => [

@@ -313,9 +313,9 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityState={{
-                    disabled: reportReason.trim().length === 0 || isReporting,
-                  }}
+                  aria-disabled={
+                    reportReason.trim().length === 0 || isReporting
+                  }
                   disabled={reportReason.trim().length === 0 || isReporting}
                   onPress={() => void submitReport()}
                   style={({ pressed }) => [
@@ -494,7 +494,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
           <>
             <Pressable
               accessibilityRole="button"
-              accessibilityState={{ disabled: !canSave }}
+              aria-disabled={!canSave}
               disabled={!canSave}
               onPress={() => void saveRequest()}
               style={({ pressed }) => [

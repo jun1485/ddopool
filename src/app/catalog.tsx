@@ -123,7 +123,7 @@ function CatalogTabButton({
   return (
     <Pressable
       accessibilityRole="tab"
-      accessibilityState={{ selected }}
+      aria-selected={selected}
       onPress={onPress}
       style={styles.tabSlot}
     >

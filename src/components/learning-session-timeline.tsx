@@ -96,7 +96,7 @@ export function LearningSessionTimeline({
             <Pressable
               key={option.id}
               accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               onPress={() => setFilter(option.id)}
               style={({ pressed }) => [
                 styles.filterChip,

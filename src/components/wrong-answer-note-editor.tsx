@@ -86,7 +86,7 @@ export function WrongAnswerNoteEditor({
             <Pressable
               key={option.value}
               accessibilityRole="checkbox"
-              accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={`학습 원인 ${option.label}`}
               onPress={() => onToggleTag(option.value)}
               style={({ pressed }) => [

@@ -81,7 +81,7 @@ function ReviewQuestionCard({
     >
       <Pressable
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: selected }}
+        aria-checked={selected}
         accessibilityLabel={`${item.question.prompt} 선택`}
         onPress={onSelect}
         style={({ pressed }) => [
@@ -511,7 +511,7 @@ export default function ReviewLibraryScreen() {
                 >
                   <Pressable
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selectedExamId == null }}
+                    aria-checked={selectedExamId == null}
                     onPress={() => setSelectedExamId(null)}
                     style={({ pressed }) => [
                       styles.examChip,
@@ -542,7 +542,7 @@ export default function ReviewLibraryScreen() {
                       <Pressable
                         key={exam.id}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: selected }}
+                        aria-checked={selected}
                         onPress={() => setSelectedExamId(exam.id)}
                         style={({ pressed }) => [
                           styles.examChip,

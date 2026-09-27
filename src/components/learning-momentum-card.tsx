@@ -41,7 +41,7 @@ export function LearningMomentumCard({
     <ThemedView type="backgroundElement" style={styles.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{ expanded }}
+        aria-expanded={expanded}
         accessibilityLabel={`레벨 ${progression.level}, 오늘의 퀘스트 ${completedCount}개 완료`}
         onPress={() => setExpanded((current) => !current)}
         style={({ pressed }) => pressed && styles.pressed}

@@ -85,10 +85,8 @@ export function ConfidenceRating({
             <Pressable
               key={option.value}
               accessibilityRole="radio"
-              accessibilityState={{
-                checked: isSelected,
-                disabled: selected != null,
-              }}
+              aria-checked={isSelected}
+              aria-disabled={selected != null}
               disabled={selected != null}
               onPress={() => onSelect(option.value)}
               style={({ pressed }) => [

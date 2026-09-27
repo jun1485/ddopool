@@ -50,7 +50,7 @@ export function RequestTrackingOverview({
             <Pressable
               key={filter.value}
               accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={`${filter.label} 요청 ${summary[filter.value]}개`}
               onPress={() => onSelectFilter(filter.value)}
               style={({ pressed }) => [

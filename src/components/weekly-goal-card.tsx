@@ -206,7 +206,7 @@ export function WeeklyGoalCard({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="주간 목표 맞춤 학습 시작"
-              accessibilityState={{ disabled: !canStart }}
+              aria-disabled={!canStart}
               disabled={!canStart}
               onPress={onStart}
               style={({ pressed }) => [
