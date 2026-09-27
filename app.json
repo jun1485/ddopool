@@ -63,7 +63,10 @@
     },
     "extra": {
       "releaseMode": false,
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "6c369327-f0f4-4699-8552-faeb444120d5"
+      }
     },
     "owner": "jun213"
   }
