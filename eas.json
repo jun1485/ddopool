@@ -31,9 +31,17 @@
     }
   },
   "submit": {
+    "closed-testing": {
+      "android": {
+        "serviceAccountKeyPath": "../.secrets/ddopool-play-service-account.json",
+        "track": "alpha",
+        "releaseStatus": "draft"
+      }
+    },
     "production": {
       "android": {
-        "track": "internal",
+        "serviceAccountKeyPath": "../.secrets/ddopool-play-service-account.json",
+        "track": "production",
         "releaseStatus": "draft"
       }
     }

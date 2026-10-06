@@ -86,7 +86,7 @@ npx eas-cli@latest build --platform android --profile production
 npx eas-cli@latest submit --platform android --profile production
 ```
 
-`submit` 프로필은 internal 트랙·draft 상태로 올린다. [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts)에서 서비스 계정 키를 발급하고 [Play Console](https://play.google.com/console/) → 사용자 및 권한에서 필요한 앱 권한을 부여하면 제출이 비대화형으로 끝난다.
+`production` 제출 프로필은 프로덕션 트랙, `closed-testing` 제출 프로필은 비공개 테스트(alpha) 트랙에 draft 상태로 올리며, 검토 전송은 Play Console 게시 개요에서 직접 한다. production 빌드의 출시 값 검증은 EAS 빌드 서버에서 EAS `production` 환경 변수로 실행되므로, 값은 [EAS 환경 변수](https://expo.dev/accounts/jun213/projects/ddopool/environment-variables)에 등록한다. [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts)에서 서비스 계정 키를 발급해 저장소 밖 `../.secrets/ddopool-play-service-account.json` 에 두고, [Play Console](https://play.google.com/console/) → 사용자 및 권한에서 그 서비스 계정에 앱 권한을 부여하면 제출이 비대화형으로 끝난다. 키 파일은 저장소에 커밋하지 않는다.
 
 ### Play Console에서 별도로 처리해야 하는 항목
 
