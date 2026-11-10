@@ -8,8 +8,7 @@ create table public.web_push_subscriptions (
   auth text not null
 );
 alter table public.web_push_subscriptions enable row level security;
-revoke all on public.web_push_subscriptions from anon, authenticated;
-grant all on public.web_push_subscriptions to service_role;
+revoke all on public.web_push_subscriptions from anonymous, authenticated;
 
 -- 본인 웹 구독과 학습 알림 저장
 create function public.save_web_push(p_endpoint text,p_p256dh text,p_auth text,p_hour integer,p_timezone text,p_studied_today boolean) returns text
@@ -30,7 +29,7 @@ begin
   return v_token;
 end;
 $$;
-revoke all on function public.save_web_push(text,text,text,integer,text,boolean) from public,anon;
+revoke all on function public.save_web_push(text,text,text,integer,text,boolean) from public,anonymous;
 grant execute on function public.save_web_push(text,text,text,integer,text,boolean) to authenticated;
 -- 시험 요청 소식은 기존 네이티브 구독으로 발송
 create or replace function public.queue_notification_push() returns trigger

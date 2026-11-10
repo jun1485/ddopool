@@ -4,16 +4,16 @@ import assert from "node:assert/strict";
 
 const db = new PGlite();
 await db.exec(`
-  create role anon;
+  create role anonymous;
   create role authenticated;
-  create role service_role bypassrls;
+  create role neon_superuser;
+  create role authenticator login;
+  grant anonymous, authenticated to authenticator;
   create schema auth;
-  create table auth.users(id uuid primary key, email text, raw_user_meta_data jsonb default '{}', created_at timestamptz default now());
+  create schema neon_auth;
+  create table neon_auth."user"(id uuid primary key, email text not null default '', created_at timestamptz default now());
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-  grant usage on schema auth, public to anon, authenticated, service_role;
-  grant select on auth.users to authenticated;
-  alter default privileges in schema public grant select, insert, update, delete on tables to authenticated, service_role;
-  alter default privileges in schema public grant usage, select on sequences to authenticated, service_role;
+  grant usage on schema auth to anonymous, authenticated;
 `);
 try {
   for (const file of readdirSync("db/migrations")
@@ -24,15 +24,18 @@ try {
   }
   const userA = "00000000-0000-4000-8000-000000000001";
   const userB = "00000000-0000-4000-8000-000000000002";
+  for (const id of [userA, userB])
+    await db.query(`insert into neon_auth."user"(id) values($1)`, [id]);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    userA,
+  ]);
+  await db.exec("set role authenticated");
   await assert.rejects(
-    db.query("insert into auth.users(id) values($1)", [userA]),
+    db.exec("select public.record_signup_consent('test', false)"),
     /동의/,
   );
-  for (const id of [userA, userB])
-    await db.query(
-      "insert into auth.users(id, raw_user_meta_data) values($1,$2)",
-      [id, { age_over_14: true, legal_version: "test" }],
-    );
+  await db.exec("select public.record_signup_consent('test', true)");
+  await db.exec("reset role");
   await db.exec(
     `insert into public.exams(id,title,short_title) values('test-exam','시험','시험');`,
   );
@@ -181,7 +184,7 @@ try {
     [timezone],
   );
   await db.exec(
-    "reset role; select set_config('request.jwt.claims','{\"role\":\"service_role\"}',false)",
+    "reset role; select set_config('request.jwt.claim.sub','',false)",
   );
   await db.exec("select public.queue_study_reminders()");
   assert.equal(

@@ -3,9 +3,9 @@
 begin;
 
 -- #region 출처 내부 증빙 비공개
-revoke select on public.content_sources from anon, authenticated;
+revoke select on public.content_sources from anonymous, authenticated;
 grant select (id, exam_id, name, url, license, source_type, collected_at, created_at)
-  on public.content_sources to anon, authenticated;
+  on public.content_sources to anonymous, authenticated;
 -- #endregion
 
 -- #region 투표 가시성·반복 제한
@@ -25,7 +25,7 @@ create table public.exam_request_vote_events (
 create index exam_request_vote_events_voter_time_idx
   on public.exam_request_vote_events (voter_id, created_at);
 alter table public.exam_request_vote_events enable row level security;
-revoke all on public.exam_request_vote_events from anon, authenticated;
+revoke all on public.exam_request_vote_events from anonymous, authenticated;
 
 -- 투표 반복 등록 제한
 create function public.guard_vote_rate() returns trigger

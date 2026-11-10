@@ -256,10 +256,10 @@ $$;
 -- #endregion
 
 -- #region RPC 실행 권한
-revoke execute on function public.merge_exam_requests(uuid, uuid, text) from public, anon;
-revoke execute on function public.add_exam_request_alias(uuid, text) from public, anon;
+revoke execute on function public.merge_exam_requests(uuid, uuid, text) from public, anonymous;
+revoke execute on function public.add_exam_request_alias(uuid, text) from public, anonymous;
 
 grant execute on function public.merge_exam_requests(uuid, uuid, text) to authenticated;
 grant execute on function public.add_exam_request_alias(uuid, text) to authenticated;
-grant execute on function public.search_exam_requests(text) to anon, authenticated;
+grant execute on function public.search_exam_requests(text) to anonymous, authenticated;
 -- #endregion

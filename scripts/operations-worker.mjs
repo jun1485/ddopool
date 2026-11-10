@@ -1,5 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { pathToFileURL } from "node:url";
+import pg from "pg";
+import { createPgQueryClient } from "./pg-query-client.mjs";
 import { createPushContent, deliverWebPush } from "./web-push-delivery.mjs";
 
 // 독립 운영 작업 실행
@@ -207,11 +208,16 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("운영 서버 환경 설정이 필요합니다");
-  const client = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  await runOperations(client, fetch, process.env.EXPO_ACCESS_TOKEN);
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("운영 서버 환경 설정이 필요합니다");
+  const pool = new pg.Pool({ connectionString, max: 4 });
+  try {
+    await runOperations(
+      createPgQueryClient(pool),
+      fetch,
+      process.env.EXPO_ACCESS_TOKEN,
+    );
+  } finally {
+    await pool.end();
+  }
 }
