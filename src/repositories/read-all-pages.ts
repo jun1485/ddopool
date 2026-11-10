@@ -1,4 +1,4 @@
-import type { PostgrestError } from "@supabase/supabase-js";
+import type { PostgrestError } from "@supabase/postgrest-js";
 
 // 공개 목록 전체 페이지 수집
 export async function readAllPages<T>(

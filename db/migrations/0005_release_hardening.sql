@@ -20,16 +20,13 @@ as $$
   );
 $$;
 
--- service role 요청 여부 판별 (로컬 어드민 웹은 사용자 세션 없이 호출)
+-- 운영 접속 여부 판별
 create function public.is_service_role()
 returns boolean
 language sql
 stable
 as $$
-  select coalesce(
-    (nullif(current_setting('request.jwt.claims', true), '')::jsonb) ->> 'role',
-    ''
-  ) = 'service_role';
+  select pg_catalog.pg_has_role(session_user, 'neon_superuser', 'MEMBER') and auth.uid() is null;
 $$;
 
 -- 운영 권한 보유 여부 판별
@@ -114,7 +111,7 @@ begin
   return query
     select p.id, u.email::text, p.nickname, p.role, p.banned_at, p.banned_reason, p.created_at
     from public.profiles p
-    join auth.users u on u.id = p.id
+    join neon_auth."user" u on u.id = p.id
     where coalesce(p_keyword, '') = ''
       or u.email ilike '%' || p_keyword || '%'
       or coalesce(p.nickname, '') ilike '%' || p_keyword || '%'
@@ -405,7 +402,7 @@ begin
     jsonb_build_object('deleted_at', now())
   );
 
-  delete from auth.users where id = v_user_id;
+  delete from neon_auth."user" where id = v_user_id;
 end;
 $$;
 -- #endregion
@@ -488,12 +485,12 @@ create policy push_tokens_delete_own on public.push_tokens
 -- #endregion
 
 -- #region RPC 실행 권한
-revoke execute on function public.delete_my_account() from public, anon;
-revoke execute on function public.report_exam_request(uuid, text) from public, anon;
-revoke execute on function public.register_push_token(text, text) from public, anon;
-revoke execute on function public.unregister_push_token(text) from public, anon;
-revoke execute on function public.set_user_ban(uuid, boolean, text) from public, anon;
-revoke execute on function public.admin_list_users(text, int) from public, anon;
+revoke execute on function public.delete_my_account() from public, anonymous;
+revoke execute on function public.report_exam_request(uuid, text) from public, anonymous;
+revoke execute on function public.register_push_token(text, text) from public, anonymous;
+revoke execute on function public.unregister_push_token(text) from public, anonymous;
+revoke execute on function public.set_user_ban(uuid, boolean, text) from public, anonymous;
+revoke execute on function public.admin_list_users(text, int) from public, anonymous;
 
 grant execute on function public.delete_my_account() to authenticated;
 grant execute on function public.report_exam_request(uuid, text) to authenticated;

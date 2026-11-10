@@ -70,7 +70,7 @@ $$;
 
 -- #region 사용자 프로필
 create table public.profiles (
-  id uuid primary key references auth.users (id) on delete cascade,
+  id uuid primary key references neon_auth."user" (id) on delete cascade,
   nickname text,
   role public.user_role not null default 'user',
   created_at timestamptz not null default now()
@@ -105,7 +105,7 @@ end;
 $$;
 
 create trigger on_auth_user_created
-  after insert on auth.users
+  after insert on neon_auth."user"
   for each row execute function public.handle_new_user();
 -- #endregion
 
@@ -583,8 +583,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.request_exam(text, text, text, text, text) from public, anon;
-revoke execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) from public, anon;
+revoke execute on function public.request_exam(text, text, text, text, text) from public, anonymous;
+revoke execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) from public, anonymous;
 grant execute on function public.request_exam(text, text, text, text, text) to authenticated;
 grant execute on function public.update_exam_request_status(uuid, public.exam_request_status, text, text) to authenticated;
 -- #endregion
@@ -622,7 +622,7 @@ create policy profiles_update_own on public.profiles
   for update using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
 -- role 등 민감 컬럼 클라이언트 수정 차단 (nickname만 허용)
-revoke update on public.profiles from anon, authenticated;
+revoke update on public.profiles from anonymous, authenticated;
 grant update (nickname) on public.profiles to authenticated;
 
 -- exams: active 공개, 관리자 전체 접근
@@ -677,9 +677,9 @@ create policy question_reports_admin_update on public.question_reports
 create policy exam_requests_public_read on public.exam_requests for select using (true);
 
 -- 운영 메타 컬럼 비노출 (공개 컬럼만 select 허용)
-revoke select on public.exam_requests from anon, authenticated;
+revoke select on public.exam_requests from anonymous, authenticated;
 grant select (id, normalized_name, display_name, organization, grade_level, exam_url, language, note, status, vote_count, published_exam_id, created_at, updated_at)
-  on public.exam_requests to anon, authenticated;
+  on public.exam_requests to anonymous, authenticated;
 
 -- exam_request_votes: 공개 읽기, 본인 투표 등록·취소
 create policy exam_request_votes_public_read on public.exam_request_votes for select using (true);
@@ -699,7 +699,7 @@ create policy notifications_update_own on public.notifications
   for update using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- 알림 본문 변조 차단 (read_at만 갱신 허용)
-revoke update on public.notifications from anon, authenticated;
+revoke update on public.notifications from anonymous, authenticated;
 grant update (read_at) on public.notifications to authenticated;
 
 -- audit_logs: 관리자 전용

@@ -13,7 +13,7 @@ function createMockExamPlatformApi(): ExamPlatformApi {
 
 // 앱 전역 시험 플랫폼 API 구현체
 export const examPlatformApi: ExamPlatformApi =
-  process.env.EXPO_PUBLIC_SUPABASE_URL &&
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  process.env.EXPO_PUBLIC_NEON_AUTH_URL &&
+  process.env.EXPO_PUBLIC_NEON_DATA_API_URL
     ? new SupabaseExamPlatformApi()
     : createMockExamPlatformApi();

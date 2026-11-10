@@ -1,12 +1,12 @@
 begin;
 create table public.hidden_exam_requests (
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references neon_auth."user" (id) on delete cascade,
   request_id uuid not null references public.exam_requests(id) on delete cascade,
   primary key(user_id, request_id)
 );
 create table public.blocked_request_authors (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  blocked_user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references neon_auth."user" (id) on delete cascade,
+  blocked_user_id uuid not null references neon_auth."user" (id) on delete cascade,
   primary key(user_id, blocked_user_id), check(user_id <> blocked_user_id)
 );
 alter table public.hidden_exam_requests enable row level security;
@@ -46,7 +46,7 @@ begin
   delete from public.blocked_request_authors where user_id = auth.uid();
 end;
 $$;
-revoke all on function public.hide_exam_request(uuid,boolean), public.reset_request_visibility() from public, anon;
+revoke all on function public.hide_exam_request(uuid,boolean), public.reset_request_visibility() from public, anonymous;
 grant execute on function public.hide_exam_request(uuid,boolean), public.reset_request_visibility() to authenticated;
 create or replace function public.search_exam_requests(p_keyword text)
 returns table (
