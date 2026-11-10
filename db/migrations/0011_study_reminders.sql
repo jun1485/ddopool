@@ -11,8 +11,7 @@ create table public.study_reminder_preferences (
   updated_at timestamptz not null default now()
 );
 alter table public.study_reminder_preferences enable row level security;
-revoke all on public.study_reminder_preferences from anon, authenticated;
-grant all on public.study_reminder_preferences to service_role;
+revoke all on public.study_reminder_preferences from anonymous, authenticated;
 
 alter table public.push_deliveries alter column notification_id drop not null;
 alter table public.push_deliveries add column study_date date;
@@ -35,7 +34,7 @@ begin
   update public.push_deliveries set state='dead' where token=p_token and study_date is not null and state in ('pending','sending');
 end;
 $$;
-revoke all on function public.save_study_reminder(text,boolean,integer,text,timestamptz,boolean) from public,anon;
+revoke all on function public.save_study_reminder(text,boolean,integer,text,timestamptz,boolean) from public,anonymous;
 grant execute on function public.save_study_reminder(text,boolean,integer,text,timestamptz,boolean) to authenticated;
 
 -- 재할당된 기기의 이전 학습 알림 동의 제거
@@ -66,8 +65,7 @@ begin
     on conflict do nothing;
 end;
 $$;
-revoke all on function public.queue_study_reminders() from public,anon,authenticated;
-grant execute on function public.queue_study_reminders() to service_role;
+revoke all on function public.queue_study_reminders() from public,anonymous,authenticated;
 
 -- 재시도 직전 동의·날짜·학습 여부 재검증
 create or replace function public.claim_push_deliveries() returns setof public.push_deliveries

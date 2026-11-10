@@ -1,4 +1,4 @@
-import { PostgrestError } from "@supabase/supabase-js";
+import { PostgrestError } from "@supabase/postgrest-js";
 import { expect, test } from "@jest/globals";
 import { readAllPages } from "./read-all-pages";
 

@@ -1,6 +1,6 @@
 begin;
 create table public.user_learning_extras (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+  user_id uuid primary key references neon_auth."user" (id) on delete cascade,
   revision bigint not null default 1,
   snapshot jsonb not null default '{}',
   updated_at timestamptz not null default now(),
@@ -28,6 +28,6 @@ begin
   return next_revision;
 end;
 $$;
-revoke all on function public.save_learning_extras(bigint,jsonb) from public, anon;
+revoke all on function public.save_learning_extras(bigint,jsonb) from public, anonymous;
 grant execute on function public.save_learning_extras(bigint,jsonb) to authenticated;
 commit;

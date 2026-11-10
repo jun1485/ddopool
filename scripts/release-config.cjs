@@ -1,6 +1,6 @@
 const REQUIRED_RELEASE_VALUES = [
-  "EXPO_PUBLIC_SUPABASE_URL",
-  "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  "EXPO_PUBLIC_NEON_AUTH_URL",
+  "EXPO_PUBLIC_NEON_DATA_API_URL",
   "EXPO_PUBLIC_SITE_URL",
   "EXPO_PUBLIC_OPERATOR_NAME",
   "EXPO_PUBLIC_PRIVACY_OFFICER_NAME",
@@ -12,7 +12,11 @@ const REQUIRED_RELEASE_VALUES = [
 // 출시 설정 누락·잘못된 주소 차단
 function validateReleaseEnvironment(env, projectId, { native = true } = {}) {
   const errors = REQUIRED_RELEASE_VALUES.filter((name) => !env[name]?.trim());
-  for (const name of ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SITE_URL"]) {
+  for (const name of [
+    "EXPO_PUBLIC_NEON_AUTH_URL",
+    "EXPO_PUBLIC_NEON_DATA_API_URL",
+    "EXPO_PUBLIC_SITE_URL",
+  ]) {
     if (!env[name]) continue;
     try {
       const url = new URL(env[name]);

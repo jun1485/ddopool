@@ -3,7 +3,6 @@ import {
   settleLearningExtras,
   synchronizeLearningExtras,
 } from "@/sync/learning-extras";
-import type { User } from "@supabase/supabase-js";
 import * as SplashScreen from "expo-splash-screen";
 import {
   createContext,
@@ -24,10 +23,13 @@ import {
   View,
 } from "react-native";
 
-import { AUTH_CALLBACK_URL } from "@/constants/auth";
 import { LEGAL_VERSION } from "@/constants/legal";
 import { captureHandledError } from "@/lib/monitoring";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import {
+  authWebCallbackUrl,
+  isSupabaseConfigured,
+  supabase,
+} from "@/lib/supabase";
 import {
   registerDevicePushToken,
   unregisterDevicePushToken,
@@ -86,8 +88,12 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 const ACTIVE_SYNC_INTERVAL_MS = 5 * 60_000;
 
-// Supabase 사용자 앱 정보 변환
-function toAuthUser(user: User): AuthUser {
+type AuthSession = {
+  user: { id: string; email?: string | null };
+} | null;
+
+// 인증 사용자 앱 정보 변환
+function toAuthUser(user: { id: string; email?: string | null }): AuthUser {
   return { id: user.id, email: user.email ?? "" };
 }
 
@@ -125,6 +131,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const deletingRef = useRef(false);
   const deletedUserRef = useRef<string | null>(null);
   const lastActiveSyncAtRef = useRef(0);
+  const authEventRef = useRef<(event: string, session: AuthSession) => void>(
+    () => undefined,
+  );
+  const recoveryTokenRef = useRef<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   // 계정 보관함 준비 후 인증 상태 공개
@@ -193,9 +203,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         active = false;
       };
     }
-    const {
-      data: { subscription },
-    } = client.auth.onAuthStateChange((event, session) => {
+    // 인증 이벤트별 계정 전환
+    const handleAuthEvent = (event: string, session: AuthSession) => {
       if (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") return;
       const nextUser = session == null ? null : toAuthUser(session.user);
       if (
@@ -206,7 +215,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setTimeout(() => {
         if (active) transition(nextUser);
       }, 0);
-    });
+    };
+    authEventRef.current = handleAuthEvent;
+    const {
+      data: { subscription },
+    } = client.auth.onAuthStateChange(handleAuthEvent);
     return () => {
       active = false;
       subscription.unsubscribe();
@@ -267,6 +280,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (user != null) void registerDevicePushToken();
   }, [user]);
 
+  // 같은 화면 인증 변경 계정 전환 반영
+  const dispatchAuthChange = useCallback(async () => {
+    if (supabase == null) return;
+    // 데이터 요청용 JWT 포함 세션 재조회
+    const { data } = await supabase.auth.getSession({ forceFetch: true });
+    authEventRef.current(
+      data.session == null ? "SIGNED_OUT" : "SIGNED_IN",
+      data.session,
+    );
+  }, []);
+
   // 이메일 로그인
   const signIn = useCallback(
     async (email: string, password: string): Promise<AuthActionResult> => {
@@ -284,6 +308,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setMessage("이메일 또는 비밀번호를 다시 확인해 주세요.");
           return "failed";
         }
+        await dispatchAuthChange();
         return "authenticated";
       } catch (error) {
         captureHandledError(error, "auth-signIn");
@@ -291,7 +316,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return "failed";
       }
     },
-    [],
+    [dispatchAuthChange],
   );
 
   // 이메일 회원가입
@@ -314,14 +339,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: `${AUTH_CALLBACK_URL}?flow=signup`,
-            data: {
-              age_over_14: true,
-              legal_version: LEGAL_VERSION,
-              legal_accepted_at: new Date().toISOString(),
-            },
-          },
+          options: { emailRedirectTo: `${authWebCallbackUrl}?flow=signup` },
         });
         if (error != null) {
           setMessage("가입 정보를 처리하지 못했어요. 입력값을 확인해 주세요.");
@@ -331,6 +349,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setMessage("이메일로 보낸 확인 링크를 열면 가입이 완료돼요.");
           return "confirmation-required";
         }
+        // 가입 직후 연령·약관 동의 기록
+        await supabase.auth.getSession({ forceFetch: true });
+        const consent = await supabase.rpc("record_signup_consent", {
+          p_legal_version: LEGAL_VERSION,
+          p_age_over_14: true,
+        });
+        if (consent.error != null) {
+          captureHandledError(consent.error, "auth-signUp-consent");
+          await supabase.auth.signOut();
+          setMessage("약관 동의를 기록하지 못했어요. 다시 시도해 주세요.");
+          return "failed";
+        }
+        await dispatchAuthChange();
         return "authenticated";
       } catch (error) {
         captureHandledError(error, "auth-signUp");
@@ -338,7 +369,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return "failed";
       }
     },
-    [],
+    [dispatchAuthChange],
   );
 
   // 비밀번호 재설정 메일 발송
@@ -351,7 +382,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
         setMessage(null);
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${AUTH_CALLBACK_URL}?flow=recovery`,
+          redirectTo: `${authWebCallbackUrl}?flow=recovery`,
         });
         if (error != null) {
           setMessage("재설정 메일을 보내지 못했어요. 다시 시도해 주세요.");
@@ -381,7 +412,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           type: "signup",
           email,
           options: {
-            emailRedirectTo: `${AUTH_CALLBACK_URL}?flow=signup`,
+            emailRedirectTo: `${authWebCallbackUrl}?flow=signup`,
           },
         });
         if (error != null) {
@@ -408,37 +439,32 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (supabase == null) return "failed";
         const normalizedUrl = url.replace("#", url.includes("?") ? "&" : "?");
         const params = new URL(normalizedUrl).searchParams;
-        const code = params.get("code");
-        const accessToken = params.get("access_token");
-        const refreshToken = params.get("refresh_token");
-        const flow = params.get("flow");
-
-        const result =
-          code != null
-            ? await supabase.auth.exchangeCodeForSession(code)
-            : accessToken != null && refreshToken != null
-              ? await supabase.auth.setSession({
-                  access_token: accessToken,
-                  refresh_token: refreshToken,
-                })
-              : null;
-        if (result == null || result.error != null) {
+        const token = params.get("token");
+        // 비밀번호 재설정 링크 토큰 보관
+        if (params.get("flow") === "recovery") {
+          if (token == null || params.get("error") != null) {
+            setMessage("인증 링크가 만료됐거나 올바르지 않아요.");
+            return "failed";
+          }
+          recoveryTokenRef.current = token;
+          setMessage("새 비밀번호를 설정해 주세요.");
+          return "recovery";
+        }
+        const { data, error } = await supabase.auth.getSession();
+        if (error != null || data.session == null) {
           setMessage("인증 링크가 만료됐거나 올바르지 않아요.");
           return "failed";
         }
-        setMessage(
-          flow === "recovery"
-            ? "새 비밀번호를 설정해 주세요."
-            : "이메일 인증이 완료됐어요.",
-        );
-        return flow === "recovery" ? "recovery" : "authenticated";
+        await dispatchAuthChange();
+        setMessage("이메일 인증이 완료됐어요.");
+        return "authenticated";
       } catch (error) {
         captureHandledError(error, "auth-completeAuthCallback");
         setMessage("연결 상태를 확인한 뒤 다시 시도해 주세요.");
         return "failed";
       }
     },
-    [],
+    [dispatchAuthChange],
   );
 
   // 인증 사용자 비밀번호 변경
@@ -446,13 +472,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async (password: string): Promise<boolean> => {
       try {
         if (supabase == null) return false;
+        const token = recoveryTokenRef.current;
+        if (token == null) {
+          setMessage("비밀번호 재설정 메일의 링크로 다시 시도해 주세요.");
+          return false;
+        }
         setMessage(null);
-        const { error } = await supabase.auth.updateUser({ password });
+        const { error } = await supabase.auth
+          .getBetterAuthInstance()
+          .resetPassword({ newPassword: password, token });
         if (error != null) {
           setMessage("비밀번호를 변경하지 못했어요. 다시 시도해 주세요.");
           return false;
         }
-        setMessage("비밀번호가 변경됐어요.");
+        recoveryTokenRef.current = null;
+        setMessage("비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.");
         return true;
       } catch (error) {
         captureHandledError(error, "auth-updatePassword");
@@ -528,6 +562,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await unregisterDevicePushToken();
       const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error != null) throw error;
+      authEventRef.current("SIGNED_OUT", null);
     } catch (error) {
       captureHandledError(error, "auth-signout");
       setMessage("로그아웃하지 못했어요. 다시 시도해 주세요.");

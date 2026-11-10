@@ -61,7 +61,7 @@ $$;
 create trigger source_rights_recheck after update on public.content_sources for each row execute function public.recheck_source_questions();
 
 create table public.legal_consents (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+  user_id uuid primary key references neon_auth."user" (id) on delete cascade,
   legal_version text not null,
   age_over_14 boolean not null check (age_over_14),
   accepted_at timestamptz not null default now()
@@ -70,21 +70,20 @@ alter table public.legal_consents enable row level security;
 create policy legal_consents_own on public.legal_consents for select using (user_id = auth.uid());
 grant select on public.legal_consents to authenticated;
 
--- 신규 회원 연령·약관 동의 확인
-create function public.record_signup_consent() returns trigger
+-- 가입 직후 연령·약관 동의 기록
+create function public.record_signup_consent(p_legal_version text, p_age_over_14 boolean) returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if new.raw_user_meta_data->>'age_over_14' is distinct from 'true'
-     or coalesce(length(new.raw_user_meta_data->>'legal_version'), 0) = 0 then
+  if auth.uid() is null then raise exception '로그인이 필요합니다'; end if;
+  if p_age_over_14 is distinct from true or coalesce(length(p_legal_version), 0) = 0 then
     raise exception '만 14세 이상 확인과 이용약관 동의가 필요합니다';
   end if;
   insert into public.legal_consents(user_id, legal_version, age_over_14)
-  values(new.id, new.raw_user_meta_data->>'legal_version', true);
-  return new;
+  values(auth.uid(), p_legal_version, true)
+  on conflict (user_id) do nothing;
 end;
 $$;
-create trigger signup_legal_consent after insert on auth.users
-for each row execute function public.record_signup_consent();
+revoke all on function public.record_signup_consent(text, boolean) from public, anonymous;
 
 -- 보존 기간 만료 개인정보 정리
 create function public.purge_expired_personal_data() returns void
@@ -97,8 +96,7 @@ begin
   delete from public.push_tokens where last_seen_at < now() - interval '90 days';
 end;
 $$;
-revoke all on function public.purge_expired_personal_data() from public, anon, authenticated;
-grant execute on function public.purge_expired_personal_data() to service_role;
+revoke all on function public.purge_expired_personal_data() from public, anonymous, authenticated;
 
 -- 요청·신고 반복 등록 제한
 create function public.guard_submission_rate() returns trigger

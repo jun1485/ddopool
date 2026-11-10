@@ -1,48 +1,50 @@
 import "react-native-url-polyfill/auto";
 import "./install-local-storage";
+import "./install-neon-polyfills";
 
-import { createClient, processLock } from "@supabase/supabase-js";
+import { createClient } from "@neon/neon-js/supabase";
 import Constants from "expo-constants";
-import { AppState, Platform } from "react-native";
+import { Platform } from "react-native";
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const authUrl = process.env.EXPO_PUBLIC_NEON_AUTH_URL;
+const dataApiUrl = process.env.EXPO_PUBLIC_NEON_DATA_API_URL;
+const siteUrl = process.env.EXPO_PUBLIC_SITE_URL || "http://localhost:8081";
 
 export const isSupabaseConfigured =
-  supabaseUrl != null &&
-  supabaseUrl.length > 0 &&
-  supabasePublishableKey != null &&
-  supabasePublishableKey.length > 0;
+  authUrl != null &&
+  authUrl.length > 0 &&
+  dataApiUrl != null &&
+  dataApiUrl.length > 0;
 
 if (Constants.expoConfig?.extra?.releaseMode === true && !isSupabaseConfigured)
   throw new Error("출시 서버 설정이 누락됐습니다.");
 
-// Supabase 클라이언트 조건부 생성
+// 인증 메일 링크 복귀 주소
+export const authWebCallbackUrl = `${
+  Platform.OS === "web" && typeof location !== "undefined"
+    ? location.origin
+    : siteUrl
+}/auth/callback`;
+
+// Neon 클라이언트 조건부 생성
 function createSupabaseClient() {
   if (
     !isSupabaseConfigured ||
-    supabaseUrl == null ||
-    supabasePublishableKey == null ||
+    authUrl == null ||
+    dataApiUrl == null ||
     typeof localStorage === "undefined"
   )
     return null;
-  return createClient(supabaseUrl, supabasePublishableKey, {
+  return createClient({
     auth: {
-      storage: localStorage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-      lock: processLock,
+      url: authUrl,
+      allowAnonymous: true,
+      // 네이티브 인증 요청 Origin 보강
+      fetchOptions:
+        Platform.OS === "web" ? undefined : { headers: { origin: siteUrl } },
     },
+    dataApi: { url: dataApiUrl },
   });
 }
 
 export const supabase = createSupabaseClient();
-
-// 앱 활성 상태 기준 인증 토큰 갱신
-if (Platform.OS !== "web" && supabase != null) {
-  AppState.addEventListener("change", (state) => {
-    if (state === "active") supabase.auth.startAutoRefresh();
-    else supabase.auth.stopAutoRefresh();
-  });
-}

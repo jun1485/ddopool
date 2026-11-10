@@ -49,6 +49,5 @@ begin
       order by id for update skip locked limit 100) returning *;
 end;
 $$;
-revoke all on function public.claim_push_deliveries() from public, anon, authenticated;
-grant execute on function public.claim_push_deliveries() to service_role;
+revoke all on function public.claim_push_deliveries() from public, anonymous, authenticated;
 commit;

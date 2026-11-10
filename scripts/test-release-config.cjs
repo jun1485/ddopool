@@ -2,8 +2,8 @@ const assert = require("node:assert/strict");
 const { validateReleaseEnvironment } = require("./release-config.cjs");
 assert.throws(() => validateReleaseEnvironment({}, ""));
 const env = {
-  EXPO_PUBLIC_SUPABASE_URL: "https://project.example.com",
-  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-test-key",
+  EXPO_PUBLIC_NEON_AUTH_URL: "https://auth.example.com/neondb/auth",
+  EXPO_PUBLIC_NEON_DATA_API_URL: "https://data.example.com/neondb/rest/v1",
   EXPO_PUBLIC_SITE_URL: "https://app.example.com",
   EXPO_PUBLIC_OPERATOR_NAME: "검증 운영자",
   EXPO_PUBLIC_PRIVACY_OFFICER_NAME: "검증 담당자",

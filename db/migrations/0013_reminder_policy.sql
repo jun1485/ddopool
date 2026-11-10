@@ -6,8 +6,7 @@ create table public.reminder_policies (
  paused_date date
 );
 alter table public.reminder_policies enable row level security;
-revoke all on public.reminder_policies from anon, authenticated;
-grant all on public.reminder_policies to service_role;
+revoke all on public.reminder_policies from anonymous, authenticated;
 -- 기기 소유자의 알림 휴식 설정 저장
 create function public.save_reminder_policy(p_token text,p_limit integer,p_quiet integer,p_pause date) returns void
 language plpgsql security definer set search_path=public as $$
@@ -15,7 +14,7 @@ begin
  if auth.uid() is null or not exists(select 1 from public.push_tokens where token=p_token and user_id=auth.uid()) then raise exception '기기 소유 권한이 필요합니다'; end if;
  insert into public.reminder_policies values(p_token,p_limit,p_quiet,p_pause) on conflict(token) do update set daily_limit=excluded.daily_limit,quiet_hour=excluded.quiet_hour,paused_date=excluded.paused_date;
 end; $$;
-revoke all on function public.save_reminder_policy(text,integer,integer,date) from public,anon;
+revoke all on function public.save_reminder_policy(text,integer,integer,date) from public,anonymous;
 grant execute on function public.save_reminder_policy(text,integer,integer,date) to authenticated;
 create or replace function public.clear_reassigned_push_deliveries() returns trigger
 language plpgsql security definer set search_path=public as $$
@@ -35,8 +34,7 @@ language sql stable security definer set search_path=public as $$
  (select h from (select distinct unnest(array[p_hour,18,21,23]) h) hours where h>=p_hour and h<quiet_hour order by h limit daily_limit)
  from public.reminder_policies where token=p_token),true)
 $$;
-revoke all on function public.reminder_policy_allows(text,integer,text) from public,anon,authenticated;
-grant execute on function public.reminder_policy_allows(text,integer,text) to service_role;
+revoke all on function public.reminder_policy_allows(text,integer,text) from public,anonymous,authenticated;
 create or replace function public.queue_study_reminders() returns void
 language plpgsql security definer set search_path = public as $$
 begin
@@ -52,8 +50,7 @@ begin
     on conflict do nothing;
 end;
 $$;
-revoke all on function public.queue_study_reminders() from public,anon,authenticated;
-grant execute on function public.queue_study_reminders() to service_role;
+revoke all on function public.queue_study_reminders() from public,anonymous,authenticated;
 
 -- 재시도 직전 동의·날짜·학습 여부 재검증
 create or replace function public.claim_push_deliveries() returns setof public.push_deliveries

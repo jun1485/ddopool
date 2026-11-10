@@ -26,8 +26,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: node scripts/operations-worker.mjs
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           EXPO_ACCESS_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }}
           WEB_PUSH_SUBJECT: ${{ secrets.WEB_PUSH_SUBJECT }}
           WEB_PUSH_PUBLIC_KEY: ${{ secrets.WEB_PUSH_PUBLIC_KEY }}
