@@ -251,6 +251,7 @@ export const RPC = {
   updateExamRequestStatus: "update_exam_request_status",
   reportExamRequest: "report_exam_request",
   searchExamRequests: "search_exam_requests",
+  listTrackedExamRequests: "list_tracked_exam_requests",
   mergeExamRequests: "merge_exam_requests",
   addExamRequestAlias: "add_exam_request_alias",
   deleteMyAccount: "delete_my_account",

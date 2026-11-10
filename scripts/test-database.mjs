@@ -369,6 +369,46 @@ try {
     /요청이 많습니다/,
   );
 
+  // 본인 작성·공감 요청 목록 RPC 범위
+  const userC = "00000000-0000-4000-8000-000000000003";
+  await db.exec(
+    "reset role; select set_config('request.jwt.claim.sub','',false)",
+  );
+  await db.query(`insert into neon_auth."user"(id) values($1)`, [userC]);
+  await db.query(
+    "insert into public.exam_request_votes(request_id,voter_id) values($1,$2)",
+    [openRequestId, userC],
+  );
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    userC,
+  ]);
+  await db.exec("set role authenticated");
+  const trackedByVoter = (
+    await db.query("select * from public.list_tracked_exam_requests()")
+  ).rows;
+  assert.deepEqual(
+    trackedByVoter.map((row) => [row.id, row.is_owned, row.has_voted]),
+    [[openRequestId, false, true]],
+  );
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    userA,
+  ]);
+  const trackedByOwner = (
+    await db.query("select * from public.list_tracked_exam_requests()")
+  ).rows;
+  assert.ok(
+    [hiddenRequestId, openRequestId].every((id) =>
+      trackedByOwner.some((row) => row.id === id),
+    ),
+  );
+  assert.ok(trackedByOwner.every((row) => row.is_owned && !row.has_voted));
+  assert.equal("requester_id" in trackedByOwner[0], false);
+  await db.exec("set role anonymous");
+  await assert.rejects(
+    db.query("select * from public.list_tracked_exam_requests()"),
+    /permission denied/,
+  );
+
   // 다른 계정 소유 네이티브 토큰 탈취 차단
   await db.exec("reset role");
   await db.query(
