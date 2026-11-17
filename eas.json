@@ -42,7 +42,7 @@
       "android": {
         "serviceAccountKeyPath": "../.secrets/ddopool-play-service-account.json",
         "track": "production",
-        "releaseStatus": "draft"
+        "releaseStatus": "completed"
       }
     }
   }
