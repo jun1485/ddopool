@@ -5,12 +5,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { goBack } from "@/lib/navigation";
 import { AnimatedProgressBar } from "@/components/motion/animated-progress-bar";
 import { ExamRequestCard } from "@/components/exam-request-card";
@@ -65,7 +65,7 @@ function FormField({
           </ThemedText>
         )}
       </View>
-      <TextInput
+      <AppTextInput
         accessibilityLabel={label}
         value={value}
         onChangeText={onChangeText}

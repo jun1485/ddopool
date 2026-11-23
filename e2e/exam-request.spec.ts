@@ -11,17 +11,16 @@ async function completeOnboarding(page: Page): Promise<void> {
     })
     .click();
   await page.getByRole("button", { name: "내 학습 시작하기" }).click();
-  await expect(page.getByText("오늘의 목표")).toBeVisible();
-  await expect(page.getByText("오늘의 맞춤 플랜")).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /맞춤 플랜 \d+문제 시작/ }),
+    page.getByRole("button", { name: /오늘 \d+문제 풀기/ }),
   ).toBeVisible();
-  const momentumCard = page.getByRole("button", {
-    name: /레벨 1, 오늘의 퀘스트/,
-  });
-  await expect(momentumCard).toBeVisible();
-  await momentumCard.click();
-  await expect(page.getByText("워밍업")).toBeVisible();
+}
+
+// 리포트 탭의 바로가기 열기
+async function openReportLink(page: Page, label: string): Promise<void> {
+  await page.getByText("리포트", { exact: true }).last().click();
+  await page.getByRole("button", { name: label }).click();
 }
 
 test("온보딩에서 시험과 목표를 선택해 학습 홈에 진입한다", async ({ page }) => {
@@ -29,7 +28,7 @@ test("온보딩에서 시험과 목표를 선택해 학습 홈에 진입한다",
   await expect(
     page.getByRole("button", { name: "컴활 1급 학습 시작" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "전체 레벨과 업적 보기" }).click();
+  await openReportLink(page, "성장 기록·배지");
   await expect(page.getByText("나의 성장", { exact: true })).toBeVisible();
   await expect(page.getByText("업적 배지")).toBeVisible();
 });
@@ -54,9 +53,8 @@ test("검색 결과가 없는 시험을 요청하고 내 요청에서 확인한�
 
 test("시험일과 학습 가능일로 권장 페이스를 설정한다", async ({ page }) => {
   await completeOnboarding(page);
-  await page
-    .getByRole("button", { name: "시험일 학습 계획 설정" })
-    .click();
+  await page.getByRole("button", { name: "설정 열기" }).click();
+  await page.getByRole("button", { name: "시험일 학습 계획 설정" }).click();
 
   await expect(page.getByText("시험일까지 한 걸음씩")).toBeVisible();
   await page.getByRole("radio", { name: "1개월" }).click();
@@ -68,7 +66,7 @@ test("시험일과 학습 가능일로 권장 페이스를 설정한다", async 
 
 test("월간 캘린더에서 날짜별 학습 기록을 탐색한다", async ({ page }) => {
   await completeOnboarding(page);
-  await page.getByRole("button", { name: "월간 학습 기록 보기" }).click();
+  await openReportLink(page, "학습 기록 자세히 보기");
 
   await expect(page.getByText("학습 캘린더", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "이전 달" })).toBeVisible();

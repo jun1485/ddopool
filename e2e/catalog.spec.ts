@@ -17,7 +17,7 @@ test("시험 12종을 표시하고 새 시험 학습을 시작한다", async ({ 
   });
   await page.getByRole("checkbox", { name: "SQL 개발자(SQLD) 선택" }).click();
   await page.getByRole("button", { name: "내 학습 시작하기" }).click();
-  await expect(page.getByText("오늘의 목표", { exact: true })).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
   await expect(page.getByText("SQLD", { exact: true }).first()).toBeVisible();
   await page.goto("/quiz/sqld");
   await expect(

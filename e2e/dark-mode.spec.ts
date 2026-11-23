@@ -13,7 +13,7 @@ async function onboard(page: Page): Promise<void> {
     .getByRole("checkbox", { name: "컴퓨터활용능력 1급 필기 선택" })
     .click();
   await page.getByRole("button", { name: "내 학습 시작하기" }).click();
-  await expect(page.getByText("오늘의 목표", { exact: true })).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
 }
 
 // 지정 경로 전체 화면 캡처 저장
@@ -75,15 +75,15 @@ for (const theme of ["light", "dark"] as const) {
       .getByRole("radio", { name: theme === "dark" ? "다크" : "라이트" })
       .click();
     await page.goBack();
-    await expect(page.getByText("오늘의 목표", { exact: true })).toBeVisible();
+    await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
 
     await page.getByText("리포트", { exact: true }).last().click();
-    await expect(page.getByText("누적 학습", { exact: true })).toBeVisible();
+    await expect(page.getByText("푼 문제", { exact: true })).toBeVisible();
     await capture(page, `${theme}-report`);
-    expect(await measureContrast(page, "누적 학습")).toBeGreaterThanOrEqual(
+    expect(await measureContrast(page, "푼 문제")).toBeGreaterThanOrEqual(
       4.5,
     );
-    expect(await measureContrast(page, "전체 정답률")).toBeGreaterThanOrEqual(
+    expect(await measureContrast(page, "정답률")).toBeGreaterThanOrEqual(
       4.5,
     );
 
@@ -101,7 +101,7 @@ for (const theme of ["light", "dark"] as const) {
 test("퀴즈 종료는 확인 후에만 화면을 벗어난다", async ({ page }) => {
   await onboard(page);
   // 앱 내부 이동으로 퀴즈 진입
-  await page.getByRole("button", { name: /맞춤 플랜 \d+문제 시작/ }).click();
+  await page.getByRole("button", { name: /오늘 \d+문제 풀기/ }).click();
   await expect(page.getByRole("radio").first()).toBeVisible();
 
   await page.getByRole("button", { name: "학습 종료" }).click();
