@@ -60,7 +60,8 @@
           "color": "#1E6FD9"
         }
       ],
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "./plugins/with-optional-portrait"
     ],
     "experiments": {
       "typedRoutes": true,
