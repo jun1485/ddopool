@@ -20,14 +20,14 @@ function requireEnvironmentValue(
 // 첫 시험 선택 완료
 async function completeOnboarding(page: Page): Promise<void> {
   await page.goto("/");
-  if (await page.getByText("오늘의 목표").isVisible()) return;
+  if (await page.getByText("오늘의 학습", { exact: true }).isVisible()) return;
   await page
     .getByRole("checkbox", {
       name: "컴퓨터활용능력 1급 필기 선택",
     })
     .click();
   await page.getByRole("button", { name: "내 학습 시작하기" }).click();
-  await expect(page.getByText("오늘의 목표")).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
 }
 
 // 테스트 계정 로그인

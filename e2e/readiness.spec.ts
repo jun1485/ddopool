@@ -73,7 +73,7 @@ test("모바일 웹 탭은 하단에 표시하고 큰 화면에서는 상단으�
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect.poll(async () => (await tab.boundingBox())!.y).toBeLessThan(100);
   await discoverTab.click();
-  await expect(page.getByText("시험 카탈로그", { exact: true })).toBeVisible();
+  await expect(page.getByText("시험 찾기", { exact: true })).toBeVisible();
   await capture(page, "tabs-desktop");
 });
 
@@ -84,7 +84,7 @@ async function onboard(page: Page): Promise<void> {
     .getByRole("checkbox", { name: "컴퓨터활용능력 1급 필기 선택" })
     .click();
   await page.getByRole("button", { name: "내 학습 시작하기" }).click();
-  await expect(page.getByText("오늘의 목표", { exact: true })).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
   await capture(
     page,
     process.env.UI_CAPTURE_PREFIX
@@ -133,7 +133,7 @@ test("21시 미학습 안내는 빨간색으로 표시하고 학습 기록이 �
     .toBe(1);
   await capture(page, "answer-feedback");
   await page.goto("/");
-  await expect(page.getByText("오늘의 목표", { exact: true })).toBeVisible();
+  await expect(page.getByText("오늘의 학습", { exact: true })).toBeVisible();
   await expect(alert).toHaveCount(0);
 });
 
@@ -153,7 +153,7 @@ test("다크 모드에서 학습 시작 버튼을 표시한다", async ({ page }
   });
   await onboard(page);
   await expect(
-    page.getByRole("button", { name: /맞춤 플랜 .*문제 시작/ }),
+    page.getByRole("button", { name: /오늘 \d+문제 풀기/ }),
   ).toBeVisible();
   await capture(page, "home-dark");
 });
