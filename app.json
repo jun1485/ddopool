@@ -61,7 +61,8 @@
         }
       ],
       "@sentry/react-native",
-      "./plugins/with-optional-portrait"
+      "./plugins/with-optional-portrait",
+      "./plugins/with-release-minify"
     ],
     "experiments": {
       "typedRoutes": true,
