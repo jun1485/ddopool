@@ -2,13 +2,14 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   FadeInDown,
   useReducedMotion,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
@@ -122,7 +123,7 @@ export default function AuthCallbackScreen() {
 
           {status === "recovery" && (
             <ThemedView type="backgroundElement" style={styles.form}>
-              <TextInput
+              <AppTextInput
                 accessibilityLabel="새 비밀번호"
                 value={password}
                 onChangeText={(value) => {
@@ -145,7 +146,7 @@ export default function AuthCallbackScreen() {
                   },
                 ]}
               />
-              <TextInput
+              <AppTextInput
                 accessibilityLabel="새 비밀번호 확인"
                 value={passwordConfirmation}
                 onChangeText={(value) => {

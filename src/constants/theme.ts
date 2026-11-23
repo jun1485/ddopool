@@ -4,62 +4,62 @@ import { Platform } from "react-native";
 
 export const Colors = {
   light: {
-    text: "#302B2E",
-    background: "#FAF7F3",
+    text: "#1B2733",
+    background: "#FFFFFF",
     backgroundElement: "#FFFFFF",
-    backgroundSelected: "#F0EBE6",
-    border: "#E4DDD7",
-    cardBorder: "rgba(21, 24, 31, 0.06)",
-    textSecondary: "#756B70",
-    primary: "#51434F",
-    primaryDeep: "#3C323B",
-    primarySoft: "#EEE8EF",
-    rose: "#9E5269",
-    roseSoft: "#F7E9ED",
-    lilac: "#74608E",
-    lilacSoft: "#EEE9F5",
-    slate: "#576E87",
-    slateSoft: "#EAF0F5",
+    backgroundSelected: "#F1F5F9",
+    border: "#E6EDF3",
+    cardBorder: "#E2EAF2",
+    textSecondary: "#5B6B7B",
+    primary: "#1E6FD9",
+    primaryDeep: "#1659B5",
+    primarySoft: "#E9F2FD",
+    rose: "#E5484D",
+    roseSoft: "#FDECEC",
+    lilac: "#1E6FD9",
+    lilacSoft: "#E9F2FD",
+    slate: "#5B6B7B",
+    slateSoft: "#F1F5F9",
     onPrimary: "#FFFFFF",
-    onPrimaryMuted: "rgba(255, 255, 255, 0.76)",
+    onPrimaryMuted: "rgba(255, 255, 255, 0.78)",
     onPrimarySurface: "rgba(255, 255, 255, 0.16)",
-    onPrimaryTrack: "rgba(255, 255, 255, 0.22)",
-    onPrimaryLine: "rgba(255, 255, 255, 0.38)",
-    success: "#4C7566",
-    successSoft: "#EAF2EE",
-    danger: "#B8304A",
-    dangerSoft: "#FDE8EC",
+    onPrimaryTrack: "rgba(255, 255, 255, 0.24)",
+    onPrimaryLine: "rgba(255, 255, 255, 0.4)",
+    success: "#1F8A5B",
+    successSoft: "#E3F4EC",
+    danger: "#E5484D",
+    dangerSoft: "#FDECEC",
     reminderUrgent: "#D92D20",
     reminderUrgentSoft: "#FFF0EF",
-    warning: "#955900",
-    warningSoft: "#FDF0D8",
+    warning: "#B25E00",
+    warningSoft: "#FFF3DC",
   },
   dark: {
-    text: "#F5EFEF",
-    background: "#211D21",
-    backgroundElement: "#2B252B",
-    backgroundSelected: "#393139",
-    border: "#4D424C",
-    cardBorder: "rgba(255, 255, 255, 0.07)",
-    textSecondary: "#BAADB7",
-    primary: "#D6C4D8",
-    primaryDeep: "#C7AFCC",
-    primarySoft: "#3B3041",
-    rose: "#E8ACBD",
-    roseSoft: "#442D37",
-    lilac: "#C8B5E5",
-    lilacSoft: "#382F49",
-    slate: "#B0C7DF",
-    slateSoft: "#2B3744",
-    onPrimary: "#2B222C",
-    onPrimaryMuted: "rgba(43, 34, 44, 0.74)",
-    onPrimarySurface: "rgba(43, 34, 44, 0.1)",
-    onPrimaryTrack: "rgba(43, 34, 44, 0.16)",
-    onPrimaryLine: "rgba(43, 34, 44, 0.3)",
-    success: "#9FC9B6",
-    successSoft: "#283C33",
-    danger: "#FF6E88",
-    dangerSoft: "#3D1B25",
+    text: "#E8EEF4",
+    background: "#0F161D",
+    backgroundElement: "#17202A",
+    backgroundSelected: "#202C38",
+    border: "#2A3744",
+    cardBorder: "rgba(255, 255, 255, 0.08)",
+    textSecondary: "#9AA8B6",
+    primary: "#5AA2F0",
+    primaryDeep: "#3D8BE0",
+    primarySoft: "#16304B",
+    rose: "#FF7A80",
+    roseSoft: "#3D1C20",
+    lilac: "#5AA2F0",
+    lilacSoft: "#16304B",
+    slate: "#9AA8B6",
+    slateSoft: "#202C38",
+    onPrimary: "#0B1620",
+    onPrimaryMuted: "rgba(11, 22, 32, 0.74)",
+    onPrimarySurface: "rgba(11, 22, 32, 0.1)",
+    onPrimaryTrack: "rgba(11, 22, 32, 0.16)",
+    onPrimaryLine: "rgba(11, 22, 32, 0.3)",
+    success: "#5FC79A",
+    successSoft: "#173528",
+    danger: "#FF7A80",
+    dangerSoft: "#3D1C20",
     reminderUrgent: "#FF8A80",
     reminderUrgentSoft: "#431C18",
     warning: "#FFB547",
@@ -75,16 +75,12 @@ export function heroGradient(theme: ThemePalette): [string, string] {
   return [theme.primaryDeep, theme.primary];
 }
 
-// 카드 강조색 순환 조합
+// 카드 강조색 조합
 export function accentByIndex(
   theme: ThemePalette,
-  index: number,
+  _index: number,
 ): { accent: string; soft: string } {
-  return [
-    { accent: theme.lilac, soft: theme.lilacSoft },
-    { accent: theme.rose, soft: theme.roseSoft },
-    { accent: theme.slate, soft: theme.slateSoft },
-  ][((index % 3) + 3) % 3];
+  return { accent: theme.primary, soft: theme.primarySoft };
 }
 
 export const Fonts = Platform.select({
@@ -177,5 +173,8 @@ export const Alpha = {
   scrim: "rgba(9, 11, 17, 0.55)",
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+export const BottomTabInset = Platform.select({ ios: 50, android: 0 }) ?? 0;
+
+// 탭 화면 안전 영역, 아래는 탭바가 처리
+export const TabScreenEdges = ["top", "left", "right"] as const;
 export const MaxContentWidth = 800;

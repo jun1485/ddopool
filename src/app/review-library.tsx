@@ -6,12 +6,12 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
   type ListRenderItemInfo,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedChip } from "@/components/motion/animated-chip";
@@ -459,7 +459,7 @@ export default function ReviewLibraryScreen() {
                   }}
                   size={19}
                 />
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="복습 문제 검색"
                   value={query}
                   onChangeText={setQuery}

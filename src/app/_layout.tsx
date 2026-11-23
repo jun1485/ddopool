@@ -11,15 +11,17 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import * as Sentry from "@sentry/react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { PageHead } from "@/components/page-head";
+import { UpdatePrompt } from "@/components/update-prompt";
+import { useAppFonts } from "@/constants/fonts";
 import { Durations } from "@/constants/motion";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
+import { useOtaUpdate } from "@/hooks/use-ota-update";
 import { useStudyReminder } from "@/hooks/use-study-reminder";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
 import { captureHandledError, initMonitoring } from "@/lib/monitoring";
@@ -31,6 +33,7 @@ import { ExamEnrollmentProvider } from "@/providers/exam-enrollment-provider";
 import { ExamRequestProvider } from "@/providers/exam-request-provider";
 import { NetworkProvider, OfflineBanner } from "@/providers/network-provider";
 import { NotificationProvider } from "@/providers/notification-provider";
+import { RefreshProvider } from "@/providers/refresh-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
 
 initMonitoring();
@@ -53,7 +56,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
     <View style={styles.errorContainer}>
       <View style={styles.errorIcon}>
-        <Text style={styles.errorEmoji}>😿</Text>
+        <Text style={styles.errorEmoji}>⚠️</Text>
       </View>
       <Text style={styles.errorTitle}>앱을 불러오지 못했어요</Text>
       <Text style={styles.errorDescription}>
@@ -76,6 +79,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 // 앱 화면 테마·라우팅 구성
 function AppLayout() {
   useStudyReminder();
+  useOtaUpdate();
   const colorScheme = useResolvedColorScheme();
   const pathname = usePathname();
   const { onboardingCompleted, isLoading: isEnrollmentLoading } =
@@ -126,10 +130,7 @@ function AppLayout() {
       {/* 화면이 자체 지정하지 않을 때의 기본 문서 제목·설명 */}
       <PageHead />
       <AnimatedSplashOverlay />
-      <SafeAreaView
-        edges={Platform.OS === "android" ? ["bottom"] : []}
-        style={styles.app}
-      >
+      <View style={styles.app}>
         <Stack
           screenOptions={{
             headerShown: false,
@@ -159,13 +160,17 @@ function AppLayout() {
         </Stack>
         <OfflineBanner />
         <StorageBanner />
-      </SafeAreaView>
+        <UpdatePrompt />
+      </View>
     </ThemeProvider>
   );
 }
 
 // 루트 앱 설정 제공
 function RootLayout() {
+  const fontsReady = useAppFonts();
+  // 글꼴을 불러올 때까지 스플래시 유지
+  if (!fontsReady) return null;
   return (
     <AuthProvider>
       <SettingsProvider>
@@ -174,7 +179,9 @@ function RootLayout() {
             <ExamEnrollmentProvider>
               <ExamRequestProvider>
                 <NotificationProvider>
-                  <AppLayout />
+                  <RefreshProvider>
+                    <AppLayout />
+                  </RefreshProvider>
                 </NotificationProvider>
               </ExamRequestProvider>
             </ExamEnrollmentProvider>
@@ -197,7 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 16,
     padding: 24,
-    backgroundColor: "#F4F5F9",
+    backgroundColor: "#FFFFFF",
   },
   errorIcon: {
     width: 76,
@@ -205,21 +212,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: "#FDE8EC",
+    backgroundColor: "#FDECEC",
   },
   errorEmoji: {
     fontSize: 36,
     lineHeight: 44,
   },
   errorTitle: {
-    color: "#15181F",
+    color: "#1B2733",
     fontSize: 22,
     lineHeight: 30,
     fontWeight: 700,
   },
   errorDescription: {
     maxWidth: 420,
-    color: "#6B7280",
+    color: "#5B6B7B",
     fontSize: 15,
     lineHeight: 22,
     textAlign: "center",
@@ -231,7 +238,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
     borderRadius: 16,
-    backgroundColor: "#5B4BE0",
+    backgroundColor: "#1E6FD9",
   },
   restartButtonText: {
     color: "#FFFFFF",

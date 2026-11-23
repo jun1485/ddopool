@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -16,6 +15,7 @@ import {
   type ExamRequestStatusHistoryRow,
 } from "../../../packages/contracts/src";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { goBack } from "@/lib/navigation";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
@@ -67,7 +67,7 @@ function DetailField({
   return (
     <View style={styles.field}>
       <ThemedText type="smallBold">{label}</ThemedText>
-      <TextInput
+      <AppTextInput
         accessibilityLabel={label}
         value={value}
         onChangeText={onChangeText}
@@ -276,7 +276,7 @@ function RequestDetailForm({ request, history }: RequestDetailFormProps) {
           </View>
           {isReportOpen && (
             <View style={styles.reportForm}>
-              <TextInput
+              <AppTextInput
                 accessibilityLabel="시험 요청 신고 사유"
                 value={reportReason}
                 onChangeText={setReportReason}

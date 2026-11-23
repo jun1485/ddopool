@@ -5,12 +5,11 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { MascotCat } from "@/components/mascot-cat";
+import { AppTextInput } from "@/components/app-text-input";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { RevealView } from "@/components/motion/reveal-view";
@@ -77,20 +76,16 @@ export default function OnboardingScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.brand}>
-            <MascotCat size={40} />
-            <ThemedText type="smallBold" style={{ color: theme.primary }}>
-              또풀
-            </ThemedText>
-          </View>
+          <ThemedText style={[styles.brand, { color: theme.primary }]}>
+            또풀
+          </ThemedText>
 
           <RevealView duration={380} style={styles.hero}>
             <ThemedText type="subtitle" style={styles.heroTitle}>
               어떤 시험을{"\n"}준비하고 있나요?
             </ThemedText>
             <ThemedText themeColor="textSecondary" style={styles.heroCopy}>
-              준비 중인 시험을 고르면 문제와 복습 일정을 내 목표에 맞춰 구성해
-              드려요. 여러 개를 선택해도 괜찮아요.
+              여러 개를 골라도 괜찮아요.
             </ThemedText>
           </RevealView>
 
@@ -112,7 +107,7 @@ export default function OnboardingScreen() {
               }}
               size={20}
             />
-            <TextInput
+            <AppTextInput
               accessibilityLabel="준비 시험 검색"
               value={searchText}
               onChangeText={setSearchText}
@@ -488,17 +483,17 @@ const styles = StyleSheet.create({
     gap: Spacing.four,
   },
   brand: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.two,
+    fontSize: 22,
+    lineHeight: 30,
+    fontWeight: 900,
+    letterSpacing: -0.5,
   },
   hero: {
-    gap: Spacing.two,
-    paddingTop: Spacing.two,
+    gap: Spacing.one,
   },
   heroTitle: {
-    fontSize: 35,
-    lineHeight: 46,
+    fontSize: 24,
+    lineHeight: 32,
     fontWeight: 700,
   },
   heroCopy: {

@@ -1,5 +1,12 @@
-import { Platform, StyleSheet, Text, type TextProps } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  type TextProps,
+  type TextStyle,
+} from "react-native";
 
+import { fontStyle } from "@/constants/fonts";
 import { Fonts, ThemeColor } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -24,20 +31,25 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const theme = useTheme();
+  const merged = StyleSheet.flatten<TextStyle>([
+    { color: theme[themeColor ?? "text"] },
+    type === "default" && styles.default,
+    type === "title" && styles.title,
+    type === "small" && styles.small,
+    type === "smallBold" && styles.smallBold,
+    type === "subtitle" && styles.subtitle,
+    type === "link" && styles.link,
+    type === "linkPrimary" && styles.linkPrimary,
+    type === "code" && styles.code,
+    style,
+  ]);
 
   return (
     <Text
       style={[
-        { color: theme[themeColor ?? "text"] },
-        type === "default" && styles.default,
-        type === "title" && styles.title,
-        type === "small" && styles.small,
-        type === "smallBold" && styles.smallBold,
-        type === "subtitle" && styles.subtitle,
-        type === "link" && styles.link,
-        type === "linkPrimary" && styles.linkPrimary,
-        type === "code" && styles.code,
-        style,
+        merged,
+        // 글꼴을 직접 정하지 않은 글자는 Pretendard 굵기 파일 적용
+        merged.fontFamily == null && fontStyle(merged.fontWeight),
       ]}
       {...rest}
     />
