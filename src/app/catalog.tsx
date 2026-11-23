@@ -5,7 +5,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import Animated, {
@@ -17,6 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { goBack } from "@/lib/navigation";
 import { ExamRequestCard } from "@/components/exam-request-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
@@ -27,7 +27,13 @@ import { PageHead } from "@/components/page-head";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { stagger, Timings } from "@/constants/motion";
-import { MaxContentWidth, Radius, Shadows, Spacing } from "@/constants/theme";
+import {
+  MaxContentWidth,
+  Radius,
+  Shadows,
+  Spacing,
+  TabScreenEdges,
+} from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
@@ -154,7 +160,7 @@ function startExam(examId: string, diagnostic = false) {
   });
 }
 
-// 시험 카탈로그 학습·등록 카드
+// 시험 카탈로그 학습·등록 행
 function ExamCatalogCard({
   exam,
   enrolled,
@@ -165,102 +171,60 @@ function ExamCatalogCard({
 
   return (
     <ThemedView type="backgroundElement" style={styles.examCard}>
-      <View style={styles.examInfo}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${exam.title} ${enrolled ? "맞춤 학습" : "빠른 진단"}`}
+        onPress={onStart}
+        style={({ pressed }) => [styles.examInfo, pressed && styles.pressed]}
+      >
         <View
-          style={[
-            styles.examIcon,
-            {
-              backgroundColor: enrolled
-                ? theme.primarySoft
-                : theme.backgroundSelected,
-            },
-          ]}
+          style={[styles.examIcon, { backgroundColor: theme.backgroundSelected }]}
         >
           <ThemedText style={styles.examEmoji}>{exam.icon}</ThemedText>
         </View>
         <View style={styles.examCopy}>
-          <View style={styles.examTitleRow}>
-            <ThemedText type="smallBold" style={styles.examTitle}>
-              {exam.title}
-            </ThemedText>
-            {enrolled && (
-              <View
-                style={[
-                  styles.enrolledBadge,
-                  { backgroundColor: theme.successSoft },
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: theme.success }}>
-                  내 시험
-                </ThemedText>
-              </View>
-            )}
-          </View>
+          <ThemedText type="smallBold" numberOfLines={1}>
+            {exam.title}
+          </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
             {exam.description}
           </ThemedText>
         </View>
-      </View>
-      <View style={styles.examActions}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={
-            enrolled
-              ? `${exam.title} 내 시험에서 삭제`
-              : `${exam.title} 내 시험에 추가`
-          }
-          onPress={onToggleEnrollment}
-          style={({ pressed }) => [
-            styles.enrollmentButton,
-            { borderColor: theme.border },
-            pressed && styles.pressed,
-          ]}
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={
+          enrolled
+            ? `${exam.title} 내 시험에서 삭제`
+            : `${exam.title} 내 시험에 추가`
+        }
+        aria-selected={enrolled}
+        onPress={onToggleEnrollment}
+        hitSlop={Spacing.one}
+        style={({ pressed }) => [
+          styles.enrollmentButton,
+          {
+            backgroundColor: enrolled ? theme.backgroundSelected : theme.primarySoft,
+          },
+          pressed && styles.pressed,
+        ]}
+      >
+        <SymbolView
+          tintColor={enrolled ? theme.textSecondary : theme.primary}
+          name={{
+            ios: enrolled ? "checkmark" : "plus",
+            android: enrolled ? "check" : "add",
+            web: enrolled ? "check" : "add",
+          }}
+          size={16}
+        />
+        <ThemedText
+          type="smallBold"
+          style={{ color: enrolled ? theme.textSecondary : theme.primary }}
         >
-          <SymbolView
-            tintColor={enrolled ? theme.textSecondary : theme.primary}
-            name={{
-              ios: enrolled ? "minus.circle" : "plus.circle",
-              android: enrolled ? "remove_circle_outline" : "add_circle",
-              web: enrolled ? "remove_circle_outline" : "add_circle",
-            }}
-            size={18}
-          />
-          <ThemedText
-            type="smallBold"
-            style={{ color: enrolled ? theme.textSecondary : theme.primary }}
-          >
-            {enrolled ? "내 시험에서 삭제" : "내 시험에 추가"}
-          </ThemedText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${exam.title} ${
-            enrolled ? "맞춤 학습 구성" : "빠른 진단 준비"
-          }`}
-          onPress={onStart}
-          style={({ pressed }) => [
-            styles.startButton,
-            { backgroundColor: enrolled ? theme.primary : theme.primarySoft },
-            pressed && styles.pressed,
-          ]}
-        >
-          <ThemedText
-            type="smallBold"
-            style={{ color: enrolled ? theme.onPrimary : theme.primary }}
-          >
-            {enrolled ? "맞춤 학습" : "빠른 진단"}
-          </ThemedText>
-          <SymbolView
-            tintColor={enrolled ? theme.onPrimary : theme.primary}
-            name={{
-              ios: "play.fill",
-              android: "play_arrow",
-              web: "play_arrow",
-            }}
-            size={17}
-          />
-        </Pressable>
-      </View>
+          {enrolled ? "추가됨" : "추가"}
+        </ThemedText>
+      </Pressable>
     </ThemedView>
   );
 }
@@ -402,7 +366,10 @@ export default function CatalogScreen({
         title="시험 찾기"
         description="컴퓨터활용능력·토익·드론 자격 등 준비 중인 시험을 찾아 문제 풀이 시작. 원하는 시험이 없으면 요청·투표로 추가 가능."
       />
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        edges={embedded ? TabScreenEdges : undefined}
+        style={styles.safeArea}
+      >
         <View style={styles.topBar}>
           {!embedded && (
             <Pressable
@@ -428,10 +395,7 @@ export default function CatalogScreen({
             </Pressable>
           )}
           <View style={styles.topTitle}>
-            <ThemedText type="smallBold">시험 카탈로그</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              찾고, 없으면 요청하세요
-            </ThemedText>
+            <ThemedText type="subtitle">시험 찾기</ThemedText>
           </View>
           <Pressable
             accessibilityRole="button"
@@ -443,12 +407,12 @@ export default function CatalogScreen({
             hitSlop={Spacing.two}
             style={({ pressed }) => [
               styles.iconButton,
-              { backgroundColor: theme.primary },
+              { backgroundColor: theme.primarySoft },
               pressed && styles.pressed,
             ]}
           >
             <SymbolView
-              tintColor={theme.onPrimary}
+              tintColor={theme.primary}
               name={{
                 ios: "plus",
                 android: "add",
@@ -507,7 +471,7 @@ export default function CatalogScreen({
                   }}
                   size={20}
                 />
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="시험 검색"
                   value={searchText}
                   onChangeText={setSearchText}
@@ -558,8 +522,7 @@ export default function CatalogScreen({
                         {hasSearchText ? "검색 결과" : "학습 가능한 시험"}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
-                        {filteredExams.length}개 · 빠른 진단으로 내 수준부터
-                        확인해요
+                        {filteredExams.length}개 · 누르면 바로 풀어요
                       </ThemedText>
                     </View>
                   </View>
@@ -1054,19 +1017,23 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   examCard: {
-    gap: Spacing.three,
-    padding: Spacing.three,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.two,
+    paddingVertical: Spacing.twoHalf,
+    paddingHorizontal: Spacing.three,
     borderRadius: Radius.large,
-    ...Shadows.card,
   },
   examInfo: {
+    minWidth: 0,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
   },
   examIcon: {
-    width: 46,
-    height: 46,
+    width: 42,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Radius.medium,
@@ -1080,42 +1047,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.one,
   },
-  examTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.two,
-  },
-  examTitle: {
-    minWidth: 0,
-    flex: 1,
-  },
-  enrolledBadge: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-    borderRadius: Radius.pill,
-  },
-  examActions: {
-    flexDirection: "row",
-    gap: Spacing.two,
-  },
   enrollmentButton: {
-    minHeight: 40,
-    flex: 1,
-    borderWidth: 1,
+    minHeight: 34,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.one,
-    borderRadius: Radius.medium,
-  },
-  startButton: {
-    minHeight: 40,
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.one,
-    borderRadius: Radius.medium,
+    gap: Spacing.half,
+    paddingHorizontal: Spacing.twoHalf,
+    borderRadius: Radius.pill,
   },
   requestMatches: {
     gap: Spacing.three,

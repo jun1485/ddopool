@@ -5,12 +5,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { goBack } from "@/lib/navigation";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
@@ -292,7 +292,7 @@ export default function QuestionReportScreen() {
                   어떤 부분을 고치면 좋을지 자유롭게 적어주세요
                 </ThemedText>
               </View>
-              <TextInput
+              <AppTextInput
                 accessibilityLabel="문제 오류 상세 내용"
                 value={details}
                 onChangeText={setDetails}

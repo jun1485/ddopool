@@ -6,16 +6,17 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
   type ListRenderItemInfo,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedChip } from "@/components/motion/animated-chip";
 import { PageHead } from "@/components/page-head";
+import { PullRefreshControl } from "@/components/pull-refresh-control";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -24,6 +25,7 @@ import {
   Radius,
   Shadows,
   Spacing,
+  TabScreenEdges,
 } from "@/constants/theme";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useExamCatalog } from "@/hooks/use-exam-catalog";
@@ -253,7 +255,6 @@ export default function LibraryScreen() {
   const [searchText, setSearchText] = useState("");
   const [examFilter, setExamFilter] = useState<ExamFilter>("all");
   const [subjectFilter, setSubjectFilter] = useState("all");
-  const [sessionMode, setSessionMode] = useState<SessionMode>("learn");
   const [bookmarkOnly, setBookmarkOnly] = useState(false);
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(
     null,
@@ -385,7 +386,7 @@ export default function LibraryScreen() {
         title="문제집"
         description="북마크한 문제와 시험별 문제집을 모아 보고 바로 풀이 시작."
       />
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={TabScreenEdges} style={styles.safeArea}>
         <FlatList
           data={filteredQuestions}
           renderItem={renderQuestion}
@@ -393,7 +394,7 @@ export default function LibraryScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          bounces={false}
+          refreshControl={<PullRefreshControl />}
           initialNumToRender={5}
           maxToRenderPerBatch={5}
           updateCellsBatchingPeriod={40}
@@ -405,12 +406,7 @@ export default function LibraryScreen() {
           ListHeaderComponentStyle={styles.listHeader}
           ListHeaderComponent={
             <View style={styles.listHeaderContent}>
-              <View style={styles.header}>
-                <ThemedText type="subtitle">문제집</ThemedText>
-                <ThemedText themeColor="textSecondary">
-                  문제를 찾아보고 원하는 범위만 골라 풀어요.
-                </ThemedText>
-              </View>
+              <ThemedText type="subtitle">문제집</ThemedText>
 
               <View
                 style={[
@@ -430,7 +426,7 @@ export default function LibraryScreen() {
                   }}
                   size={20}
                 />
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="문제 검색"
                   value={searchText}
                   onChangeText={setSearchText}
@@ -513,120 +509,58 @@ export default function LibraryScreen() {
                 </ScrollView>
               </View>
 
-              <ThemedView type="backgroundElement" style={styles.sessionCard}>
-                <View style={styles.sessionHeader}>
-                  <ThemedText type="smallBold">
-                    선택한 범위 {filteredQuestions.length}문제
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {sessionMode === "mock"
-                      ? `제한 ${settings.mockDurationMinutes}분 · 종료 후 정답 공개`
-                      : `한 번에 최대 ${settings.sessionSize}문제`}
-                  </ThemedText>
-                </View>
-                <View
-                  style={[
-                    styles.modeGroup,
-                    { backgroundColor: theme.backgroundSelected },
-                  ]}
-                >
-                  {(
-                    [
-                      { mode: "learn", label: "바로 학습" },
-                      { mode: "mock", label: "모의고사" },
-                    ] as const
-                  ).map((option) => {
-                    const isSelected = sessionMode === option.mode;
-                    return (
-                      <Pressable
-                        key={option.mode}
-                        accessibilityRole="radio"
-                        accessibilityLabel={`${option.label} 모드`}
-                        aria-checked={isSelected}
-                        onPress={() => setSessionMode(option.mode)}
-                        style={({ pressed }) => [
-                          styles.modeOption,
-                          isSelected && {
-                            backgroundColor: theme.backgroundElement,
-                          },
-                          pressed && styles.pressed,
-                        ]}
+              <View style={styles.sessionRow}>
+                {(
+                  [
+                    { mode: "learn", label: "바로 풀기" },
+                    { mode: "mock", label: "모의고사" },
+                  ] as const
+                ).map((option) => {
+                  const primary = option.mode === "learn";
+                  return (
+                    <Pressable
+                      key={option.mode}
+                      accessibilityRole="button"
+                      accessibilityLabel={`선택한 범위 ${option.label}`}
+                      aria-disabled={sessionQuestionCount === 0}
+                      disabled={sessionQuestionCount === 0}
+                      onPress={() =>
+                        startCustomSession(
+                          filteredQuestions.map((question) => question.id),
+                          option.mode,
+                        )
+                      }
+                      style={({ pressed }) => [
+                        styles.startButton,
+                        {
+                          backgroundColor: primary
+                            ? theme.primary
+                            : theme.primarySoft,
+                        },
+                        sessionQuestionCount === 0 && styles.disabled,
+                        pressed && styles.startButtonPressed,
+                      ]}
+                    >
+                      <ThemedText
+                        type="smallBold"
+                        style={{
+                          color: primary ? theme.onPrimary : theme.primary,
+                        }}
                       >
-                        <SymbolView
-                          tintColor={
-                            isSelected ? theme.primary : theme.textSecondary
-                          }
-                          name={
-                            option.mode === "learn"
-                              ? {
-                                  ios: "bolt.fill",
-                                  android: "bolt",
-                                  web: "bolt",
-                                }
-                              : { ios: "timer", android: "timer", web: "timer" }
-                          }
-                          size={16}
-                        />
-                        <ThemedText
-                          type="smallBold"
-                          style={{
-                            color: isSelected
-                              ? theme.primary
-                              : theme.textSecondary,
-                          }}
-                        >
-                          {option.label}
-                        </ThemedText>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-                <Pressable
-                  accessibilityRole="button"
-                  aria-disabled={filteredQuestions.length === 0}
-                  disabled={filteredQuestions.length === 0}
-                  onPress={() =>
-                    startCustomSession(
-                      filteredQuestions.map((question) => question.id),
-                      sessionMode,
-                    )
-                  }
-                  style={({ pressed }) => [
-                    styles.startButton,
-                    { backgroundColor: theme.primary },
-                    filteredQuestions.length === 0 && styles.disabled,
-                    pressed && styles.startButtonPressed,
-                  ]}
-                >
-                  <ThemedText
-                    type="smallBold"
-                    style={{ color: theme.onPrimary }}
-                  >
-                    {sessionQuestionCount > 0
-                      ? `${sessionQuestionCount}문제 ${
-                          sessionMode === "mock" ? "모의고사 시작" : "맞춤 학습"
-                        }`
-                      : "조건에 맞는 문제 없음"}
-                  </ThemedText>
-                  {sessionQuestionCount > 0 && (
-                    <SymbolView
-                      tintColor={theme.onPrimary}
-                      name={{
-                        ios: "arrow.right",
-                        android: "arrow_forward",
-                        web: "arrow_forward",
-                      }}
-                      size={18}
-                    />
-                  )}
-                </Pressable>
-              </ThemedView>
+                        {primary && sessionQuestionCount > 0
+                          ? `${sessionQuestionCount}문제 바로 풀기`
+                          : option.label}
+                      </ThemedText>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
               <View style={styles.resultHeader}>
                 <View>
                   <ThemedText style={styles.resultTitle}>문제 목록</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    {filteredQuestions.length}개 · 펼쳐서 정답과 해설 확인
+                    {filteredQuestions.length}개
                   </ThemedText>
                 </View>
                 {hasActiveFilter && (
@@ -724,18 +658,15 @@ const styles = StyleSheet.create({
   },
   content: {
     minWidth: 0,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.five,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
+    paddingBottom: BottomTabInset + Spacing.four,
   },
   listHeader: {
-    marginBottom: Spacing.four,
+    marginBottom: Spacing.three,
   },
   listHeaderContent: {
-    gap: Spacing.four,
-  },
-  header: {
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   searchBox: {
     minHeight: 52,
@@ -755,37 +686,18 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: 500,
   },
-  sessionCard: {
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.large,
-    ...Shadows.card,
-  },
-  sessionHeader: {
-    gap: Spacing.half,
+  sessionRow: {
+    flexDirection: "row",
+    gap: Spacing.two,
   },
   startButton: {
+    flex: 1,
     minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.two,
     borderRadius: Radius.medium,
-  },
-  modeGroup: {
-    flexDirection: "row",
-    gap: Spacing.one,
-    padding: Spacing.one,
-    borderRadius: Radius.medium,
-  },
-  modeOption: {
-    flex: 1,
-    minHeight: 38,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.two,
-    borderRadius: Radius.small,
   },
   startButtonPressed: {
     opacity: 0.88,

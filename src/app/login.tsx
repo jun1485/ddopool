@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import Animated, {
@@ -13,6 +12,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppTextInput } from "@/components/app-text-input";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { PageHead } from "@/components/page-head";
@@ -276,7 +276,7 @@ export default function LoginScreen() {
             <ThemedView type="backgroundElement" style={styles.formCard}>
               <View style={styles.field}>
                 <ThemedText type="smallBold">이메일</ThemedText>
-                <TextInput
+                <AppTextInput
                   accessibilityLabel="이메일"
                   value={email}
                   onChangeText={(value) => {
@@ -311,7 +311,7 @@ export default function LoginScreen() {
                     },
                   ]}
                 >
-                  <TextInput
+                  <AppTextInput
                     accessibilityLabel="비밀번호"
                     value={password}
                     onChangeText={(value) => {
