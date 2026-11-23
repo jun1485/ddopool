@@ -1,13 +1,13 @@
 {
   "fill": {
-    "automatic-gradient": "extended-srgb:0.95294,0.92549,0.92549,1.00000"
+    "automatic-gradient": "extended-srgb:0.11765,0.43529,0.85098,1.00000"
   },
   "groups": [
     {
       "layers": [
         {
-          "image-name": "mascot-cat.png",
-          "name": "mascot-cat"
+          "image-name": "ring-check.png",
+          "name": "ring-check"
         }
       ],
       "shadow": {
