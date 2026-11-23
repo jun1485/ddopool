@@ -30,6 +30,14 @@ export interface LearningRows {
 
 export const DEVICE_OWNER = "device";
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
+let rowsQueue: Promise<unknown> = Promise.resolve();
+
+// 학습 기록 DB 작업 순차 실행
+function serialize<T>(job: () => Promise<T>): Promise<T> {
+  const run = rowsQueue.then(job, job);
+  rowsQueue = run.catch(() => undefined);
+  return run;
+}
 
 // 학습 기록 데이터베이스 열기·테이블 준비
 function openLearningDatabase(): Promise<SQLite.SQLiteDatabase> {
@@ -136,7 +144,17 @@ async function readLegacy(
 }
 
 // 기존 키 이전 후 단일 트랜잭션으로 소유 계정 행 작업 실행
-async function runRows<T>(
+function runRows<T>(
+  owner: string,
+  imports: LegacyImport[],
+  task: (rows: LearningRows) => Promise<T>,
+): Promise<T> {
+  // 동시 독점 트랜잭션의 잠금 실패 방지
+  return serialize(() => runRowsNow(owner, imports, task));
+}
+
+// 소유 계정 행 작업 즉시 실행
+async function runRowsNow<T>(
   owner: string,
   imports: LegacyImport[],
   task: (rows: LearningRows) => Promise<T>,
@@ -182,7 +200,11 @@ export function withDeviceRows<T>(
 }
 
 // 삭제·초기화 계정의 행 전체 제거
-export async function deleteOwnerRows(owner: string): Promise<void> {
-  const database = await openLearningDatabase();
-  await database.runAsync("DELETE FROM learning_rows WHERE owner = ?", [owner]);
+export function deleteOwnerRows(owner: string): Promise<void> {
+  return serialize(async () => {
+    const database = await openLearningDatabase();
+    await database.runAsync("DELETE FROM learning_rows WHERE owner = ?", [
+      owner,
+    ]);
+  });
 }
