@@ -73,7 +73,7 @@ test("모바일 웹 탭은 하단에 표시하고 큰 화면에서는 상단으�
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect.poll(async () => (await tab.boundingBox())!.y).toBeLessThan(100);
   await discoverTab.click();
-  await expect(page.getByText("시험 찾기", { exact: true })).toBeVisible();
+  await expect(page.getByText("시험 찾기", { exact: true }).first()).toBeVisible();
   await capture(page, "tabs-desktop");
 });
 
