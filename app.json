@@ -21,7 +21,8 @@
       "package": "com.jun213.ddopool",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#DDD2F2",
+        "backgroundColor": "#1E6FD9",
+        "backgroundImage": "./assets/images/android-icon-background.png",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -42,16 +43,23 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FAF7F3",
+          "backgroundColor": "#FFFFFF",
           "dark": {
-            "backgroundColor": "#211D21"
+            "backgroundColor": "#0F161D",
+            "image": "./assets/images/splash-icon-dark.png"
           },
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 180
+          "imageWidth": 120
         }
       ],
       "expo-sqlite",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#1E6FD9"
+        }
+      ],
       "@sentry/react-native"
     ],
     "experiments": {
