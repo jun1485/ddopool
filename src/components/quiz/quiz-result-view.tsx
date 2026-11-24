@@ -9,6 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AdBanner } from "@/components/ad-banner";
 import { DiagnosticResultCard } from "@/components/diagnostic-result-card";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
@@ -625,6 +626,7 @@ export function QuizResultView({
             </View>
           </Animated.View>
         </ScrollView>
+        <AdBanner />
       </SafeAreaView>
     </ThemedView>
   );

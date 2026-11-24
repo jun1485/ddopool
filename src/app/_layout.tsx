@@ -24,6 +24,7 @@ import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useOtaUpdate } from "@/hooks/use-ota-update";
 import { useStudyReminder } from "@/hooks/use-study-reminder";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
+import { initAds } from "@/lib/ads";
 import { captureHandledError, initMonitoring } from "@/lib/monitoring";
 import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
 import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
@@ -37,6 +38,7 @@ import { RefreshProvider } from "@/providers/refresh-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
 
 initMonitoring();
+initAds();
 SplashScreen.preventAutoHideAsync();
 
 // 모달 화면 아래에서 올라오는 전환 옵션
