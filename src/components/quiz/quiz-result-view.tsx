@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform, ScrollView, View } from "react-native";
 import Animated, {
   FadeInDown,
@@ -30,14 +30,21 @@ import type { useSessionRewards } from "@/hooks/use-session-rewards";
 import { useTheme } from "@/hooks/use-theme";
 import type { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
 import { createDiagnosticAssessment } from "@/learning/diagnostic-assessment";
+import { trackEvent } from "@/lib/analytics";
 import { goBack } from "@/lib/navigation";
-import type { Question, QuizMode } from "@/types/exam";
+import { recordFinishedSession } from "@/lib/review-prompt";
+import {
+  buildResultShareMessage,
+  shareResultMessage,
+} from "@/lib/share-result";
+import type { Exam, Question, QuizMode } from "@/types/exam";
 
 type Bookmarks = ReturnType<typeof useBookmarks>;
 type WrongAnswerNotes = ReturnType<typeof useWrongAnswerNotes>;
 
 interface QuizResultViewProps {
   examId: string;
+  resultExam?: Exam;
   quizMode: QuizMode;
   isDiagnostic: boolean;
   isCustomSession: boolean;
@@ -121,6 +128,7 @@ function summarizeBySubject(answers: QuizAnswer[]): SubjectResult[] {
 // 퀴즈 세션 결과·답안 리뷰 화면
 export function QuizResultView({
   examId,
+  resultExam,
   quizMode,
   isDiagnostic,
   isCustomSession,
@@ -179,6 +187,35 @@ export function QuizResultView({
     totalCount,
     subjectResults,
   );
+  const [shareCopied, setShareCopied] = useState(false);
+  const resultExamId = resultExam?.id ?? examId;
+
+  // 결과 화면 첫 표시 때 학습 완료 기록·스토어 리뷰 요청
+  useEffect(() => {
+    trackEvent("quiz_finish", {
+      examId: resultExamId,
+      value: accuracy,
+      detail: quizMode,
+    });
+    void recordFinishedSession(resultExamId, accuracy, totalCount);
+    // 결과 화면은 세션마다 새로 표시되므로 첫 값만 기록
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 학습 결과 공유
+  const shareResult = async () => {
+    const outcome = await shareResultMessage(
+      buildResultShareMessage({
+        examId: resultExamId,
+        examTitle: resultExam?.shortTitle,
+        correctCount,
+        totalCount,
+      }),
+    );
+    if (outcome === "cancelled") return;
+    setShareCopied(outcome === "copied");
+    trackEvent("share_result", { examId: resultExamId, value: accuracy });
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -475,6 +512,13 @@ export function QuizResultView({
                 onPress={openReviewLibrary}
               />
             )}
+            <CtaButton
+              label={
+                shareCopied ? "공유 문구를 복사했어요" : "친구에게 결과 공유"
+              }
+              variant="secondary"
+              onPress={() => void shareResult()}
+            />
             <CtaButton label="돌아가기" onPress={() => goBack()} />
           </Animated.View>
 

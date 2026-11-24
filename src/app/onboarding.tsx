@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useMemo, useState } from "react";
 import {
@@ -23,6 +23,7 @@ import { useExamCatalog } from "@/hooks/use-exam-catalog";
 import { useExamEnrollment } from "@/hooks/use-exam-enrollment";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
+import { trackEvent } from "@/lib/analytics";
 
 const DAILY_GOALS = [10, 20, 30] as const;
 
@@ -31,7 +32,11 @@ export default function OnboardingScreen() {
   const { exams, isLoading, errorMessage, reload } = useExamCatalog();
   const { examIds, completeOnboarding } = useExamEnrollment();
   const { settings, updateSettings } = useSettings();
-  const [selectedExamIds, setSelectedExamIds] = useState<string[]>(examIds);
+  // 시험 소개 페이지에서 넘어온 시험 미리 선택
+  const { exam: presetExamId } = useLocalSearchParams<{ exam?: string }>();
+  const [selectedExamIds, setSelectedExamIds] = useState<string[]>(
+    examIds.length === 0 && presetExamId ? [presetExamId] : examIds,
+  );
   const [dailyGoal, setDailyGoal] = useState(settings.dailyGoal);
   const [searchText, setSearchText] = useState("");
   const theme = useTheme();
@@ -56,11 +61,19 @@ export default function OnboardingScreen() {
     );
   };
 
-  // 첫 학습 설정 완료
+  // 첫 학습 설정 완료, 목록에 없는 시험은 제외
   const finishOnboarding = () => {
-    if (selectedExamIds.length === 0) return;
+    const validExamIds = selectedExamIds.filter((id) =>
+      exams.some((exam) => exam.id === id),
+    );
+    if (validExamIds.length === 0) return;
     updateSettings({ dailyGoal });
-    completeOnboarding(selectedExamIds);
+    completeOnboarding(validExamIds);
+    trackEvent("onboarding_finish", {
+      examId: validExamIds[0],
+      value: validExamIds.length,
+      detail: presetExamId ? "exam_page" : undefined,
+    });
     router.replace("/");
   };
 

@@ -186,6 +186,18 @@ export async function runOperations(client, request = fetch, expoToken) {
       new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString(),
     );
   if (cleanupError) throw new Error("알림 처리 이력 정리 실패");
+  // 보관 1년이 지난 앱 사용 이벤트 정리
+  const { error: eventCleanupError } = await client
+    .from("app_events")
+    .delete()
+    .lt(
+      "created_at",
+      new Date(Date.now() - 365 * 24 * 60 * 60_000).toISOString(),
+    );
+  if (eventCleanupError) {
+    console.error("앱 사용 이벤트 정리 실패");
+    process.exitCode = 1;
+  }
   const { error: reminderError } = await client.rpc("queue_study_reminders");
   if (reminderError) {
     console.error("학습 알림 예약 실패");

@@ -259,6 +259,7 @@ export const RPC = {
   unregisterPushToken: "unregister_push_token",
   setUserBan: "set_user_ban",
   adminListUsers: "admin_list_users",
+  recordAppEvent: "record_app_event",
 } as const;
 
 // 시험 요청 입력
