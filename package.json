@@ -27,6 +27,7 @@
     "expo-splash-screen": "~57.0.5",
     "expo-sqlite": "~57.0.2",
     "expo-status-bar": "~57.0.1",
+    "expo-store-review": "~57.0.3",
     "expo-symbols": "~57.0.1",
     "expo-system-ui": "~57.0.3",
     "expo-updates": "~57.0.21",
@@ -74,7 +75,7 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "test:db": "node scripts/test-database.mjs",
-    "test:operations": "node --test scripts/web-push-delivery.test.mjs scripts/operations-worker.test.mjs",
+    "test:operations": "node --test scripts/web-push-delivery.test.mjs scripts/operations-worker.test.mjs scripts/korean-particles.test.mjs",
     "test:release-config": "node scripts/test-release-config.cjs",
     "test:csp": "node scripts/check-csp.mjs dist"
   },

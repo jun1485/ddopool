@@ -40,6 +40,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { useWrongAnswerNotes } from "@/hooks/use-wrong-answer-notes";
 import { calculateSessionXp } from "@/learning/progression";
+import { trackEvent } from "@/lib/analytics";
 import { goBack } from "@/lib/navigation";
 import type { QuizMode } from "@/types/exam";
 
@@ -135,6 +136,13 @@ export default function QuizScreen() {
     (answer) => answer.selectedIndex != null,
   ).length;
   const earnedXp = calculateSessionXp(correctCount, sessionAnsweredCount);
+  const isInProgress = status === "in-progress";
+
+  // 문제 풀이 시작 기록
+  useEffect(() => {
+    if (isInProgress)
+      trackEvent("quiz_start", { examId: params.examId, detail: quizMode });
+  }, [isInProgress, params.examId, quizMode]);
   const { rewards, isLoading: isRewardsLoading } = useSessionRewards({
     finished: status === "finished",
     correctCount,
@@ -351,6 +359,15 @@ export default function QuizScreen() {
     return (
       <QuizResultView
         examId={params.examId}
+        resultExam={
+          exam ??
+          // 한 시험 문제만 섞인 세션은 그 시험으로 결과 표시
+          (questions.every(
+            (question) => question.examId === questions[0]?.examId,
+          )
+            ? findExam(questions[0]?.examId ?? "")
+            : undefined)
+        }
         quizMode={quizMode}
         isDiagnostic={isDiagnostic}
         isCustomSession={isCustomSession}

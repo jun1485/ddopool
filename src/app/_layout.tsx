@@ -25,6 +25,7 @@ import { useOtaUpdate } from "@/hooks/use-ota-update";
 import { useStudyReminder } from "@/hooks/use-study-reminder";
 import { useResolvedColorScheme } from "@/hooks/use-theme";
 import { initAds } from "@/lib/ads";
+import { trackEvent } from "@/lib/analytics";
 import { captureHandledError, initMonitoring } from "@/lib/monitoring";
 import { subscribeToNotificationRouting } from "@/notifications/notification-routing";
 import { configureStudyNotificationHandler } from "@/notifications/study-reminder";
@@ -104,9 +105,10 @@ function AppLayout() {
     if (onboardingCompleted && pathname === "/onboarding") router.replace("/");
   }, [isEnrollmentLoading, onboardingCompleted, pathname]);
 
-  // 포그라운드 학습 리마인더 표시 준비
+  // 포그라운드 학습 리마인더 표시 준비·앱 실행 기록
   useEffect(() => {
     void configureStudyNotificationHandler();
+    trackEvent("app_open");
   }, []);
 
   // 알림 선택·콜드 스타트 화면 이동 연결

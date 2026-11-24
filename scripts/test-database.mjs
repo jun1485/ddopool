@@ -427,6 +427,36 @@ try {
     userA,
   );
   console.log("출처 증빙 비공개·투표 가시성·반복 제한·토큰 소유권 검증 통과");
+
+  // 앱 사용 이벤트 익명 기록과 직접 조회·작성 차단
+  await db.exec("set role anonymous");
+  await db.exec(
+    "select public.record_app_event('install-test-1','quiz_finish','test-exam',80,'practice','android','1.2.0')",
+  );
+  await assert.rejects(
+    db.exec("select public.record_app_event('install-test-1','unknown_event')"),
+    /check/,
+  );
+  await assert.rejects(
+    db.exec("select * from public.app_events"),
+    /permission denied/,
+  );
+  await assert.rejects(
+    db.exec(
+      "insert into public.app_events(install_id,name) values('install-test-2','app_open')",
+    ),
+    /permission denied/,
+  );
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select value from public.app_events where install_id='install-test-1'",
+      )
+    ).rows[0].value,
+    80,
+  );
+  console.log("앱 사용 이벤트 익명 기록·직접 조회 차단 검증 통과");
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;
