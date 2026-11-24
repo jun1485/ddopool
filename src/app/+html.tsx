@@ -25,6 +25,10 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
+        <meta
+          name="google-site-verification"
+          content="RFv4Yn5FYF9ZYz4ZxIi-GP7VyTFLVak2ehoy6xeN8y0"
+        />
         <meta name="application-name" content={SITE_NAME} />
         <meta name="theme-color" content="#FFFFFF" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

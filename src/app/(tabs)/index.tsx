@@ -165,10 +165,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <PageHead
-        title="컴활·정처기 자격증 기출문제 CBT"
-        description="컴활·정보처리기사·SQLD·한국사 등 자격증 기출문제를 풀고 틀린 문제만 다시 푸는 오답노트 학습 앱."
-      />
+      <PageHead title="산업안전기사·정처기·SQLD 자격증 문제 풀이" />
       <SafeAreaView edges={TabScreenEdges} style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.content}
