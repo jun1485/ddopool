@@ -11,13 +11,19 @@
     "preview": {
       "distribution": "internal",
       "channel": "preview",
-      "env": { "SENTRY_DISABLE_AUTO_UPLOAD": "true" },
+      "env": {
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_TEST_ADS": "1"
+      },
       "android": { "buildType": "apk" }
     },
     "preview-aab": {
       "distribution": "internal",
       "channel": "preview",
-      "env": { "SENTRY_DISABLE_AUTO_UPLOAD": "true" },
+      "env": {
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_TEST_ADS": "1"
+      },
       "android": { "buildType": "app-bundle" }
     },
     "production": {

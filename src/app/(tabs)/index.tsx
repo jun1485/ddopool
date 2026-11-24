@@ -8,6 +8,7 @@ import { ActiveSessionCard } from "@/components/active-session-card";
 import { DailyStudyPlanCard } from "@/components/daily-study-plan-card";
 import { HomeExamRow } from "@/components/home-exam-row";
 import { MotionPressable as Pressable } from "@/components/motion-pressable";
+import { NativeAdCard } from "@/components/native-ad-card";
 import { PageHead } from "@/components/page-head";
 import { PullRefreshControl } from "@/components/pull-refresh-control";
 import { SectionHeader } from "@/components/section-header";
@@ -312,6 +313,8 @@ export default function HomeScreen() {
               </Pressable>
             )}
           </View>
+
+          <NativeAdCard />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
